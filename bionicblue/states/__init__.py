@@ -17,8 +17,12 @@ from .mainmenu import MainMenu
 
 from .controlsscreen import ControlsScreen
 
-#from .optionscreen import OptionsScreen
-#from .endscreen import EndScreen
+from .optionsscreen import OptionsScreen
+
+from .playtestersscreen import PlaytestersScreen
+
+#from .creditsroller import CreditsRoller
+
 
 
 def setup_states():
@@ -36,7 +40,10 @@ def setup_states():
     states.title_screen = TitleScreen()
     states.main_menu = MainMenu()
     states.controls_screen = ControlsScreen()
-    #states.options_screen = OptionsScreen()
+    states.options_screen = OptionsScreen()
+    states.playtesters_screen = PlaytestersScreen()
+    #states.credits_roller = CreditsRoller()
+
 
 def get_game_state():
     """Pick appropriate gameplay state, prepare and return it."""

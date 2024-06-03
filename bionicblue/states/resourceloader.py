@@ -48,6 +48,8 @@ from ..classes2d.single import UIObject2D
 
 from ..exceptions import SwitchStateException
 
+from ..userprefsman.main import USER_PREFS
+
 
 
 ALLOWED_SOUND_FILE_EXTENSIONS = frozenset(('.ogg', '.wav'))
@@ -143,8 +145,18 @@ class ResourceLoader:
 
             ### create title label
 
-            title_text_surf = (
-                render_text('Bionic Blue', 'regular', 38, 0, 'dodgerblue')
+            text_settings = 'regular', 38, 0, 'dodgerblue'
+
+            _bionic_text_surf = render_text('Bionic', *text_settings)
+            _blue_text_surf = render_text('Blue', *text_settings)
+
+            bionic_blue_text_surf = (
+                combine_surfaces(
+                    [_bionic_text_surf, _blue_text_surf],
+                    retrieve_pos_from='bottomright',
+                    assign_pos_to='topright',
+                    offset_pos_by=(0, -7),
+                )
             )
 
             author_name_surf = (
@@ -154,13 +166,23 @@ class ResourceLoader:
             REFS.bb_title = (
                 UIObject2D.from_surface(
                     combine_surfaces(
-                        [title_text_surf, author_name_surf],
-                        retrieve_pos_from = 'topleft',
-                        assign_pos_to = 'bottomleft',
-                        offset_pos_by = (0, 5),
+                        [bionic_blue_text_surf, author_name_surf],
+                        retrieve_pos_from ='topleft',
+                        assign_pos_to ='bottomleft',
+                        offset_pos_by =(0, 5),
                     )
                 )
             )
+
+            ### make it so volume settings take effect on system
+
+            sound_volume = (
+                (USER_PREFS['MASTER_VOLUME'] / 100)
+                * (USER_PREFS['SOUND_VOLUME'] / 100)
+            )
+
+            for sound in SOUND_MAP.values():
+                sound.set_volume(sound_volume)
 
             ### prepare logo screen
 
@@ -168,6 +190,7 @@ class ResourceLoader:
             logo_screen.prepare()
 
             raise SwitchStateException(logo_screen)
+
 
     def draw(self):
         update()
@@ -191,5 +214,4 @@ def load_anim_from_dir(dirpath):
 
 def load_sound_from_filepath(filepath):
     sound = Sound(str(filepath))
-    sound.set_volume(.2)
     return sound

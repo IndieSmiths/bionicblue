@@ -79,9 +79,10 @@ def validate_prefs_dict(prefs_dict):
     ### key existence
 
     for key in (
-        "FULLSCREEN",
+        "MASTER_VOLUME",
         "MUSIC_VOLUME",
-        "SFX_VOLUME",
+        "SOUND_VOLUME",
+        "FULLSCREEN",
         "LAST_USED_SAVE_SLOT",
         "KEYBOARD_CONTROL_NAMES",
         "GAMEPAD_CONTROLS",
@@ -93,23 +94,21 @@ def validate_prefs_dict(prefs_dict):
 
     ### volumes values
 
-    for key in ("MUSIC_VOLUME", "SFX_VOLUME"):
+    for key in ("MASTER_VOLUME", "MUSIC_VOLUME", "SOUND_VOLUME"):
 
         vol = prefs_dict[key]
 
-        if not isinstance(vol, float):
-            raise TypeError(f"'{key}' option must be a float")
+        if not isinstance(vol, int):
+            raise TypeError(f"'{key}' option must be an integer")
 
-        if not (0. <= vol <= 1.):
-            raise ValueError(f"'{key}' option's value must be from 0. to 1.")
+        if not 0 <= vol <= 100:
+            raise ValueError(f"'{key}' option's value must be from 0 to 100")
 
 
-    ### fullscreen values
+    ### fullscreen
 
-    fullscreen_value = prefs_dict['FULLSCREEN']
-
-    if not isinstance(fullscreen_value, bool):
-        raise TypeError("FULLSCREEN option must be a boolean (False or True)")
+    if not isinstance(prefs_dict['FULLSCREEN'], bool):
+        raise TypeError(f"FULLSCREEN option must be a boolean (False or True)")
 
 
     ### save slots
@@ -120,7 +119,7 @@ def validate_prefs_dict(prefs_dict):
         pass
 
     else:
-        raise TypeError("LAST_USED_SLOT must be None or a string")
+        raise TypeError("LAST_USED_SAVE_SLOT must be None or a string")
 
 
 

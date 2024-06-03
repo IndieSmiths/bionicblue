@@ -38,6 +38,8 @@ from ...ourstdlibs.pyl import load_pyl
 
 from ...textman import render_text
 
+from ...userprefsman.main import USER_PREFS
+
 from .player import Player
 
 from .backprops.citywall import CityWall
@@ -49,6 +51,7 @@ from .blocks.cityblock import CityBlock
 from .actors.gruntbot import GruntBot
 
 from .prototypemessage import message
+
 
 
 LAYER_DATA_PAIRS = [
@@ -100,7 +103,12 @@ class LevelManager:
 
     def prepare(self):
 
-        music.set_volume(.1)
+        music_volume = (
+            (USER_PREFS['MASTER_VOLUME']/100)
+            * (USER_PREFS['MUSIC_VOLUME']/100)
+        )
+
+        music.set_volume(music_volume)
         music.load(str(MUSIC_DIR / 'level_1_by_juhani_junkala.ogg'))
         music.play(-1)
 
