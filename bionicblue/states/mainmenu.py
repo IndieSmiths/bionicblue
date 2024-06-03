@@ -86,7 +86,7 @@ class MainMenu:
                 ('load_game', 'Load game'),
                 ('kbd_controls', 'Keyboard controls'),
                 ('gp_controls', 'Gamepad controls'),
-                ('options', 'Options (not implemented)'),
+                ('options', 'Options'),
                 ('exit', 'Exit game'),
             )
 
@@ -207,6 +207,9 @@ class MainMenu:
             controls_screen.prepare(item_key)
 
             raise SwitchStateException(controls_screen)
+
+        elif item_key == 'options':
+            raise SwitchStateException(REFS.states.options_screen)
 
         elif item_key == 'exit':
             quit_game()
