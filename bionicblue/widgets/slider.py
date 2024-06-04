@@ -7,7 +7,6 @@ from pygame import Surface
 from pygame.draw import (
     rect as draw_rect,
     polygon as draw_polygon,
-    circle as draw_circle,
 )
 
 from pygame.math import Vector2
@@ -33,12 +32,38 @@ def _get_slider_bg_surf():
 
 SLIDER_BG = _get_slider_bg_surf()
 
+
 def _get_cursor_surf():
 
     surf = Surface((7, 7)).convert()
+
+    surf.fill((255, 0, 0))
+    surf.set_colorkey((255, 0, 0))
+
+    rect = surf.get_rect()
+
+    points = tuple(
+
+        getattr(rect, attr_name)
+
+        for attr_name in (
+            'topleft',
+            'topright',
+            'midright',
+            'midbottom',
+            'midleft',
+        )
+
+    )
+
+    draw_polygon(surf, 'grey80', points)
+    draw_polygon(surf, 'black', points, width=2)
+
     return surf
 
+
 CURSOR_SURF = _get_cursor_surf()
+CURSOR_RECT = CURSOR_SURF.get_rect()
 
 
 
@@ -110,3 +135,12 @@ class HundredSlider(UIObject2D):
 
         ### finally set the value
         self.set(clamped_value)
+
+    def update_image(self):
+
+        image = self.image
+        image.blit(CLEAN_SLIDER_SURF, (0, 0))
+
+        CURSOR_RECT.centery = self.rect.centery
+        CURSOR_RECT.centerx = 5 + self.value
+        image.blit(CURSOR_SURF, CURSOR_RECT)
