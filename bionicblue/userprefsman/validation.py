@@ -93,6 +93,17 @@ def validate_prefs_dict(prefs_dict):
             raise KeyError(DICT_KEY_ERROR_FORMATTER(key))
 
 
+    ### keys added later
+
+    for key, default_value in (
+        ("MASTER_VOLUME", 100),
+        ("SAVE_PLAYTEST_DATA", False),
+    ):
+
+        if key not in prefs_dict:
+            prefs_dict[key] = default_value
+
+
     ### volumes values
 
     for key in ("MASTER_VOLUME", "MUSIC_VOLUME", "SFX_VOLUME"):

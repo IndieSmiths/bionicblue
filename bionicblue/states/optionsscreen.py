@@ -37,17 +37,18 @@ from ..pygamesetup.constants import (
 
 from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
-from ..ourstdlibs.behaviour import do_nothing
-
 from ..classes2d.single import UIObject2D
 
-from ..classes2d.collections import UIList2D
+from ..classes2d.collections import UIList2D, UISet2D
 
 from ..textman import render_text
 
 from ..userprefsman.main import save_config_on_disk
 
 from ..exceptions import SwitchStateException, BackToBeginningException
+
+from ..widgets.slider import HundredSlider
+from ..widgets.checkbutton import Checkbutton
 
 
 
@@ -57,7 +58,6 @@ LABEL_TEXT_SETTINGS = {
     'padding': 1,
     'foreground_color': 'white',
     'background_color': 'black',
-    
 }
 
 TITLE_TEXT_SETTINGS = {
@@ -66,15 +66,6 @@ TITLE_TEXT_SETTINGS = {
     'padding': 1,
     'foreground_color': 'white',
     'background_color': 'black',
-    
-}
-
-OPTIONS_WIDGETS_MAP = {
-    "MASTER_VOLUME": Slider,
-    "MUSIC_VOLUME": Slider,
-    "SFX_VOLUME": Slider,
-    "FULLSCREEN": Checkbutton,
-    "SAVE_PLAYTEST_DATA": Checkbutton,
 }
 
 
@@ -82,9 +73,6 @@ OPTIONS_WIDGETS_MAP = {
 class OptionsScreen:
 
     def __init__(self):
-
-        ###
-        self.update = do_nothing
 
         ###
 
@@ -110,18 +98,64 @@ class OptionsScreen:
 
         ###
 
-        option_labels = self.option_labels = UIList2D(
+        labels = self.option_labels = UIList2D()
+        widgets = self.widgets = UIList2D()
+        rows = self.widget_rows = UIList2D()
 
-            UIObject2D.from_surface(
-                render_text(
-                    text,
-                    **LABEL_TEXT_SETTINGS,
-                ),
+        for key, text, widget_class, value in (
+            ('MASTER_VOLUME', "Master volume", HundredSlider, 100),
+            ('MUSIC_VOLUME', "Music volume", HundredSlider, 100),
+            ('SFX_VOLUME', "Sound volume", HundredSlider, 100),
+            ('FULLSCREEN', "Enable full screen", Checkbutton, True),
+            ('SAVE_PLAYTEST_DATA', "Save playtest data", Checkbutton, True),
+        ):
+
+            ###
+
+            widget = (
+
+                widget_class(
+                    value=value,
+                    on_value_change=self.update_value_from_changed_widget,
+                )
+
             )
+            widgets.append(widget)
 
-            for text in option_texts
+            ###
 
-        )
+            label = (
+
+                UIObject2D.from_surface(
+                    render_text(
+                        text,
+                        **LABEL_TEXT_SETTINGS,
+                    ),
+                )
+            )
+            labels.append(label)
+
+            ###
+            rows.append(UISet2D((label, widget)))
+
+        ###
+
+        widgets.append(back_button)
+        widgets.append(reset_button)
+
+        self.widgets_to_update = [
+            widget
+            for widget in widgets
+            if hasattr(widget, 'update')
+        ]
+
+        rows.append(UISet2D([back_button]))
+        rows.append(UISet2D([reset_button]))
+
+        ###
+        self.item_count = len(widgets)
+
+        ###
 
         option_caption_label = self.option_caption_label = (
             UIObject2D.from_surface(
@@ -129,47 +163,40 @@ class OptionsScreen:
             )
         )
 
-        option_caption_label.rect.right = option_labels.rect.right
-        option_caption_label.rect.top = SCREEN_RECT.top + 10
-
         value_caption_label = self.value_caption_label = (
             UIObject2D.from_surface(
                 render_text('Value', **TITLE_TEXT_SETTINGS)
             )
         )
 
-        value_caption_label.rect.left = widgets.rect.left
-        value_caption_label.rect.top = SCREEN_RECT.top + 10
-
         ###
 
-        widgets.append(back_button)
-        widgets.append(reset_button)
+        value_caption_label.rect.topleft = SCREEN_RECT.move(5, 2).midtop
 
+        option_caption_label.rect.midright = (
+            value_caption_label.rect.move(-10, 0).midleft
+        )
+
+        ###
 
         widgets.rect.snap_rects_ip(
             retrieve_pos_from='bottomleft',
             assign_pos_to='topleft',
+            offset_pos_by=(0, 4),
         )
 
-        widgets.rect.bottomleft = SCREEN_RECT.move(5, -10).midbottom
+        widgets.rect.topleft = value_caption_label.rect.move(0, 2).bottomleft
 
-        for label, widget in zip(option_labels, widgets):
+        for label, widget in zip(labels, widgets):
             label.rect.midright = widget.rect.move(-10, 0).midleft
 
-        ###
-        screen_center = SCREEN_RECT.center
+    def update_value_from_changed_widget(self):
+        ...
 
-
-    def prepare(self, controls_type):
+    def prepare(self):
         
         self.current_index = 0
-        self.highlighted_control = self.control_labels[self.current_index]
-
-        ###
-
-        self.control = self.control_selection
-        self.draw = self.draw_controls
+        self.highlighted_widget = self.widgets[self.current_index]
 
     def control(self):
         
@@ -189,17 +216,38 @@ class OptionsScreen:
                         % self.item_count
                     )
 
-                    self.highlighted_control = (
-                        self.control_labels[self.current_index]
+                    self.highlighted_widget = (
+                        self.widgets[self.current_index]
                     )
 
                 elif event.key == K_RETURN:
-                    self.highlighted_control.command()
+
+                    try:
+                        command = self.highlighted_widget.command
+
+                    except AttributeError:
+
+                        try:
+                            on_mouse_click = self.highlighted_widget.on_mouse_click
+                        except AttributeError:
+                            pass
+
+                        else:
+                            on_mouse_click(event)
+
+                    else:
+                        command()
 
             elif event.type == JOYBUTTONDOWN:
 
                 if event.button == GAMEPAD_CONTROLS['start_button']:
-                    self.highlighted_control.command()
+
+                    try:
+                        command = self.highlighted_widget.command
+                    except AttributeError:
+                        pass
+                    else:
+                        command()
 
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 
@@ -212,14 +260,14 @@ class OptionsScreen:
                         % self.item_count
                     )
 
-                    self.highlighted_control = (
-                        self.control_labels[self.current_index]
+                    self.highlighted_widget = (
+                        self.widgets[self.current_index]
                     )
 
             elif event.type == MOUSEBUTTONDOWN:
 
                 if event.button == 1:
-                    self.act_if_control_under_mouse(event)
+                    self.on_mouse_click(event)
 
             elif event.type == MOUSEMOTION:
                 self.highlight_under_mouse(event)
@@ -237,18 +285,22 @@ class OptionsScreen:
 
         raise SwitchStateException(main_menu)
 
-    def act_if_control_under_mouse(self, event):
+    def on_mouse_click(self, event):
 
         pos = event.pos
 
-        for index, obj in enumerate(self.control_labels):
+        for index, obj in enumerate(self.widgets):
 
             if obj.rect.collidepoint(pos):
 
                 self.current_index = index
-                self.highlighted_control = obj
+                self.highlighted_widget = obj
 
-                obj.command()
+                if hasattr(obj, 'command'):
+                    obj.command()
+
+                elif hasattr(obj, 'on_mouse_click'):
+                    obj.on_mouse_click(event)
 
                 break
 
@@ -256,80 +308,20 @@ class OptionsScreen:
 
         pos = event.pos
 
-        for index, obj in enumerate(self.control_labels):
+        for index, obj in enumerate(self.widgets):
 
             if obj.rect.collidepoint(pos):
 
                 self.current_index = index
-                self.highlighted_control = obj
+                self.highlighted_widget = obj
 
                 break
 
-    def try_setting_new_control(self, event):
+    def update(self):
 
-        is_key = event.type == KEYDOWN
-
-        if is_key:
-            new_value = PYGAME_KEYS_NAME_MAP[event.key]
-
-
-        else:
-            new_value = event.button
-
-        ####
-
-        highlighted_control = self.highlighted_control
-
-        action_key = highlighted_control.key
-        old_value = highlighted_control.value
-
-        ###
-
-        non_option_buttons = self.non_option_buttons
-
-        if new_value == old_value:
-            self.show_dialog('already_set')
-
-        elif any(
-            new_value == control_label.value
-            for control_label in self.control_labels
-            if control_label not in non_option_buttons
-        ):
-            self.show_dialog('used_by_another')
-
-        else:
-
-            if is_key:
-
-                KEYBOARD_CONTROL_NAMES[action_key] = new_value
-                KEYBOARD_CONTROLS[action_key] = event.key
-
-                new_text = str_from_keyboard_control(new_value)
-
-            else:
-
-                GAMEPAD_CONTROLS[action_key] = new_value
-                new_text = str_from_gamepad_control(new_value)
-
-            ###
-
-            new_control_surf = render_text(new_text, **LABEL_TEXT_SETTINGS)
-
-            highlighted_control.image = new_control_surf
-            highlighted_control.rect.size = new_control_surf.get_size()
-
-            highlighted_control.value = new_value
-
-            ###
-            save_config_on_disk()
-
-            ###
-
-            self.control = self.control_selection
-            self.draw = self.draw_controls
-
-            raise BackToBeginningException
-
+        for widget in self.widgets_to_update:
+            widget.update()
+        
     def draw(self):
 
         blit_on_screen(BLACK_BG, (0, 0))
@@ -343,7 +335,7 @@ class OptionsScreen:
         draw_rect(
             SCREEN,
             'orange',
-            self.highlighted_control.rect,
+            self.highlighted_widget.rect,
             1,
         )
 

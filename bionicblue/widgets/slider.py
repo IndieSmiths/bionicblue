@@ -4,10 +4,7 @@
 
 from pygame import Surface
 
-from pygame.draw import (
-    rect as draw_rect,
-    polygon as draw_polygon,
-)
+from pygame.draw import rect as draw_rect
 
 from pygame.math import Vector2
 
@@ -16,16 +13,23 @@ from pygame.math import Vector2
 
 from ..pygamesetup import SERVICES_NS
 
+from ..ourstdlibs.behaviour import do_nothing
+
 from ..classes2d.single import UIObject2D
+
+from ..textman import render_text
 
 
 
 def _get_slider_bg_surf():
 
-    surf = Surface((110, 10)).convert()
-    surf.fill('grey40')
+    surf = Surface((135, 14)).convert()
+    surf.fill('black')
+
+    draw_rect(surf, 'grey40', (0, 0, 110, 14))
 
     thin_rectangle = surf.get_rect().inflate(-10, -8)
+    thin_rectangle.width = 100
     draw_rect(surf, 'grey80', thin_rectangle)
 
     return surf
@@ -35,35 +39,26 @@ SLIDER_BG = _get_slider_bg_surf()
 
 def _get_cursor_surf():
 
-    surf = Surface((7, 7)).convert()
-
-    surf.fill((255, 0, 0))
-    surf.set_colorkey((255, 0, 0))
-
-    rect = surf.get_rect()
-
-    points = tuple(
-
-        getattr(rect, attr_name)
-
-        for attr_name in (
-            'topleft',
-            'topright',
-            'midright',
-            'midbottom',
-            'midleft',
-        )
-
-    )
-
-    draw_polygon(surf, 'grey80', points)
-    draw_polygon(surf, 'black', points, width=2)
+    surf = Surface((2, 6)).convert()
+    surf.fill('blue')
 
     return surf
 
 
 CURSOR_SURF = _get_cursor_surf()
 CURSOR_RECT = CURSOR_SURF.get_rect()
+
+###
+
+LABEL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 1,
+    'foreground_color': 'white',
+    'background_color': 'black',
+}
+
+###
 
 
 
@@ -77,17 +72,24 @@ class HundredSlider(UIObject2D):
         coordinates_value=(0, 0),
     ):
 
-        self.image = CLEAN_SLIDER_SURF.copy()
-        self.rect = CLEAN_SLIDER_SURF.get_rect()
+        self.image = SLIDER_BG.copy()
+        self.rect = rect = SLIDER_BG.get_rect()
         self.on_value_change = on_value_change
         self.active = False
 
-        self.set(value, False)
+        self.value = int(value)
+        self.update_image()
+
+        setattr(
+            rect,
+            coordinates_name,
+            coordinates_value,
+        )
 
 
     ### update
 
-    def act_on_mouse_state(self):
+    def update(self):
 
         if self.active:
 
@@ -111,16 +113,19 @@ class HundredSlider(UIObject2D):
             else:
                 self.active = False
 
-    update = check_mouse_state
+    #update = act_on_mouse_state
 
     ###
 
     def set(self, value, execute_on_value_change=True):
 
-        self.value = value
+        if value != self.value:
 
-        if execute_on_value_change:
-            self.on_value_change()
+            self.value = value
+            self.update_image()
+
+            if execute_on_value_change:
+                self.on_value_change()
 
     def set_value_from_mouse_pos(self, mouse_x):
 
@@ -139,8 +144,16 @@ class HundredSlider(UIObject2D):
     def update_image(self):
 
         image = self.image
-        image.blit(CLEAN_SLIDER_SURF, (0, 0))
+        image.blit(SLIDER_BG, (0, 0))
 
-        CURSOR_RECT.centery = self.rect.centery
+        CURSOR_RECT.centery = self.rect.height // 2
         CURSOR_RECT.centerx = 5 + self.value
         image.blit(CURSOR_SURF, CURSOR_RECT)
+
+        number_text = str(self.value).rjust(3, ' ')
+
+        text_surf = render_text(number_text, **LABEL_TEXT_SETTINGS)
+        image.blit(text_surf, (110, 0))
+
+    def on_mouse_click(self, event):
+        self.active = True

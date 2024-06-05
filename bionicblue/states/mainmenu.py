@@ -209,7 +209,11 @@ class MainMenu:
             raise SwitchStateException(controls_screen)
 
         elif item_key == 'options':
-            raise SwitchStateException(REFS.states.options_screen)
+
+            options_screen = REFS.states.options_screen
+            options_screen.prepare()
+
+            raise SwitchStateException(options_screen)
 
         elif item_key == 'exit':
             quit_game()
