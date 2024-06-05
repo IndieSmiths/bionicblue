@@ -81,7 +81,7 @@ def validate_prefs_dict(prefs_dict):
     for key in (
         "MASTER_VOLUME",
         "MUSIC_VOLUME",
-        "SFX_VOLUME",
+        "SOUND_VOLUME",
         "FULLSCREEN",
         "SAVE_PLAYTEST_DATA",
         "LAST_USED_SAVE_SLOT",
@@ -93,34 +93,14 @@ def validate_prefs_dict(prefs_dict):
             raise KeyError(DICT_KEY_ERROR_FORMATTER(key))
 
 
-    ### keys added later
-
-    for key, default_value in (
-        ("MASTER_VOLUME", 100),
-        ("SAVE_PLAYTEST_DATA", False),
-    ):
-
-        if key not in prefs_dict:
-            prefs_dict[key] = default_value
-
-
     ### volumes values
 
-    for key in ("MASTER_VOLUME", "MUSIC_VOLUME", "SFX_VOLUME"):
+    for key in ("MASTER_VOLUME", "MUSIC_VOLUME", "SOUND_VOLUME"):
 
         vol = prefs_dict[key]
 
         if not isinstance(vol, int):
-
-            if (
-                isinstance(vol, float)
-                and 0. <= vol <= 1.
-            ):
-                vol = int(vol * 100)
-                prefs_dict[key] = vol
-
-            else:
-                raise TypeError(f"'{key}' option must be an integer")
+            raise TypeError(f"'{key}' option must be an integer")
 
         if not 0 <= vol <= 100:
             raise ValueError(f"'{key}' option's value must be from 0 to 100")
@@ -142,7 +122,7 @@ def validate_prefs_dict(prefs_dict):
         pass
 
     else:
-        raise TypeError("LAST_USED_SLOT must be None or a string")
+        raise TypeError("LAST_USED_SAVE_SLOT must be None or a string")
 
 
 

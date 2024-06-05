@@ -48,6 +48,8 @@ from ..classes2d.single import UIObject2D
 
 from ..exceptions import SwitchStateException
 
+from ..userprefsman.main import USER_PREFS
+
 
 
 ALLOWED_SOUND_FILE_EXTENSIONS = frozenset(('.ogg', '.wav'))
@@ -162,12 +164,23 @@ class ResourceLoader:
                 )
             )
 
+            ### make it so volume settings take effect on system
+
+            sound_volume = (
+                (USER_PREFS['MASTER_VOLUME'] / 100)
+                * (USER_PREFS['SOUND_VOLUME'] / 100)
+            )
+
+            for sound in SOUND_MAP.values():
+                sound.set_volume(sound_volume)
+
             ### prepare logo screen
 
             logo_screen = REFS.states.logo_screen
             logo_screen.prepare()
 
             raise SwitchStateException(logo_screen)
+
 
     def draw(self):
         update()
@@ -191,5 +204,4 @@ def load_anim_from_dir(dirpath):
 
 def load_sound_from_filepath(filepath):
     sound = Sound(str(filepath))
-    sound.set_volume(.2)
     return sound

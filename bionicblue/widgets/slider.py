@@ -1,5 +1,9 @@
 
 
+### standard library import
+from functools import partialmethod
+
+
 ### third-party imports
 
 from pygame import Surface
@@ -67,6 +71,7 @@ class HundredSlider(UIObject2D):
     def __init__(
         self,
         value=0,
+        name='slider',
         on_value_change=do_nothing,
         coordinates_name='topleft',
         coordinates_value=(0, 0),
@@ -74,6 +79,7 @@ class HundredSlider(UIObject2D):
 
         self.image = SLIDER_BG.copy()
         self.rect = rect = SLIDER_BG.get_rect()
+        self.name = name
         self.on_value_change = on_value_change
         self.active = False
 
@@ -126,6 +132,18 @@ class HundredSlider(UIObject2D):
 
             if execute_on_value_change:
                 self.on_value_change()
+
+    def get(self):
+        return self.value
+
+    def add(self, amount):
+
+        new_value = self.get() + amount
+        clamped_new_value = max(0, min(100, new_value))
+        self.set(clamped_new_value)
+
+    decrement = partialmethod(add, -1)
+    increment = partialmethod(add, 1)
 
     def set_value_from_mouse_pos(self, mouse_x):
 

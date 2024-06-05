@@ -82,9 +82,9 @@ DEFAULT_GAMEPAD_CONTROLS = {
 ### populated with default values
 
 DEFAULT_USER_PREFS = {
-    "MASTER_VOLUME": 50,
+    "MASTER_VOLUME": 20,
     "MUSIC_VOLUME": 20,
-    "SFX_VOLUME": 60,
+    "SOUND_VOLUME": 40,
     "FULLSCREEN": False,
     "SAVE_PLAYTEST_DATA": False,
     "LAST_USED_SAVE_SLOT": None,

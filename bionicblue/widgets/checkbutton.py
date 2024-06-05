@@ -56,6 +56,7 @@ class Checkbutton(UIObject2D):
     def __init__(
         self,
         value=False,
+        name='checkbutton',
         on_value_change=do_nothing,
         coordinates_name='topleft',
         coordinates_value=(0, 0),
@@ -64,6 +65,9 @@ class Checkbutton(UIObject2D):
         ###
         self.value = bool(value)
         self.image = TRUE_SURF if self.value else FALSE_SURF
+
+        ###
+        self.name = name
 
         ###
         self.rect = rect = Rect(RECT_DATA)
@@ -90,5 +94,14 @@ class Checkbutton(UIObject2D):
             self.value = new_value
             self.image = TRUE_SURF if new_value else FALSE_SURF
 
-    def on_mouse_click(self, event):
+            if execute_on_value_change:
+                self.on_value_change()
+
+    def get(self):
+        return self.value
+
+    def toggle_value(self):
         self.set(not self.value)
+
+    def on_mouse_click(self, event):
+        self.toggle_value()

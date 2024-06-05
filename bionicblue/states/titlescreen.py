@@ -37,6 +37,8 @@ from ..textman import render_text
 
 from ..classes2d.single import UIObject2D
 
+from ..userprefsman.main import USER_PREFS
+
 
 
 class TitleScreen:
@@ -91,7 +93,12 @@ class TitleScreen:
 
         ###
 
-        music.set_volume(.1)
+        music_volume = (
+            (USER_PREFS['MASTER_VOLUME']/100)
+            * (USER_PREFS['MUSIC_VOLUME']/100)
+        )
+
+        music.set_volume(music_volume)
         music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
         music.play(-1)
 

@@ -1,31 +1,43 @@
+"""Facility for options screen."""
+
+### standard library import
+from random import choice
 
 
 ### third-party imports
 
 from pygame.locals import (
+
+    SCALED,
+    FULLSCREEN,
+
     QUIT,
     KEYDOWN,
     K_ESCAPE,
     K_UP, K_DOWN,
+    K_LEFT, K_RIGHT,
     K_RETURN,
     JOYBUTTONDOWN,
     MOUSEMOTION,
     MOUSEBUTTONDOWN,
 )
 
-from pygame.display import update
+from pygame.display import set_mode, update
+
+from pygame.mixer import music, get_busy
 
 from pygame.draw import rect as draw_rect
 
 
 ### local imports
 
-from ..config import REFS, quit_game
+from ..config import REFS, SOUND_MAP, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
 from ..pygamesetup.constants import (
     SCREEN,
+    SIZE,
     SCREEN_COPY,
     SCREEN_RECT,
     BLACK_BG,
@@ -43,7 +55,11 @@ from ..classes2d.collections import UIList2D, UISet2D
 
 from ..textman import render_text
 
-from ..userprefsman.main import save_config_on_disk
+from ..userprefsman.main import (
+    USER_PREFS,
+    DEFAULT_USER_PREFS,
+    save_config_on_disk,
+)
 
 from ..exceptions import SwitchStateException, BackToBeginningException
 
@@ -89,6 +105,7 @@ class OptionsScreen:
 
         )
 
+        reset_button.command = self.reset_to_defaults
         back_button.command = self.go_back
 
         self.reset_button = reset_button
@@ -102,12 +119,12 @@ class OptionsScreen:
         widgets = self.widgets = UIList2D()
         rows = self.widget_rows = UIList2D()
 
-        for key, text, widget_class, value in (
-            ('MASTER_VOLUME', "Master volume", HundredSlider, 100),
-            ('MUSIC_VOLUME', "Music volume", HundredSlider, 100),
-            ('SFX_VOLUME', "Sound volume", HundredSlider, 100),
-            ('FULLSCREEN', "Enable full screen", Checkbutton, True),
-            ('SAVE_PLAYTEST_DATA', "Save playtest data", Checkbutton, True),
+        for key, text, widget_class in (
+            ('MASTER_VOLUME', "Master volume", HundredSlider),
+            ('MUSIC_VOLUME', "Music volume", HundredSlider),
+            ('SOUND_VOLUME', "Sound volume", HundredSlider),
+            ('FULLSCREEN', "Enable full screen", Checkbutton),
+            ('SAVE_PLAYTEST_DATA', "Save playtest data", Checkbutton),
         ):
 
             ###
@@ -115,11 +132,13 @@ class OptionsScreen:
             widget = (
 
                 widget_class(
-                    value=value,
+                    value=USER_PREFS[key],
+                    name=key,
                     on_value_change=self.update_value_from_changed_widget,
                 )
 
             )
+
             widgets.append(widget)
 
             ###
@@ -143,11 +162,11 @@ class OptionsScreen:
         widgets.append(back_button)
         widgets.append(reset_button)
 
-        self.widgets_to_update = [
+        self.widgets_to_update = tuple(
             widget
             for widget in widgets
             if hasattr(widget, 'update')
-        ]
+        )
 
         rows.append(UISet2D([back_button]))
         rows.append(UISet2D([reset_button]))
@@ -190,13 +209,18 @@ class OptionsScreen:
         for label, widget in zip(labels, widgets):
             label.rect.midright = widget.rect.move(-10, 0).midleft
 
-    def update_value_from_changed_widget(self):
-        ...
-
     def prepare(self):
         
         self.current_index = 0
         self.highlighted_widget = self.widgets[self.current_index]
+
+        if not hasattr(self, 'shot_sound_names'):
+
+            self.shot_sound_names = tuple(
+                sound_name
+                for sound_name in SOUND_MAP
+                if 'shot' in sound_name
+            )
 
     def control(self):
         
@@ -220,34 +244,44 @@ class OptionsScreen:
                         self.widgets[self.current_index]
                     )
 
-                elif event.key == K_RETURN:
+                elif event.key in (K_LEFT, K_RIGHT):
 
-                    try:
-                        command = self.highlighted_widget.command
+                    hw = self.highlighted_widget
 
-                    except AttributeError:
+                    if isinstance(hw, HundredSlider):
 
-                        try:
-                            on_mouse_click = self.highlighted_widget.on_mouse_click
-                        except AttributeError:
-                            pass
+                        if event.key == K_LEFT:
+                            hw.decrement()
 
                         else:
-                            on_mouse_click(event)
+                            hw.increment()
 
-                    else:
-                        command()
+                    elif isinstance(hw, Checkbutton):
+                        hw.toggle_value()
+
+                elif event.key == K_RETURN:
+
+                    hw = self.highlighted_widget
+
+                    if hasattr(hw, 'command'):
+                        hw.command()
+
+                    elif hasattr(hw, 'on_mouse_click'):
+                        hw.on_mouse_click(event)
+
 
             elif event.type == JOYBUTTONDOWN:
 
                 if event.button == GAMEPAD_CONTROLS['start_button']:
 
-                    try:
-                        command = self.highlighted_widget.command
-                    except AttributeError:
-                        pass
-                    else:
-                        command()
+                    hw = self.highlighted_widget
+
+                    if hasattr(hw, 'command'):
+                        hw.command()
+
+                    elif hasattr(hw, 'on_mouse_click'):
+                        hw.on_mouse_click(event)
+
 
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 
@@ -264,6 +298,21 @@ class OptionsScreen:
                         self.widgets[self.current_index]
                     )
 
+                elif event.direction in ('left', 'right'):
+
+                    hw = self.highlighted_widget
+
+                    if isinstance(hw, HundredSlider):
+
+                        if event.direction == 'left':
+                            hw.decrement()
+
+                        else:
+                            hw.increment()
+
+                    elif isinstance(hw, Checkbutton):
+                        hw.toggle_value()
+
             elif event.type == MOUSEBUTTONDOWN:
 
                 if event.button == 1:
@@ -277,6 +326,93 @@ class OptionsScreen:
 
             elif event.type == QUIT:
                 quit_game()
+
+    def reset_to_defaults(self):
+
+        ###
+
+        for key, value in DEFAULT_USER_PREFS.items():
+
+            ### if value is not a dict, we override it
+            ###
+            ### we ignore dicts cause they contain keyboard or
+            ### gamepad controls, and those should be set/reset
+            ### from the dedicated keyboard control or gamepad
+            ### control screens
+
+            if not isinstance(value, dict):
+                USER_PREFS[key] = value
+
+        ###
+        save_config_on_disk()
+
+    def update_value_from_changed_widget(self):
+
+        for widget in self.widgets:
+
+            ### ignore widgets which don't have a 'get' method
+
+            if not hasattr(widget, 'get'):
+                continue
+
+            ### otherwise check whether its value changed,
+            ### taking appropriate measures if so
+
+            value = widget.get()
+            option_key = widget.name
+
+            if value != USER_PREFS[option_key]:
+
+                ## update value in user preferences
+                USER_PREFS[option_key] = value
+
+                ## setup system so new value is taken into account
+                self.update_system_for_option(option_key)
+
+                ## save on disk
+                save_config_on_disk()
+
+                break
+
+    def update_system_for_option(self, option_key):
+
+        if option_key == 'MASTER_VOLUME':
+
+            self.update_music_volume()
+            self.update_sound_volume()
+
+        elif option_key == 'MUSIC_VOLUME':
+            self.update_music_volume()
+
+        elif option_key == 'SOUND_VOLUME':
+            self.update_sound_volume()
+
+        elif option_key == 'FULLSCREEN':
+
+            flag = SCALED | (FULLSCREEN if USER_PREFS['FULLSCREEN'] else 0)
+            set_mode(SIZE, flag)
+
+    def update_music_volume(self):
+
+        music_volume = (
+            (USER_PREFS['MASTER_VOLUME']/100)
+            * (USER_PREFS['MUSIC_VOLUME']/100)
+        )
+
+        music.set_volume(music_volume)
+
+    def update_sound_volume(self):
+
+        sound_volume = (
+            (USER_PREFS['MASTER_VOLUME'] / 100)
+            * (USER_PREFS['SOUND_VOLUME'] / 100)
+        )
+
+        for sound in SOUND_MAP.values():
+            sound.set_volume(sound_volume)
+
+        if not get_busy():
+            SOUND_MAP[choice(self.shot_sound_names)].play()
 
     def go_back(self):
 
