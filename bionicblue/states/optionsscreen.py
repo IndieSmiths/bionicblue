@@ -63,8 +63,8 @@ from ..userprefsman.main import (
 
 from ..exceptions import SwitchStateException, BackToBeginningException
 
-from ..widgets.slider import HundredSlider
-from ..widgets.checkbutton import Checkbutton
+from ..widget.slider import HundredSlider
+from ..widget.checkbutton import Checkbutton
 
 
 
