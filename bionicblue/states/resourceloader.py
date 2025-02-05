@@ -145,8 +145,18 @@ class ResourceLoader:
 
             ### create title label
 
-            title_text_surf = (
-                render_text('Bionic Blue', 'regular', 38, 0, 'dodgerblue')
+            text_settings = 'regular', 38, 0, 'dodgerblue'
+
+            _bionic_text_surf = render_text('Bionic', *text_settings)
+            _blue_text_surf = render_text('Blue', *text_settings)
+
+            bionic_blue_text_surf = (
+                combine_surfaces(
+                    [_bionic_text_surf, _blue_text_surf],
+                    retrieve_pos_from='bottomright',
+                    assign_pos_to='topright',
+                    offset_pos_by=(0, -7),
+                )
             )
 
             author_name_surf = (
@@ -156,10 +166,10 @@ class ResourceLoader:
             REFS.bb_title = (
                 UIObject2D.from_surface(
                     combine_surfaces(
-                        [title_text_surf, author_name_surf],
-                        retrieve_pos_from = 'topleft',
-                        assign_pos_to = 'bottomleft',
-                        offset_pos_by = (0, 5),
+                        [bionic_blue_text_surf, author_name_surf],
+                        retrieve_pos_from ='topleft',
+                        assign_pos_to ='bottomleft',
+                        offset_pos_by =(0, 5),
                     )
                 )
             )

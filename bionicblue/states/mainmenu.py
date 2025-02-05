@@ -166,7 +166,16 @@ class MainMenu:
             assign_pos_to='midtop', 
         )
 
-        items.rect.midbottom = SCREEN_RECT.move(0, -10).midbottom
+        ### put items centered on the second horizontal
+        ### half of the screen
+
+        _scopy = SCREEN_RECT.copy()
+        _scopy.width /= 2
+        _scopy.left = _scopy.right
+
+        items.rect.center = _scopy.center
+
+        ###
 
         self.items_left = items.rect.left
 
@@ -188,7 +197,7 @@ class MainMenu:
         highlighted_obj.image = self.highlighted_surf_map[highlighted_obj.key]
 
         REFS.blue_boy.rect.centery = highlighted_obj.rect.centery
-        REFS.blue_boy.rect.right = self.items_left - 20
+        REFS.blue_boy.rect.right = self.items_left - 10
 
     def execute_selected(self):
 
