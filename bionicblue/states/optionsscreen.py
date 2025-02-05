@@ -124,7 +124,6 @@ class OptionsScreen:
             ('MUSIC_VOLUME', "Music volume", HundredSlider),
             ('SOUND_VOLUME', "Sound volume", HundredSlider),
             ('FULLSCREEN', "Enable full screen", Checkbutton),
-            ('SAVE_PLAYTEST_DATA', "Save playtest data", Checkbutton),
         ):
 
             ###

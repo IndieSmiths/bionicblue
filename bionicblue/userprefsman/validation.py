@@ -83,7 +83,6 @@ def validate_prefs_dict(prefs_dict):
         "MUSIC_VOLUME",
         "SOUND_VOLUME",
         "FULLSCREEN",
-        "SAVE_PLAYTEST_DATA",
         "LAST_USED_SAVE_SLOT",
         "KEYBOARD_CONTROL_NAMES",
         "GAMEPAD_CONTROLS",
@@ -106,12 +105,10 @@ def validate_prefs_dict(prefs_dict):
             raise ValueError(f"'{key}' option's value must be from 0 to 100")
 
 
-    ### fullscreen and playtest data saving
+    ### fullscreen
 
-    for key in ('FULLSCREEN', 'SAVE_PLAYTEST_DATA'):
-
-        if not isinstance(prefs_dict[key], bool):
-            raise TypeError(f"{key} option must be a boolean (False or True)")
+    if not isinstance(prefs_dict['FULLSCREEN'], bool):
+        raise TypeError(f"FULLSCREEN option must be a boolean (False or True)")
 
 
     ### save slots
