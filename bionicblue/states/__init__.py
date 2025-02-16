@@ -19,6 +19,8 @@ from .controlsscreen import ControlsScreen
 
 from .optionsscreen import OptionsScreen
 
+from .playtestersscreen import PlaytestersScreen
+
 #from .creditsroller import CreditsRoller
 
 
@@ -39,6 +41,7 @@ def setup_states():
     states.main_menu = MainMenu()
     states.controls_screen = ControlsScreen()
     states.options_screen = OptionsScreen()
+    states.playtesters_screen = PlaytestersScreen()
     #states.credits_roller = CreditsRoller()
 
 

@@ -92,7 +92,7 @@ class OptionsScreen:
 
         ###
 
-        reset_button, back_button = (
+        reset_button, back_button, playtesting_button = (
 
             UIObject2D.from_surface(
                 render_text(
@@ -101,17 +101,25 @@ class OptionsScreen:
                 )
             )
 
-            for text in ('Reset to defaults', 'Back')
+            for text in (
+                'Reset to defaults',
+                'Back',
+                'Playtesters screen',
+            )
 
         )
 
         reset_button.command = self.reset_to_defaults
         back_button.command = self.go_back
+        playtesting_button.command = self.to_playtesters_screen
 
-        self.reset_button = reset_button
-        self.back_button = back_button
-
-        self.non_option_buttons = frozenset((reset_button, back_button))
+        self.non_option_buttons = frozenset(
+            (
+                reset_button,
+                back_button,
+                playtesting_button,
+            )
+        )
 
         ###
 
@@ -158,8 +166,7 @@ class OptionsScreen:
 
         ###
 
-        widgets.append(back_button)
-        widgets.append(reset_button)
+        widgets.extend(self.non_option_buttons)
 
         self.widgets_to_update = tuple(
             widget
@@ -167,6 +174,7 @@ class OptionsScreen:
             if hasattr(widget, 'update')
         )
 
+        rows.append(UISet2D([playtesting_button]))
         rows.append(UISet2D([back_button]))
         rows.append(UISet2D([reset_button]))
 
@@ -419,6 +427,11 @@ class OptionsScreen:
         main_menu.prepare()
 
         raise SwitchStateException(main_menu)
+
+    def to_playtesters_screen(self):
+
+        playtesters_screen = REFS.states.playtesters_screen 
+        raise SwitchStateException(playtesters_screen)
 
     def on_mouse_click(self, event):
 
