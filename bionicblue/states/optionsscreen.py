@@ -431,6 +431,8 @@ class OptionsScreen:
     def to_playtesters_screen(self):
 
         playtesters_screen = REFS.states.playtesters_screen 
+        playtesters_screen.prepare()
+
         raise SwitchStateException(playtesters_screen)
 
     def on_mouse_click(self, event):

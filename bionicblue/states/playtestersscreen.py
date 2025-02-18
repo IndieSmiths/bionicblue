@@ -1,49 +1,44 @@
 """Facility for playtesters screen."""
 
-### standard library import
-from random import choice
+### standard library imports
+
+from pathlib import Path
+
+from shutil import make_archive
 
 
 ### third-party imports
 
 from pygame.locals import (
 
-    SCALED,
-    FULLSCREEN,
-
     QUIT,
     KEYDOWN,
     K_ESCAPE,
     K_UP, K_DOWN,
-    K_LEFT, K_RIGHT,
     K_RETURN,
     JOYBUTTONDOWN,
     MOUSEMOTION,
     MOUSEBUTTONDOWN,
+
 )
 
-from pygame.display import set_mode, update
-
-from pygame.mixer import music, get_busy
+from pygame.display import update
 
 from pygame.draw import rect as draw_rect
 
 
 ### local imports
 
-from ..config import REFS, SOUND_MAP, quit_game
+from ..config import REFS, PLAYTEST_DATA_DIR, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
 from ..pygamesetup.constants import (
     SCREEN,
-    SIZE,
-    SCREEN_COPY,
     SCREEN_RECT,
     BLACK_BG,
     GAMEPADDIRECTIONALPRESSED,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
-    KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS,
     blit_on_screen,
 )
 
@@ -51,7 +46,7 @@ from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from ..classes2d.single import UIObject2D
 
-from ..classes2d.collections import UIList2D, UISet2D
+from ..classes2d.collections import UIList2D
 
 from ..textman import render_text
 
@@ -63,10 +58,7 @@ from ..userprefsman.main import (
     save_config_on_disk,
 )
 
-from ..exceptions import SwitchStateException, BackToBeginningException
-
-from ..widget.slider import HundredSlider
-from ..widget.checkbutton import Checkbutton
+from ..exceptions import SwitchStateException
 
 
 
@@ -140,13 +132,30 @@ def get_message_obj(text):
     return message_obj
 
 
+### TODO
+###
+### will probably save data according to different versions of the app;
+### ponder how to give users access to functionality like deleting the data,
+### or preventing it to be saved altogether;
+
 class PlaytestersScreen:
 
     def __init__(self):
 
         ###
 
-        back_button = (
+        self.caption = (
+            UIObject2D.from_surface(
+                render_text(
+                    "Playtesters screen",
+                    **TITLE_TEXT_SETTINGS
+                )
+            )
+        )
+
+        ###
+
+        back_button = self.back_button = (
 
             UIObject2D.from_surface(
                 render_text(
@@ -161,6 +170,24 @@ class PlaytestersScreen:
 
         ###
 
+        copy_button = self.copy_button = (
+
+            UIObject2D.from_surface(
+                render_text(
+                    'Copy playtest data to your HOME FOLDER',
+                    **LABEL_TEXT_SETTINGS,
+                )
+            )
+
+        )
+
+        copy_button.command = self.copy_playtest_data_to_home
+
+        ###
+        self.widgets = UIList2D()
+
+        ###
+
         messages = self.message_labels = (
             UIList2D(
                 get_message_obj(text) for text in MESSAGES
@@ -172,6 +199,43 @@ class PlaytestersScreen:
             assign_pos_to='topleft',
         )
 
+        ###
+
+        self.caption.rect.midtop = SCREEN_RECT.move(0, 4).midtop
+        messages.rect.midtop = self.caption.rect.move(0, 2).midbottom
+
+
+    def prepare(self):
+
+        widgets = self.widgets
+        widgets.clear()
+
+        if (
+
+            ## path must be a dir
+            PLAYTEST_DATA_DIR.is_dir()
+
+            ## only contain .pyl files
+            and {path.suffix.lower() for path in PLAYTEST_DATA_DIR.iterdir()} == {'.pyl'}
+
+            ## XXX perhaps we should have another step for validating the .pyl files?
+
+        ):
+            widgets.append(self.copy_button)
+
+        widgets.append(self.back_button)
+
+        widgets.rect.snap_rects_ip(
+            retrieve_pos_from='bottomright',
+            assign_pos_to='topright',
+            offset_pos_by=(0, 2),
+        )
+
+        widgets.rect.bottomright = SCREEN_RECT.move(-5, -5).bottomright
+
+        self.current_index = 0
+        self.highlighted_widget = self.widgets[self.current_index]
+        self.item_count = len(self.widgets)
 
     def control(self):
         
@@ -182,101 +246,78 @@ class PlaytestersScreen:
                 if event.key == K_ESCAPE:
                     self.go_back()
 
-#                elif event.key in (K_UP, K_DOWN):
-#
-#                    increment = -1 if event.key == K_UP else 1
-#
-#                    self.current_index = (
-#                        (self.current_index + increment)
-#                        % self.item_count
-#                    )
-#
-#                    self.highlighted_widget = (
-#                        self.widgets[self.current_index]
-#                    )
-#
-#                elif event.key in (K_LEFT, K_RIGHT):
-#
-#                    hw = self.highlighted_widget
-#
-#                    if isinstance(hw, HundredSlider):
-#
-#                        if event.key == K_LEFT:
-#                            hw.decrement()
-#
-#                        else:
-#                            hw.increment()
-#
-#                    elif isinstance(hw, Checkbutton):
-#                        hw.toggle_value()
-#
-#                elif event.key == K_RETURN:
-#
-#                    hw = self.highlighted_widget
-#
-#                    if hasattr(hw, 'command'):
-#                        hw.command()
-#
-#                    elif hasattr(hw, 'on_mouse_click'):
-#                        hw.on_mouse_click(event)
-#
-#
-#            elif event.type == JOYBUTTONDOWN:
-#
-#                if event.button == GAMEPAD_CONTROLS['start_button']:
-#
-#                    hw = self.highlighted_widget
-#
-#                    if hasattr(hw, 'command'):
-#                        hw.command()
-#
-#                    elif hasattr(hw, 'on_mouse_click'):
-#                        hw.on_mouse_click(event)
-#
-#
-#            elif event.type == GAMEPADDIRECTIONALPRESSED:
-#
-#                if event.direction in ('up', 'down'):
-#
-#                    increment = -1 if event.direction == 'up' else 1
-#
-#                    self.current_index = (
-#                        (self.current_index + increment)
-#                        % self.item_count
-#                    )
-#
-#                    self.highlighted_widget = (
-#                        self.widgets[self.current_index]
-#                    )
-#
-#                elif event.direction in ('left', 'right'):
-#
-#                    hw = self.highlighted_widget
-#
-#                    if isinstance(hw, HundredSlider):
-#
-#                        if event.direction == 'left':
-#                            hw.decrement()
-#
-#                        else:
-#                            hw.increment()
-#
-#                    elif isinstance(hw, Checkbutton):
-#                        hw.toggle_value()
-#
-#            elif event.type == MOUSEBUTTONDOWN:
-#
-#                if event.button == 1:
-#                    self.on_mouse_click(event)
-#
-#            elif event.type == MOUSEMOTION:
-#                self.highlight_under_mouse(event)
-#
-#            elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-#                setup_gamepad_if_existent()
-#
-#            elif event.type == QUIT:
-#                quit_game()
+                elif event.key in (K_UP, K_DOWN):
+
+                    increment = -1 if event.key == K_UP else 1
+
+                    self.current_index = (
+                        (self.current_index + increment)
+                        % self.item_count
+                    )
+
+                    self.highlighted_widget = (
+                        self.widgets[self.current_index]
+                    )
+
+                elif event.key == K_RETURN:
+
+                    self.highlighted_widget.command()
+
+
+            elif event.type == JOYBUTTONDOWN:
+
+                if event.button == GAMEPAD_CONTROLS['start_button']:
+
+                    self.highlighted_widget.command()
+
+            elif event.type == GAMEPADDIRECTIONALPRESSED:
+
+                if event.direction in ('up', 'down'):
+
+                    increment = -1 if event.direction == 'up' else 1
+
+                    self.current_index = (
+                        (self.current_index + increment)
+                        % self.item_count
+                    )
+
+                    self.highlighted_widget = (
+                        self.widgets[self.current_index]
+                    )
+
+            elif event.type == MOUSEBUTTONDOWN:
+
+                if event.button == 1:
+                    self.on_mouse_click(event)
+
+            elif event.type == MOUSEMOTION:
+                self.highlight_under_mouse(event)
+
+            elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
+                setup_gamepad_if_existent()
+
+            elif event.type == QUIT:
+                quit_game()
+
+    def copy_playtest_data_to_home(self):
+
+        try:
+
+            home_dir = Path.home()
+            home_name = home_dir.name
+
+            make_archive(
+                str(home_dir / f'{home_name}_bblue_playdata'),
+                'zip',
+                str(PLAYTEST_DATA_DIR),
+            )
+
+        # TODO replace prints with messages on screen
+
+        except Exception as err:
+            print("Something went wrong:" + str(err))
+        else:
+            print("Saved")
 
     def go_back(self):
 
@@ -318,25 +359,22 @@ class PlaytestersScreen:
                 break
 
     def update(self):
-        ...
+        """Do nothing."""
 
     def draw(self):
 
         blit_on_screen(BLACK_BG, (0, 0))
-        self.message_labels.draw()
 
-#        self.option_caption_label.draw()
-#        self.option_labels.draw()
-#
-#        self.value_caption_label.draw()
-#        self.widgets.draw()
-#
-#        draw_rect(
-#            SCREEN,
-#            'orange',
-#            self.highlighted_widget.rect,
-#            1,
-#        )
+        self.caption.draw()
+        self.message_labels.draw()
+        self.widgets.draw()
+
+        draw_rect(
+            SCREEN,
+            'orange',
+            self.highlighted_widget.rect,
+            1,
+        )
 
         update()
 

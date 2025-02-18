@@ -44,6 +44,14 @@ from ..userprefsman.main import USER_PREFS
 
 
 
+### TODO review title movement;
+###
+### that is, aafter we repositioned the elements in one
+### of the last changes, the title seems to "snap" a bit (I'm not sure how
+### to describe it);
+###
+### make it more smooth
+
 class TitleScreen:
 
     def prepare(self):
