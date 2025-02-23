@@ -9,8 +9,6 @@ from pygame.locals import QUIT
 
 from pygame.display import update
 
-from pygame.math import Vector2
-
 from pygame.mixer import music
 
 
@@ -44,14 +42,6 @@ from ..userprefsman.main import USER_PREFS
 
 
 
-### TODO review title movement;
-###
-### that is, aafter we repositioned the elements in one
-### of the last changes, the title seems to "snap" a bit (I'm not sure how
-### to describe it);
-###
-### make it more smooth
-
 class TitleScreen:
 
     def prepare(self):
@@ -66,23 +56,17 @@ class TitleScreen:
         _scopy.width /= 2
 
         ###
+        title_rect.centerx = _scopy.move(5, 0).centerx
+        title_rect.bottom = _scopy.top
 
-        title_rect.midtop = _scopy.move(5, 45).midtop
+        self.start_top = title_rect.top
+        self.end_top = _scopy.move(0, 45).top
 
-        end_midtop = title_rect.midtop
-
-        title_rect.midbottom = _scopy.move(5, 0).midtop
-
-        start_midtop = title_rect.midtop
-
-        _movement_duration_msecs = 3000 # milliseconds
+        _movement_duration_msecs = 2400 # milliseconds
         self.movement_duration_frames = round(_movement_duration_msecs / 1000 * FPS)
 
         self.current_movement_frame = 0
         self.last_movement_frame = self.movement_duration_frames - 1
-
-        self.start_midtop = Vector2(start_midtop)
-        self.end_midtop = Vector2(end_midtop)
 
         ###
 
@@ -130,11 +114,6 @@ class TitleScreen:
 
         )
 
-        # get copy of screen representing its second half
-        # when split from midtop to midbottom
-
-        _scopy = SCREEN_RECT.copy()
-        _scopy.width /= 2
         _scopy.midleft = _scopy.midright
 
         self.press_any_button.rect.center = _scopy.center
@@ -187,7 +166,8 @@ class TitleScreen:
         if self.current_movement_frame <= self.last_movement_frame:
 
             progress = self.current_movement_frame / self.movement_duration_frames
-            self.title_rect.midtop = self.start_midtop.lerp(self.end_midtop, progress)
+            top_increment = ((self.end_top - self.start_top) * progress)
+            self.title_rect.top = self.start_top +  top_increment
 
             REFS.blue_boy.rect.bottomleft = self.title_rect.move(12, -11).bottomleft
 
