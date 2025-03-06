@@ -79,15 +79,16 @@ TITLE_TEXT_SETTINGS = {
 }
 
 MESSAGES = (
-    "- After you play a few times, a button appears below",
-    (
-        "- just click the button and the play data is copied to"
-        " your HOME FOLDER"
-    ),
-    (
-        "- then please, contact me so we can figure out how to send"
-        " the data to me"
-    ),
+    "Playtesting and related tools aren't available yet",
+#    "- After you play a few times, a button appears below",
+#    (
+#        "- just click the button and the play data is copied to"
+#        " your HOME FOLDER"
+#    ),
+#    (
+#        "- then please, contact me so we can figure out how to send"
+#        " the data to me"
+#    ),
 )
 
 def get_message_obj(text):
