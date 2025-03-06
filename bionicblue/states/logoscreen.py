@@ -44,7 +44,7 @@ class LogoScreen:
             )
 
             for key, text in (
-                ('indiepython_logo.png', "The Indie Python project"),
+                ('indiepython_logo.png', "The Indie Smiths project"),
                 ('kennedy_logo.png', "A game by Kennedy R. S. Guerra"),
                 ('python_logo.png', "Powered by Python"),
                 ('pygame_logo.png', "Powered by pygame-ce"),

@@ -39,7 +39,7 @@ def ensure_pygame_ce():
         ##
         ## (but don't worry, we'll properly credit the library both in the
         ## game itself and its online content, like we already do in other
-        ## apps of the Indie Python project)
+        ## apps of the Indie Smiths project)
 
         with StringIO() as temp_stream:
 
