@@ -1,3 +1,54 @@
+[project]
+name = "bionicblue"
+dynamic = ["version"]
+dependencies = [
+    "pygame-ce",
+]
+authors = [
+  { name="Kennedy Richard", email="kennedy@kennedyrichard.com" },
+]
+description = "A bionic boy fights robots to protect humanity in this action platformer game"
+keywords = [
+    "gui",
+    "desktop",
+    "application",
+    "pygame",
+    "pygame-ce",
+    "game",
+    "indie",
+    "video game",
+]
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "License :: OSI Approved :: The Unlicense (Unlicense)",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Games/Entertainment",
+    "Topic :: Games/Entertainment :: Side-Scrolling/Arcade Games",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: pygame",
+    "Topic :: Desktop Environment",
+    "Topic :: Multimedia",
+    "Intended Audience :: End Users/Desktop",
+]
+license = { text="Unlicense" }
+
+[project.urls]
+Homepage = "https://bionicblue.indiesmiths.com"
+"Source Code" = "https://github.com/IndieSmiths/bionicblue"
+Forum = "https://github.com/IndieSmiths/bionicblue/discussions"
+"Bug Tracker" = "https://github.com/IndieSmiths/bionicblue/issues"
+Donate = "https://indiesmiths.com/donate"
+
+
+[project.gui-scripts]
+bionicblue = "bionicblue.__main__:run_game"
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=59.6"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "bionicblue.__version__"}
