@@ -4,6 +4,10 @@ Bionic Blue (by Kennedy Guerra): to know more about this game,
 visit its website: https://bionicblue.indiesmiths.com
 """
 
+### standard library import
+from argparse import ArgumentParser
+
+
 ### local imports
 
 ## first ensure pygame used is the community edition fork (pygame-ce);
@@ -31,16 +35,16 @@ from .exceptions import (
 
 
 
-def run_game():
+def run_game(debug_mode=False):
     """Run the game loop."""
 
     setup_states()
 
     state = REFS.states.resource_loader
 
-    setup_gamepad_if_existent()
+    REFS.debug_mode = debug_mode
 
-    running = True
+    setup_gamepad_if_existent()
 
     while True:
 
@@ -65,5 +69,24 @@ def run_game():
         except SwitchModeException as obj:
             switch_mode(obj)
 
+
+
 if __name__ == '__main__':
-    run_game()
+
+    ap = ArgumentParser(
+        description="Bionic Blue game launcher.",
+        epilog="Play to your heart's content!",
+    )
+
+    ap.add_argument(
+        '-b', '--debug',
+        action='store_true',
+        help=(
+            "Turns on flag used to facilitate debugging"
+            " and other similar measures."
+        ),
+    )
+
+    parsed_args = ap.parse_args()
+
+    run_game(parsed_args.debug)

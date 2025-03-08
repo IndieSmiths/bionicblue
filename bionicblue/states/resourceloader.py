@@ -184,12 +184,21 @@ class ResourceLoader:
             for sound in SOUND_MAP.values():
                 sound.set_volume(sound_volume)
 
-            ### prepare logo screen
+            ### if on debug mode, use title screen
+            ### as next state
 
-            logo_screen = REFS.states.logo_screen
-            logo_screen.prepare()
+            if REFS.debug_mode:
+                next_state = REFS.states.title_screen
 
-            raise SwitchStateException(logo_screen)
+            ### otherwise, use the logo screen
+
+            else:
+                next_state = REFS.states.logo_screen
+
+            ### prepare state and switch to it
+
+            next_state.prepare()
+            raise SwitchStateException(next_state)
 
 
     def draw(self):
