@@ -20,6 +20,7 @@ from .....config import (
 from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
 
 
+
 class DefaultProjectile:
 
     surf = Surface((3, 2)).convert()
@@ -32,7 +33,13 @@ class DefaultProjectile:
         self.x_speed = x_orientation * self.abs_speed
 
         self.image = self.surf
-        self.rect = self.image.get_rect()
+
+        self.rect = rect = self.image.get_rect()
+        self.colliderect = rect.colliderect
+
+        self.expanded_rect = rect.inflate(2, 0)
+        self.colliderect_expanded = self.expanded_rect.colliderect
+
         setattr(self.rect, pos_name, pos_value)
         SOUND_MAP['default_projectile_shot.wav'].play()
 
@@ -41,16 +48,23 @@ class DefaultProjectile:
 
     def update(self):
 
-        self.rect.x += self.x_speed
-        colliderect = self.rect.colliderect
+        self.rect.move_ip(self.x_speed, 0)
+
+        colliderect = self.colliderect
 
         if not colliderect(SCREEN_RECT):
+
             self.trigger_kill()
             return
 
+        exp_rect = self.expanded_rect
+        exp_rect.center = self.rect.center
+
+        colliderect_expanded = self.colliderect_expanded
+
         for actor in ACTORS_ON_SCREEN:
 
-            if colliderect(actor.rect):
+            if colliderect_expanded(actor.rect):
 
                 if actor.health > 0:
 
@@ -60,11 +74,13 @@ class DefaultProjectile:
 
                     self.trigger_kill()
                     SOUND_MAP['default_projectile_hit.wav'].play()
+
                     return
 
         for block in BLOCKS_ON_SCREEN:
 
             if colliderect(block.rect):
+
                 self.trigger_kill()
                 return
 
