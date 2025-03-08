@@ -1,10 +1,18 @@
+"""Facility for grunt bot enemy."""
+
 ### standard library import
 from functools import partial
 
 
 ### local imports
 
-from ....config import REFS, ACTORS, FRONT_PROPS, append_task
+from ....config import (
+    REFS,
+    ACTORS,
+    FRONT_PROPS,
+    BLOCKS_ON_SCREEN,
+    append_task,
+)
 
 from ....pygamesetup.constants import GENERAL_NS
 
@@ -18,6 +26,9 @@ from ..frontprops.defaultexplosion import DefaultExplosion
 
 
 
+WALK_SPEED = 1
+FLOOR_CHECK = 10
+
 
 class GruntBot:
 
@@ -28,6 +39,8 @@ class GruntBot:
         self.player = REFS.states.level_manager.player
 
         self.name = name
+
+        self.x_speed = -WALK_SPEED
 
         self.aniplayer = (
             AnimationPlayer2D(
@@ -40,7 +53,52 @@ class GruntBot:
 
     def update(self):
 
-        if self.player.rect.colliderect(self.rect):
+        x_speed = self.x_speed
+        rect = self.rect
+        colliderect = rect.colliderect
+
+        rect.move_ip(x_speed, 0)
+
+        for block in BLOCKS_ON_SCREEN:
+
+            if colliderect(block.rect):
+
+                if x_speed > 0:
+                    rect.right = block.rect.left
+                    self.aniplayer.switch_animation('idle_left')
+
+                else:
+                    rect.left = block.rect.right
+                    self.aniplayer.switch_animation('idle_right')
+
+                self.x_speed = -x_speed
+
+                break
+
+        else:
+
+            rect.move_ip(0, 1)
+
+            if not any(
+                colliderect(block.rect)
+                for block in BLOCKS_ON_SCREEN
+            ):
+
+                if x_speed > 0:
+                    self.aniplayer.switch_animation('idle_left')
+                else:
+                    self.aniplayer.switch_animation('idle_right')
+
+                self.x_speed = -x_speed
+                rect.move_ip(-x_speed, -1)
+
+            else:
+                rect.move_ip(0, -1)
+
+
+        ###
+
+        if colliderect(self.player.rect):
             self.player.damage(3)
 
         self.routine_check()
