@@ -1,7 +1,7 @@
 """Facility with function to run the Bionic Blue game.
 
 Bionic Blue (by Kennedy Guerra): to know more about this game,
-visit its website: https://bionicblue.indiepython.com
+visit its website: https://bionicblue.indiesmiths.com
 """
 
 ### local imports

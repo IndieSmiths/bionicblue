@@ -26,10 +26,10 @@ def get_message_surf():
             " ",
             "Please, consider supporting this",
             "project:",
-            "https://indiepython.com/donate",
+            "https://indiesmiths.com/donate",
             " ",
             "For more info:",
-            "https://bionicblue.indiepython.com",
+            "https://bionicblue.indiesmiths.com",
         )
 
     )
