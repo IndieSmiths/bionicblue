@@ -6,6 +6,8 @@ from pygame import (
     Surface,
 )
 
+from pygame.math import Vector2
+
 from pygame.color import THECOLORS
 
 from pygame.display import update
@@ -54,12 +56,131 @@ from .prototypemessage import message
 
 
 
+### module level objs
+
+## vector representing first point where there's content
+## in the level, that is, the topleft of the topleftmost
+## object, or (0, 0) if the level is empty
+##
+## this point is used as the starting point from where to place
+## level chunks
+content_origin = Vector2()
+
 LAYER_DATA_PAIRS = [
     (BACK_PROPS, 'backprops'),
     (MIDDLE_PROPS, 'middleprops'),
     (BLOCKS, 'blocks'),
     (ACTORS, 'actors'),
 ]
+
+LAYER_NAMES = [item[1] for item in LAYER_DATA_PAIRS]
+
+### define a vicinity rect
+###
+### it is a rect equivalent to the SCREEN after we increase it in all four
+### directions by its own dimensions, centered on the screen
+###
+### it is used to detect chunks of the level adjacent to the screen
+### (the screen is the visible area)
+###   _________________________________
+###  |                ^                |
+###  |  VICINITY      |                |
+###  |  RECT          |                |
+###  |           _____|_____           |
+###  |          |           |          |
+###  |<---------|  SCREEN   |--------->|
+###  |          |   RECT    |          |
+###  |          |___________|          |
+###  |                |                |
+###  |                |                |
+###  |                |                |
+###  |________________v________________|
+
+VICINITY_RECT = (
+    SCREEN_RECT.inflate(SCREEN_RECT.width * 2, SCREEN_RECT.height * 2)
+)
+
+VICINITY_WIDTH, VICINITY_HEIGHT = VICINITY_RECT.size
+vicinity_colliderect = VICINITY_RECT.colliderect
+
+CHUNKS = set()
+
+CHUNKS_IN = set()
+CHUNKS_IN_TEMP = set()
+
+class LevelChunk:
+
+    def __init__(self, rect, objs):
+
+        ### instantiate rect
+        self.rect = rect.copy()
+
+        ### store objs
+        self.objs = objs
+
+        ### create and store layers
+
+        for layer_name in LAYER_NAMES:
+            setattr(self, layer_name, set())
+
+        ### create and store center map, a map to store the
+        ### center of each object relative to this chunk's topleft
+        ###
+        ### also create a local reference to it and an attribute
+        ### referencing its item getter method
+
+        center_map = self.center_map = {}
+        self.get_center = center_map.__getitem__
+
+        ### iterate over objects...
+        ###
+        ### - storing them in layers
+        ### - storing objects centers relative to level's topleft
+
+        topleft = self.rect.topleft
+
+        for obj in objs:
+
+            obj.chunk = self
+
+            getattr(self, obj.layer_name).add(obj)
+
+            center_map[obj] = tuple(
+                chunk_pos - obj_center_pos
+                for chunk_pos, obj_center_pos in zip(topleft, obj.rect.center)
+            )
+
+    def position_objs(self):
+
+        get_center = self.get_center
+
+        topleft = self.rect.topleft
+
+        for obj in self.objs:
+
+            obj.rect.center = tuple(
+                chunk_pos - obj_center_offset
+                for chunk_pos, obj_center_offset in zip(topleft, get_center(obj))
+            )
+
+    def add_obj(self, obj):
+
+        obj.chunk = self
+
+        self.objs.add(obj)
+
+        getattr(self, obj.layer_name).add(obj)
+
+        self.center_map[obj] = tuple(
+            chunk_pos - obj_center_pos
+            for chunk_pos, obj_center_pos in zip(self.rect.topleft, obj.rect.center)
+        )
+
+    def remove_obj(self, obj):
+
+        self.objs.remove(obj)
+        getattr(self, obj.layer_name).remove(obj)
+        self.center_map.pop(obj)
 
 
 class LevelManager:
@@ -120,6 +241,12 @@ class LevelManager:
         self.state = self
 
         ### get level data and instantiate objects
+        instantiate_and_group_objects()
+
+        ###
+        VICINITY_RECT.center = SCREEN_RECT.center
+
+    def instantiate_and_group_objects(self):
 
         level_name = REFS.data['level_name']
 
@@ -134,16 +261,99 @@ class LevelManager:
         ###
         layered_objects = level_data['layered_objects']
 
-        for layer, layer_name in LAYER_DATA_PAIRS:
+        ### instantiate all objects
 
-            try: objs_data = layered_objects[layer_name]
-            except KeyError: continue
+        objs = [
 
-            for obj_data in objs_data:
-                layer.add(instantiate(obj_data))
+            instantiate(obj_data, layer_name)
 
-        ###
-        BACK_PROPS.add(message)
+            for layer_name, objs in layered_objects.items()
+            for obj_data in objs
+
+        ]
+
+        n = len(objs)
+
+        if n == 1:
+
+            obj = objs[0]
+
+            VICINITY_RECT.topleft = obj.topleft
+            content_origin.update(obj.topleft)
+
+            CHUNKS.add(LevelChunk(VICINITY_RECT, objs))
+
+        elif n > 1:
+
+            ### XXX idea, not sure if worth pursuing (certainly not now,
+            ### probably never): make it so assets that collide with more than
+            ### one chunk are added to the one that gets more area after
+            ### cliping the asset's rect with the chunk's rect
+
+            ## define a union rect
+
+            first_obj, *other_objs = objs
+
+            union_rect = first_obj.rect.unionall(
+
+                [
+                    obj.rect
+                    for obj in other_objs
+                ]
+
+            )
+
+            content_origin.update(union_rect.topleft)
+
+            ## prepare to loop while evaluating whether objects
+            ## and the union rect collide with the vicinity
+
+            union_left, _ = VICINITY_RECT.topleft = union_rect.topleft
+
+            obj_set = set(objs)
+
+            ## while looping indefinitely
+
+            while True:
+
+                ## if there are objs colliding with the vicinity,
+                ## store them in their own level chunk and remove
+                ## them from the set of objects
+
+                colliding_objs = {
+                    obj
+                    for obj in obj_set
+                    if vicinity_colliderect(obj.rect)
+                }
+
+                if colliding_objs:
+
+                    obj_set -= colliding_objs
+                    CHUNKS.add(LevelChunk(VICINITY_RECT, colliding_objs))
+
+                ## if there's no obj left in the set, break out of loop
+
+                if not obj_set:
+                    break
+
+                ## reposition vicinity horizontally, as though the union
+                ## rect was a table and we were moving the vicinity to the
+                ## column to the right
+                VICINITY_RECT.x += VICINITY_WIDTH
+
+                ## if vicinity in new position doesn't touch the union
+                ## anymore, keep thinking of the union rect as a table and
+                ## reposition the vicinity at the beginning of the next
+                ## imaginary row
+
+                if not vicinity_colliderect(union_rect):
+
+                    VICINITY_RECT.left = union_left
+                    VICINITY_RECT.y += VICINITY_HEIGHT
+
+        # TODO reintegrate line below as appropriate
+        # (will probably just add to list of all objects)
+        #BACK_PROPS.add(message)
 
     def control_player(self):
         self.player.control()
@@ -319,22 +529,24 @@ class LevelManager:
         return self.state
 
 
-def instantiate(obj_data):
+def instantiate(obj_data, layer_name):
 
     name = obj_data['name']
 
     if name == 'city_wall':
-        return CityWall(**obj_data)
+        obj = CityWall(**obj_data)
 
     elif name == 'city_block':
-        return CityBlock(**obj_data)
+        obj = CityBlock(**obj_data)
 
     elif name == 'grunt_bot':
-        return GruntBot(**obj_data)
+        obj = GruntBot(**obj_data)
 
     elif name == 'ladder':
-        return Ladder(**obj_data)
+        obj = Ladder(**obj_data)
 
-    raise RuntimeError(
-        "function should return before reaching this spot"
-    )
+    else:
+        raise RuntimeError("This block should never be reached.")
+
+    obj.layer_name = layer_name
+    return obj
