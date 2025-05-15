@@ -6,9 +6,7 @@ from pygame import (
     Surface,
 )
 
-from pygame.color import THECOLORS
-
-from pygame.display import update
+from pygame.display import update as update_screen
 
 from pygame.mixer import music
 
@@ -19,17 +17,11 @@ from ...config import (
     REFS,
     LEVELS_DIR,
     MUSIC_DIR,
-    BACK_PROPS, BACK_PROPS_ON_SCREEN,
-    MIDDLE_PROPS, MIDDLE_PROPS_ON_SCREEN,
-    BLOCKS, BLOCKS_ON_SCREEN,
-    ACTORS, ACTORS_ON_SCREEN,
-    PROJECTILES,
-    FRONT_PROPS,
-    execute_tasks
 )
 
 from ...pygamesetup.constants import (
-    screen_colliderect, blit_on_screen, SCREEN_RECT, SCREEN
+    blit_on_screen,
+    SCREEN_RECT,
 )
 
 from ...ourstdlibs.behaviour import do_nothing
@@ -52,14 +44,38 @@ from .actors.gruntbot import GruntBot
 
 from .prototypemessage import message
 
+from .common import (
 
+    LAYER_NAMES,
 
-LAYER_DATA_PAIRS = [
-    (BACK_PROPS, 'backprops'),
-    (MIDDLE_PROPS, 'middleprops'),
-    (BLOCKS, 'blocks'),
-    (ACTORS, 'actors'),
-]
+    LAYERS,
+    ONSCREEN_LAYERS,
+
+    BACK_PROPS,
+    MIDDLE_PROPS,
+    BLOCKS,
+    ACTORS,
+
+    BACK_PROPS_ON_SCREEN,
+    MIDDLE_PROPS_ON_SCREEN,
+    BLOCKS_ON_SCREEN,
+    ACTORS_ON_SCREEN,
+
+    PROJECTILES,
+    FRONT_PROPS,
+
+    CHUNKS,
+
+    VICINITY_RECT,
+    VICINITY_WIDTH,
+
+    scrolling,
+
+    execute_tasks,
+    group_objects,
+    update_chunks_and_layers,
+
+)
 
 
 class LevelManager:
@@ -103,6 +119,8 @@ class LevelManager:
 
     def prepare(self):
 
+        scrolling.update(0, 0)
+
         music_volume = (
             (USER_PREFS['MASTER_VOLUME']/100)
             * (USER_PREFS['MUSIC_VOLUME']/100)
@@ -119,12 +137,31 @@ class LevelManager:
 
         self.state = self
 
-        ### get level data and instantiate objects
+        ###
 
         level_name = REFS.data['level_name']
 
         level_data_path = LEVELS_DIR / level_name
         level_data = load_pyl(level_data_path)
+
+        ### instantiate and group objects
+
+        group_objects(
+
+            [
+
+                instantiate(obj_data, layer_name)
+
+                for layer_name, objs in level_data['layered_objects'].items()
+                for obj_data in objs
+
+            ]
+
+        )
+
+        ### TODO reintegrate line below as appropriate
+        ### (will probably just add to list of all objects)
+        #BACK_PROPS.add(message)
 
         ### bg
 
@@ -132,18 +169,11 @@ class LevelManager:
         self.bg.fill(level_data['background_color'])
 
         ###
-        layered_objects = level_data['layered_objects']
+        VICINITY_RECT.center = SCREEN_RECT.center
 
-        for layer, layer_name in LAYER_DATA_PAIRS:
+        ### update chunks and list objects on screen
 
-            try: objs_data = layered_objects[layer_name]
-            except KeyError: continue
-
-            for obj_data in objs_data:
-                layer.add(instantiate(obj_data))
-
-        ###
-        BACK_PROPS.add(message)
+        update_chunks_and_layers()
 
     def control_player(self):
         self.player.control()
@@ -156,48 +186,27 @@ class LevelManager:
         self.player.update()
         self.camera_tracking_routine()
 
-        ### now that the level may or may not have moved, we
-        ### update what ended up on the screen
+        ### the floor routine moves the level gradually so the player's feet
+        ### ends up in a certain vertical distance from the top of the screen,
+        ### but only if the player is touching the floor and if the player
+        ### isn't in that position already
+        self.floor_level_routine()
 
-        BACK_PROPS_ON_SCREEN.clear()
-        BACK_PROPS_ON_SCREEN.update(
-            prop
-            for prop in BACK_PROPS
-            if screen_colliderect(prop.rect)
-        )
+        ### now we update what is on the screen
 
         for prop in BACK_PROPS_ON_SCREEN:
             prop.update()
 
-        MIDDLE_PROPS_ON_SCREEN.clear()
-        MIDDLE_PROPS_ON_SCREEN.update(
-            prop
-            for prop in MIDDLE_PROPS
-            if screen_colliderect(prop.rect)
-        )
-
         for prop in MIDDLE_PROPS_ON_SCREEN:
             prop.update()
-        
-        BLOCKS_ON_SCREEN.clear()
-        BLOCKS_ON_SCREEN.update(
-            block
-            for block in BLOCKS
-            if screen_colliderect(block.rect)
-        )
 
         for block in BLOCKS_ON_SCREEN:
             block.update()
 
-        ACTORS_ON_SCREEN.clear()
-        ACTORS_ON_SCREEN.update(
-            actor
-            for actor in ACTORS
-            if screen_colliderect(actor.rect)
-        )
-
         for actor in ACTORS_ON_SCREEN:
             actor.update()
+
+        ### also update objects that are always on screen
 
         for projectile in PROJECTILES:
             projectile.update()
@@ -205,12 +214,8 @@ class LevelManager:
         for prop in FRONT_PROPS:
             prop.update()
 
-
-        ###
+        ### execute scheduled tasks
         execute_tasks()
-
-        ###
-        self.floor_level_routine()
 
     def track_player(self):
 
@@ -220,8 +225,15 @@ class LevelManager:
 
         if clamped_rect != player_rect:
 
-            diff = tuple(a - b for a, b in zip(clamped_rect.topleft, player_rect.topleft))
-            self.move_level(diff)
+            self.move_level(
+
+                tuple(
+                    a - b
+                    for a, b
+                    in zip(clamped_rect.topleft, player_rect.topleft)
+                )
+
+            )
 
     def floor_level_routine(self):
 
@@ -243,25 +255,20 @@ class LevelManager:
 
     def move_level(self, diff):
 
-        for prop in BACK_PROPS:
-            prop.rect.move_ip(diff)
-
-        for prop in MIDDLE_PROPS:
-            prop.rect.move_ip(diff)
-
-        for block in BLOCKS:
-            block.rect.move_ip(diff)
-
-        for actor in ACTORS:
-            actor.rect.move_ip(diff)
+        scrolling.update(diff)
 
         self.player.rect.move_ip(diff)
+
+        for chunk in CHUNKS:
+            chunk.rect.move_ip(diff)
 
         for projectile in PROJECTILES:
             projectile.rect.move_ip(diff)
 
         for prop in FRONT_PROPS:
             prop.rect.move_ip(diff)
+
+        update_chunks_and_layers()
 
     def draw(self):
 
@@ -289,6 +296,7 @@ class LevelManager:
 
         ############################
 #        from pygame.draw import rect, line
+#        from ...pygamesetup.constants import SCREEN
 #
 #        cam_area = self.camera_tracking_area
 #
@@ -313,28 +321,29 @@ class LevelManager:
 
         self.player.health_column.draw()
 
-        update()
+        update_screen()
 
     def next(self):
         return self.state
 
-
-def instantiate(obj_data):
+def instantiate(obj_data, layer_name):
 
     name = obj_data['name']
 
     if name == 'city_wall':
-        return CityWall(**obj_data)
+        obj = CityWall(**obj_data)
 
     elif name == 'city_block':
-        return CityBlock(**obj_data)
+        obj = CityBlock(**obj_data)
 
     elif name == 'grunt_bot':
-        return GruntBot(**obj_data)
+        obj = GruntBot(**obj_data)
 
     elif name == 'ladder':
-        return Ladder(**obj_data)
+        obj = Ladder(**obj_data)
 
-    raise RuntimeError(
-        "function should return before reaching this spot"
-    )
+    else:
+        raise RuntimeError("This block should never be reached.")
+
+    obj.layer_name = layer_name
+    return obj

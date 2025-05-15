@@ -6,13 +6,7 @@ from functools import partial
 
 ### local imports
 
-from ....config import (
-    REFS,
-    ACTORS,
-    FRONT_PROPS,
-    BLOCKS_ON_SCREEN,
-    append_task,
-)
+from ....config import REFS
 
 from ....pygamesetup.constants import GENERAL_NS
 
@@ -23,6 +17,13 @@ from ....ani2d.player import AnimationPlayer2D
 from ....ourstdlibs.behaviour import do_nothing
 
 from ..frontprops.defaultexplosion import DefaultExplosion
+
+from ..common import (
+    remove_obj,
+    FRONT_PROPS,
+    BLOCKS_ON_SCREEN,
+    append_task,
+)
 
 
 
@@ -52,9 +53,10 @@ class GruntBot:
         self.routine_check = do_nothing
 
     def update(self):
+        rect = self.rect
+        tl = rect.topleft
 
         x_speed = self.x_speed
-        rect = self.rect
         colliderect = rect.colliderect
 
         rect.move_ip(x_speed, 0)
@@ -103,6 +105,15 @@ class GruntBot:
 
         self.routine_check()
 
+        ###
+        if rect.topleft != tl:
+
+            self.delta += tuple(
+                a - b
+                for a, b
+                in zip(rect.topleft, tl)
+            )
+
     def check_damage_whitening(self):
 
         if (
@@ -125,7 +136,7 @@ class GruntBot:
             center = self.rect.center
 
             FRONT_PROPS.add(DefaultExplosion('center', center))
-            append_task(partial(ACTORS.remove, self,))
+            append_task(partial(remove_obj, self))
 
         else:
             self.aniplayer.set_custom_surface_cycling(('whitened', 'default'))

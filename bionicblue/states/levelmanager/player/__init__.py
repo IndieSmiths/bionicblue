@@ -5,12 +5,7 @@ from itertools import chain
 
 ### local imports
 
-from ....config import (
-    REFS,
-    SOUND_MAP,
-    MIDDLE_PROPS_ON_SCREEN,
-    BLOCKS_ON_SCREEN,
-)
+from ....config import REFS, SOUND_MAP
 
 from ....constants import (
     GRAVITY_ACCEL,
@@ -32,6 +27,8 @@ from ....ourstdlibs.behaviour import do_nothing
 ## classes for composition
 
 from ....ani2d.player import AnimationPlayer2D
+
+from ..common import MIDDLE_PROPS_ON_SCREEN, BLOCKS_ON_SCREEN
 
 from .healthcolumn import HealthColumn
 

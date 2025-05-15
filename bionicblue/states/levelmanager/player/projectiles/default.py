@@ -9,15 +9,16 @@ from pygame import Surface
 
 ### local imports
 
-from .....config import (
-    SOUND_MAP,
+from .....config import SOUND_MAP
+
+from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
+
+from ...common import (
     PROJECTILES,
     ACTORS_ON_SCREEN,
     BLOCKS_ON_SCREEN,
     append_task,
 )
-
-from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
 
 
 

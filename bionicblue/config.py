@@ -51,35 +51,6 @@ REFS.__dict__.update(dict(
 
 ))
 
-###
-
-
-BLOCKS = set()
-ACTORS = set()
-PROJECTILES = set()
-BACK_PROPS = set()
-MIDDLE_PROPS = set()
-FRONT_PROPS = set()
-
-BACK_PROPS_ON_SCREEN = set()
-BLOCKS_ON_SCREEN = set()
-ACTORS_ON_SCREEN = set()
-MIDDLE_PROPS_ON_SCREEN = set()
-
-###
-
-TASKS = []
-append_task = TASKS.append
-clear_tasks = TASKS.clear
-
-def execute_tasks():
-
-    if TASKS:
-
-        for task in TASKS:
-            task()
-
-        clear_tasks()
 
 
 ###

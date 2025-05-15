@@ -18,7 +18,7 @@ from pygame.locals import (
 
 ### local imports
 
-from ....config import PROJECTILES, quit_game
+from ....config import quit_game
 
 from ....constants import (
     MAX_X_SPEED,
@@ -37,6 +37,8 @@ from ....pygamesetup.constants import (
 from ....pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
 from ....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
+
+from ..common import PROJECTILES
 
 from .projectiles.default import DefaultProjectile
 from .projectiles.chargedshot import ChargedShot
