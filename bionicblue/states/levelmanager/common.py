@@ -244,7 +244,7 @@ def update_chunks_and_layers():
     ### clear temporary chunks collection
     CHUNKS_IN_VIC_TEMP.clear()
 
-def list_objects_on_screen():
+    ### list_objects_on_screen
 
     for layer, on_screen in zip(LAYERS, ONSCREEN_LAYERS):
 

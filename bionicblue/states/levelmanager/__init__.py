@@ -64,6 +64,8 @@ from .common import (
     PROJECTILES,
     FRONT_PROPS,
 
+    CHUNKS,
+
     VICINITY_RECT,
     VICINITY_WIDTH,
 
@@ -72,7 +74,6 @@ from .common import (
     execute_tasks,
     group_objects,
     update_chunks_and_layers,
-    list_objects_on_screen,
 
 )
 
@@ -117,6 +118,8 @@ class LevelManager:
         self.camera_tracking_routine = do_nothing
 
     def prepare(self):
+
+        scrolling.update(0, 0)
 
         music_volume = (
             (USER_PREFS['MASTER_VOLUME']/100)
@@ -171,15 +174,11 @@ class LevelManager:
         ### update chunks and list objects on screen
 
         update_chunks_and_layers()
-        list_objects_on_screen()
 
     def control_player(self):
         self.player.control()
 
     def update(self):
-
-        ### backup scrolling
-        scrolling_before_camera_tracking = tuple(scrolling)
 
         ### must update player first, since it may move and cause the
         ### camera to move as well, which causes the level to move
@@ -192,13 +191,6 @@ class LevelManager:
         ### but only if the player is touching the floor and if the player
         ### isn't in that position already
         self.floor_level_routine()
-
-        ### if scrolling changed, update chunks and objects on screen
-
-        if scrolling_before_camera_tracking != tuple(scrolling):
-
-            update_chunks_and_layers()
-            list_objects_on_screen()
 
         ### now we update what is on the screen
 
@@ -265,25 +257,18 @@ class LevelManager:
 
         scrolling.update(diff)
 
-        for prop in BACK_PROPS:
-            prop.rect.move_ip(diff)
-
-        for prop in MIDDLE_PROPS:
-            prop.rect.move_ip(diff)
-
-        for block in BLOCKS:
-            block.rect.move_ip(diff)
-
-        for actor in ACTORS:
-            actor.rect.move_ip(diff)
-
         self.player.rect.move_ip(diff)
+
+        for chunk in CHUNKS:
+            chunk.rect.move_ip(diff)
 
         for projectile in PROJECTILES:
             projectile.rect.move_ip(diff)
 
         for prop in FRONT_PROPS:
             prop.rect.move_ip(diff)
+
+        update_chunks_and_layers()
 
     def draw(self):
 
