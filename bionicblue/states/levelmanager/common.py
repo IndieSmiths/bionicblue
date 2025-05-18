@@ -300,6 +300,12 @@ class LevelChunk:
                 in zip(topleft, obj.rect.center)
             )
 
+        ### add deltas for actors to keep track of their travel
+        ### beyond their initial positions
+
+        for obj in self.actors:
+            obj.delta = Vector2()
+
     def position_objs(self):
 
         get_center = self.get_center
@@ -314,19 +320,26 @@ class LevelChunk:
                 in zip(topleft, get_center(obj))
             )
 
+        for obj in self.actors:
+            obj.rect.move_ip(obj.delta)
+
     def add_obj(self, obj):
 
         obj.chunk = self
 
         self.objs.add(obj)
 
-        getattr(self, obj.layer_name).add(obj)
+        layer = getattr(self, obj.layer_name)
+        layer.add(obj)
 
         self.center_map[obj] = tuple(
             chunk_pos - obj_center_pos
             for chunk_pos, obj_center_pos
             in zip(self.rect.topleft, obj.rect.center)
         )
+
+        if layer is self.actors:
+            obj.delta = Vector2()
 
     def remove_obj(self, obj):
 

@@ -53,9 +53,10 @@ class GruntBot:
         self.routine_check = do_nothing
 
     def update(self):
+        rect = self.rect
+        tl = rect.topleft
 
         x_speed = self.x_speed
-        rect = self.rect
         colliderect = rect.colliderect
 
         rect.move_ip(x_speed, 0)
@@ -103,6 +104,15 @@ class GruntBot:
             self.player.damage(3)
 
         self.routine_check()
+
+        ###
+        if rect.topleft != tl:
+
+            self.delta += tuple(
+                a - b
+                for a, b
+                in zip(rect.topleft, tl)
+            )
 
     def check_damage_whitening(self):
 
