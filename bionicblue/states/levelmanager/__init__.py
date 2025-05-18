@@ -21,13 +21,6 @@ from ...config import (
     REFS,
     LEVELS_DIR,
     MUSIC_DIR,
-    BACK_PROPS, BACK_PROPS_ON_SCREEN,
-    MIDDLE_PROPS, MIDDLE_PROPS_ON_SCREEN,
-    BLOCKS, BLOCKS_ON_SCREEN,
-    ACTORS, ACTORS_ON_SCREEN,
-    PROJECTILES,
-    FRONT_PROPS,
-    execute_tasks
 )
 
 from ...pygamesetup.constants import (
@@ -54,9 +47,29 @@ from .actors.gruntbot import GruntBot
 
 from .prototypemessage import message
 
+from .common import (
+    LAYERS,
+    ONSCREEN_LAYERS,
+    LAYER_NAMES,
+    BACK_PROPS,
+    MIDDLE_PROPS,
+    BLOCKS,
+    ACTORS,
+    BACK_PROPS_ON_SCREEN,
+    MIDDLE_PROPS_ON_SCREEN,
+    BLOCKS_ON_SCREEN,
+    ACTORS_ON_SCREEN,
+    PROJECTILES,
+    FRONT_PROPS,
+    get_layer_from_name,
+    execute_tasks,
+)
 
 
 ### module level objs
+
+
+##
 
 ## vector representing first point where there's content
 ## in the level, that is, the topleft of the topleftmost
@@ -66,14 +79,11 @@ from .prototypemessage import message
 ## level chunks
 content_origin = Vector2()
 
-LAYER_DATA_PAIRS = [
-    (BACK_PROPS, 'backprops'),
-    (MIDDLE_PROPS, 'middleprops'),
-    (BLOCKS, 'blocks'),
-    (ACTORS, 'actors'),
-]
+## vector to keep track of scrolling
+scrolling = Vector2()
 
-LAYER_NAMES = [item[1] for item in LAYER_DATA_PAIRS]
+##
+
 
 ### define a vicinity rect
 ###
@@ -246,6 +256,11 @@ class LevelManager:
         ###
         VICINITY_RECT.center = SCREEN_RECT.center
 
+        ### update chunks and list objects on screen
+
+        update_chunks_and_layers()
+        list_objects_on_screen()
+
     def instantiate_and_group_objects(self):
 
         level_name = REFS.data['level_name']
@@ -360,54 +375,43 @@ class LevelManager:
 
     def update(self):
 
+        ### backup scrolling
+        scrolling_before_camera_tracking = tuple(scrolling)
+
         ### must update player first, since it may move and cause the
         ### camera to move as well, which causes the level to move
 
         self.player.update()
         self.camera_tracking_routine()
 
-        ### now that the level may or may not have moved, we
-        ### update what ended up on the screen
+        ### the floor routine moves the level gradually so the player's feet
+        ### ends up in a certain vertical distance from the top of the screen,
+        ### but only if the player is touching the floor and if the player
+        ### isn't in that position already
+        self.floor_level_routine()
 
-        BACK_PROPS_ON_SCREEN.clear()
-        BACK_PROPS_ON_SCREEN.update(
-            prop
-            for prop in BACK_PROPS
-            if screen_colliderect(prop.rect)
-        )
+        ### if scrolling changed, update chunks and objects on screen
+
+        if scrolling_before_camera_tracking != tuple(scrolling):
+
+            update_chunks_and_layers()
+            list_objects_on_screen()
+
+        ### now we update what is on the screen
 
         for prop in BACK_PROPS_ON_SCREEN:
             prop.update()
 
-        MIDDLE_PROPS_ON_SCREEN.clear()
-        MIDDLE_PROPS_ON_SCREEN.update(
-            prop
-            for prop in MIDDLE_PROPS
-            if screen_colliderect(prop.rect)
-        )
-
         for prop in MIDDLE_PROPS_ON_SCREEN:
             prop.update()
-        
-        BLOCKS_ON_SCREEN.clear()
-        BLOCKS_ON_SCREEN.update(
-            block
-            for block in BLOCKS
-            if screen_colliderect(block.rect)
-        )
 
         for block in BLOCKS_ON_SCREEN:
             block.update()
 
-        ACTORS_ON_SCREEN.clear()
-        ACTORS_ON_SCREEN.update(
-            actor
-            for actor in ACTORS
-            if screen_colliderect(actor.rect)
-        )
-
         for actor in ACTORS_ON_SCREEN:
             actor.update()
+
+        ### also update objects that are always on screen
 
         for projectile in PROJECTILES:
             projectile.update()
@@ -415,12 +419,8 @@ class LevelManager:
         for prop in FRONT_PROPS:
             prop.update()
 
-
-        ###
+        ### execute scheduled tasks
         execute_tasks()
-
-        ###
-        self.floor_level_routine()
 
     def track_player(self):
 
@@ -430,8 +430,15 @@ class LevelManager:
 
         if clamped_rect != player_rect:
 
-            diff = tuple(a - b for a, b in zip(clamped_rect.topleft, player_rect.topleft))
-            self.move_level(diff)
+            self.move_level(
+
+                tuple(
+                    a - b
+                    for a, b
+                    in zip(clamped_rect.topleft, player_rect.topleft)
+                )
+
+            )
 
     def floor_level_routine(self):
 
@@ -452,6 +459,8 @@ class LevelManager:
             self.move_level((0, dy))
 
     def move_level(self, diff):
+
+        scrolling.update(diff)
 
         for prop in BACK_PROPS:
             prop.rect.move_ip(diff)
@@ -528,6 +537,67 @@ class LevelManager:
     def next(self):
         return self.state
 
+def update_chunks_and_layers():
+
+    ### check current chunks in vicinity
+
+    CHUNKS_IN_TEMP.update(
+        chunk
+        for chunk in CHUNKS
+        if vicinity_colliderect(chunk.rect)
+    )
+
+    ### if it is different from previous chunks in vicinity...
+
+    if CHUNKS_IN != CHUNKS_IN_TEMP:
+
+        ### for the chunks leaving vicinity, remove their objects
+        ### from the layers
+
+        for chunk in (CHUNKS_IN - CHUNKS_IN_TEMP):
+
+            for layer_name in LAYER_NAMES:
+
+                get_layer_from_name(layer_name).difference_update(
+                    getattr(chunk, layer_name)
+                )
+
+
+        ### for the chunks entering vicinity, add their objects to the layers
+
+        for chunk in (CHUNKS_IN_TEMP - CHUNKS_IN):
+
+            for layer_name in LAYER_NAMES:
+
+                get_layer_from_name(layer_name).update(
+                    getattr(chunk, layer_name)
+                )
+
+
+        ### update the set of chunks in vicinity
+
+        CHUNKS_IN.clear()
+        CHUNKS_IN.update(CHUNKS_IN_TEMP)
+
+    ### for each chunk in vicinity, reposition their objects
+
+    for chunk in CHUNKS_IN:
+        chunk.position_objs()
+
+    ### clear temporary chunks collection
+    CHUNKS_IN_TEMP.clear()
+
+def list_objects_on_screen():
+
+    for layer, on_screen in zip(LAYERS, ONSCREEN_LAYERS):
+
+        on_screen.clear()
+
+        on_screen.update(
+            obj
+            for obj in layer
+            if screen_colliderect(obj.rect)
+        )
 
 def instantiate(obj_data, layer_name):
 

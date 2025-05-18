@@ -5,9 +5,12 @@ from functools import partial
 
 ### local imports
 
-from ....config import append_task, FRONT_PROPS, SOUND_MAP
+from ....config import SOUND_MAP
 
 from ....ani2d.player import AnimationPlayer2D
+
+from ..common import append_task, FRONT_PROPS
+
 
 
 class DefaultExplosion:

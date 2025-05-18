@@ -6,13 +6,7 @@ from functools import partial
 
 ### local imports
 
-from ....config import (
-    REFS,
-    ACTORS,
-    FRONT_PROPS,
-    BLOCKS_ON_SCREEN,
-    append_task,
-)
+from ....config import REFS
 
 from ....pygamesetup.constants import GENERAL_NS
 
@@ -23,6 +17,13 @@ from ....ani2d.player import AnimationPlayer2D
 from ....ourstdlibs.behaviour import do_nothing
 
 from ..frontprops.defaultexplosion import DefaultExplosion
+
+from ..common import (
+    ACTORS,
+    FRONT_PROPS,
+    BLOCKS_ON_SCREEN,
+    append_task,
+)
 
 
 

@@ -9,19 +9,21 @@ from pygame import Surface
 
 ### local imports
 
-from .....config import (
-    SOUND_MAP,
-    PROJECTILES,
-    ACTORS_ON_SCREEN,
-    BLOCKS_ON_SCREEN,
-    append_task,
-)
+from .....config import SOUND_MAP
 
 from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
 
 from .....constants import CHARGED_SHOT_SPEED
 
 from .....ani2d.player import AnimationPlayer2D
+
+from ...common import (
+    PROJECTILES,
+    ACTORS_ON_SCREEN,
+    BLOCKS_ON_SCREEN,
+    append_task,
+)
+
 
 
 class ChargedShot:
