@@ -19,7 +19,7 @@ from ....ourstdlibs.behaviour import do_nothing
 from ..frontprops.defaultexplosion import DefaultExplosion
 
 from ..common import (
-    ACTORS,
+    remove_obj,
     FRONT_PROPS,
     BLOCKS_ON_SCREEN,
     append_task,
@@ -126,7 +126,7 @@ class GruntBot:
             center = self.rect.center
 
             FRONT_PROPS.add(DefaultExplosion('center', center))
-            append_task(partial(ACTORS.remove, self,))
+            append_task(partial(remove_obj, self))
 
         else:
             self.aniplayer.set_custom_surface_cycling(('whitened', 'default'))

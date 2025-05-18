@@ -13,7 +13,7 @@ from .....config import SOUND_MAP
 
 from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
 
-from ...common import
+from ...common import (
     PROJECTILES,
     ACTORS_ON_SCREEN,
     BLOCKS_ON_SCREEN,
