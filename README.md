@@ -74,6 +74,20 @@ Enter (return) and escape keys are reserved for confirming and exitting/going ba
 Regarding the gamepad, the user doesn't need to configure directional buttons/triggers. Those are detected and managed automatically. The user only needs to configure the gamepad for actions like shooting, jumping, etc.
 
 
+## Semantic versioning for games
+
+Since [semantic versioning](https://semver.org/spec/v2.0.0.html) doesn't map well to game project versions, this is the meaning I adopt here:
+
+In a **X**.**Y**.**Z** version...
+
+**X** is always either 0 or 1. If it is 0, the game isn't finished, that is, it isn't in the state the creator envisioned for it. If it is 1, then the game is in that state and thus we consider it finished.
+
+Even when the game is finished (X is 1), the game may still get new features, fixes, content, etc., though, in much the same way finished games can still get patches or DLCs. Such additions/changes won't increment X though, only Y and Z, depending on the specific changes.
+
+In semantic versioning, incrementign X indicates breaking changes, but since a game is just an executable, not a library with a public API, there's no reason to think of it like that here, so as we explained, we are only concerned with whether the game is finished or not.
+
+**Y** and **Z** more closely resemble their meaning in semantic versioning. **Y** is incremented whenever new features or content are added to the game or when changes are made. And **Z** is incremented whenever a fix is introduced.
+
 
 ## Contributing
 
@@ -83,12 +97,12 @@ In other words, as much as we love contributions in general in the Indie Smiths 
 
 Additionally, when submitting pull requests (PRs), please, submit them to the `develop` branch, not the `main` branch. This way we can refine/complement the changes before merging them with `main`.
 
-If in doubt, please [start a discussion](https://github.com/IndieSmiths/bionic-blue/discussions) first, in order to discuss what you would like to change.
+If in doubt, please [start a discussion](https://github.com/IndieSmiths/bionicblue/discussions) first, in order to discuss what you would like to change.
 
 
 ## Issues
 
-Issues are reserved for things that crash the game or otherwise prevent the user from progressing in the game. Please, if you're not certain, [start a discussion](https://github.com/IndieSmiths/bionic-blue/discussions) instead. It can always be converted into an issue later if needed.
+Issues are reserved for things that crash the game or otherwise prevent the user from progressing in the game. Please, if you're not certain, [start a discussion](https://github.com/IndieSmiths/bionicblue/discussions) instead. It can always be converted into an issue later if needed.
 
 ## Contact
 
