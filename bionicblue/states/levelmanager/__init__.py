@@ -10,6 +10,8 @@ from pygame.display import update as update_screen
 
 from pygame.mixer import music
 
+from pygame.math import Vector2
+
 
 ### local imports
 
@@ -78,6 +80,8 @@ from .common import (
 )
 
 
+scrolling_backup = Vector2()
+
 class LevelManager:
 
     def __init__(self):
@@ -120,6 +124,7 @@ class LevelManager:
     def prepare(self):
 
         scrolling.update(0, 0)
+        scrolling_backup.update(scrolling)
 
         music_volume = (
             (USER_PREFS['MASTER_VOLUME']/100)
@@ -182,8 +187,14 @@ class LevelManager:
 
         ### must update player first, since it may move and cause the
         ### camera to move as well, which causes the level to move
-
         self.player.update()
+        
+        ### backup scrolling
+        scrolling_backup.update(scrolling)
+
+        ### camera routine, depending on the actual routine assigned to the
+        ### attribute may cause the camera to track the player (by moving
+        ### the whole level so the player is near the middle of the screen)
         self.camera_tracking_routine()
 
         ### the floor routine moves the level gradually so the player's feet
@@ -191,6 +202,11 @@ class LevelManager:
         ### but only if the player is touching the floor and if the player
         ### isn't in that position already
         self.floor_level_routine()
+
+        ### if the level scrolled (moved), update chunks and layers
+
+        if scrolling_backup != scrolling:
+            update_chunks_and_layers()
 
         ### now we update what is on the screen
 
@@ -255,7 +271,8 @@ class LevelManager:
 
     def move_level(self, diff):
 
-        scrolling.update(diff)
+        scrolling[0] += diff[0]
+        scrolling[1] += diff[1]
 
         self.player.rect.move_ip(diff)
 
@@ -267,8 +284,6 @@ class LevelManager:
 
         for prop in FRONT_PROPS:
             prop.rect.move_ip(diff)
-
-        update_chunks_and_layers()
 
     def draw(self):
 
