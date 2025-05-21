@@ -244,7 +244,7 @@ def update_chunks_and_layers():
     ### clear temporary chunks collection
     CHUNKS_IN_VIC_TEMP.clear()
 
-    ### list_objects_on_screen
+    ### list objects on screen
 
     for layer, on_screen in zip(LAYERS, ONSCREEN_LAYERS):
 
@@ -350,9 +350,6 @@ class LevelChunk:
 
 def add_obj(obj):
 
-    ### add obj to layer
-    get_layer_from_name(obj.layer_name).add(obj)
-
     ### if an existing chunk collides add obj to that chunk
 
     rect = obj.rect
@@ -362,11 +359,20 @@ def add_obj(obj):
         if chunk.rect.colliderect(rect):
 
             chunk.add_obj(obj)
+
+            ### add obj to layer
+            get_layer_from_name(obj.layer_name).add(obj)
+
             break
 
     ### otherwise create a new chunk
 
     else:
+        
+        ### note: we don't need to add object to layer here,
+        ### because it will be added automatically for us
+        ### by update_chunks_and_layers() when the created
+        ### chunk is added to the set of chunks in the vicinity
 
         chunk_anchor_pos = rect.center
         unscrolled_anchor_pos = chunk_anchor_pos - scrolling
@@ -378,13 +384,17 @@ def add_obj(obj):
         left = left_multiplier * VICINITY_WIDTH
         top = top_multiplier * VICINITY_HEIGHT
 
-        VICINITY_RECT.topleft = (left, top)
+        VICINITY_RECT.topleft = (
+            (left, top)
+            + scrolling
+            + content_origin
+        )
+
         CHUNKS.add(LevelChunk(VICINITY_RECT, {obj}))
 
         VICINITY_RECT.center = SCREEN_RECT.center
 
     update_chunks_and_layers()
-    list_objects_on_screen()
 
 def remove_obj(obj):
 
