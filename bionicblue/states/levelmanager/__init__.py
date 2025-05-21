@@ -75,6 +75,7 @@ from .common import (
 
     execute_tasks,
     group_objects,
+    add_obj,
     update_chunks_and_layers,
 
 )
@@ -164,10 +165,6 @@ class LevelManager:
 
         )
 
-        ### TODO reintegrate line below as appropriate
-        ### (will probably just add to list of all objects)
-        #BACK_PROPS.add(message)
-
         ### bg
 
         self.bg = Surface((320, 180)).convert()
@@ -175,6 +172,11 @@ class LevelManager:
 
         ###
         VICINITY_RECT.center = SCREEN_RECT.center
+
+        ### add custom prototype message
+
+        message.layer_name = 'backprops'
+        add_obj(message)
 
         ### update chunks and list objects on screen
 
