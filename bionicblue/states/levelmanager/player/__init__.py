@@ -80,7 +80,7 @@ class Player(
 
         self.blue_shooter_man_aniplayer = (
             AnimationPlayer2D(
-                self, 'blue_shooter_man', 'teleporting', 'center', (SCREEN_RECT.centerx, -122)
+                self, 'blue_shooter_man', 'teleporting', 'center'
             )
         )
 
@@ -105,7 +105,6 @@ class Player(
         if not hasattr(self, 'health_column'):
             self.health_column = HealthColumn()
 
-        self.rect.center = (SCREEN_RECT.centerx, -122)
         self.y_speed = MAX_Y_SPEED
 
         self.aniplayer = self.blue_shooter_man_aniplayer

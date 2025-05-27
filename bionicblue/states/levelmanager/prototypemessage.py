@@ -59,6 +59,5 @@ message = type('Object', (), {})()
 
 message.image = get_message_surf()
 message.rect = message.image.get_rect()
-message.rect.move_ip(1026, 50)
 message.update = do_nothing
 message.draw = lambda: blit_on_screen(message.image, message.rect)

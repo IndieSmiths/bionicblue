@@ -160,10 +160,22 @@ class LevelManager:
 
                 for layer_name, objs in level_data['layered_objects'].items()
                 for obj_data in objs
+                if layer_name != 'labels'
 
             ]
 
         )
+
+        ### position player
+
+        landing_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'landing'
+        )['pos']
+
+        self.player.rect.centerx = landing_pos[0]
+        self.player.rect.bottom = SCREEN_RECT.top
 
         ### bg
 
@@ -175,7 +187,15 @@ class LevelManager:
 
         ### add custom prototype message
 
+        message_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'message'
+        )['pos']
+
         message.layer_name = 'backprops'
+        message.rect.centerx = message_pos[0]
+        message.rect.bottom = message_pos[1] - 20
         add_obj(message)
 
         ### update chunks and list objects on screen
