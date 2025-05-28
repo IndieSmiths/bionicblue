@@ -33,7 +33,7 @@ FLOOR_CHECK = 10
 
 class GruntBot:
 
-    def __init__(self, name, pos):
+    def __init__(self, name, pos, facing_right=False):
 
         self.health = 5
 
@@ -41,11 +41,13 @@ class GruntBot:
 
         self.name = name
 
-        self.x_speed = -WALK_SPEED
+        self.x_speed = WALK_SPEED if facing_right else -WALK_SPEED
+
+        animation_name = 'idle_right' if facing_right else 'idle_left'
 
         self.aniplayer = (
             AnimationPlayer2D(
-                self, name, 'idle_left', 'midbottom', pos
+                self, name, animation_name, 'midbottom', pos
             )
         )
 
