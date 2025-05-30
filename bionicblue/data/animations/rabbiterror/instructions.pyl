@@ -1,0 +1,75 @@
+{
+    "name": "rabbiterror",
+    "geometry": {
+        "sitting_body" : {
+            "size" : (8, 14),
+            "art_size" : (16, 16),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+        "jumping_body" : {
+            "size" : (14, 20),
+            "art_size" : (24, 24),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+    },
+    "objects" : {
+        "sitting_body" : {"geometry": "sitting_body"},
+        "jumping_body" : {"geometry": "jumping_body"},
+    },
+    "existing_structures" : {
+        "standing" : {"tree" : {"name": "sitting_body"}},
+        "jumping" : {"tree" : {"name": "sitting_body"}},
+    },
+    "animations" :{
+        "idle_right": {"structure": "standing"},
+        "idle_left": {"structure": "standing"},
+        "jump_right": {"structure": "jumping"},
+        "jump_left": {"structure": "jumping"},
+    },
+    "values": {
+        "idle_right": {
+            "sitting_body": {
+                "surfaces": "rabbiterror.idle_right",
+            },
+        },
+        "jump_right": {
+            "sitting_body": {
+                "surfaces": "rabbiterror.jump_right",
+            },
+        },
+    },
+    "timing": {
+        "idle_right": {
+            "sitting_body": {
+                "surface_indices": "rabbiterror.idle_right",
+            },
+        },
+        "jump_right": {
+            "jumping_body": {
+                "surface_indices": "rabbiterror.jump_right",
+            },
+        },
+    },
+    "recolored_surface_versions": {
+        "whitened": {
+            "effects": (
+                ("lightness", "set", 100),
+            ),
+            "surface_collections" : [
+                "rabbiterror.idle_right",
+                "rabbiterror.jump_right",
+            ],
+        },
+
+    },
+    "derived_animations": {
+        "idle_left": {
+            "operation_name": "flip_x",
+            "target": "idle_right",
+        },
+        "jump_left": {
+            "operation_name": "flip_x",
+            "target": "jump_right",
+        },
+    },
+}
