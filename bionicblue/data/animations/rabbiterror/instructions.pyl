@@ -18,7 +18,7 @@
     },
     "existing_structures" : {
         "standing" : {"tree" : {"name": "sitting_body"}},
-        "jumping" : {"tree" : {"name": "sitting_body"}},
+        "jumping" : {"tree" : {"name": "jumping_body"}},
     },
     "animations" :{
         "idle_right": {"structure": "standing"},
@@ -33,7 +33,7 @@
             },
         },
         "jump_right": {
-            "sitting_body": {
+            "jumping_body": {
                 "surfaces": "rabbiterror.jump_right",
             },
         },
