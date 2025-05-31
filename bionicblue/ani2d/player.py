@@ -57,6 +57,7 @@ class AnimationPlayer2D:
 
         ###
         self.anim_names = self.structure.keys()
+        self.anim_name = anim_name
 
         ###
 
@@ -71,13 +72,14 @@ class AnimationPlayer2D:
 
     def switch_animation(self, anim_name):
         ###
+        prev_anim = self.anim_name
         self.anim_name = anim_name
 
         ###
         self.clear_rotations()
 
         ###
-        self.set_structure()
+        self.set_structure(prev_anim)
 
         ###
         self.store_values_and_timing()
@@ -95,7 +97,7 @@ class AnimationPlayer2D:
             for key in ('surface_indices', 'position_indices'):
                 obj_timing[key].restore_walking()
 
-    def set_structure(self):
+    def set_structure(self, prev_anim_name):
 
         structure = self.structure[self.anim_name]
         tree = structure['tree']
@@ -106,7 +108,7 @@ class AnimationPlayer2D:
 
         if root is not self.root:
 
-            self.exchange_root_pos(self.root, root)
+            self.exchange_root_pos(self.root, root, prev_anim_name)
             self.obj.rect = root.rect
 
         self.root = root
@@ -178,10 +180,10 @@ class AnimationPlayer2D:
             for obj_name in self.drawing_order
         )
 
-    def exchange_root_pos(self, previous_root, new_root):
+    def exchange_root_pos(self, previous_root, new_root, prev_anim_name):
 
         exchange_map = self.root_pos_exchange_map
-        prev_attr_name, (new_attr_name, offset) = exchange_map[previous_root.name][new_root.name]
+        prev_attr_name, new_attr_name, offset = exchange_map[prev_anim_name][self.anim_name]
         pos = getattr(previous_root.rect, prev_attr_name)
         setattr(new_root.rect, new_attr_name, pos + offset)
 
