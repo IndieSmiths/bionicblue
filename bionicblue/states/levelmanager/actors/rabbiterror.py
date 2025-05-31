@@ -1,6 +1,8 @@
 """Facility for grunt bot enemy."""
 
 ### standard library import
+
+from itertools import cycle
 from functools import partial
 
 
@@ -27,13 +29,15 @@ from ..common import (
 
 
 
-WALK_SPEED = 1
-FLOOR_CHECK = 10
+Y_ACCEL = 5
+JUMP_DY = -15
 
 
 class Rabbiterror:
 
     def __init__(self, name, pos, facing_right=False):
+
+        self.must_jump = cycle((1,) + (0,) * 30).__next__
 
         self.health = 5
 
@@ -41,7 +45,8 @@ class Rabbiterror:
 
         self.name = name
 
-        self.x_speed = WALK_SPEED if facing_right else -WALK_SPEED
+        self.x_speed = 3 if facing_right else -3
+        self.y_speed = 0
 
         animation_name = 'idle_right' if facing_right else 'idle_left'
 
@@ -55,50 +60,70 @@ class Rabbiterror:
         self.routine_check = do_nothing
 
     def update(self):
-        rect = self.rect
-        tl = rect.topleft
 
-        x_speed = self.x_speed
+        rect = self.rect
+        mb = rect.midbottom
+
         colliderect = rect.colliderect
 
-        rect.move_ip(x_speed, 0)
+        ap = self.aniplayer
+        anim_name = ap.anim_name
+
+        if anim_name == 'idle_right':
+
+            if self.must_jump():
+
+                self.y_speed = JUMP_DY
+                ap.switch_animation('jump_right')
+
+        elif anim_name == 'idle_left':
+
+            if self.must_jump():
+                self.y_speed = JUMP_DY
+                ap.switch_animation('jump_left')
+
+        else:
+            self.y_speed = min(self.y_speed + Y_ACCEL, Y_ACCEL)
+
+        rect.move_ip(self.x_speed, 0)
 
         for block in BLOCKS_ON_SCREEN:
 
             if colliderect(block.rect):
 
-                if x_speed > 0:
+                if self.x_speed > 0:
                     rect.right = block.rect.left
-                    self.aniplayer.switch_animation('idle_left')
+                    ap.switch_animation('jump_left')
 
                 else:
                     rect.left = block.rect.right
-                    self.aniplayer.switch_animation('idle_right')
+                    ap.switch_animation('jump_right')
 
-                self.x_speed = -x_speed
+                self.x_speed = -self.x_speed
 
                 break
 
-        else:
+        rect.move_ip(0, self.y_speed)
 
-            rect.move_ip(0, 1)
+        for block in BLOCKS_ON_SCREEN:
 
-            if not any(
-                colliderect(block.rect)
-                for block in BLOCKS_ON_SCREEN
-            ):
+            if colliderect(block.rect):
 
-                if x_speed > 0:
-                    self.aniplayer.switch_animation('idle_left')
+                if self.y_speed < 0:
+                    rect.top = block.rect.bottom
+
                 else:
-                    self.aniplayer.switch_animation('idle_right')
+                    rect.bottom = block.rect.top
 
-                self.x_speed = -x_speed
-                rect.move_ip(-x_speed, -1)
+                    ap.switch_animation(
+                        'idle_right'
+                        if ap.anim_name == 'jump_right'
+                        else 'idle_left'
+                    )
 
-            else:
-                rect.move_ip(0, -1)
+                self.y_speed = 0
 
+                break
 
         ###
 
@@ -108,12 +133,13 @@ class Rabbiterror:
         self.routine_check()
 
         ###
-        if rect.topleft != tl:
+
+        if rect.midbottom != mb:
 
             self.delta += tuple(
                 a - b
                 for a, b
-                in zip(rect.topleft, tl)
+                in zip(rect.midbottom, mb)
             )
 
     def check_damage_whitening(self):
