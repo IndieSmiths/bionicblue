@@ -35,14 +35,14 @@ from .exceptions import (
 
 
 
-def run_game(debug_mode=False):
+def run_game(debug_directive=False):
     """Run the game loop."""
 
     setup_states()
 
     state = REFS.states.resource_loader
 
-    REFS.debug_mode = debug_mode
+    REFS.debug_directive = debug_directive
 
     setup_gamepad_if_existent()
 
@@ -79,14 +79,14 @@ if __name__ == '__main__':
     )
 
     ap.add_argument(
-        '-b', '--debug',
-        action='store_true',
+        '-b', '--debug-directive',
+        default='',
         help=(
-            "Turns on flag used to facilitate debugging"
+            "Grabs debug directive if specified, used to facilitate debugging"
             " and other similar measures."
         ),
     )
 
     parsed_args = ap.parse_args()
 
-    run_game(parsed_args.debug)
+    run_game(parsed_args.debug_directive)

@@ -184,13 +184,14 @@ class ResourceLoader:
             for sound in SOUND_MAP.values():
                 sound.set_volume(sound_volume)
 
-            ### if on debug mode, use title screen
-            ### as next state
+            ### pick next state according to debug directive
+            ### or lack thereof
 
-            if REFS.debug_mode:
+            if REFS.debug_directive == 'level_manager':
+                next_state = REFS.states.level_manager
+
+            elif REFS.debug_directive == 'title_screen':
                 next_state = REFS.states.title_screen
-
-            ### otherwise, use the logo screen
 
             else:
                 next_state = REFS.states.logo_screen
