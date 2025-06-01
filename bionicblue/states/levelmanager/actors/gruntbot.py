@@ -56,7 +56,7 @@ class GruntBot:
 
     def update(self):
         rect = self.rect
-        tl = rect.topleft
+        center = rect.center
 
         x_speed = self.x_speed
         colliderect = rect.colliderect
@@ -108,12 +108,12 @@ class GruntBot:
         self.routine_check()
 
         ###
-        if rect.topleft != tl:
+        if rect.center != center:
 
             self.delta += tuple(
                 a - b
                 for a, b
-                in zip(rect.topleft, tl)
+                in zip(rect.center, center)
             )
 
     def check_damage_whitening(self):
