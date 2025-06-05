@@ -1,8 +1,6 @@
 """Facility for grunt bot enemy."""
 
 ### standard library import
-
-from itertools import cycle
 from functools import partial
 
 
@@ -10,7 +8,7 @@ from functools import partial
 
 from ....config import REFS
 
-from ....pygamesetup.constants import GENERAL_NS
+from ....pygamesetup.constants import GENERAL_NS, msecs_to_frames
 
 from ....constants import DAMAGE_WHITENING_FRAMES
 
@@ -31,14 +29,17 @@ from ..common import (
 
 Y_ACCEL = 5
 JUMP_DY = -15
-X_SPEED = 8
+X_SPEED = 5
+
+_MSECS_UNTIL_NEXT_JUMP = 500
+FRAMES_UNTIL_NEXT_JUMP = msecs_to_frames(_MSECS_UNTIL_NEXT_JUMP)
 
 
 class Rabbiterror:
 
     def __init__(self, name, pos, facing_right=False):
 
-        self.must_jump = cycle((1,) + (0,) * 15).__next__
+        self.jump_countdown = 0
 
         self.health = 5
 
@@ -70,7 +71,7 @@ class Rabbiterror:
         if 'jump' in anim_name:
             self.y_speed = min(self.y_speed + Y_ACCEL, Y_ACCEL)
 
-        elif self.must_jump():
+        elif not self.jump_countdown:
 
             self.x_speed = X_SPEED if anim_name == 'idle_right' else -X_SPEED
             self.y_speed = JUMP_DY
@@ -83,6 +84,11 @@ class Rabbiterror:
                 else 'jump_left'
 
             )
+
+            self.jump_countdown = FRAMES_UNTIL_NEXT_JUMP 
+
+        else:
+            self.jump_countdown -= 1
 
         self.rect.move_ip(self.x_speed, 0)
 
