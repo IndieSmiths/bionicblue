@@ -114,6 +114,9 @@ _CLOCK = Clock()
 maintain_fps = _CLOCK.tick
 get_fps = _CLOCK.get_fps
 
+def msecs_to_frames(msecs):
+    return round(msecs / 1000 * FPS)
+
 
 ### anonymous object to keep track of general values;
 ###
