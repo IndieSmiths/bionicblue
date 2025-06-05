@@ -43,6 +43,7 @@ from .middleprops.ladder import Ladder
 from .blocks.cityblock import CityBlock
 
 from .actors.gruntbot import GruntBot
+from .actors.watcherbot import WatcherBot
 from .actors.rabbiterror import Rabbiterror
 
 from .prototypemessage import message
@@ -376,6 +377,9 @@ def instantiate(obj_data, layer_name):
 
     elif name == 'grunt_bot':
         obj = GruntBot(**obj_data)
+
+    elif name == 'watcher_bot':
+        obj = WatcherBot(**obj_data)
 
     elif name == 'rabbiterror':
         obj = Rabbiterror(**obj_data)

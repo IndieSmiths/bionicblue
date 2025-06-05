@@ -1,0 +1,56 @@
+{
+    "name": "watcher_bot",
+    "geometry": {
+        "body" : {
+            "size" : (6, 6),
+            "art_size" : (8, 8),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "floating" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "idle": {"structure": "floating"},
+        "preparing_shot": {"structure": "floating"},
+    },
+    "values": {
+        "idle": {
+            "body": {
+                "surfaces": "watcher_bot.idle",
+            },
+        },
+        "preparing_shot": {
+            "body": {
+                "surfaces": "watcher_bot.preparing_shot",
+            },
+        },
+    },
+    "timing": {
+        "idle": {
+            "body": {
+                "surface_indices": "watcher_bot.idle",
+            },
+        },
+        "preparing_shot": {
+            "body": {
+                "surface_indices": "watcher_bot.preparing_shot",
+            },
+        },
+    },
+    "recolored_surface_versions": {
+        "whitened": {
+            "effects": (
+                ("lightness", "set", 100),
+            ),
+            "surface_collections" : [
+                "watcher_bot.idle",
+                "watcher_bot.preparing_shot",
+            ],
+        },
+
+    },
+}
