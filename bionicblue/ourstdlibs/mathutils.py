@@ -2,8 +2,6 @@
 
 from math import hypot
 
-from ..config import SCREEN_WIDTH, SCREEN_HEIGHT
-
 
 # XXX
 # use the divmod approach here;
@@ -41,48 +39,6 @@ def get_reaching_multiple(step_length, total_distance):
             return step_length * (steps_no + 1)
         else:
             return step_length * steps_no
-
-
-def calculate_jump(coordinates):
-    """Return how much scroll is needed to reach coordinates.
-
-    Reaching coordinates means scrolling screen horizontally
-    by its entire width and/or vertically by its entire
-    height until the coordinates are placed on the
-    screen.
-
-    calculate_jump -> (x, y)
-
-    x and y are integers.
-
-    coordinates
-        Reference point towards which to scroll.
-
-    >>> point = ( 640,  360)
-    >>> calculate_jump(point)
-    (0, 0)
-    >>> point = (1450,  360)
-    >>> calculate_jump(point)
-    (-1280, 0)
-    >>> point = (-640,  360)
-    >>> calculate_jump(point)
-    (1280, 0)
-    >>> point = ( 640, -360)
-    >>> calculate_jump(point)
-    (0, 720)
-    >>> point = ( 640, 1360)
-    >>> calculate_jump(point)
-    (0, -720)
-    """
-    x, y = coordinates
-
-    horizontal_jumps = x // SCREEN_WIDTH
-    vertical_jumps = y // SCREEN_HEIGHT
-
-    horizontal_scroll = horizontal_jumps * SCREEN_WIDTH
-    vertical_scroll = vertical_jumps * SCREEN_HEIGHT
-
-    return (-horizontal_scroll, -vertical_scroll)
 
 
 def unscroll_coordinates(coordinates):
@@ -229,3 +185,28 @@ def invert_point(point, invert_x, invert_y):
     inverted_point = (new_x, new_y)
 
     return inverted_point
+
+def get_rect_from_points(point_a, point_b):
+    """Return rect-like tuple from given points.
+
+    Each of the four elements of the tuple is an integer
+    representing, respectively, the left coordinate, the
+    top coordinate, the width and the height.
+    """
+    ### get tuples gathering x's and y's from both points
+    xs, ys = zip(point_a, point_b)
+
+    ### calculate left and right, then width
+
+    left, right = (func(xs) for func in (min, max))
+
+    width = right - left
+
+    ### calculate top and bottom, then height
+
+    top, bottom = (func(ys) for func in (min, max))
+
+    height = bottom - top
+
+    ### finally return the tuple
+    return (left, top, width, height)
