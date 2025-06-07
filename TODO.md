@@ -1,0 +1,1 @@
+- add sounds to watcherbot shot (maybe to rabbit enemy jump as well?)
