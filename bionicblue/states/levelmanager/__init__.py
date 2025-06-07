@@ -53,17 +53,17 @@ from .common import (
     LAYER_NAMES,
 
     LAYERS,
-    ONSCREEN_LAYERS,
+    NEAR_SCREEN_LAYERS,
 
     BACK_PROPS,
     MIDDLE_PROPS,
     BLOCKS,
     ACTORS,
 
-    BACK_PROPS_ON_SCREEN,
-    MIDDLE_PROPS_ON_SCREEN,
-    BLOCKS_ON_SCREEN,
-    ACTORS_ON_SCREEN,
+    BACK_PROPS_NEAR_SCREEN,
+    MIDDLE_PROPS_NEAR_SCREEN,
+    BLOCKS_NEAR_SCREEN,
+    ACTORS_NEAR_SCREEN,
 
     PROJECTILES,
     FRONT_PROPS,
@@ -234,16 +234,16 @@ class LevelManager:
 
         ### now we update what is on the screen
 
-        for prop in BACK_PROPS_ON_SCREEN:
+        for prop in BACK_PROPS_NEAR_SCREEN:
             prop.update()
 
-        for prop in MIDDLE_PROPS_ON_SCREEN:
+        for prop in MIDDLE_PROPS_NEAR_SCREEN:
             prop.update()
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
             block.update()
 
-        for actor in ACTORS_ON_SCREEN:
+        for actor in ACTORS_NEAR_SCREEN:
             actor.update()
 
         ### also update objects that are always on screen
@@ -313,21 +313,21 @@ class LevelManager:
 
         blit_on_screen(self.bg, (0, 0))
 
-        for prop in BACK_PROPS_ON_SCREEN:
+        for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()
 
-        for prop in MIDDLE_PROPS_ON_SCREEN:
+        for prop in MIDDLE_PROPS_NEAR_SCREEN:
             prop.draw()
 
         for projectile in PROJECTILES:
             projectile.draw()
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
             block.draw()
 
         self.player.draw()
 
-        for actor in ACTORS_ON_SCREEN:
+        for actor in ACTORS_NEAR_SCREEN:
             actor.draw()
 
         for prop in FRONT_PROPS:

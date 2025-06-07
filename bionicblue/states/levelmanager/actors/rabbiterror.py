@@ -21,7 +21,7 @@ from ..frontprops.defaultexplosion import DefaultExplosion
 from ..common import (
     remove_obj,
     FRONT_PROPS,
-    BLOCKS_ON_SCREEN,
+    BLOCKS_NEAR_SCREEN,
     append_task,
 )
 
@@ -94,7 +94,7 @@ class Rabbiterror:
 
         colliderect = self.rect.colliderect
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
 
             if colliderect(block.rect):
 
@@ -114,7 +114,7 @@ class Rabbiterror:
 
         colliderect = self.rect.colliderect
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
 
             if colliderect(block.rect):
 

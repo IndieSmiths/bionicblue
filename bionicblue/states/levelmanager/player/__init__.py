@@ -28,7 +28,7 @@ from ....ourstdlibs.behaviour import do_nothing
 
 from ....ani2d.player import AnimationPlayer2D
 
-from ..common import MIDDLE_PROPS_ON_SCREEN, BLOCKS_ON_SCREEN
+from ..common import MIDDLE_PROPS_NEAR_SCREEN, BLOCKS_NEAR_SCREEN
 
 from .healthcolumn import HealthColumn
 
@@ -130,7 +130,7 @@ class Player(
 
         rect = self.rect
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
 
             if block.colliderect(rect):
 
@@ -158,7 +158,7 @@ class Player(
 
         self.midair = True
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
 
             if block.colliderect(rect):
 
@@ -313,7 +313,7 @@ class Player(
 
         ladders = tuple(
             prop
-            for prop in MIDDLE_PROPS_ON_SCREEN
+            for prop in MIDDLE_PROPS_NEAR_SCREEN
             if 'Ladder' in prop.__class__.__name__
             if prop.rect.colliderect(rect)
         )

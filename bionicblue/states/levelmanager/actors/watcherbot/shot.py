@@ -26,7 +26,7 @@ from .....ourstdlibs.mathutils import get_rect_from_points
 
 from ...common import (
     PROJECTILES,
-    BLOCKS_ON_SCREEN,
+    BLOCKS_NEAR_SCREEN,
     append_task,
 )
 
@@ -99,7 +99,7 @@ class WatcherShot:
             self.trigger_kill()
             return
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
 
             if colliderect(block.rect):
 

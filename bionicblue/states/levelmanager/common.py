@@ -22,61 +22,6 @@ content_origin = Vector2()
 ## vector to keep track of scrolling
 scrolling = Vector2()
 
-##
-
-LAYER_NAMES = (
-    'backprops',
-    'middleprops',
-    'blocks',
-    'actors',
-)
-
-get_layer_from_name = {
-    name: set()
-    for name in LAYER_NAMES
-}.__getitem__
-
-LAYERS = [get_layer_from_name(name) for name in LAYER_NAMES]
-
-get_onscreen_layer_from_name = {
-    name: set()
-    for name in LAYER_NAMES
-}.__getitem__
-
-ONSCREEN_LAYERS = [get_onscreen_layer_from_name(name) for name in LAYER_NAMES]
-
-(
-BACK_PROPS,
-MIDDLE_PROPS,
-BLOCKS,
-ACTORS,
-) = LAYERS
-
-(
-BACK_PROPS_ON_SCREEN,
-MIDDLE_PROPS_ON_SCREEN,
-BLOCKS_ON_SCREEN,
-ACTORS_ON_SCREEN,
-) = ONSCREEN_LAYERS
-
-PROJECTILES = set()
-FRONT_PROPS = set()
-
-## tasks
-
-TASKS = []
-append_task = TASKS.append
-clear_tasks = TASKS.clear
-
-def execute_tasks():
-
-    if TASKS:
-
-        for task in TASKS:
-            task()
-
-        clear_tasks()
-
 ## define a vicinity rect
 ##
 ## it is a rect equivalent to the SCREEN after we increase it in all four
@@ -105,6 +50,95 @@ VICINITY_RECT = (
 VICINITY_WIDTH, VICINITY_HEIGHT = VICINITY_RECT.size
 vicinity_colliderect = VICINITY_RECT.colliderect
 
+## define a half vicinity rect
+##
+## it is a rect equivalent to the SCREEN after we increase it in all four
+## directions by half of its own dimensions, centered on the screen
+##
+## it is used to detect which actors should we keep updating
+## (the screen is the visible area)
+##   _______________________
+##  | HALF V.   ^           |
+##  | RECT _____|_____      |
+##  |     |           |     |
+##  |<----|  SCREEN   |---->|
+##  |     |   RECT    |     |
+##  |     |___________|     |
+##  |           |           |
+##  |___________v___________|
+
+HALF_VICINITY_RECT = (
+    SCREEN_RECT.inflate(SCREEN_RECT.width // 2, SCREEN_RECT.height // 2)
+)
+
+half_vicinity_colliderect = HALF_VICINITY_RECT.colliderect
+
+##
+
+LAYER_NAMES = (
+    'backprops',
+    'middleprops',
+    'blocks',
+    'actors',
+)
+
+get_layer_from_name = {
+    name: set()
+    for name in LAYER_NAMES
+}.__getitem__
+
+LAYERS = [get_layer_from_name(name) for name in LAYER_NAMES]
+
+get_near_screen_layer_from_name = {
+    name: set()
+    for name in LAYER_NAMES
+}.__getitem__
+
+NEAR_SCREEN_LAYERS = [get_near_screen_layer_from_name(name) for name in LAYER_NAMES]
+
+(
+BACK_PROPS,
+MIDDLE_PROPS,
+BLOCKS,
+ACTORS,
+) = LAYERS
+
+(
+BACK_PROPS_NEAR_SCREEN,
+MIDDLE_PROPS_NEAR_SCREEN,
+BLOCKS_NEAR_SCREEN,
+ACTORS_NEAR_SCREEN,
+) = NEAR_SCREEN_LAYERS
+
+COLLIDER_FUNCS = (
+    screen_colliderect,
+    screen_colliderect,
+    vicinity_colliderect,
+    half_vicinity_colliderect,
+)
+
+LAYER_DATA_TRIPLETS = list(zip(LAYERS, NEAR_SCREEN_LAYERS, COLLIDER_FUNCS))
+
+
+PROJECTILES = set()
+FRONT_PROPS = set()
+
+## tasks
+
+TASKS = []
+append_task = TASKS.append
+clear_tasks = TASKS.clear
+
+def execute_tasks():
+
+    if TASKS:
+
+        for task in TASKS:
+            task()
+
+        clear_tasks()
+
+### chunks
 
 CHUNKS = set()
 
@@ -244,16 +278,16 @@ def update_chunks_and_layers():
     ### clear temporary chunks collection
     CHUNKS_IN_VIC_TEMP.clear()
 
-    ### list objects on screen
+    ### list objects near screen
 
-    for layer, on_screen in zip(LAYERS, ONSCREEN_LAYERS):
+    for layer, near_screen_layer, collider_func in LAYER_DATA_TRIPLETS:
 
-        on_screen.clear()
+        near_screen_layer.clear()
 
-        on_screen.update(
+        near_screen_layer.update(
             obj
             for obj in layer
-            if screen_colliderect(obj.rect)
+            if collider_func(obj.rect)
         )
 
 
@@ -399,5 +433,5 @@ def add_obj(obj):
 def remove_obj(obj):
 
     get_layer_from_name(obj.layer_name).remove(obj)
-    get_onscreen_layer_from_name(obj.layer_name).remove(obj)
+    get_near_screen_layer_from_name(obj.layer_name).remove(obj)
     obj.chunk.remove_obj(obj)

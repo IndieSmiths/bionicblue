@@ -15,8 +15,8 @@ from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
 
 from ...common import (
     PROJECTILES,
-    ACTORS_ON_SCREEN,
-    BLOCKS_ON_SCREEN,
+    ACTORS_NEAR_SCREEN,
+    BLOCKS_NEAR_SCREEN,
     append_task,
 )
 
@@ -63,7 +63,7 @@ class DefaultProjectile:
 
         colliderect_expanded = self.colliderect_expanded
 
-        for actor in ACTORS_ON_SCREEN:
+        for actor in ACTORS_NEAR_SCREEN:
 
             if colliderect_expanded(actor.rect):
 
@@ -78,7 +78,7 @@ class DefaultProjectile:
 
                     return
 
-        for block in BLOCKS_ON_SCREEN:
+        for block in BLOCKS_NEAR_SCREEN:
 
             if colliderect(block.rect):
 
