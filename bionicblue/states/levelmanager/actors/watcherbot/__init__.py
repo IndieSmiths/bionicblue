@@ -6,7 +6,7 @@ from functools import partial
 
 ### local imports
 
-from .....config import REFS
+from .....config import REFS, SOUND_MAP
 
 from .....pygamesetup.constants import GENERAL_NS, msecs_to_frames
 
@@ -100,6 +100,8 @@ class WatcherBot:
                             player_center=pcenter,
                         )
                     )
+
+                    SOUND_MAP['watcherbot_shot.wav'].play()
 
                     self.shooting_countdown = FRAME_COUNT_BEFORE_SHOOTING
 

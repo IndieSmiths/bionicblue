@@ -6,7 +6,7 @@ from functools import partial
 
 ### local imports
 
-from ....config import REFS
+from ....config import REFS, SOUND_MAP
 
 from ....pygamesetup.constants import GENERAL_NS, msecs_to_frames
 
@@ -84,6 +84,8 @@ class Rabbiterror:
                 else 'jump_left'
 
             )
+
+            SOUND_MAP['rabbiterror_jump.wav'].play()
 
             self.jump_countdown = FRAMES_UNTIL_NEXT_JUMP 
 
