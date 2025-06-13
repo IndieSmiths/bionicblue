@@ -135,6 +135,9 @@ class Rabbiterror:
 
                     self.x_speed = 0
 
+                    if hasattr(block, 'touched_top'):
+                        block.touched_top(self)
+
                 self.y_speed = 0
 
                 break

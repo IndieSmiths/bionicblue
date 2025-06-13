@@ -41,6 +41,7 @@ from .backprops.citywall import CityWall
 from .middleprops.ladder import Ladder
 
 from .blocks.cityblock import CityBlock
+from .blocks.spike import Spike
 
 from .actors.gruntbot import GruntBot
 from .actors.watcherbot import WatcherBot
@@ -374,6 +375,9 @@ def instantiate(obj_data, layer_name):
 
     elif name == 'city_block':
         obj = CityBlock(**obj_data)
+
+    elif name == 'spike':
+        obj = Spike(**obj_data)
 
     elif name == 'grunt_bot':
         obj = GruntBot(**obj_data)

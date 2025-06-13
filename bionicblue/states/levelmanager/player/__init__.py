@@ -167,6 +167,9 @@ class Player(
                     rect.bottom = block.rect.top
                     self.midair = False
 
+                    if hasattr(block, 'touched_top'):
+                        block.touched_top(self)
+
                 else:
                     rect.top = block.rect.bottom
 
