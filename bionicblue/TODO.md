@@ -1,0 +1,1 @@
+- use colorkey for image with alpha (image from data/images), maybe changing folder names to `colorkey` and `no_colorkey`, like in the level editor
