@@ -26,8 +26,8 @@ from ..config import (
     SURF_MAP,
     ANIM_DATA_MAP,
     SOUND_MAP,
-    ALPHA_IMAGES_DIR,
-    NO_ALPHA_IMAGES_DIR,
+    COLORKEY_IMAGES_DIR,
+    NO_COLORKEY_IMAGES_DIR,
     ANIMATIONS_DIR,
     SOUNDS_DIR,
     quit_game,
@@ -72,13 +72,13 @@ class ResourceLoader:
 
             zip(
                 repeat(SURF_MAP),
-                ALPHA_IMAGES_DIR.iterdir(),
-                repeat(load_alpha_image_from_filepath),
+                COLORKEY_IMAGES_DIR.iterdir(),
+                repeat(load_image_with_colorkey_from_filepath),
             ),
 
             zip(
                 repeat(SURF_MAP),
-                NO_ALPHA_IMAGES_DIR.iterdir(),
+                NO_COLORKEY_IMAGES_DIR.iterdir(),
                 repeat(load_image_from_filepath),
             ),
 
@@ -208,13 +208,10 @@ class ResourceLoader:
 
 ### utility functions
 
-def load_alpha_image_from_filepath(filepath):
-    image = load_image(str(filepath)).convert_alpha()
-    surf = Surface(image.get_size()).convert()
-    surf.set_colorkey(COLORKEY)
-    surf.fill(COLORKEY)
-    surf.blit(image, (0, 0))
-    return surf
+def load_image_with_colorkey_from_filepath(filepath):
+    image = load_image(str(filepath)).convert()
+    image.set_colorkey(COLORKEY)
+    return image
 
 def load_image_from_filepath(filepath):
     return load_image(str(filepath)).convert()

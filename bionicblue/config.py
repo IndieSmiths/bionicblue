@@ -65,8 +65,8 @@ MUSIC_DIR = DATA_DIR / 'music'
 LEVELS_DIR = DATA_DIR / 'levels'
 PARTICLES_DIR = DATA_DIR / 'particles'
 
-NO_ALPHA_IMAGES_DIR = IMAGES_DIR  / 'no_alpha'
-ALPHA_IMAGES_DIR = IMAGES_DIR  / 'alpha'
+NO_COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'no_alpha'
+COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'alpha'
 
 ###
 
