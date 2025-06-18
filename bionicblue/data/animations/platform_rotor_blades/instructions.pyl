@@ -1,0 +1,33 @@
+{
+    "name": "platform_rotor_blades",
+    "geometry": {
+        "body" : {
+            "size" : (32, 14),
+            "art_size" : (32, 32),
+            "art_anchorage" : ('midtop', 'midtop'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "floating" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "moving": {"structure": "floating"},
+    },
+    "values": {
+        "moving": {
+            "body": {
+                "surfaces": "platform_rotor_blades.moving",
+            },
+        },
+    },
+    "timing": {
+        "moving": {
+            "body": {
+                "surface_indices": "platform_rotor_blades.moving",
+            },
+        },
+    },
+}

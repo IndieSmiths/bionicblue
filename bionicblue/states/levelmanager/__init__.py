@@ -42,6 +42,7 @@ from .middleprops.ladder import Ladder
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
+from .blocks.floatingplatform import FloatingPlatform
 
 from .actors.gruntbot import GruntBot
 from .actors.watcherbot import WatcherBot
@@ -378,6 +379,12 @@ def instantiate(obj_data, layer_name):
 
     elif name == 'spike':
         obj = Spike(**obj_data)
+
+    elif name in (
+        'floating_h_platform',
+        'floating_v_platform',
+    ):
+        obj = FloatingPlatform(**obj_data)
 
     elif name == 'grunt_bot':
         obj = GruntBot(**obj_data)
