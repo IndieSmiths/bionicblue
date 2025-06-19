@@ -21,12 +21,17 @@ class Ladder:
         surf_map = self.surf_map
 
         if size in surf_map:
+
             self.image = surf_map[size]
+            rect = self.rect = self.image.get_rect()
 
         else:
-            self.image = surf_map[size] = (
-                get_larger_surf_by_repeating(SURF_MAP['ladder.png'], size)
-            )
+
+            _surf = get_larger_surf_by_repeating(SURF_MAP['ladder.png'], size)
+            rect = self.rect = _surf.get_rect()
+            rect.inflate_ip(-2, 0)
+            surf = _surf.subsurface(rect)
+            self.image = surf_map[size] = surf
 
         self.rect = self.image.get_rect()
         setattr(self.rect, 'midbottom', pos)
