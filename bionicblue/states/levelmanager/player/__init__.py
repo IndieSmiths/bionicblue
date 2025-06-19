@@ -317,7 +317,7 @@ class Player(
         ladders = tuple(
             prop
             for prop in MIDDLE_PROPS_NEAR_SCREEN
-            if 'Ladder' in prop.__class__.__name__
+            if getattr(prop, 'climbable', False)
             if prop.rect.colliderect(rect)
         )
 

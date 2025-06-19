@@ -39,6 +39,7 @@ from .player import Player
 from .backprops.citywall import CityWall
 
 from .middleprops.ladder import Ladder
+from .middleprops.chains import Chains
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
@@ -397,6 +398,9 @@ def instantiate(obj_data, layer_name):
 
     elif name == 'ladder':
         obj = Ladder(**obj_data)
+
+    elif name == 'chains':
+        obj = Chains(**obj_data)
 
     else:
         raise RuntimeError("This block should never be reached.")

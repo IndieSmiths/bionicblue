@@ -9,7 +9,7 @@ from ....surfsman import get_larger_surf_by_repeating
 
 
 
-class Ladder:
+class Chains:
 
     surf_map = {}
     climbable = True
@@ -21,16 +21,20 @@ class Ladder:
         surf_map = self.surf_map
 
         if size in surf_map:
+
             self.image = surf_map[size]
+            rect = self.rect = self.image.get_rect()
 
         else:
-            self.image = surf_map[size] = (
-                get_larger_surf_by_repeating(SURF_MAP['ladder.png'], size)
-            )
 
-        self.rect = self.image.get_rect()
-        setattr(self.rect, 'midbottom', pos)
-        self.colliderect = self.rect.colliderect
+            _surf = get_larger_surf_by_repeating(SURF_MAP['chains.png'], size)
+            rect = self.rect = _surf.get_rect()
+            rect.inflate_ip(-8, 0)
+            surf = _surf.subsurface(rect)
+            self.image = surf_map[size] = surf
+
+        setattr(rect, 'midtop', pos)
+        self.colliderect = rect.colliderect
 
     def update(self): pass
 
