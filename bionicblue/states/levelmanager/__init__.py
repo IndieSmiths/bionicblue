@@ -171,17 +171,6 @@ class LevelManager:
 
         )
 
-        ### position player
-
-        landing_pos = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'landing'
-        )['pos']
-
-        self.player.rect.centerx = landing_pos[0]
-        self.player.rect.bottom = SCREEN_RECT.top
-
         ### bg
 
         self.bg = Surface((320, 180)).convert()
@@ -202,6 +191,23 @@ class LevelManager:
         message.rect.centerx = message_pos[0]
         message.rect.bottom = message_pos[1] - 20
         add_obj(message)
+
+        ### scroll level so player ends up positioned above given label
+
+        label_name = 'landing'
+
+        landing_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == label_name 
+        )['pos']
+
+        dx = SCREEN_RECT.centerx - landing_pos[0]
+        dy = self.floor_level - landing_pos[1]
+        self.move_level((dx, dy))
+
+        self.player.rect.centerx = SCREEN_RECT.centerx
+        self.player.rect.bottom = SCREEN_RECT.top
 
         ### update chunks and list objects on screen
 
