@@ -9,6 +9,8 @@ from pygame import Surface
 
 ### local imports
 
+from ....config import REFS
+
 from ....pygamesetup.constants import blit_on_screen
 
 from ....ani2d.player import AnimationPlayer2D
@@ -98,6 +100,24 @@ class FloatingPlatform:
             self.touched = None
 
         self.blades.rect.midtop = rect.midbottom
+
+        ### if moving caused us to touch player, offset
+        ### player
+
+        player = REFS.states.level_manager.player
+
+        if self.colliderect(player.rect):
+
+            player.rect.move_ip(*(
+
+                (amount, 0)
+                if self.increment == increment_x
+
+                else (0, amount)
+
+            ))
+
+        ###
 
         if rect.center != center:
 
