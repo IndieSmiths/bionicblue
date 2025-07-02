@@ -129,8 +129,29 @@ class ChargedShot:
             else 'disappearing_left'
         )
 
-        pos_name = 'left' if oriented_right else 'right'
-        self.rect.centerx = getattr(colliding_obj.rect, pos_name)
+        rect = self.rect
+
+        opposite_end_name = 'left' if oriented_right else 'right'
+
+        block_opposite_end = getattr(colliding_obj.rect, opposite_end_name)
+        shot_opposite_end = getattr(rect, opposite_end_name)
+
+        ### if difference between opposite ends of block and shot is not
+        ### that large (for instance, smaller than the shot width),
+        ### move shot's centerx to opposite end of block;
+        ###
+        ### before this measure, we just always moved the shot's centerx
+        ### to the block opposite end, which looks nice in common static
+        ### blocks; however, once we introduced moving platforms, a platform
+        ### moving upwards would have its top hit the full charged shot when
+        ### the player shot while standing on it, and the shot would
+        ### then be snaped to one of the opposite ends of the platform, far
+        ### from the spot where the shot hit the platform; now we always check
+        ### such distance and only move the shot when it is small, ensuring
+        ### the shot is only moved a small amount, if at all.
+
+        if abs(block_opposite_end - shot_opposite_end) < rect.width:
+            rect.centerx = block_opposite_end
 
     def disappearing_update(self):
 
