@@ -1,0 +1,51 @@
+{
+    "name": "chief_sec_bot",
+    "geometry": {
+        "body" : {
+            "size" : (12, 28),
+            "art_size" : (40, 40),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "standing" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "idle_right": {"structure": "standing"},
+        "idle_left": {"structure": "standing"},
+    },
+    "values": {
+        "idle_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.idle_left",
+            },
+        },
+    },
+    "timing": {
+        "idle_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.idle_left",
+            },
+        },
+    },
+    "recolored_surface_versions": {
+        "whitened": {
+            "effects": (
+                ("lightness", "set", 100),
+            ),
+            "surface_collections" : [
+                "chief_sec_bot.idle_left",
+            ],
+        },
+
+    },
+    "derived_animations": {
+        "idle_right": {
+            "operation_name": "flip_x",
+            "target": "idle_left",
+        },
+    },
+}

@@ -48,6 +48,7 @@ from .blocks.floatingplatform import FloatingPlatform
 from .actors.gruntbot import GruntBot
 from .actors.watcherbot import WatcherBot
 from .actors.rabbiterror import Rabbiterror
+from .actors.chiefsecbot import ChiefSecurityBot
 
 from .prototypemessage import message
 
@@ -191,6 +192,18 @@ class LevelManager:
         message.rect.centerx = message_pos[0]
         message.rect.bottom = message_pos[1] - 20
         add_obj(message)
+
+        ### add boss
+
+        boss_midbottom = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'boss_midb'
+        )['pos']
+
+        boss = ChiefSecurityBot('chief_sec_bot', boss_midbottom, facing_right=False)
+        boss.layer_name = 'actors'
+        add_obj(boss)
 
         ### scroll level so player ends up positioned above given label
 
