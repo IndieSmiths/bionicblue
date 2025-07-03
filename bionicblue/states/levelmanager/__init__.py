@@ -12,6 +12,8 @@ from pygame.mixer import music
 
 from pygame.math import Vector2
 
+from pygame.event import get as get_events
+
 
 ### local imports
 
@@ -52,6 +54,8 @@ from .actors.chiefsecbot import ChiefSecurityBot
 
 from .prototypemessage import message
 
+from .arenadoor import DOOR_1, DOOR_2
+
 from .common import (
 
     LAYER_NAMES,
@@ -89,9 +93,20 @@ from .common import (
 
 scrolling_backup = Vector2()
 
+FLOOR_LEVEL = 128
+
+NORMAL_CAMERA_TRACKING_AREA = SCREEN_RECT.copy()
+NORMAL_CAMERA_TRACKING_AREA.width //= 5
+NORMAL_CAMERA_TRACKING_AREA.height += -40
+NORMAL_CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
+
+BOSS_CAMERA_TRACKING_AREA = SCREEN_RECT.inflate(4, 4)
+
+
 class LevelManager:
 
     def __init__(self):
+        pass
 
 #        self.controls_panels = [
 #
@@ -108,19 +123,7 @@ class LevelManager:
 #
 #        self.controls_panels.reverse()
 
-        self.control = self.control_player
-
         ###
-
-        self.camera_tracking_area = SCREEN_RECT.copy()
-        self.camera_tracking_area.w //= 5
-        self.camera_tracking_area.h += -40
-        self.camera_tracking_area.center = SCREEN_RECT.center
-
-        self.disable_player_tracking()
-
-        ###
-        self.floor_level = 128
 
     def enable_player_tracking(self):
         self.camera_tracking_routine = self.track_player
@@ -129,6 +132,12 @@ class LevelManager:
         self.camera_tracking_routine = do_nothing
 
     def prepare(self):
+
+        self.control = self.control_player
+        self.update = self.normal_update
+
+        self.camera_tracking_area = NORMAL_CAMERA_TRACKING_AREA
+        self.disable_player_tracking()
 
         scrolling.update(0, 0)
         scrolling_backup.update(scrolling)
@@ -205,9 +214,51 @@ class LevelManager:
         boss.layer_name = 'actors'
         add_obj(boss)
 
+        ### add arena doors
+
+        door1_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'door1'
+        )['pos']
+
+        door2_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'door2'
+        )['pos']
+
+        DOOR_1.rect.midbottom = door1_pos
+        DOOR_2.rect.midbottom = door2_pos
+
+        DOOR_1.prepare()
+        DOOR_2.prepare()
+
+        add_obj(DOOR_1)
+        add_obj(DOOR_2)
+
+        ### store position of cam_cx (centerx of boss arena and
+        ### blue_midb (blue midbottom position near the boss)
+
+        self.cam_cx_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'cam_cx'
+        )['pos']
+
+        self.blue_midb = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'blue_midb'
+        )['pos']
+
         ### scroll level so player ends up positioned above given label
 
-        label_name = 'landing'
+        # temporarily using 'endpoint' for testing/development;
+        #
+        # normally this will be 'landing' or whichever checkpoint the player
+        # reached (which may actually be 'endpoint')
+        label_name = 'endpoint'
 
         landing_pos = next(
             label_data
@@ -216,7 +267,7 @@ class LevelManager:
         )['pos']
 
         dx = SCREEN_RECT.centerx - landing_pos[0]
-        dy = self.floor_level - landing_pos[1]
+        dy = FLOOR_LEVEL - landing_pos[1]
         self.move_level((dx, dy))
 
         self.player.rect.centerx = SCREEN_RECT.centerx
@@ -229,7 +280,7 @@ class LevelManager:
     def control_player(self):
         self.player.control()
 
-    def update(self):
+    def normal_update(self):
 
         ### must update player first, since it may move and cause the
         ### camera to move as well, which causes the level to move
@@ -248,6 +299,70 @@ class LevelManager:
         ### but only if the player is touching the floor and if the player
         ### isn't in that position already
         self.floor_level_routine()
+
+        ### if the level scrolled (moved), update chunks and layers
+
+        if scrolling_backup != scrolling:
+            update_chunks_and_layers()
+
+        ### now we update what is on the screen
+
+        for prop in BACK_PROPS_NEAR_SCREEN:
+            prop.update()
+
+        for prop in MIDDLE_PROPS_NEAR_SCREEN:
+            prop.update()
+
+        for block in BLOCKS_NEAR_SCREEN:
+            block.update()
+
+        for actor in ACTORS_NEAR_SCREEN:
+            actor.update()
+
+        ### also update objects that are always on screen
+
+        for projectile in PROJECTILES:
+            projectile.update()
+
+        for prop in FRONT_PROPS:
+            prop.update()
+
+        ### execute scheduled tasks
+        execute_tasks()
+
+    def moving_update(self):
+
+        ### must update player first, since it may move and cause the
+        ### camera to move as well, which causes the level to move
+        self.player.update()
+
+        ### backup scrolling
+        scrolling_backup.update(scrolling)
+
+        ### the floor routine moves the level gradually so the player's feet
+        ### ends up in a certain vertical distance from the top of the screen,
+        ### but only if the player is touching the floor and if the player
+        ### isn't in that position already
+        self.floor_level_routine()
+
+        ###
+
+        current_cam_cx = self.cam_cx_pos + scrolling
+        current_blue_midb = self.blue_midb + scrolling
+
+        if SCREEN_RECT.centerx != current_cam_cx[0]:
+
+            self.move_level((-1, 0))
+
+            player_rect = self.player.rect
+            player_rect.move_ip(-3, 0)
+
+            if abs(player_rect.centerx - current_blue_midb[0]) < 4:
+                player_rect.midbottom = current_blue_midb
+
+        else:
+            self.control = self.control_player
+            self.update = self.normal_update
 
         ### if the level scrolled (moved), update chunks and layers
 
@@ -301,7 +416,7 @@ class LevelManager:
 
         if self.player.midair: return
 
-        y_diff = self.player.rect.bottom - self.floor_level
+        y_diff = self.player.rect.bottom - FLOOR_LEVEL
 
         if y_diff:
             
@@ -366,8 +481,8 @@ class LevelManager:
 #        line(
 #            SCREEN,
 #            'magenta',
-#            (cam_area.left , self.floor_level),
-#            (cam_area.right-1, self.floor_level),
+#            (cam_area.left , FLOOR_LEVEL),
+#            (cam_area.right-1, FLOOR_LEVEL),
 #            1,
 #        )
         ############################
@@ -386,6 +501,15 @@ class LevelManager:
 
     def next(self):
         return self.state
+
+    def passing_through_arena_door(self, door_name):
+
+        if door_name == 'door_2':
+
+            self.camera_tracking_area = BOSS_CAMERA_TRACKING_AREA
+
+            self.update = self.moving_update
+            self.control = get_events
 
 def instantiate(obj_data, layer_name):
 
