@@ -54,7 +54,7 @@ from .actors.chiefsecbot import ChiefSecurityBot
 
 from .prototypemessage import message
 
-from .arenadoor import DOOR_1, DOOR_2
+from .arenadoor import DOOR_1, DOOR_2, BLOCK_DOOR_1, BLOCK_DOOR_2
 
 from .common import (
 
@@ -86,6 +86,7 @@ from .common import (
     execute_tasks,
     group_objects,
     add_obj,
+    remove_obj,
     update_chunks_and_layers,
 
 )
@@ -510,6 +511,28 @@ class LevelManager:
 
             self.update = self.moving_update
             self.control = get_events
+
+    def replace_arena_door(self, door_name):
+
+        if door_name == 'door_1':
+
+            BLOCK_DOOR_1.rect.midbottom = DOOR_1.rect.midbottom
+
+            remove_obj(DOOR_1)
+            add_obj(BLOCK_DOOR_1)
+
+        elif door_name == 'door_2':
+
+            BLOCK_DOOR_2.rect.midbottom = DOOR_2.rect.midbottom
+
+            remove_obj(DOOR_2)
+            add_obj(BLOCK_DOOR_2)
+
+        else:
+            RuntimeError(
+                "This block should never be reached, as there are"
+                " only 'door1' and 'door_2'."
+            )
 
 def instantiate(obj_data, layer_name):
 

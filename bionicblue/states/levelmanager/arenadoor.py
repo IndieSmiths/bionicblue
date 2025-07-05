@@ -1,4 +1,8 @@
 
+### standard library import
+from functools import partial
+
+
 ### third-party imports
 
 from pygame import Surface, Rect
@@ -14,6 +18,11 @@ from ...pygamesetup.constants import blit_on_screen
 
 from ...ourstdlibs.behaviour import do_nothing
 
+from .common import append_task
+
+
+
+DOOR_COLOR = 'grey'
 
 
 class ArenaDoor:
@@ -31,7 +40,7 @@ class ArenaDoor:
 
     def prepare(self):
 
-        self.image.fill('grey')
+        self.image.fill(DOOR_COLOR)
         self.inflating_rect.height = 1
         self.inflating_rect.centery = self.rect.height // 2
 
@@ -75,7 +84,7 @@ class ArenaDoor:
     def closing_draw(self):
 
         image = self.image
-        image.fill('grey')
+        image.fill(DOOR_COLOR)
 
         draw_rect(image, COLORKEY, self.inflating_rect)
         self.inflating_rect.inflate_ip(0, -4)
@@ -84,12 +93,38 @@ class ArenaDoor:
 
         if self.inflating_rect.height == 1:
 
-            image.fill('grey')
+            image.fill(DOOR_COLOR)
             self.draw = self.normal_draw
 
-            ### TODO at this point, ask level manager to
-            ### replace middleprops door by a block door
+            append_task(
+                partial(
+                    REFS.states.level_manager.replace_arena_door,
+                    self.name,
+                )
+            )
+
 
 
 DOOR_1 = ArenaDoor('door_1')
 DOOR_2 = ArenaDoor('door_2')
+
+class BlockDoor:
+
+    def __init__(self):
+
+        self.rect = DOOR_1.rect.copy()
+        self.colliderect = self.rect.colliderect
+
+        self.image = Surface(self.rect.size).convert()
+        self.image.fill(DOOR_COLOR)
+
+        self.layer_name = 'blocks'
+
+    def update(self): pass
+
+    def draw(self):
+        blit_on_screen(self.image, self.rect)
+
+
+BLOCK_DOOR_1 = BlockDoor()
+BLOCK_DOOR_2 = BlockDoor()
