@@ -392,8 +392,10 @@ def add_obj(obj):
 
             chunk.add_obj(obj)
 
-            ### add obj to layer
-            get_layer_from_name(obj.layer_name).add(obj)
+            ### add obj to layer if chunk in vicinity
+
+            if chunk in CHUNKS_IN_VIC:
+                get_layer_from_name(obj.layer_name).add(obj)
 
             break
 
