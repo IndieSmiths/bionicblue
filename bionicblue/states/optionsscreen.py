@@ -31,7 +31,7 @@ from pygame.draw import rect as draw_rect
 
 ### local imports
 
-from ..config import REFS, SOUND_MAP, quit_game
+from ..config import REFS, SOUND_MAP, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -60,8 +60,6 @@ from ..userprefsman.main import (
     DEFAULT_USER_PREFS,
     save_config_on_disk,
 )
-
-from ..exceptions import SwitchStateException, BackToBeginningException
 
 from ..widget.slider import HundredSlider
 from ..widget.checkbutton import Checkbutton
@@ -426,14 +424,14 @@ class OptionsScreen:
         main_menu = REFS.states.main_menu
         main_menu.prepare()
 
-        raise SwitchStateException(main_menu)
+        raise LoopException(next_state=main_menu)
 
     def to_playtesters_screen(self):
 
         playtesters_screen = REFS.states.playtesters_screen 
         playtesters_screen.prepare()
 
-        raise SwitchStateException(playtesters_screen)
+        raise LoopException(next_state=playtesters_screen)
 
     def on_mouse_click(self, event):
 

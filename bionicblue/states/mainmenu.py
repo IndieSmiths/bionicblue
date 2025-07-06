@@ -23,9 +23,7 @@ from pygame.mixer import music
 
 ### local imports
 
-from ..config import (
-    REFS, SOUND_MAP, MUSIC_DIR, quit_game
-)
+from ..config import REFS, SOUND_MAP, MUSIC_DIR, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -43,8 +41,6 @@ from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
 from ..constants import CHARGED_SHOT_SPEED
 
 from ..ourstdlibs.behaviour import do_nothing
-
-from ..exceptions import SwitchStateException
 
 from ..textman import render_text
 
@@ -208,21 +204,21 @@ class MainMenu:
             game_state = REFS.get_game_state()
             game_state.prepare()
 
-            raise SwitchStateException(game_state)
+            raise LoopException(next_state=game_state)
 
         elif 'controls' in item_key :
 
             controls_screen = REFS.states.controls_screen
             controls_screen.prepare(item_key)
 
-            raise SwitchStateException(controls_screen)
+            raise LoopException(next_state=controls_screen)
 
         elif item_key == 'options':
 
             options_screen = REFS.states.options_screen
             options_screen.prepare()
 
-            raise SwitchStateException(options_screen)
+            raise LoopException(next_state=options_screen)
 
         elif item_key == 'exit':
             quit_game()

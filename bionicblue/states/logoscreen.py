@@ -12,7 +12,7 @@ from pygame.display import update
 
 ### local imports
 
-from ..config import REFS, SURF_MAP, COLORKEY, quit_game
+from ..config import REFS, SURF_MAP, COLORKEY, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -21,8 +21,6 @@ from ..pygamesetup.constants import WHITE_BG, SCREEN_RECT, blit_on_screen
 from ..textman import render_text
 
 from ..surfsman import combine_surfaces
-
-from ..exceptions import SwitchStateException
 
 
 
@@ -101,6 +99,6 @@ class LogoScreen:
 
             title_screen = REFS.states.title_screen
             title_screen.prepare()
-            raise SwitchStateException(title_screen)
+            raise LoopException(next_state=title_screen)
 
         update()

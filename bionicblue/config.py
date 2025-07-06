@@ -23,6 +23,23 @@ COLORKEY = (192, 192, 192)
 
 ###
 
+class LoopException(Exception):
+    """Raised for a variety of purposes.
+
+    The purposes may be one or more of these:
+
+    1. simply skip back to the beginning of the loop
+    2. switch to a new state (loop holder)
+    3. switch to a new input mode (normal, input recording, input playing)
+    """
+
+    def __init__(self, *, next_state=None, next_input_mode_name=''):
+
+        self.state = next_state
+        self.input_mode_name = next_input_mode_name
+
+        super().__init__("Interrupting loop.")
+
 ## anonymous object builder
 Object = type('Object', (), {})
 

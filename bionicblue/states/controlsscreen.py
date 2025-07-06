@@ -22,7 +22,7 @@ from pygame.draw import rect as draw_rect
 
 ### local imports
 
-from ..config import REFS, quit_game
+from ..config import REFS, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -59,8 +59,6 @@ from ..userprefsman.main import (
 )
 
 from ..userprefsman.validation import PYGAME_KEYS_NAME_MAP, RESERVED_KEYS
-
-from ..exceptions import SwitchStateException, BackToBeginningException
 
 
 
@@ -461,7 +459,7 @@ class ControlsScreen:
         main_menu = REFS.states.main_menu
         main_menu.prepare()
 
-        raise SwitchStateException(main_menu)
+        raise LoopException(next_state=main_menu)
 
     def act_if_control_under_mouse(self, event):
 
@@ -566,7 +564,7 @@ class ControlsScreen:
             self.prompt_label_map[self.highlighted_control.key]
         )
 
-        raise BackToBeginningException
+        raise LoopException
 
     def control_wait_trigger(self):
 
@@ -577,7 +575,7 @@ class ControlsScreen:
                 self.control = self.control_selection
                 self.draw = self.draw_controls
 
-                raise BackToBeginningException
+                raise LoopException
 
             elif (
                 event.type == KEYDOWN
@@ -658,7 +656,7 @@ class ControlsScreen:
             self.control = self.control_selection
             self.draw = self.draw_controls
 
-            raise BackToBeginningException
+            raise LoopException
 
     def draw_controls(self):
 
@@ -695,7 +693,7 @@ class ControlsScreen:
 
         self.dialog_obj = self.dialog_map[dialog_name]
 
-        raise BackToBeginningException
+        raise LoopException
 
     def control_dialog(self):
 
@@ -706,7 +704,7 @@ class ControlsScreen:
                 self.control = self.control_selection
                 self.draw = self.draw_controls
 
-                raise BackToBeginningException
+                raise LoopException
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()

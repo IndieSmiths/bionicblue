@@ -29,7 +29,7 @@ from pygame.draw import rect as draw_rect
 
 ### local imports
 
-from ..config import REFS, PLAYTEST_DATA_DIR, quit_game
+from ..config import REFS, PLAYTEST_DATA_DIR, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -57,8 +57,6 @@ from ..userprefsman.main import (
     DEFAULT_USER_PREFS,
     save_config_on_disk,
 )
-
-from ..exceptions import SwitchStateException
 
 
 
@@ -325,7 +323,7 @@ class PlaytestersScreen:
         options_screen = REFS.states.options_screen
         options_screen.prepare()
 
-        raise SwitchStateException(options_screen)
+        raise LoopException(next_state=options_screen)
 
     def on_mouse_click(self, event):
 

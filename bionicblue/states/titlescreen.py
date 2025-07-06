@@ -14,7 +14,7 @@ from pygame.mixer import music
 
 ### local imports
 
-from ..config import REFS, MUSIC_DIR, quit_game
+from ..config import REFS, MUSIC_DIR, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -28,8 +28,6 @@ from ..pygamesetup.constants import (
 )
 
 from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
-
-from ..exceptions import SwitchStateException
 
 from ..textman import render_text
 
@@ -153,7 +151,7 @@ class TitleScreen:
                     main_menu = REFS.states.main_menu
                     main_menu.prepare()
 
-                    raise SwitchStateException(main_menu)
+                    raise LoopException(next_state=main_menu)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()

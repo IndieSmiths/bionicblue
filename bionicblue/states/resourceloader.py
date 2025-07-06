@@ -30,6 +30,7 @@ from ..config import (
     NO_COLORKEY_IMAGES_DIR,
     ANIMATIONS_DIR,
     SOUNDS_DIR,
+    LoopException,
     quit_game,
 )
 
@@ -45,8 +46,6 @@ from ..ani2d.player import AnimationPlayer2D
 from ..ani2d.processing import process_animation_data
 
 from ..classes2d.single import UIObject2D
-
-from ..exceptions import SwitchStateException
 
 from ..userprefsman.main import USER_PREFS
 
@@ -199,7 +198,7 @@ class ResourceLoader:
             ### prepare state and switch to it
 
             next_state.prepare()
-            raise SwitchStateException(next_state)
+            raise LoopException(next_state=next_state)
 
 
     def draw(self):

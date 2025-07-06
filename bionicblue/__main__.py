@@ -19,19 +19,13 @@ ensure_pygame_ce()
 
 ## remaining local imports
 
-from .config import REFS
+from .config import REFS, LoopException
 
 from .pygamesetup import SERVICES_NS, switch_mode
 
 from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from .states import setup_states
-
-from .exceptions import (
-    SwitchStateException,
-    BackToBeginningException,
-    SwitchModeException,
-)
 
 
 
@@ -60,15 +54,17 @@ def run_game(debug_directive=False):
                 state.update()
                 state.draw()
 
-        except SwitchStateException as obj:
-            state = obj.state
+        except LoopException as exc:
 
-        except BackToBeginningException as obj:
-            pass
+            ### switch state if one is given
 
-        except SwitchModeException as obj:
-            switch_mode(obj)
+            if exc.state is not None:
+                state = exc.state
 
+            ### set input mode if one is named
+
+            if exc.input_mode_name:
+                switch_mode(exc.input_mode_name)
 
 
 if __name__ == '__main__':

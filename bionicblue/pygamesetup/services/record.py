@@ -44,9 +44,9 @@ from pygame.display import update
 
 ### local imports
 
-from ...ourstdlibs.pyl import save_pyl
+from ...config import LoopException
 
-from ...exceptions import SwitchModeException
+from ...ourstdlibs.pyl import save_pyl
 
 from ...classes2d.single import UIObject2D
 
@@ -287,7 +287,7 @@ def get_events():
                 ### since this stops recording completely there's
                 ### no need to use the "continue" statement as we
                 ### did for the F8 key in the if-block above
-                raise SwitchModeException(mode_name='normal')
+                raise LoopException(next_input_mode_name='normal')
 
             ### cancel recording
 
@@ -466,7 +466,7 @@ def save_session_data():
 def cancel_recording():
 
     clear_data()
-    raise SwitchModeException(mode_name='normal')
+    raise LoopException(next_input_mode_name='normal')
 
 def clear_data():
 

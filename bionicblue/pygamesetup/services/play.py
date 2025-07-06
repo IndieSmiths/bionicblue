@@ -44,11 +44,9 @@ from pygame.draw import rect as draw_rect
 
 ### local imports
 
-from ...config import quit_game
+from ...config import LoopException, quit_game
 
 from ...ourstdlibs.pyl import load_pyl
-
-from ...exceptions import SwitchModeException
 
 from ...classes2d.single import UIObject2D
 
@@ -652,7 +650,7 @@ def leave_playing_mode():
     clear_data()
 
     ### switch mode
-    raise SwitchModeException(mode_name='normal')
+    raise LoopException(next_input_mode_name='normal')
 
 def clear_data():
 

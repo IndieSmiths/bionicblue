@@ -29,22 +29,21 @@ normal.set_behaviour(SERVICES_NS, reset_window_mode=False)
 
 ### function to switch modes
 
-def switch_mode(mode_info_ns):
-    """Switch to specific mode according to reset info data.
+def switch_mode(input_mode_name):
+    """Switch to named input mode.
 
     Parameters
     ==========
-    mode_info_ns (exceptions.SwitchModeException)
-        has attributes containing data about mode to be
-        switched to.
+    input_mode_name (str)
+        Name of input mode to switch to (either 'record', 'play' or 'normal')
     """
-    mode = GENERAL_NS.mode_name = mode_info_ns.mode_name
+    GENERAL_NS.input_mode_name = input_mode_name
 
-    if mode == 'record':
+    if input_mode_name == 'record':
         record.set_behaviour(SERVICES_NS)
 
-    elif mode == 'play':
+    elif input_mode_name == 'play':
         play.set_behaviour(SERVICES_NS)
 
-    elif mode == 'normal':
+    elif input_mode_name == 'normal':
         normal.set_behaviour(SERVICES_NS)
