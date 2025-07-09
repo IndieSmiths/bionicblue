@@ -33,10 +33,17 @@ class LoopException(Exception):
     3. switch to a new input mode (normal, input recording, input playing)
     """
 
-    def __init__(self, *, next_state=None, next_input_mode_name=''):
+    def __init__(
+        self,
+        *,
+        next_state=None,
+        next_input_mode_name='',
+        input_data=None,
+    ):
 
         self.state = next_state
         self.input_mode_name = next_input_mode_name
+        self.input_data = input_data
 
         super().__init__("Interrupting loop.")
 

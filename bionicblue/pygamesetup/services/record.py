@@ -66,6 +66,7 @@ from ..constants import (
     EVENT_COMPACT_NAME_MAP,
     EVENT_KEY_COMPACT_NAME_MAP,
     KEYS_MAP,
+    REVERSE_KEYS_MAP,
     SCANCODE_NAMES_MAP,
     MOD_KEYS_MAP,
 
@@ -95,13 +96,6 @@ append_mouse_pos_request = MOUSE_POS_REQUESTS.append
 
 MOUSE_KEY_STATE_REQUESTS = []
 append_mouse_key_state_request = MOUSE_KEY_STATE_REQUESTS.append
-
-## reverse keys map
-
-REVERSE_KEYS_MAP = {
-    value: key
-    for key, value in KEYS_MAP.items()
-}
 
 
 ## create labels objects

@@ -64,7 +64,10 @@ def run_game(debug_directive=False):
             ### set input mode if one is named
 
             if exc.input_mode_name:
-                switch_mode(exc.input_mode_name)
+                switch_mode(
+                    exc.input_mode_name,
+                    exc.input_data,
+                )
 
 
 if __name__ == '__main__':

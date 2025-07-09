@@ -29,13 +29,15 @@ normal.set_behaviour(SERVICES_NS, reset_window_mode=False)
 
 ### function to switch modes
 
-def switch_mode(input_mode_name):
+def switch_mode(input_mode_name, input_data=None):
     """Switch to named input mode.
 
     Parameters
     ==========
     input_mode_name (str)
         Name of input mode to switch to (either 'record', 'play' or 'normal')
+    input_data (dict or NoneType)
+        if dict, data is used in play mode.
     """
     GENERAL_NS.input_mode_name = input_mode_name
 
@@ -43,7 +45,7 @@ def switch_mode(input_mode_name):
         record.set_behaviour(SERVICES_NS)
 
     elif input_mode_name == 'play':
-        play.set_behaviour(SERVICES_NS)
+        play.set_behaviour(SERVICES_NS, input_data)
 
     elif input_mode_name == 'normal':
         normal.set_behaviour(SERVICES_NS)

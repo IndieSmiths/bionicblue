@@ -232,7 +232,7 @@ def get_ready_events(events):
 
 
 
-def set_behaviour(services_namespace):
+def set_behaviour(services_namespace, input_data):
     """Setup play services and data."""
 
     ### set play services as current ones
@@ -244,18 +244,27 @@ def set_behaviour(services_namespace):
         value = our_globals[attr_name]
         setattr(services_namespace, attr_name, value)
 
-    ### load session data
+    ### load input data for session
 
-    path = str(
-        next(
-            item
-            for item in Path.home().iterdir()
-            if item.name.endswith('.pyl')
-            if not item.name.startswith('.')
+    if input_data is None:
+
+        path = str(
+
+            next(
+
+                item
+                for item in Path.home().iterdir()
+
+                if item.name.endswith('.pyl')
+                if not item.name.startswith('.')
+
+            )
+
         )
-    )
 
-    SESSION_DATA.update(load_pyl(path))
+        input_data = load_pyl(path)
+
+    SESSION_DATA.update(input_data)
 
     ### retrieve playback speed and last frame index
 

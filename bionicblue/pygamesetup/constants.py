@@ -265,6 +265,12 @@ KEYS_MAP = {
 
 }
 
+
+REVERSE_KEYS_MAP = {
+    value: key
+    for key, value in KEYS_MAP.items()
+}
+
 SCANCODE_NAMES_MAP = {
 
     getattr(pygame_locals, name): name

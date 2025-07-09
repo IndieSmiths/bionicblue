@@ -12,8 +12,6 @@ from pygame.mixer import music
 
 from pygame.math import Vector2
 
-from pygame.event import get as get_events
-
 
 ### local imports
 
@@ -21,6 +19,7 @@ from ...config import (
     REFS,
     LEVELS_DIR,
     MUSIC_DIR,
+    LoopException,
 )
 
 from ...pygamesetup.constants import (
@@ -28,13 +27,15 @@ from ...pygamesetup.constants import (
     SCREEN_RECT,
 )
 
+from ...pygamesetup.inputgen import generate_input_data
+
 from ...ourstdlibs.behaviour import do_nothing
 
 from ...ourstdlibs.pyl import load_pyl
 
 from ...textman import render_text
 
-from ...userprefsman.main import USER_PREFS
+from ...userprefsman.main import USER_PREFS, KEYBOARD_CONTROLS
 
 from .player import Player
 
@@ -126,6 +127,8 @@ class LevelManager:
 
         ###
 
+        self.control = self.control_player
+
     def enable_player_tracking(self):
         self.camera_tracking_routine = self.track_player
 
@@ -134,7 +137,6 @@ class LevelManager:
 
     def prepare(self):
 
-        self.control = self.control_player
         self.update = self.normal_update
 
         self.camera_tracking_area = NORMAL_CAMERA_TRACKING_AREA
@@ -351,18 +353,19 @@ class LevelManager:
         current_cam_cx = self.cam_cx_pos + scrolling
         current_blue_midb = self.blue_midb + scrolling
 
-        if SCREEN_RECT.centerx != current_cam_cx[0]:
+        if abs(SCREEN_RECT.centerx - current_cam_cx[0]) > 2:
 
-            self.move_level((-1, 0))
+            self.move_level((-3, 0))
 
             player_rect = self.player.rect
-            player_rect.move_ip(-3, 0)
-
             if abs(player_rect.centerx - current_blue_midb[0]) < 4:
                 player_rect.midbottom = current_blue_midb
 
         else:
-            self.control = self.control_player
+
+            diff = SCREEN_RECT.centerx - current_cam_cx[0]
+            self.move_level((diff, 0))
+
             self.update = self.normal_update
 
         ### if the level scrolled (moved), update chunks and layers
@@ -508,9 +511,25 @@ class LevelManager:
         if door_name == 'door_2':
 
             self.camera_tracking_area = BOSS_CAMERA_TRACKING_AREA
-
             self.update = self.moving_update
-            self.control = get_events
+
+            # TODO probaby use time in milliseconds, converting to
+            # frames before feeding to function
+            input_data = (
+
+                generate_input_data(
+                    key_range_pairs = (
+                        (KEYBOARD_CONTROLS['right'], (33,)),
+                    ),
+                    no_of_frames=30*3,
+                )
+
+            )
+
+            raise LoopException(
+                next_input_mode_name='play',
+                input_data=input_data,
+            )
 
     def replace_arena_door(self, door_name):
 
