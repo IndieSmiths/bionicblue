@@ -15,16 +15,15 @@ from pygame.math import Vector2
 
 ### local imports
 
+from ...config import COLORKEY
+
 from ...ourstdlibs.pyl import load_pyl
 
 from ...ourstdlibs.wdeque.main import WalkingDeque
 
 from ...ourstdlibs.tree import get_tree_values
 
-from .constants import (
-    TRANSP_COLORKEY,
-    OBLIVIOUS_EMPTY_GETTER,
-)
+from .constants import OBLIVIOUS_EMPTY_GETTER
 
 from .recolor import get_recolored_sprites_data
 from .derived import process_derived_animations
@@ -185,8 +184,8 @@ def process_animation_data(animation_dir):
 
             ###
             base_surf = Surface((size, size)).convert()
-            base_surf.fill(TRANSP_COLORKEY)
-            base_surf.set_colorkey(TRANSP_COLORKEY)
+            base_surf.fill(COLORKEY)
+            base_surf.set_colorkey(COLORKEY)
             ###
 
             for version in versions:
