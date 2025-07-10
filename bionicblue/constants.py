@@ -1,6 +1,6 @@
 
 ### local import
-from .pygamesetup.constants import FPS
+from .pygamesetup.constants import FPS, msecs_to_frames
 
 
 ### acceleration (pixels per frame squared)
@@ -14,13 +14,7 @@ MAX_X_SPEED = 4
 CHARGED_SHOT_SPEED = 10
 
 
-
-### time-based
-
-## utility
-msecs_to_frames = lambda msecs: round(msecs * FPS / 1000)
-
-## constants
+### time-based constants
 
 _MSECS_TO_DAMAGE_WHITENING = 70
 DAMAGE_WHITENING_FRAMES = msecs_to_frames(_MSECS_TO_DAMAGE_WHITENING)
@@ -39,4 +33,3 @@ MIDDLE_CHARGE_FRAMES = msecs_to_frames(_MIDDLE_CHARGE_MSECS)
 
 _FULL_CHARGE_MSECS = 2700
 FULL_CHARGE_FRAMES = msecs_to_frames(_FULL_CHARGE_MSECS)
-
