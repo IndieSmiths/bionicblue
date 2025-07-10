@@ -8,9 +8,7 @@ from functools import partial
 
 from ....config import REFS
 
-from ....pygamesetup.constants import GENERAL_NS
-
-from ....constants import DAMAGE_WHITENING_FRAMES
+from ....pygamesetup.constants import GENERAL_NS, msecs_to_frames
 
 from ....ani2d.player import AnimationPlayer2D
 
@@ -26,6 +24,14 @@ from ..common import (
 )
 
 
+
+_HURT_WHITENING_MSECS = 2000
+HURT_WHITENING_FRAMES = msecs_to_frames(_HURT_WHITENING_MSECS)
+
+WHITENING_CYCLE = (
+  *('whitened',)*2,
+  *('default',)*3,
+)
 
 class ChiefSecurityBot:
 
@@ -117,7 +123,7 @@ class ChiefSecurityBot:
 
         if (
             GENERAL_NS.frame_index - self.last_damage
-            > DAMAGE_WHITENING_FRAMES
+            > HURT_WHITENING_FRAMES
         ):
 
             self.aniplayer.restore_surface_cycling()
@@ -128,15 +134,21 @@ class ChiefSecurityBot:
 
     def damage(self, amount):
 
-        self.health += -amount
+        if (
+            GENERAL_NS.frame_index - self.last_damage
+            > HURT_WHITENING_FRAMES
+        ):
 
-        if self.health <= 0:
+            self.health += -amount
+            self.last_damage = GENERAL_NS.frame_index
 
-            center = self.rect.center
+            if self.health <= 0:
 
-            FRONT_PROPS.add(DefaultExplosion('center', center))
-            append_task(partial(remove_obj, self))
+                center = self.rect.center
 
-        else:
-            self.aniplayer.set_custom_surface_cycling(('whitened', 'default'))
-            self.routine_check = self.check_damage_whitening
+                FRONT_PROPS.add(DefaultExplosion('center', center))
+                append_task(partial(remove_obj, self))
+
+            else:
+                self.aniplayer.set_custom_surface_cycling(WHITENING_CYCLE)
+                self.routine_check = self.check_damage_whitening
