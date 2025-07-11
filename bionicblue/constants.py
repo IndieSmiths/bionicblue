@@ -3,6 +3,17 @@
 from .pygamesetup.constants import FPS, msecs_to_frames
 
 
+### XXX shouldn't most of these constants be closer to where they are used?
+### the answer is yes, however, one must remember that the most important
+### thing for all resources in this package is to serve the game.
+###
+### For instance, the CHARGE_SHOT_SPEED should be closer to the player
+### subpackage or its projectile subpackage, but states/mainmenu also use
+### it; so, despite it making more sense for that constant to be near
+### the player, since it is used by other modules, it must where it
+### can be imported by both, since both need the constant
+
+
 ### acceleration (pixels per frame squared)
 GRAVITY_ACCEL = 2
 
