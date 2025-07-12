@@ -6,22 +6,24 @@ from functools import partial
 
 ### local imports
 
-from ....config import REFS
+from .....config import REFS
 
-from ....pygamesetup.constants import GENERAL_NS, msecs_to_frames
+from .....pygamesetup.constants import GENERAL_NS, msecs_to_frames
 
-from ....ani2d.player import AnimationPlayer2D
+from .....ani2d.player import AnimationPlayer2D
 
-from ....ourstdlibs.behaviour import do_nothing
+from .....ourstdlibs.behaviour import do_nothing
 
-from ..frontprops.defaultexplosion import DefaultExplosion
+from ...frontprops.defaultexplosion import DefaultExplosion
 
-from ..common import (
+from ...common import (
     remove_obj,
     FRONT_PROPS,
     BLOCKS_NEAR_SCREEN,
     append_task,
 )
+
+from .healthcolumn import HealthColumn
 
 
 
@@ -37,7 +39,7 @@ class ChiefSecurityBot:
 
     def __init__(self, name, pos, facing_right=False):
 
-        self.health = 30
+        self.health_column = HealthColumn()
 
         self.player = REFS.states.level_manager.player
 
@@ -55,6 +57,12 @@ class ChiefSecurityBot:
 
         self.last_damage = GENERAL_NS.frame_index
         self.routine_check = do_nothing
+
+        REFS.level_boss = self
+
+    @property
+    def health(self):
+        return self.health_column.health
 
     def update(self):
 
@@ -139,10 +147,10 @@ class ChiefSecurityBot:
             > HURT_WHITENING_FRAMES
         ):
 
-            self.health += -amount
+            self.health_column.damage(amount)
             self.last_damage = GENERAL_NS.frame_index
 
-            if self.health <= 0:
+            if self.health_column.is_depleted():
 
                 center = self.rect.center
 

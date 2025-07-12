@@ -63,7 +63,7 @@ class HealthColumn:
 
         image.blit(self.head_surf, head_rect)
 
-        self.rect.bottomleft = (3, 74)
+        self.rect.topleft = (3, 28)
 
     def damage(self, amount):
 

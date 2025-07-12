@@ -76,6 +76,7 @@ from .common import (
 
     PROJECTILES,
     FRONT_PROPS,
+    HEALTH_COLUMNS,
 
     CHUNKS,
 
@@ -158,6 +159,9 @@ class LevelManager:
             self.player = Player()
 
         self.player.prepare()
+
+        HEALTH_COLUMNS.clear()
+        HEALTH_COLUMNS.add(self.player.health_column)
 
         self.state = self
 
@@ -499,7 +503,8 @@ class LevelManager:
 #            blit_on_screen(surf, (x, y))
 #            y += -12
 
-        self.player.health_column.draw()
+        for column in HEALTH_COLUMNS:
+            column.draw()
 
         update_screen()
 
@@ -512,6 +517,7 @@ class LevelManager:
 
             self.camera_tracking_area = BOSS_CAMERA_TRACKING_AREA
             self.update = self.moving_update
+            HEALTH_COLUMNS.add(REFS.level_boss.health_column)
 
             # TODO probaby use time in milliseconds, converting to
             # frames before feeding to function
