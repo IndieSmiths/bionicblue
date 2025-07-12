@@ -8,7 +8,7 @@ from pygame.draw import rect as draw_rect, circle as draw_circle
 
 ### local import
 
-from ....config import SURF_MAP
+from ....config import SURF_MAP, COLORKEY
 
 from ....pygamesetup.constants import blit_on_screen
 
@@ -52,8 +52,8 @@ class HealthColumn:
 
         image = self.image = Surface(self.rect.size).convert()
 
-        image.set_colorkey((192, 192, 192))
-        image.fill((192, 192, 192))
+        image.set_colorkey(COLORKEY)
+        image.fill(COLORKEY)
 
         draw_rect(image, 'grey80', hbg.inflate(4, 4))
         draw_circle(image, 'grey80', head_rect.center, 7)
