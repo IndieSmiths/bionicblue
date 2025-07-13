@@ -94,6 +94,9 @@ BLACK_BG.fill('black')
 
 SCREEN_COPY = SCREEN.copy()
 
+SCREEN_TRANSP_OVERLAY = SCREEN.convert_alpha()
+SCREEN_TRANSP_OVERLAY.fill((0, 0, 0, 128))
+
 SCREEN_RECT = SCREEN.get_rect()
 
 

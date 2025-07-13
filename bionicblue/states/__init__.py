@@ -21,6 +21,8 @@ from .optionsscreen import OptionsScreen
 
 from .playtestersscreen import PlaytestersScreen
 
+from .pausemenu import PauseMenu, pause
+
 #from .creditsroller import CreditsRoller
 
 
@@ -42,6 +44,10 @@ def setup_states():
     states.controls_screen = ControlsScreen()
     states.options_screen = OptionsScreen()
     states.playtesters_screen = PlaytestersScreen()
+
+    states.pause_menu = PauseMenu()
+    REFS.pause = pause
+
     #states.credits_roller = CreditsRoller()
 
 

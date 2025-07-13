@@ -7,18 +7,18 @@ from pygame.locals import (
 
     KEYDOWN,
     KEYUP,
-    K_j,
     K_ESCAPE,
+    K_RETURN,
 
+    JOYBUTTONDOWN,
     JOYBUTTONUP,
 
 )
 
 
-
 ### local imports
 
-from ....config import quit_game
+from ....config import REFS, quit_game
 
 from ....constants import (
     DAMAGE_STANCE_FRAMES,
@@ -46,13 +46,23 @@ class Hurt:
 
         for event in SERVICES_NS.get_events():
 
-            if event.type == KEYDOWN and event.key == K_ESCAPE:
-                quit_game()
+            if event.type == KEYDOWN:
+
+                if event.key == K_ESCAPE:
+                    REFS.pause()
+
+                elif event.key == K_RETURN:
+                    REFS.pause()
 
             elif event.type == KEYUP:
 
                 if event.key == KEYBOARD_CONTROLS['shoot']:
                     self.stop_charging()
+
+            elif event.type == JOYBUTTONDOWN:
+
+                if event.button == GAMEPAD_CONTROLS['start_button']:
+                    REFS.pause()
 
             elif event.type == JOYBUTTONUP:
 

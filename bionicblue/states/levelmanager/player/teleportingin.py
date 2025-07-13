@@ -7,6 +7,9 @@ from pygame.locals import (
 
     KEYDOWN,
     K_ESCAPE,
+    K_RETURN,
+
+    JOYBUTTONDOWN,
 
 )
 
@@ -21,6 +24,8 @@ from ....pygamesetup.constants import GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS
 
 from ....pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
+from ....userprefsman.main import GAMEPAD_CONTROLS
+
 
 
 class TeleportingIn:
@@ -32,10 +37,18 @@ class TeleportingIn:
             if event.type == KEYDOWN:
 
                 if event.key == K_ESCAPE:
-                    quit_game()
+                    REFS.pause()
+
+                elif event.key == K_RETURN:
+                    REFS.pause()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
+
+            elif event.type == JOYBUTTONDOWN:
+
+                if event.button == GAMEPAD_CONTROLS['start_button']:
+                    REFS.pause()
 
             elif event.type == QUIT:
                 quit_game()

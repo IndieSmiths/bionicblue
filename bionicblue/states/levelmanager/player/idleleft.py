@@ -4,12 +4,11 @@
 from pygame.locals import (
 
     QUIT,
-    K_w, K_a, K_s, K_d,
 
     KEYDOWN,
     KEYUP,
     K_ESCAPE,
-    K_j, K_k,
+    K_RETURN,
 
     JOYBUTTONDOWN,
     JOYBUTTONUP,
@@ -19,7 +18,7 @@ from pygame.locals import (
 
 ### local imports
 
-from ....config import quit_game
+from ....config import REFS, quit_game
 
 from ....constants import (
     SHOOTING_STANCE_FRAMES,
@@ -70,7 +69,7 @@ class IdleLeft:
             if event.type == KEYDOWN:
 
                 if event.key == K_ESCAPE:
-                    quit_game()
+                    REFS.pause()
 
                 elif event.key == KEYBOARD_CONTROLS['shoot']:
                     self.idle_left_shoot()
@@ -89,6 +88,9 @@ class IdleLeft:
                 elif event.key == KEYBOARD_CONTROLS['up']:
                     self.check_ladder()
 
+                elif event.key == K_RETURN:
+                    REFS.pause()
+
             elif event.type == JOYBUTTONDOWN:
 
                 if event.button == GAMEPAD_CONTROLS['shoot']:
@@ -101,6 +103,9 @@ class IdleLeft:
 
                     else:
                         self.jump()
+
+                elif event.button == GAMEPAD_CONTROLS['start_button']:
+                    REFS.pause()
 
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 

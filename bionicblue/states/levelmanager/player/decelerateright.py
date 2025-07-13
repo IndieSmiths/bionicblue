@@ -8,6 +8,7 @@ from pygame.locals import (
     KEYDOWN,
     KEYUP,
     K_ESCAPE,
+    K_RETURN,
 
     JOYBUTTONDOWN,
     JOYBUTTONUP,
@@ -17,7 +18,7 @@ from pygame.locals import (
 
 ### local imports
 
-from ....config import quit_game
+from ....config import REFS, quit_game
 
 from ....constants import DAMAGE_REBOUND_FRAMES
 
@@ -50,7 +51,7 @@ class DecelerateRight:
             if event.type == KEYDOWN:
 
                 if event.key == K_ESCAPE:
-                    quit_game()
+                    REFS.pause()
 
                 elif event.key == KEYBOARD_CONTROLS['shoot']:
                     self.decelerate_right_shoot()
@@ -59,6 +60,9 @@ class DecelerateRight:
 
                     if not self.midair:
                         self.y_speed += self.jump_dy
+
+                elif event.key == K_RETURN:
+                    REFS.pause()
 
             elif event.type == JOYBUTTONDOWN:
 
@@ -69,6 +73,9 @@ class DecelerateRight:
 
                     if not self.midair:
                         self.y_speed += self.jump_dy
+
+                elif event.button == GAMEPAD_CONTROLS['start_button']:
+                    REFS.pause()
 
             elif event.type == KEYUP:
 
