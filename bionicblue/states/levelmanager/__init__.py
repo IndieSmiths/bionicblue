@@ -43,10 +43,12 @@ from .backprops.citywall import CityWall
 
 from .middleprops.ladder import Ladder
 from .middleprops.chains import Chains
+from .middleprops.chaincratehanger import ChainCrateHanger
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
 from .blocks.floatingplatform import FloatingPlatform
+from .blocks.crate import Crate
 
 from .actors.gruntbot import GruntBot
 from .actors.watcherbot import WatcherBot
@@ -578,6 +580,9 @@ def instantiate(obj_data, layer_name):
     ):
         obj = FloatingPlatform(**obj_data)
 
+    elif name.startswith('crate'):
+        obj = Crate(**obj_data)
+
     elif name == 'grunt_bot':
         obj = GruntBot(**obj_data)
 
@@ -592,6 +597,9 @@ def instantiate(obj_data, layer_name):
 
     elif name == 'chains':
         obj = Chains(**obj_data)
+
+    elif name == 'chain_crate_hanger':
+        obj = ChainCrateHanger(**obj_data)
 
     else:
         raise RuntimeError("This block should never be reached.")
