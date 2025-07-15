@@ -1,6 +1,8 @@
 
 ### third-party import
 
+from pygame import Surface
+
 from pygame.locals import (
 
     QUIT,
@@ -16,6 +18,8 @@ from pygame.locals import (
 )
 
 from pygame.display import update as update_screen
+
+from pygame.draw import rect as draw_rect
 
 
 ### local imports
@@ -43,10 +47,6 @@ from ..textman import render_text
 
 
 
-PAUSED_TEXT_SURF = render_text('Pause menu', 'regular', 22, 4)
-PAUSED_TEXT_RECT = PAUSED_TEXT_SURF.get_rect()
-
-
 def pause():
 
     pm = REFS.states.pause_menu
@@ -61,14 +61,6 @@ class PauseMenu:
 
     def __init__(self):
 
-        self.current_index = 0
-        self.indicator = (
-            UIObject2D.from_surface(
-                render_text('>', 'regular', 12, 2, 'orange')
-            )
-        )
-
-        ###
 
         labels_data_tuples = [
 
@@ -80,7 +72,7 @@ class PauseMenu:
                 key,
 
                 *(
-                    render_text(label_title, 'regular', 12, 2, color)
+                    render_text(label_title, 'regular', 12, 5, color)
                     for color in ('cyan', 'orange')
                 )
 
@@ -137,16 +129,30 @@ class PauseMenu:
             assign_pos_to='midtop',
         )
 
+        caption = self.caption = (
+            UIObject2D.from_surface(
+                render_text('Pause menu', 'regular', 22, 4)
+            )
+        )
+
+        caption.rect.midbottom = items[0].rect.move(0, -10).midtop
+        items.insert(0, caption)
         items.rect.center = SCREEN_RECT.center
+        items.pop(0)
 
-        PAUSED_TEXT_RECT.midbottom = items.rect.move(0, -10).midtop
+        self.items_bg = items_bg = UIObject2D()
 
+        items_bg.rect = items.rect.inflate(10, 10)
+        items_bg.image = Surface(items_bg.rect.size).convert()
+        items_bg.image.fill('black')
+
+        self.current_index = 0
         self.highlight_selected()
 
     def prepare(self):
 
         blit_on_screen(SCREEN_TRANSP_OVERLAY, (0, 0))
-        blit_on_screen(PAUSED_TEXT_SURF, PAUSED_TEXT_RECT)
+        self.caption.draw()
 
         SCREEN_COPY.blit(SCREEN, (0, 0))
 
@@ -196,7 +202,7 @@ class PauseMenu:
 
         highlighted_obj = self.items[self.current_index]
         highlighted_obj.image = self.highlighted_surf_map[highlighted_obj.key]
-        self.indicator.rect.midright = highlighted_obj.rect.move(-5, 0).midleft
+        self.selected_rect = self.items[self.current_index].rect
 
     def execute_selected(self):
 
@@ -214,7 +220,14 @@ class PauseMenu:
 
         blit_on_screen(SCREEN_COPY, (0, 0))
 
+        self.items_bg.draw()
         self.items.draw()
-        self.indicator.draw()
+
+        draw_rect(
+            SCREEN,
+            'orange',
+            self.selected_rect,
+            2,
+        )
 
         update_screen()
