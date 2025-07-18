@@ -213,13 +213,13 @@ class LevelManager:
 
         ### add boss
 
-        boss_midbottom = next(
+        boss_bottomright = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'boss_midb'
+            if label_data['text'] == 'boss_br'
         )['pos']
 
-        boss = ChiefSecurityBot('chief_sec_bot', boss_midbottom, facing_right=False)
+        boss = ChiefSecurityBot('chief_sec_bot', boss_bottomright, facing_right=False)
         boss.layer_name = 'actors'
         add_obj(boss)
 
@@ -246,19 +246,12 @@ class LevelManager:
         add_obj(DOOR_1)
         add_obj(DOOR_2)
 
-        ### store position of cam_cx (centerx of boss arena and
-        ### blue_midb (blue midbottom position near the boss)
+        ### store position of cam_cx (centerx of boss arena)
 
         self.cam_cx_pos = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
             if label_data['text'] == 'cam_cx'
-        )['pos']
-
-        self.blue_midb = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'blue_midb'
         )['pos']
 
         ### scroll level so player ends up positioned above given label
@@ -357,15 +350,9 @@ class LevelManager:
         ###
 
         current_cam_cx = self.cam_cx_pos + scrolling
-        current_blue_midb = self.blue_midb + scrolling
 
         if abs(SCREEN_RECT.centerx - current_cam_cx[0]) > 2:
-
             self.move_level((-3, 0))
-
-            player_rect = self.player.rect
-            if abs(player_rect.centerx - current_blue_midb[0]) < 4:
-                player_rect.midbottom = current_blue_midb
 
         else:
 

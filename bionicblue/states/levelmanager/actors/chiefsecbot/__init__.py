@@ -4,6 +4,10 @@
 from functools import partial
 
 
+### third-party import
+from pygame.math import Vector2
+
+
 ### local imports
 
 from .....config import REFS
@@ -51,7 +55,7 @@ class ChiefSecurityBot:
 
         self.aniplayer = (
             AnimationPlayer2D(
-                self, name, animation_name, 'midbottom', pos
+                self, name, animation_name, 'bottomright', pos+Vector2(-10, 0)
             )
         )
 
