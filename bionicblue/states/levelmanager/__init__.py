@@ -360,6 +360,7 @@ class LevelManager:
             self.move_level((diff, 0))
 
             self.update = self.normal_update
+            REFS.level_boss.begin_fighting()
 
         ### if the level scrolled (moved), update chunks and layers
 

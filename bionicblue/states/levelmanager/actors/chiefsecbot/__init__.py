@@ -55,12 +55,13 @@ class ChiefSecurityBot:
 
         self.aniplayer = (
             AnimationPlayer2D(
-                self, name, animation_name, 'bottomright', pos+Vector2(-10, 0)
+                self, name, animation_name, 'bottomright', pos+Vector2(-12, 0),
             )
         )
 
         self.last_damage = GENERAL_NS.frame_index
         self.routine_check = do_nothing
+        self.update = self.wait_update
 
         REFS.level_boss = self
 
@@ -68,7 +69,82 @@ class ChiefSecurityBot:
     def health(self):
         return self.health_column.health
 
-    def update(self):
+    def begin_fighting(self):
+
+        self.aniplayer.switch_animation(
+            'back_punch_left'
+            if 'left' in self.aniplayer.anim_name
+            else 'back_punch_right'
+        )
+
+        self.update = self.punch_wall
+
+    def wait_update(self): pass
+
+    def punch_wall(self):
+
+        rect = self.rect
+        center = rect.center
+
+        x_speed = self.x_speed
+        colliderect = rect.colliderect
+
+        rect.move_ip(x_speed, 0)
+
+        for block in BLOCKS_NEAR_SCREEN:
+
+            if colliderect(block.rect):
+
+                if x_speed > 0:
+                    rect.right = block.rect.left
+                    self.aniplayer.switch_animation('idle_left')
+
+                else:
+                    rect.left = block.rect.right
+                    self.aniplayer.switch_animation('idle_right')
+
+                self.x_speed = -x_speed
+
+                break
+
+        else:
+
+            rect.move_ip(0, 1)
+
+            if not any(
+                colliderect(block.rect)
+                for block in BLOCKS_NEAR_SCREEN
+            ):
+
+                if x_speed > 0:
+                    self.aniplayer.switch_animation('idle_left')
+                else:
+                    self.aniplayer.switch_animation('idle_right')
+
+                self.x_speed = -x_speed
+                rect.move_ip(-x_speed, -1)
+
+            else:
+                rect.move_ip(0, -1)
+
+
+        ###
+
+        if colliderect(self.player.rect):
+            self.player.damage(3)
+
+        self.routine_check()
+
+        ###
+        if rect.center != center:
+
+            self.delta += tuple(
+                a - b
+                for a, b
+                in zip(rect.center, center)
+            )
+
+    def idle_update(self):
 
         rect = self.rect
         center = rect.center
