@@ -6,16 +6,31 @@
             "art_size" : (40, 40),
             "art_anchorage" : ('midbottom', 'midbottom'),
         },
+        "knelt_body" : {
+            "size" : (18, 22),
+            "art_size" : (40, 40),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
     },
     "objects" : {
         "body" : {"geometry": "body"},
+        "knelt_body" : {"geometry": "knelt_body"},
     },
     "existing_structures" : {
         "standing" : {"tree" : {"name": "body"}},
+        "knelt" : {"tree" : {"name": "knelt_body"}},
     },
     "animations" :{
         "idle_right": {"structure": "standing"},
         "idle_left": {"structure": "standing"},
+        "jump_right": {"structure": "standing"},
+        "jump_left": {"structure": "standing"},
+        "back_punch_right": {"structure": "standing"},
+        "back_punch_left": {"structure": "standing"},
+        "punch_right": {"structure": "standing"},
+        "punch_left": {"structure": "standing"},
+        "shoot_right": {"structure": "knelt"},
+        "shoot_left": {"structure": "knelt"},
     },
     "values": {
         "idle_left": {
@@ -23,11 +38,51 @@
                 "surfaces": "chief_sec_bot.idle_left",
             },
         },
+        "jump_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.jump_left",
+            },
+        },
+        "punch_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.punch_left",
+            },
+        },
+        "back_punch_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.back_punch_left",
+            },
+        },
+        "shoot_left": {
+            "knelt_body": {
+                "surfaces": "chief_sec_bot.shoot_left",
+            },
+        },
     },
     "timing": {
         "idle_left": {
             "body": {
                 "surface_indices": "chief_sec_bot.idle_left",
+            },
+        },
+        "jump_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.jump_left",
+            },
+        },
+        "punch_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.punch_left",
+            },
+        },
+        "back_punch_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.back_punch_left",
+            },
+        },
+        "shoot_left": {
+            "knelt_body": {
+                "surface_indices": "chief_sec_bot.shoot_left",
             },
         },
     },
@@ -38,6 +93,10 @@
             ),
             "surface_collections" : [
                 "chief_sec_bot.idle_left",
+                "chief_sec_bot.jump_left",
+                "chief_sec_bot.punch_left",
+                "chief_sec_bot.back_punch_left",
+                "chief_sec_bot.shoot_left",
             ],
         },
 
@@ -46,6 +105,22 @@
         "idle_right": {
             "operation_name": "flip_x",
             "target": "idle_left",
+        },
+        "jump_right": {
+            "operation_name": "flip_x",
+            "target": "jump_left",
+        },
+        "punch_right": {
+            "operation_name": "flip_x",
+            "target": "punch_left",
+        },
+        "back_punch_right": {
+            "operation_name": "flip_x",
+            "target": "back_punch_left",
+        },
+        "shoot_right": {
+            "operation_name": "flip_x",
+            "target": "shoot_left",
         },
     },
 }
