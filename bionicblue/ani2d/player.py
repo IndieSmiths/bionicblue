@@ -1,9 +1,12 @@
+"""Facility for animation player."""
 
 ### standard library imports
 
 from copy import deepcopy
 
 from itertools import chain, cycle
+
+from functools import partialmethod
 
 
 ### third-party imports
@@ -46,6 +49,7 @@ class AnimationPlayer2D:
         self.values = anim_data['values']
         self.root_pos_exchange_map = anim_data['root_pos_exchange_map']
         self.timing = deepcopy(anim_data['timing'])
+        self.anim_clock_keys = anim_data['anim_clock_keys']
 
         self.walking_data = []
         self.drawing_methods = []
@@ -61,7 +65,12 @@ class AnimationPlayer2D:
 
         ###
 
-        self.root = root = self.object_map[self.structure[anim_name]['tree']['name']]
+        self.root = root = self.object_map[
+                             self.structure
+                             [anim_name]
+                             ['tree']
+                             ['name']
+                           ]
         obj.rect = root.rect
         setattr(obj.rect, pos_name, pos_value)
 
@@ -83,6 +92,10 @@ class AnimationPlayer2D:
 
         ###
         self.store_values_and_timing()
+
+        ## store an animation clock to use as reference for the
+        ## animation timing
+        self.reference_animation_clock()
 
         ###
         for obj, *_ in self.walking_data:
@@ -183,7 +196,9 @@ class AnimationPlayer2D:
     def exchange_root_pos(self, previous_root, new_root, prev_anim_name):
 
         exchange_map = self.root_pos_exchange_map
-        prev_attr_name, new_attr_name, offset = exchange_map[prev_anim_name][self.anim_name]
+        prev_attr_name, new_attr_name, offset = (
+            exchange_map[prev_anim_name][self.anim_name]
+        )
         pos = getattr(previous_root.rect, prev_attr_name)
         setattr(new_root.rect, new_attr_name, pos + offset)
 
@@ -278,6 +293,55 @@ class AnimationPlayer2D:
         ###
         self.draw = self.walk_and_draw
 
+    ### anim clock related methods
+
+    def reference_animation_clock(self):
+        """Store a reference of an animation clock.
+
+        An animation clock is just an instance of the
+        ourstdlibs.wdeque.WalkingDeque class, a custom subclass from
+        standard library collections.deque. The name here implies its
+        role, since we use it to control animation timing.
+
+        For more info, head to the module itself.
+        """
+        ### from the data, retrieve the name of the obj and sequence from which
+        ### to retrieve the animation clock reference
+        obj_name, sequence_key_name = self.anim_clock_keys[self.anim_name]
+
+        ### finally reference the animation clock in an attribute
+
+        self.anim_clock = (
+            self.timing[self.anim_name][obj_name][sequence_key_name]
+        )
+
+    def get_animation_length(self):
+        """Return length of current animation."""
+        return self.anim_clock.length
+
+    def get_current_frame(self):
+        """Return current frame of animation clock."""
+        return self.anim_clock.get_index_of_first()
+
+    def get_current_loops_no(self):
+        """Return number of loops performed."""
+        return self.anim_clock.loops_no
+
+    def peek_loops_no(self, steps):
+        """Return loops number after temporary rotation.
+
+        steps (integer)
+            Number of rotations to go back or forth
+            (depending on signal) before peeking.
+
+        We do so by calling an eponymous method in the
+        in the animation clock and returning its return
+        value.
+        """
+        return self.anim_clock.peek_loops_no(steps)
+
+    peek_next_loops_no = partialmethod(peek_loops_no, 1)
+    peek_after_next_loops_no = partialmethod(peek_loops_no, 2)
 
 
 class AnimationObject2D:

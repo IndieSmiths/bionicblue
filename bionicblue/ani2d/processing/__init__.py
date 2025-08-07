@@ -27,6 +27,7 @@ from .constants import OBLIVIOUS_EMPTY_GETTER
 
 from .recolor import get_recolored_sprites_data
 from .derived import process_derived_animations
+from .timemeasuring import get_anim_clock_keys
 
 
 
@@ -57,7 +58,12 @@ KEY_DEFAULT_PAIRS = (
 
 def process_animation_data(animation_dir):
 
-    metadata_path = next(p for p in animation_dir.iterdir() if p.suffix.lower() == '.pyl')
+    metadata_path = next(
+        p
+        for p in animation_dir.iterdir()
+        if p.suffix.lower() == '.pyl'
+    )
+
     metadata = load_pyl(str(metadata_path))
 
     ###
@@ -342,8 +348,15 @@ def process_animation_data(animation_dir):
                 if key in raw_obj_timing:
 
                     if key == 'surface_indices':
+
                         stem, pxa_anim_name = raw_obj_timing[key].split('.')
-                        obj_timing[key] = WalkingDeque(all_pxa_timing[stem][pxa_anim_name][key])
+
+                        obj_timing[key] = WalkingDeque(
+                            all_pxa_timing
+                            [stem]
+                            [pxa_anim_name]
+                            [key]
+                        )
 
                     else:
                         stem = raw_obj_timing[key]
@@ -354,6 +367,9 @@ def process_animation_data(animation_dir):
 
     ###
     process_derived_animations(metadata, values, timing)
+
+    ### get anim clock keys
+    anim_clock_keys = get_anim_clock_keys(timing)
 
     ###
 
@@ -370,9 +386,10 @@ def process_animation_data(animation_dir):
 
     for value_dict in exchange_map.values():
 
-        for key, value in value_dict.items():
+        for key, (a, b, c) in value_dict.items():
 
-            a, b, c = value
+            # this is okay because we are not adding/removing keys, only
+            # updating the value on existing keys
             value_dict[key] = a, b, Vector2(c)
 
     ###
@@ -383,5 +400,6 @@ def process_animation_data(animation_dir):
       'blending': metadata.get('blending', {}),
       'values': values,
       'timing': timing,
+      'anim_clock_keys': anim_clock_keys,
       'root_pos_exchange_map': exchange_map,
     }
