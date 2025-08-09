@@ -12,7 +12,7 @@ from pygame.math import Vector2
 
 from .....config import REFS
 
-from .....pygamesetup.constants import GENERAL_NS, msecs_to_frames
+from .....pygamesetup.constants import GENERAL_NS, SCREEN_RECT, msecs_to_frames
 
 from .....ani2d.player import AnimationPlayer2D
 
@@ -23,11 +23,14 @@ from ...frontprops.defaultexplosion import DefaultExplosion
 from ...common import (
     remove_obj,
     FRONT_PROPS,
+    PROJECTILES,
     BLOCKS_NEAR_SCREEN,
     append_task,
 )
 
 from .healthcolumn import HealthColumn
+
+from .projectiles.fallingcrate import FallingCrate
 
 
 
@@ -38,6 +41,12 @@ WHITENING_CYCLE = (
   *('whitened',)*2,
   *('default',)*3,
 )
+
+_CRATE_PUNCH_WAIT_MSECS = 50
+CRATE_PUNCH_WAIT_FRAMES = msecs_to_frames(_CRATE_PUNCH_WAIT_MSECS)
+
+CRATE_PUNCH_ANIM_NAMES = frozenset(('punch_left', 'punch_right'))
+
 
 class ChiefSecurityBot:
 
@@ -61,7 +70,7 @@ class ChiefSecurityBot:
 
         self.last_damage = GENERAL_NS.frame_index
         self.routine_check = do_nothing
-        self.update = self.wait_update
+        self.update = self.idle_update
 
         REFS.level_boss = self
 
@@ -71,141 +80,89 @@ class ChiefSecurityBot:
 
     def begin_fighting(self):
 
-        self.aniplayer.switch_animation(
+        ap = self.aniplayer
+
+        ap.switch_animation(
             'back_punch_left'
-            if 'left' in self.aniplayer.anim_name
+            if 'left' in ap.anim_name
             else 'back_punch_right'
         )
 
         self.update = self.punch_wall
 
-    def wait_update(self): pass
+    def idle_update(self):
+
+        ap = self.aniplayer
+
+        ###
+
+        if self.rect.colliderect(self.player.rect):
+            self.player.damage(3)
+
+        self.routine_check()
 
     def punch_wall(self):
 
-        rect = self.rect
-        center = rect.center
+        ap = self.aniplayer
 
-        x_speed = self.x_speed
-        colliderect = rect.colliderect
+        if ap.get_current_loops_no() == 1:
 
-        rect.move_ip(x_speed, 0)
+            ap.switch_animation(
+                'idle_left'
+                if 'left' in ap.anim_name
+                else 'idle_right'
+            )
 
-        for block in BLOCKS_NEAR_SCREEN:
+            _arena_area = SCREEN_RECT.inflate((-16 * 2), 0)
+            right = _arena_area.right
 
-            if colliderect(block.rect):
+            x = _arena_area.left + 8
+            y = SCREEN_RECT.top + -12
 
-                if x_speed > 0:
-                    rect.right = block.rect.left
-                    self.aniplayer.switch_animation('idle_left')
+            while x < right:
 
-                else:
-                    rect.left = block.rect.right
-                    self.aniplayer.switch_animation('idle_right')
+                PROJECTILES.add(
+                    FallingCrate((x, y))
+                )
 
-                self.x_speed = -x_speed
+                x += 32
 
-                break
+            ap.switch_animation(
+                'punch_left'
+                if 'left' in ap.anim_name
+                else 'punch_right'
+            )
 
-        else:
+            self.update = self.punch_crate_update
 
-            rect.move_ip(0, 1)
+            return
 
-            if not any(
-                colliderect(block.rect)
-                for block in BLOCKS_NEAR_SCREEN
-            ):
-
-                if x_speed > 0:
-                    self.aniplayer.switch_animation('idle_left')
-                else:
-                    self.aniplayer.switch_animation('idle_right')
-
-                self.x_speed = -x_speed
-                rect.move_ip(-x_speed, -1)
-
-            else:
-                rect.move_ip(0, -1)
-
-
-        ###
-
-        if colliderect(self.player.rect):
+        if self.rect.colliderect(self.player.rect):
             self.player.damage(3)
 
         self.routine_check()
 
-        ###
-        if rect.center != center:
+    def punch_crate_update(self):
 
-            self.delta += tuple(
-                a - b
-                for a, b
-                in zip(rect.center, center)
-            )
+        ap = self.aniplayer
 
-    def idle_update(self):
+        if ap.anim_name in CRATE_PUNCH_ANIM_NAMES:
 
-        rect = self.rect
-        center = rect.center
+            if ap.get_current_loops_no() == 1:
 
-        x_speed = self.x_speed
-        colliderect = rect.colliderect
+                ap.switch_animation(
+                    'back_punch_left'
+                    if 'left' in ap.anim_name
+                    else 'back_punch_right'
+                )
 
-        rect.move_ip(x_speed, 0)
+                self.update = self.punch_wall
+                return
 
-        for block in BLOCKS_NEAR_SCREEN:
-
-            if colliderect(block.rect):
-
-                if x_speed > 0:
-                    rect.right = block.rect.left
-                    self.aniplayer.switch_animation('idle_left')
-
-                else:
-                    rect.left = block.rect.right
-                    self.aniplayer.switch_animation('idle_right')
-
-                self.x_speed = -x_speed
-
-                break
-
-        else:
-
-            rect.move_ip(0, 1)
-
-            if not any(
-                colliderect(block.rect)
-                for block in BLOCKS_NEAR_SCREEN
-            ):
-
-                if x_speed > 0:
-                    self.aniplayer.switch_animation('idle_left')
-                else:
-                    self.aniplayer.switch_animation('idle_right')
-
-                self.x_speed = -x_speed
-                rect.move_ip(-x_speed, -1)
-
-            else:
-                rect.move_ip(0, -1)
-
-
-        ###
-
-        if colliderect(self.player.rect):
+        if self.rect.colliderect(self.player.rect):
             self.player.damage(3)
 
         self.routine_check()
-
-        ###
-        if rect.center != center:
-
-            self.delta += tuple(
-                a - b
-                for a, b
-                in zip(rect.center, center)
-            )
 
     def check_damage_whitening(self):
 
@@ -240,3 +197,50 @@ class ChiefSecurityBot:
             else:
                 self.aniplayer.set_custom_surface_cycling(WHITENING_CYCLE)
                 self.routine_check = self.check_damage_whitening
+
+### XXX backed up code
+#
+#        rect = self.rect
+#        center = rect.center
+#
+#        x_speed = self.x_speed
+#        colliderect = rect.colliderect
+#
+#        rect.move_ip(x_speed, 0)
+#
+#        for block in BLOCKS_NEAR_SCREEN:
+#
+#            if colliderect(block.rect):
+#
+#                if x_speed > 0:
+#                    rect.right = block.rect.left
+#                    self.aniplayer.switch_animation('idle_left')
+#
+#                else:
+#                    rect.left = block.rect.right
+#                    self.aniplayer.switch_animation('idle_right')
+#
+#                self.x_speed = -x_speed
+#
+#                break
+#
+#        else:
+#
+#            rect.move_ip(0, 1)
+#
+#            if not any(
+#                colliderect(block.rect)
+#                for block in BLOCKS_NEAR_SCREEN
+#            ):
+#
+#                if x_speed > 0:
+#                    self.aniplayer.switch_animation('idle_left')
+#                else:
+#                    self.aniplayer.switch_animation('idle_right')
+#
+#                self.x_speed = -x_speed
+#                rect.move_ip(-x_speed, -1)
+#
+#            else:
+#                rect.move_ip(0, -1)
+
