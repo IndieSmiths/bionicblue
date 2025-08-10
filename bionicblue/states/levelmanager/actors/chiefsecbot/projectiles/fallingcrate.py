@@ -30,6 +30,7 @@ class FallingCrate:
         self.image = SURF_MAP['crate16.png']
 
         self.rect = rect = self.image.get_rect()
+        self.inflated_rect = rect.inflate(16, 0)
 
         self.colliderect = rect.colliderect
 
@@ -77,11 +78,15 @@ class FallingCrate:
             self.trigger_kill()
             return
 
-        ### if it hits boss near the floor, give the crate x speed
+        ### if inflated rect hits boss near the floor,
+        ### give the crate x speed
 
         boss = REFS.level_boss
 
-        if rect.colliderect(boss.rect):
+        irect = self.inflated_rect
+        irect.center = rect.center
+
+        if irect.colliderect(boss.rect):
 
             moved_down_rect = rect.move(0, 12)
 

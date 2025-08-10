@@ -5,6 +5,9 @@ from functools import partial
 
 
 ### third-party import
+
+from pygame import Rect
+
 from pygame.math import Vector2
 
 
@@ -42,10 +45,20 @@ WHITENING_CYCLE = (
   *('default',)*3,
 )
 
-_CRATE_PUNCH_WAIT_MSECS = 50
+_CRATE_PUNCH_WAIT_MSECS = 264
 CRATE_PUNCH_WAIT_FRAMES = msecs_to_frames(_CRATE_PUNCH_WAIT_MSECS)
 
 CRATE_PUNCH_ANIM_NAMES = frozenset(('punch_left', 'punch_right'))
+
+CRATE_FALL_AREA = Rect(0, 0, 96, 16)
+
+OPEN_OVERHEAD_AREA = SCREEN_RECT.inflate((-16 * 2), 0)
+OPEN_OVERHEAD_AREA.height = 96
+
+CRATE_FALL_AREA.bottom = OPEN_OVERHEAD_AREA.bottom = SCREEN_RECT.top
+
+CRATE_RECT = Rect(0, 0, 16, 16)
+
 
 
 class ChiefSecurityBot:
@@ -59,6 +72,7 @@ class ChiefSecurityBot:
         self.name = name
 
         self.x_speed = 0
+        self.punch_countdown = 0
 
         animation_name = 'idle_right' if facing_right else 'idle_left'
 
@@ -106,32 +120,97 @@ class ChiefSecurityBot:
         ap = self.aniplayer
 
         if ap.get_current_loops_no() == 1:
+            
+            orientation = 'left' if 'left' in ap.anim_name else 'right'
 
             ap.switch_animation(
                 'idle_left'
-                if 'left' in ap.anim_name
+                if orientation == 'left'
                 else 'idle_right'
             )
 
-            _arena_area = SCREEN_RECT.inflate((-16 * 2), 0)
-            right = _arena_area.right
+            ###
 
-            x = _arena_area.left + 8
-            y = SCREEN_RECT.top + -12
+            crate_to_punch_x = (
+                self.rect.left - 15
+                if orientation == 'left'
+                else self.rect.right + 15
+            )
 
-            while x < right:
+            y = SCREEN_RECT.top
 
+            PROJECTILES.add(
+                FallingCrate((crate_to_punch_x, y))
+            )
+
+            ###
+
+            player_centerx = self.player.rect.centerx
+
+            CRATE_FALL_AREA.centerx = player_centerx
+
+            clamped_fall_area = CRATE_FALL_AREA.clamp(OPEN_OVERHEAD_AREA)
+
+            is_near_wall = clamped_fall_area != CRATE_FALL_AREA
+
+            if is_near_wall:
+                CRATE_FALL_AREA.topleft = clamped_fall_area.topleft
+
+            is_near_boss = False
+
+            if orientation == 'left':
+
+                right_boundary = self.rect.left - 30
+
+                if CRATE_FALL_AREA.right > right_boundary:
+                    CRATE_FALL_AREA.right = right_boundary
+                    is_near_boss = True
+
+            else:
+
+                left_boundary = self.rect.right + 30
+
+                if CRATE_FALL_AREA.left < left_boundary:
+                    CRATE_FALL_AREA.left = left_boundary
+                    is_near_boss = True
+
+            ###
+
+            if is_near_boss:
+
+                CRATE_RECT.centerx = player_centerx
+                CRATE_RECT.clamp_ip(CRATE_FALL_AREA)
+
+                x1 = CRATE_RECT.centerx
+                x2 = x1 + (-40 if orientation == 'left' else 40)
+
+                xs = (x1, x2)
+
+            elif is_near_wall:
+
+                CRATE_RECT.centerx = player_centerx
+                CRATE_RECT.clamp_ip(CRATE_FALL_AREA)
+
+                x1 = CRATE_RECT.centerx
+
+                x2 = x1 + (40 if orientation == 'left' else -40)
+
+                xs = (x1, x2)
+
+            else:
+
+                xs = (
+                    CRATE_FALL_AREA.left + 8,
+                    CRATE_FALL_AREA.centerx,
+                    CRATE_FALL_AREA.right - 8,
+                )
+
+            for x in xs:
                 PROJECTILES.add(
                     FallingCrate((x, y))
                 )
 
-                x += 32
-
-            ap.switch_animation(
-                'punch_left'
-                if 'left' in ap.anim_name
-                else 'punch_right'
-            )
+            self.punch_countdown = CRATE_PUNCH_WAIT_FRAMES 
 
             self.update = self.punch_crate_update
 
@@ -158,6 +237,17 @@ class ChiefSecurityBot:
 
                 self.update = self.punch_wall
                 return
+
+        elif self.punch_countdown > 0:
+            self.punch_countdown -= 1
+
+        elif self.punch_countdown == 0:
+
+            ap.switch_animation(
+                'punch_left'
+                if 'left' in ap.anim_name
+                else 'punch_right'
+            )
 
         if self.rect.colliderect(self.player.rect):
             self.player.damage(3)
