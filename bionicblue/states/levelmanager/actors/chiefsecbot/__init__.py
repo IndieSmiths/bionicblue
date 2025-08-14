@@ -15,6 +15,8 @@ from pygame.math import Vector2
 
 from .....config import REFS
 
+from .....constants import GRAVITY_ACCEL
+
 from .....pygamesetup.constants import GENERAL_NS, SCREEN_RECT, msecs_to_frames
 
 from .....ani2d.player import AnimationPlayer2D
@@ -59,6 +61,7 @@ CRATE_FALL_AREA.bottom = OPEN_OVERHEAD_AREA.bottom = SCREEN_RECT.top
 
 CRATE_RECT = Rect(0, 0, 16, 16)
 
+BOSS_MAX_Y_SPEED = 6
 
 
 class ChiefSecurityBot:
@@ -71,8 +74,10 @@ class ChiefSecurityBot:
 
         self.name = name
 
-        self.x_speed = 0
+        self.x_speed = self.y_speed = 0
+
         self.punch_countdown = 0
+        self.no_of_punched_crates = 0
 
         animation_name = 'idle_right' if facing_right else 'idle_left'
 
@@ -229,14 +234,37 @@ class ChiefSecurityBot:
 
             if ap.get_current_loops_no() == 1:
 
-                ap.switch_animation(
-                    'back_punch_left'
-                    if 'left' in ap.anim_name
-                    else 'back_punch_right'
-                )
+                self.no_of_punched_crates += 1
 
-                self.update = self.punch_wall
-                return
+                if self.no_of_punched_crates == 3:
+
+                    self.no_of_punched_crates = 0
+
+                    if 'left' in ap.anim_name:
+
+                        ap.switch_animation('jump_left')
+                        self.x_speed = -7
+
+                    else:
+
+                        ap.switch_animation('jump_right')
+                        self.x_speed = 7
+
+                    self.y_speed = -24
+
+                    self.update = self.jump_to_opposite_side
+                    return
+
+                else:
+
+                    ap.switch_animation(
+                        'back_punch_left'
+                        if 'left' in ap.anim_name
+                        else 'back_punch_right'
+                    )
+
+                    self.update = self.punch_wall
+                    return
 
         elif self.punch_countdown > 0:
             self.punch_countdown -= 1
@@ -250,6 +278,37 @@ class ChiefSecurityBot:
             )
 
         if self.rect.colliderect(self.player.rect):
+            self.player.damage(3)
+
+        self.routine_check()
+
+    def jump_to_opposite_side(self):
+
+        y_speed = self.y_speed
+        y_speed = min(y_speed + GRAVITY_ACCEL, BOSS_MAX_Y_SPEED)
+        self.y_speed = y_speed
+
+        rect = self.rect
+        rect.move_ip(self.x_speed, self.y_speed)
+
+        for block in BLOCKS_NEAR_SCREEN:
+
+            if block.colliderect(rect):
+                
+                self.x_speed = self.y_speed = 0
+                rect.bottom = block.rect.top
+
+                ap = self.aniplayer
+
+                ap.switch_animation(
+                    'back_punch_right'
+                    if 'left' in ap.anim_name
+                    else 'back_punch_left'
+                )
+
+                self.update = self.punch_wall
+
+        if rect.colliderect(self.player.rect):
             self.player.damage(3)
 
         self.routine_check()
