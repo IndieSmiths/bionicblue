@@ -188,8 +188,9 @@ class ChiefSecurityBot:
 
                 x1 = CRATE_RECT.centerx
                 x2 = x1 + (-40 if orientation == 'left' else 40)
+                x3 = x2 + (-40 if orientation == 'left' else 40)
 
-                xs = (x1, x2)
+                xs = (x1, x2, x3)
 
             elif is_near_wall:
 
@@ -199,16 +200,49 @@ class ChiefSecurityBot:
                 x1 = CRATE_RECT.centerx
 
                 x2 = x1 + (40 if orientation == 'left' else -40)
+                x3 = x2 + (40 if orientation == 'left' else -40)
 
-                xs = (x1, x2)
+                xs = (x1, x2, x3)
 
             else:
 
-                xs = (
-                    CRATE_FALL_AREA.left + 8,
-                    CRATE_FALL_AREA.centerx,
-                    CRATE_FALL_AREA.right - 8,
-                )
+                p_x_speed = self.player.x_speed
+
+                if (
+                    p_x_speed > 0
+                    and abs(
+                        CRATE_FALL_AREA.right + 32 - self.rect.centerx
+                    ) > 40
+                ):
+
+                    xs = (
+                        CRATE_FALL_AREA.left + 8,
+                        CRATE_FALL_AREA.centerx,
+                        CRATE_FALL_AREA.right - 8,
+                        CRATE_FALL_AREA.right + 32,
+                    )
+
+                elif (
+                    p_x_speed < 0
+                    and abs(
+                        CRATE_FALL_AREA.left - 32 - self.rect.centerx
+                    ) > 40
+                ):
+
+                    xs = (
+                        CRATE_FALL_AREA.left - 32,
+                        CRATE_FALL_AREA.left + 8,
+                        CRATE_FALL_AREA.centerx,
+                        CRATE_FALL_AREA.right - 8,
+                    )
+
+                else:
+
+                    xs = (
+                        CRATE_FALL_AREA.left + 8,
+                        CRATE_FALL_AREA.centerx,
+                        CRATE_FALL_AREA.right - 8,
+                    )
 
             for x in xs:
                 PROJECTILES.add(
