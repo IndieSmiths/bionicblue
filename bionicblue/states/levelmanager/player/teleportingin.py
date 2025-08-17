@@ -68,6 +68,7 @@ class TeleportingIn:
 
                 self.set_state('idle_right')
                 self.aniplayer.switch_animation('idle_right')
-                REFS.enable_player_tracking()
+                REFS.enable_overall_tracking_for_camera()
+                REFS.enable_feet_tracking_for_camera()
 
         self.react_to_gravity()

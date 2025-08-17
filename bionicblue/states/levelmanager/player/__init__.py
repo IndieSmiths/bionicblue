@@ -410,5 +410,6 @@ class Player(
         self.rect = self.aniplayer.root.rect
         self.rect.center = center
 
-        REFS.disable_player_tracking()
+        REFS.disable_overall_tracking_for_camera()
+        REFS.disable_feet_tracking_for_camera()
         SOUND_MAP['blue_shooter_man_death.wav'].play()

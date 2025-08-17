@@ -65,12 +65,20 @@ REFS.__dict__.update(dict(
         'health': 100,
     },
 
-    enable_player_tracking = (
-        lambda: REFS.states.level_manager.enable_player_tracking()
+    enable_overall_tracking_for_camera = (
+        lambda: REFS.states.level_manager.enable_overall_tracking_for_camera()
     ),
 
-    disable_player_tracking = (
-        lambda: REFS.states.level_manager.disable_player_tracking()
+    disable_overall_tracking_for_camera = (
+        lambda: REFS.states.level_manager.disable_overall_tracking_for_camera()
+    ),
+
+    enable_feet_tracking_for_camera = (
+        lambda: REFS.states.level_manager.enable_feet_tracking_for_camera()
+    ),
+
+    disable_feet_tracking_for_camera = (
+        lambda: REFS.states.level_manager.disable_feet_tracking_for_camera()
     ),
 
 ))

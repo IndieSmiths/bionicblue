@@ -132,18 +132,25 @@ class LevelManager:
 
         self.control = self.control_player
 
-    def enable_player_tracking(self):
-        self.camera_tracking_routine = self.track_player
+    def enable_overall_tracking_for_camera(self):
+        self.camera_overall_routine = self.move_level_to_keep_pc_within_area
 
-    def disable_player_tracking(self):
-        self.camera_tracking_routine = do_nothing
+    def disable_overall_tracking_for_camera(self):
+        self.camera_overall_routine = do_nothing
+
+    def enable_feet_tracking_for_camera(self):
+        self.camera_feet_routine = self.move_level_to_align_feet
+
+    def disable_feet_tracking_for_camera(self):
+        self.camera_feet_routine = do_nothing
 
     def prepare(self):
 
         self.update = self.normal_update
 
         self.camera_tracking_area = NORMAL_CAMERA_TRACKING_AREA
-        self.disable_player_tracking()
+        self.disable_overall_tracking_for_camera()
+        self.disable_feet_tracking_for_camera()
 
         scrolling.update(0, 0)
         scrolling_backup.update(scrolling)
@@ -291,16 +298,18 @@ class LevelManager:
         ### backup scrolling
         scrolling_backup.update(scrolling)
 
-        ### camera routine, depending on the actual routine assigned to the
-        ### attribute may cause the camera to track the player (by moving
-        ### the whole level so the player is near the middle of the screen)
-        self.camera_tracking_routine()
+        ### overall camera routine, depending on the actual routine assigned
+        ### to the attribute, may cause the camera to track the player
+        ### (by moving the whole level so the player is near the middle of the
+        ### screen)
+        self.camera_overall_routine()
 
-        ### the floor routine moves the level gradually so the player's feet
+        ### the feet routine, depending on the actual routine assigned to the
+        ### attribute, may move the level gradually so the player's feet
         ### ends up in a certain vertical distance from the top of the screen,
         ### but only if the player is touching the floor and if the player
         ### isn't in that position already
-        self.floor_level_routine()
+        self.camera_feet_routine()
 
         ### if the level scrolled (moved), update chunks and layers
 
@@ -341,11 +350,12 @@ class LevelManager:
         ### backup scrolling
         scrolling_backup.update(scrolling)
 
-        ### the floor routine moves the level gradually so the player's feet
+        ### the feet routine, depending on the actual routine assigned to the
+        ### attribute, may move the level gradually so the player's feet
         ### ends up in a certain vertical distance from the top of the screen,
         ### but only if the player is touching the floor and if the player
         ### isn't in that position already
-        self.floor_level_routine()
+        self.camera_feet_routine()
 
         ###
 
@@ -392,7 +402,11 @@ class LevelManager:
         ### execute scheduled tasks
         execute_tasks()
 
-    def track_player(self):
+    def move_level_to_keep_pc_within_area(self):
+        """Move the level so playable character (pc) is always inside area.
+
+        That is, the camera tracking area.
+        """
 
         player_rect = self.player.rect
 
@@ -410,7 +424,7 @@ class LevelManager:
 
             )
 
-    def floor_level_routine(self):
+    def move_level_to_align_feet(self):
 
         if self.player.midair: return
 
