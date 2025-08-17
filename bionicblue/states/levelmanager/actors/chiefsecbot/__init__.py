@@ -36,6 +36,7 @@ from ...common import (
 from .healthcolumn import HealthColumn
 
 from .projectiles.fallingcrate import FallingCrate
+from .projectiles.electricglobe import ElectricGlobe
 
 
 
@@ -63,6 +64,9 @@ CRATE_RECT = Rect(0, 0, 16, 16)
 
 BOSS_MAX_Y_SPEED = 6
 
+_SHOOT_WAIT_MSECS = 230
+SHOOT_WAIT_FRAMES = msecs_to_frames(_SHOOT_WAIT_MSECS)
+
 
 class ChiefSecurityBot:
 
@@ -78,6 +82,8 @@ class ChiefSecurityBot:
 
         self.punch_countdown = 0
         self.no_of_punched_crates = 0
+        self.no_of_side_switches = 0
+        self.shoot_countdown = 0
 
         animation_name = 'idle_right' if facing_right else 'idle_left'
 
@@ -144,9 +150,7 @@ class ChiefSecurityBot:
 
             y = SCREEN_RECT.top
 
-            PROJECTILES.add(
-                FallingCrate((crate_to_punch_x, y))
-            )
+            PROJECTILES.add(FallingCrate((crate_to_punch_x, y)))
 
             ###
 
@@ -245,15 +249,11 @@ class ChiefSecurityBot:
                     )
 
             for x in xs:
-                PROJECTILES.add(
-                    FallingCrate((x, y))
-                )
+                PROJECTILES.add(FallingCrate((x, y)))
 
             self.punch_countdown = CRATE_PUNCH_WAIT_FRAMES 
 
             self.update = self.punch_crate_update
-
-            return
 
         if self.rect.colliderect(self.player.rect):
             self.player.damage(3)
@@ -274,20 +274,42 @@ class ChiefSecurityBot:
 
                     self.no_of_punched_crates = 0
 
-                    if 'left' in ap.anim_name:
+                    if self.no_of_side_switches == 2:
 
-                        ap.switch_animation('jump_left')
-                        self.x_speed = -7
+                        y = self.rect.centery - 4
+
+                        if 'left' in ap.anim_name:
+
+                            ap.switch_animation('shoot_left')
+                            x = self.rect.left - 7
+                            PROJECTILES.add(ElectricGlobe((x, y), 'left'))
+
+                        else:
+
+                            ap.switch_animation('shoot_right')
+                            x = self.rect.right + 7
+                            PROJECTILES.add(ElectricGlobe((x, y), 'right'))
+
+                        self.shoot_countdown = SHOOT_WAIT_FRAMES
+                        self.update = self.shoot
 
                     else:
 
-                        ap.switch_animation('jump_right')
-                        self.x_speed = 7
+                        self.no_of_side_switches += 1
 
-                    self.y_speed = -24
+                        if 'left' in ap.anim_name:
 
-                    self.update = self.jump_to_opposite_side
-                    return
+                            ap.switch_animation('jump_left')
+                            self.x_speed = -7
+
+                        else:
+
+                            ap.switch_animation('jump_right')
+                            self.x_speed = 7
+
+                        self.y_speed = -24
+
+                        self.update = self.jump_to_opposite_side
 
                 else:
 
@@ -298,7 +320,6 @@ class ChiefSecurityBot:
                     )
 
                     self.update = self.punch_wall
-                    return
 
         elif self.punch_countdown > 0:
             self.punch_countdown -= 1
@@ -342,7 +363,37 @@ class ChiefSecurityBot:
 
                 self.update = self.punch_wall
 
+                break
+
         if rect.colliderect(self.player.rect):
+            self.player.damage(3)
+
+        self.routine_check()
+
+    def shoot(self):
+
+        if self.shoot_countdown == 0:
+
+            ap = self.aniplayer
+
+            if 'left' in ap.anim_name:
+
+                ap.switch_animation('jump_left')
+                self.x_speed = -7
+
+            else:
+
+                ap.switch_animation('jump_right')
+                self.x_speed = 7
+
+            self.y_speed = -24
+
+            self.update = self.jump_to_opposite_side
+
+        else:
+            self.shoot_countdown -= 1
+
+        if self.rect.colliderect(self.player.rect):
             self.player.damage(3)
 
         self.routine_check()
