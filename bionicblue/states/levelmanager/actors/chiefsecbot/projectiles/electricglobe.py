@@ -1,21 +1,27 @@
+"""Facility for electric globe projectile."""
 
 ### standard library import
 
 from functools import partial
 
-from itertools import cycle
+from itertools import cycle, takewhile
 
 
 ### third-party imports
 
 from pygame import Surface, Rect
 
-from pygame.draw import circle as draw_circle
+from pygame.draw import (
+    circle as draw_circle,
+    lines as draw_lines,
+)
 
 
 ### local imports
 
 from ......config import REFS, COLORKEY
+
+from ......pointsman2d.create import yield_circle_points
 
 from ......pygamesetup.constants import blit_on_screen, msecs_to_frames
 
@@ -28,9 +34,11 @@ RADII = (
     + tuple(reversed(range(1, 24, 4)[1:-1]))
 )
 
+UNIQUE_RADII = frozenset(RADII)
+
 RADIUS_TO_AREA_MAP = {
     radius: Rect(0, 0, radius*2, radius*2)
-    for radius in set(RADII)
+    for radius in UNIQUE_RADII
 }
 
 _RADIUS_SWITCH_MSECS = 200
@@ -43,6 +51,38 @@ MAX_RADIUS = max(RADII)
 _max_area = RADIUS_TO_AREA_MAP[MAX_RADIUS]
 FULL_SIZE = _max_area.size
 CENTER = _max_area.center
+
+NO_OF_POINTS = 18
+NO_OF_LIGHTNING_BOLTS = 3
+INDEX_JUMP = NO_OF_POINTS // NO_OF_LIGHTNING_BOLTS
+
+CIRCLE_POINTS_MAP = {
+    radius: list(yield_circle_points(NO_OF_POINTS, radius, CENTER))
+    for radius in UNIQUE_RADII
+}
+
+SORTED_UNIQUE_RADII = sorted(UNIQUE_RADII)
+
+ORDERED_UNIQUE_UP_TO_RADIUS = {
+    radius: list(takewhile(lambda item: item <= radius, SORTED_UNIQUE_RADII))
+    for radius in UNIQUE_RADII
+}
+
+ORDERED_CIRCLE_POINTS_MAP = {
+
+    radius:  [
+
+        CIRCLE_POINTS_MAP[r]
+        for r in ORDERED_UNIQUE_UP_TO_RADIUS[radius]
+
+    ]
+
+    for radius in SORTED_UNIQUE_RADII
+
+}
+
+OFFSETS = cycle((-1, 1))
+
 
 
 class ElectricGlobe:
@@ -58,6 +98,9 @@ class ElectricGlobe:
         self.lifespan_countdown = LIFESPAN_FRAMES
 
         self.next_radius = cycle(RADII).__next__
+        self.next_lightning_bolt = cycle(range(NO_OF_POINTS)).__next__
+        self.lightning_bolt_indices = []
+        self.lightning_points = []
 
         self.radius = self.next_radius()
 
@@ -82,7 +125,6 @@ class ElectricGlobe:
 
             self.radius_switch_countdown = RADIUS_SWITCH_FRAMES
             self.radius = self.next_radius()
-            self.update_image()
 
         rect = self.rect
         rect.move_ip(self.x_speed, 0)
@@ -102,7 +144,37 @@ class ElectricGlobe:
         image = self.image
 
         image.fill(COLORKEY)
-        draw_circle(image, 'white', CENTER, self.radius, 1)
+
+        circles = ORDERED_CIRCLE_POINTS_MAP[self.radius]
+
+        if len(circles) > 1:
+
+            n = self.next_lightning_bolt()
+
+            lbi = self.lightning_bolt_indices
+
+            lbi.clear()
+            lbi.append(n)
+
+            for _ in range(NO_OF_LIGHTNING_BOLTS-1):
+                n = (n + INDEX_JUMP) % NO_OF_POINTS
+                lbi.append(n)
+
+            lpts = self.lightning_points
+
+            for i in lbi:
+
+                lpts.clear()
+
+                for circle, offset in zip(circles, OFFSETS):
+
+                    offset = (offset + i) % NO_OF_POINTS
+                    lpts.append(circle[offset])
+
+                draw_lines(image, 'yellow', False, lpts, 2)
+                draw_lines(image, 'cyan', False, lpts, 1)
+
+        draw_circle(image, 'yellow', CENTER, self.radius, 1)
 
     def trigger_kill(self):
         append_task(partial(PROJECTILES.remove, self))
@@ -119,5 +191,5 @@ class ElectricGlobe:
         return True
 
     def draw(self):
+        self.update_image()
         blit_on_screen(self.image, self.rect)
-
