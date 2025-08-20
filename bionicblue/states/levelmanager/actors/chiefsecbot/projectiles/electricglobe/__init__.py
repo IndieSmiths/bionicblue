@@ -19,13 +19,13 @@ from pygame.draw import (
 
 ### local imports
 
-from ......config import REFS, COLORKEY
+from .......config import REFS, COLORKEY
 
-from ......pointsman2d.create import yield_circle_points
+from .......pointsman2d.create import yield_circle_points
 
-from ......pygamesetup.constants import blit_on_screen, msecs_to_frames
+from .......pygamesetup.constants import blit_on_screen, msecs_to_frames
 
-from ....common import PROJECTILES, append_task
+from .....common import PROJECTILES, append_task
 
 
 
