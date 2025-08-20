@@ -41,6 +41,10 @@ class DefaultProjectile:
         self.expanded_rect = rect.inflate(2, 0)
         self.colliderect_expanded = self.expanded_rect.colliderect
 
+        self.expanded_rect_anchor_attrname = (
+            'midright' if x_orientation > 0 else 'midleft'
+        )
+
         setattr(self.rect, pos_name, pos_value)
         SOUND_MAP['default_projectile_shot.wav'].play()
 
@@ -59,7 +63,13 @@ class DefaultProjectile:
             return
 
         exp_rect = self.expanded_rect
-        exp_rect.center = self.rect.center
+        anchor_attrname = self.expanded_rect_anchor_attrname
+
+        setattr(
+            exp_rect,
+            anchor_attrname,
+            getattr(self.rect, anchor_attrname),
+        )
 
         colliderect_expanded = self.colliderect_expanded
 
