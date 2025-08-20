@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from itertools import cycle, takewhile
+from itertools import cycle, takewhile, chain, product
 
 
 ### third-party imports
@@ -47,7 +47,7 @@ RADIUS_SWITCH_FRAMES = msecs_to_frames(_RADIUS_SWITCH_MSECS)
 _LIFESPAN_MSECS = 6000
 LIFESPAN_FRAMES = msecs_to_frames(_LIFESPAN_MSECS)
 
-MAX_RADIUS = max(RADII)
+MAX_RADIUS = max(UNIQUE_RADII)
 _max_area = RADIUS_TO_AREA_MAP[MAX_RADIUS]
 FULL_SIZE = _max_area.size
 CENTER = _max_area.center
@@ -55,6 +55,23 @@ CENTER = _max_area.center
 NO_OF_POINTS = 18
 NO_OF_LIGHTNING_BOLTS = 3
 INDEX_JUMP = NO_OF_POINTS // NO_OF_LIGHTNING_BOLTS
+
+LIGHTNING_BOLT_INDICES = tuple(
+
+    chain.from_iterable(
+        [
+
+            (
+                (i-1) % NO_OF_POINTS,
+                i,
+                (i+1) % NO_OF_POINTS,
+            )
+
+            for i in range(NO_OF_POINTS)
+        ]
+    )
+
+)
 
 CIRCLE_POINTS_MAP = {
     radius: list(yield_circle_points(NO_OF_POINTS, radius, CENTER))
@@ -84,6 +101,55 @@ ORDERED_CIRCLE_POINTS_MAP = {
 OFFSETS = cycle((-1, 1))
 
 
+lbi = [] # lightning bolt indices
+
+lpts = [] # lightning points
+
+def _get_lightning_points(radius_bolt_index_pair):
+
+    radius, bolt_index = radius_bolt_index_pair
+    
+    circles = ORDERED_CIRCLE_POINTS_MAP[radius]
+
+    all_lightning_points = []
+
+    n = bolt_index
+
+    lbi.clear()
+    lbi.append(n)
+
+    for _ in range(NO_OF_LIGHTNING_BOLTS-1):
+        n = (n + INDEX_JUMP) % NO_OF_POINTS
+        lbi.append(n)
+
+    for i in lbi:
+
+        lpts.clear()
+
+        for circle, offset in zip(circles, OFFSETS):
+
+            offset = (offset + i) % NO_OF_POINTS
+            lpts.append(circle[offset])
+
+        all_lightning_points.append(tuple(lpts))
+
+    lbi.clear()
+    lpts.clear()
+
+    return all_lightning_points
+
+
+LIGHTNING_POINTS_MAP = {
+
+    radius_bolt_index_pair: _get_lightning_points(radius_bolt_index_pair)
+
+    for radius_bolt_index_pair
+    in product(SORTED_UNIQUE_RADII[1:], range(NO_OF_POINTS))
+
+}
+
+MIN_RADIUS = min(UNIQUE_RADII)
+
 
 class ElectricGlobe:
 
@@ -98,7 +164,7 @@ class ElectricGlobe:
         self.lifespan_countdown = LIFESPAN_FRAMES
 
         self.next_radius = cycle(RADII).__next__
-        self.next_lightning_bolt = cycle(range(NO_OF_POINTS)).__next__
+        self.next_lightning_bolt = cycle(LIGHTNING_BOLT_INDICES).__next__
         self.lightning_bolt_indices = []
         self.lightning_points = []
 
@@ -145,34 +211,14 @@ class ElectricGlobe:
 
         image.fill(COLORKEY)
 
-        circles = ORDERED_CIRCLE_POINTS_MAP[self.radius]
+        if self.radius != MIN_RADIUS:
 
-        if len(circles) > 1:
+            for lightning_points in (
+                LIGHTNING_POINTS_MAP[(self.radius, self.next_lightning_bolt())]
+            ):
 
-            n = self.next_lightning_bolt()
-
-            lbi = self.lightning_bolt_indices
-
-            lbi.clear()
-            lbi.append(n)
-
-            for _ in range(NO_OF_LIGHTNING_BOLTS-1):
-                n = (n + INDEX_JUMP) % NO_OF_POINTS
-                lbi.append(n)
-
-            lpts = self.lightning_points
-
-            for i in lbi:
-
-                lpts.clear()
-
-                for circle, offset in zip(circles, OFFSETS):
-
-                    offset = (offset + i) % NO_OF_POINTS
-                    lpts.append(circle[offset])
-
-                draw_lines(image, 'yellow', False, lpts, 2)
-                draw_lines(image, 'cyan', False, lpts, 1)
+                draw_lines(image, 'yellow', False, lightning_points, 2)
+                draw_lines(image, 'cyan', False, lightning_points, 1)
 
         draw_circle(image, 'yellow', CENTER, self.radius, 1)
 
