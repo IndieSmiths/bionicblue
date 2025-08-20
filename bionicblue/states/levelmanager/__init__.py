@@ -371,6 +371,8 @@ class LevelManager:
 
             self.update = self.normal_update
             REFS.level_boss.begin_fighting()
+            music.load(str(MUSIC_DIR / 'boss_fight_by_juhani_junkala.ogg'))
+            music.play(-1)
 
         ### if the level scrolled (moved), update chunks and layers
 
