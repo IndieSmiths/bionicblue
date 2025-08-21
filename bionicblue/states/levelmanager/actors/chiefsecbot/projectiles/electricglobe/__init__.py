@@ -19,7 +19,7 @@ from pygame.draw import (
 
 ### local imports
 
-from .......config import REFS, COLORKEY
+from .......config import REFS, COLORKEY, SOUND_MAP
 
 from .......pygamesetup.constants import blit_on_screen, msecs_to_frames
 
@@ -44,6 +44,11 @@ RADIUS_SWITCH_FRAMES = msecs_to_frames(_RADIUS_SWITCH_MSECS)
 _LIFESPAN_MSECS = 6000
 LIFESPAN_FRAMES = msecs_to_frames(_LIFESPAN_MSECS)
 
+FILL_COLORS = (
+    (('white',) * 3)
+    + (('',)* 5)
+)
+
 
 class ElectricGlobe:
 
@@ -59,8 +64,7 @@ class ElectricGlobe:
 
         self.next_radius = cycle(RADII).__next__
         self.next_lightning_bolt = cycle(LIGHTNING_BOLT_INDICES).__next__
-        self.lightning_bolt_indices = []
-        self.lightning_points = []
+        self.next_fill_color = cycle(FILL_COLORS).__next__
 
         self.radius = self.next_radius()
 
@@ -70,6 +74,8 @@ class ElectricGlobe:
         setattr(self.rect, 'center', center)
 
         self.x_speed = -1 if orientation == 'left' else 1
+
+        SOUND_MAP['electric_globe_crackling.wav'].play(-1)
 
     def update(self):
 
@@ -105,6 +111,10 @@ class ElectricGlobe:
 
         image.fill(COLORKEY)
 
+        fill_color = self.next_fill_color()
+        if fill_color:
+            draw_circle(image, fill_color, CENTER, self.radius)
+
         if self.radius != MIN_RADIUS:
 
             for lightning_points in (
@@ -114,10 +124,11 @@ class ElectricGlobe:
                 draw_lines(image, 'yellow', False, lightning_points, 2)
                 draw_lines(image, 'cyan', False, lightning_points, 1)
 
-        draw_circle(image, 'yellow', CENTER, self.radius, 1)
+        draw_circle(image, 'yellow', CENTER, self.radius, 2)
 
     def trigger_kill(self):
         append_task(partial(PROJECTILES.remove, self))
+        SOUND_MAP['electric_globe_crackling.wav'].stop()
 
     def confirm_radius(self, colliding_rect):
 
