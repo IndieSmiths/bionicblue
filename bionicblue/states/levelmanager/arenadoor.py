@@ -8,7 +8,7 @@ from pygame.draw import rect as draw_rect
 
 ### local import
 
-from ...config import REFS, COLORKEY
+from ...config import REFS, SOUND_MAP, COLORKEY
 
 from ...pygamesetup.constants import blit_on_screen
 
@@ -47,6 +47,10 @@ class ArenaDoor:
         if self.rect.move(-64, 0).colliderect(player_rect):
 
             self.update = self.check_advancing_player
+            SOUND_MAP['arena_door_moving.wav'].play()
+
+            # this must always be the last line in this block,
+            # as it may raise an expected exception
             REFS.states.level_manager.passing_through_arena_door(self.name)
 
     def check_advancing_player(self):
@@ -57,6 +61,7 @@ class ArenaDoor:
 
         if (self.rect.left + self.door_closing_distance) <= player_rect.left:
             self.update = self.close_the_gate
+            SOUND_MAP['arena_door_moving.wav'].play()
 
     def open_the_gate(self):
 
@@ -71,6 +76,9 @@ class ArenaDoor:
             self.cover_rect.y += 2
 
             draw_rect(self.image, COLORKEY, self.cover_rect)
+
+        else:
+            SOUND_MAP['arena_door_moving.wav'].stop()
 
     def close_the_gate(self):
 
@@ -89,6 +97,8 @@ class ArenaDoor:
             draw_rect(self.image, COLORKEY, self.cover_rect)
 
         else:
+
+            SOUND_MAP['arena_door_moving.wav'].stop()
             self.update = do_nothing
 
     def draw(self):
