@@ -137,7 +137,11 @@ class ElectricGlobe:
             area = RADIUS_TO_AREA_MAP[self.radius]
             area.center = self.rect.center
 
-            return area.colliderect(colliding_rect)
+            return (
+                area.inflate(-4, -4).colliderect(colliding_rect)
+                if area.width >= 8
+                else area.colliderect(colliding_rect)
+            )
 
         return True
 
