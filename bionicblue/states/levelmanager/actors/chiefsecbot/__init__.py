@@ -13,7 +13,7 @@ from pygame.math import Vector2
 
 ### local imports
 
-from .....config import REFS
+from .....config import REFS, SOUND_MAP
 
 from .....constants import GRAVITY_ACCEL
 
@@ -129,6 +129,9 @@ class ChiefSecurityBot:
     def punch_wall(self):
 
         ap = self.aniplayer
+
+        if ap.peek_loops_no(6) == 1:
+            SOUND_MAP['chief_sec_bot_wall_punch.wav'].play()
 
         if ap.get_current_loops_no() == 1:
             
@@ -265,6 +268,9 @@ class ChiefSecurityBot:
         ap = self.aniplayer
 
         if ap.anim_name in CRATE_PUNCH_ANIM_NAMES:
+
+            if ap.peek_loops_no(8) == 1:
+                SOUND_MAP['chief_sec_bot_crate_punch.wav'].play()
 
             if ap.get_current_loops_no() == 1:
 
