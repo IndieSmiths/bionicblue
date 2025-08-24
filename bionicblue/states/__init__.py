@@ -23,7 +23,7 @@ from .playtestersscreen import PlaytestersScreen
 
 from .pausemenu import PauseMenu, pause
 
-#from .creditsroller import CreditsRoller
+from .creditsscreen import CreditsScreen
 
 
 
@@ -48,7 +48,7 @@ def setup_states():
     states.pause_menu = PauseMenu()
     REFS.pause = pause
 
-    #states.credits_roller = CreditsRoller()
+    states.credits_screen = CreditsScreen()
 
 
 def get_game_state():

@@ -83,6 +83,7 @@ class MainMenu:
                 ('kbd_controls', 'Keyboard controls'),
                 ('gp_controls', 'Gamepad controls'),
                 ('options', 'Options'),
+                ('credits', 'Credits'),
                 ('exit', 'Exit game'),
             )
 
@@ -121,6 +122,7 @@ class MainMenu:
                     'kbd_controls',
                     'gp_controls',
                     'options',
+                    'credits',
                     'exit',
                 )
 
@@ -141,6 +143,7 @@ class MainMenu:
                     'kbd_controls',
                     'gp_controls',
                     'options',
+                    'credits',
                     'exit',
                 )
 
@@ -219,6 +222,13 @@ class MainMenu:
             options_screen.prepare()
 
             raise LoopException(next_state=options_screen)
+
+        elif item_key == 'credits':
+
+            credits_screen = REFS.states.credits_screen
+            credits_screen.prepare()
+
+            raise LoopException(next_state=credits_screen)
 
         elif item_key == 'exit':
             quit_game()
