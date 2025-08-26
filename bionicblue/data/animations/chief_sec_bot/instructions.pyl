@@ -29,6 +29,14 @@
         "back_punch_left": {"structure": "standing"},
         "punch_right": {"structure": "standing"},
         "punch_left": {"structure": "standing"},
+        "grab_left": {"structure": "standing"},
+        "grab_right": {"structure": "standing"},
+        "hold_left": {"structure": "standing"},
+        "hold_right": {"structure": "standing"},
+        "run_left": {"structure": "standing"},
+        "run_right": {"structure": "standing"},
+        "throw_left": {"structure": "standing"},
+        "throw_right": {"structure": "standing"},
         "shoot_right": {"structure": "knelt"},
         "shoot_left": {"structure": "knelt"},
     },
@@ -51,6 +59,26 @@
         "back_punch_left": {
             "body": {
                 "surfaces": "chief_sec_bot.back_punch_left",
+            },
+        },
+        "grab_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.grab_left",
+            },
+        },
+        "hold_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.hold_left",
+            },
+        },
+        "run_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.run_left",
+            },
+        },
+        "throw_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.throw_left",
             },
         },
         "shoot_left": {
@@ -85,6 +113,26 @@
                 "surface_indices": "chief_sec_bot.shoot_left",
             },
         },
+        "grab_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.grab_left",
+            },
+        },
+        "hold_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.hold_left",
+            },
+        },
+        "run_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.run_left",
+            },
+        },
+        "throw_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.throw_left",
+            },
+        },
     },
     "recolored_surface_versions": {
         "whitened": {
@@ -97,6 +145,10 @@
                 "chief_sec_bot.punch_left",
                 "chief_sec_bot.back_punch_left",
                 "chief_sec_bot.shoot_left",
+                "chief_sec_bot.grab_left",
+                "chief_sec_bot.hold_left",
+                "chief_sec_bot.run_left",
+                "chief_sec_bot.throw_left",
             ],
         },
 
@@ -121,6 +173,22 @@
         "shoot_right": {
             "operation_name": "flip_x",
             "target": "shoot_left",
+        },
+        "grab_right": {
+            "operation_name": "flip_x",
+            "target": "grab_left",
+        },
+        "hold_right": {
+            "operation_name": "flip_x",
+            "target": "hold_left",
+        },
+        "run_right": {
+            "operation_name": "flip_x",
+            "target": "run_left",
+        },
+        "throw_right": {
+            "operation_name": "flip_x",
+            "target": "throw_left",
         },
     },
 }

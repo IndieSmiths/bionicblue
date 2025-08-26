@@ -82,7 +82,6 @@ class ChiefSecurityBot:
 
         self.punch_countdown = 0
         self.no_of_punched_crates = 0
-        self.no_of_side_switches = 0
         self.shoot_countdown = 0
 
         animation_name = 'idle_right' if facing_right else 'idle_left'
@@ -280,7 +279,24 @@ class ChiefSecurityBot:
 
                     self.no_of_punched_crates = 0
 
-                    if self.no_of_side_switches == 2:
+                    health_percentage = (
+                        self.health_column.get_health_percentage()
+                    )
+
+                    if health_percentage <= .4:
+
+                        if 'left' in ap.anim_name:
+
+                            ap.switch_animation('run_left')
+                            self.x_speed = -7
+
+                        else:
+                            ap.switch_animation('run_right')
+                            self.x_speed = 7
+
+                        self.update = self.run
+
+                    elif health_percentage <= .7:
 
                         y = self.rect.centery - 4
 
@@ -300,8 +316,6 @@ class ChiefSecurityBot:
                         self.update = self.shoot
 
                     else:
-
-                        self.no_of_side_switches += 1
 
                         if 'left' in ap.anim_name:
 
@@ -404,6 +418,37 @@ class ChiefSecurityBot:
 
         self.routine_check()
 
+    def run(self):
+
+        rect = self.rect
+
+        rect.move_ip(self.x_speed, 0)
+
+        for block in BLOCKS_NEAR_SCREEN:
+
+            if block.colliderect(rect):
+
+                if self.x_speed < 0:
+
+                    rect.left = block.rect.right + 10
+                    self.aniplayer.switch_animation('back_punch_right')
+
+                else:
+
+                    rect.right = block.rect.left - 10
+                    self.aniplayer.switch_animation('back_punch_left')
+
+                self.x_speed = 0
+                self.update = self.punch_wall
+
+                break
+
+
+        if self.rect.colliderect(self.player.rect):
+            self.player.damage(3)
+
+        self.routine_check()
+
     def check_damage_whitening(self):
 
         if (
@@ -437,50 +482,3 @@ class ChiefSecurityBot:
             else:
                 self.aniplayer.set_custom_surface_cycling(WHITENING_CYCLE)
                 self.routine_check = self.check_damage_whitening
-
-### XXX backed up code
-#
-#        rect = self.rect
-#        center = rect.center
-#
-#        x_speed = self.x_speed
-#        colliderect = rect.colliderect
-#
-#        rect.move_ip(x_speed, 0)
-#
-#        for block in BLOCKS_NEAR_SCREEN:
-#
-#            if colliderect(block.rect):
-#
-#                if x_speed > 0:
-#                    rect.right = block.rect.left
-#                    self.aniplayer.switch_animation('idle_left')
-#
-#                else:
-#                    rect.left = block.rect.right
-#                    self.aniplayer.switch_animation('idle_right')
-#
-#                self.x_speed = -x_speed
-#
-#                break
-#
-#        else:
-#
-#            rect.move_ip(0, 1)
-#
-#            if not any(
-#                colliderect(block.rect)
-#                for block in BLOCKS_NEAR_SCREEN
-#            ):
-#
-#                if x_speed > 0:
-#                    self.aniplayer.switch_animation('idle_left')
-#                else:
-#                    self.aniplayer.switch_animation('idle_right')
-#
-#                self.x_speed = -x_speed
-#                rect.move_ip(-x_speed, -1)
-#
-#            else:
-#                rect.move_ip(0, -1)
-

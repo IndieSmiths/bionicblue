@@ -11,16 +11,13 @@ from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
 
 
 
+FULL_HEALTH = 50
+
 class HealthColumn:
 
     def __init__(self):
 
-        self.full_health = 32
-        self.health = 32
-
-        self.update_structure()
-
-    def update_structure(self):
+        self.health = self.full_health = FULL_HEALTH
 
         hbg = self.health_bg = Rect(0, 0, 4, self.full_health)
         hfg = self.health_fg = Rect(0, 0, 4, self.health)
@@ -42,8 +39,9 @@ class HealthColumn:
     def damage(self, amount):
 
         self.health += -amount
+        self.health = max(0, self.health)
 
-        self.health_fg.height = max(self.health, 0)
+        self.health_fg.height = self.health
         self.health_fg.bottom = self.health_bg.bottom
 
         draw_rect(self.image, 'brown', self.health_bg)
@@ -51,6 +49,9 @@ class HealthColumn:
 
     def is_depleted(self):
         return self.health <= 0
+
+    def get_health_percentage(self):
+        return self.health / self.full_health
 
     def draw(self):
         blit_on_screen(self.image, self.rect)
