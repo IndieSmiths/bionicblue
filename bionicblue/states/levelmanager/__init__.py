@@ -100,12 +100,10 @@ scrolling_backup = Vector2()
 
 FLOOR_LEVEL = 128
 
-NORMAL_CAMERA_TRACKING_AREA = SCREEN_RECT.copy()
-NORMAL_CAMERA_TRACKING_AREA.width //= 5
-NORMAL_CAMERA_TRACKING_AREA.height += -40
-NORMAL_CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
-
-BOSS_CAMERA_TRACKING_AREA = SCREEN_RECT.inflate(4, 4)
+CAMERA_TRACKING_AREA = SCREEN_RECT.copy()
+CAMERA_TRACKING_AREA.width //= 5
+CAMERA_TRACKING_AREA.height += -40
+CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
 
 
 class LevelManager:
@@ -148,7 +146,6 @@ class LevelManager:
 
         self.update = self.normal_update
 
-        self.camera_tracking_area = NORMAL_CAMERA_TRACKING_AREA
         self.disable_overall_tracking_for_camera()
         self.disable_feet_tracking_for_camera()
 
@@ -412,7 +409,7 @@ class LevelManager:
 
         player_rect = self.player.rect
 
-        clamped_rect = player_rect.clamp(self.camera_tracking_area)
+        clamped_rect = player_rect.clamp(CAMERA_TRACKING_AREA)
 
         if clamped_rect != player_rect:
 
@@ -488,7 +485,7 @@ class LevelManager:
 #        from pygame.draw import rect, line
 #        from ...pygamesetup.constants import SCREEN
 #
-#        cam_area = self.camera_tracking_area
+#        cam_area = CAMERA_TRACKING_AREA
 #
 #        rect(SCREEN, 'red', cam_area, 1)
 #
@@ -521,7 +518,15 @@ class LevelManager:
 
         if door_name == 'door_2':
 
-            self.camera_tracking_area = BOSS_CAMERA_TRACKING_AREA
+            ### disable camera overall and feet tracking, since
+            ### screen will now be focused solely on the arena,
+            ### not moving for the duration of the battle
+
+            self.disable_overall_tracking_for_camera()
+            self.disable_feet_tracking_for_camera()
+
+            ###
+
             self.update = self.moving_update
             HEALTH_COLUMNS.add(REFS.level_boss.health_column)
 
