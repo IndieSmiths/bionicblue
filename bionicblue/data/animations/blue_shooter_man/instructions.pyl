@@ -48,6 +48,10 @@
         "hurt_right": {"structure": "standing"},
         "hurt_left": {"structure": "standing"},
 
+        "grabbed": {"structure": "standing"},
+        "hurled_right": {"structure": "standing"},
+        "hurled_left": {"structure": "standing"},
+
     },
     "blending": {
         "teleporting": {
@@ -198,6 +202,16 @@
                 "surfaces": "shooter_man.hurt_right",
             },
         },
+        "hurled_right": {
+            "body": {
+                "surfaces": "shooter_man.hurled_right",
+            },
+        },
+        "grabbed": {
+            "body": {
+                "surfaces": "shooter_man.grabbed",
+            },
+        },
     },
     "timing": {
         "teleporting": {
@@ -275,6 +289,16 @@
                 "surface_indices": "shooter_man.hurt_right",
             },
         },
+        "hurled_right": {
+            "body": {
+                "surface_indices": "shooter_man.hurled_right",
+            },
+        },
+        "grabbed": {
+            "body": {
+                "surface_indices": "shooter_man.grabbed",
+            },
+        },
     },
     "recolored_surface_versions": {
         "caustic_blue": {
@@ -295,6 +319,8 @@
                 "shooter_man.shooting_jump_right",
                 "shooter_man.shooting_climbing_right",
                 "shooter_man.hurt_right",
+                "shooter_man.hurled_right",
+                "shooter_man.grabbed",
             ],
         },
 
@@ -317,6 +343,8 @@
                 "shooter_man.shooting_jump_right",
                 "shooter_man.shooting_climbing_right",
                 "shooter_man.hurt_right",
+                "shooter_man.hurled_right",
+                "shooter_man.grabbed",
             ],
         },
     },
@@ -364,6 +392,10 @@
         "hurt_left": {
             "operation_name": "flip_x",
             "target": "hurt_right",
+        },
+        "hurled_left": {
+            "operation_name": "flip_x",
+            "target": "hurled_right",
         },
     },
 }

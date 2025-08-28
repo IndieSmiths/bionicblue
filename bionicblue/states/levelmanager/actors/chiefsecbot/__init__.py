@@ -67,6 +67,12 @@ BOSS_MAX_Y_SPEED = 6
 _SHOOT_WAIT_MSECS = 230
 SHOOT_WAIT_FRAMES = msecs_to_frames(_SHOOT_WAIT_MSECS)
 
+_HOLD_MSECS = 400
+HOLD_FRAMES = msecs_to_frames(_HOLD_MSECS)
+
+_IDLE_MSECS = 400
+IDLE_FRAMES = msecs_to_frames(_IDLE_MSECS)
+
 
 class ChiefSecurityBot:
 
@@ -83,6 +89,7 @@ class ChiefSecurityBot:
         self.punch_countdown = 0
         self.no_of_punched_crates = 0
         self.shoot_countdown = 0
+        self.did_run_into_player = False
 
         animation_name = 'idle_right' if facing_right else 'idle_left'
 
@@ -128,6 +135,31 @@ class ChiefSecurityBot:
     def punch_wall(self):
 
         ap = self.aniplayer
+        player = self.player
+
+        if 'left' in ap.anim_name:
+
+            if (
+                player.rect.centerx > self.rect.centerx
+                and player.rect.bottom == self.rect.bottom
+            ):
+
+                self.update = self.grab
+                ap.switch_animation('grab_left')
+
+                self.routine_check()
+                return
+
+        elif (
+            self.player.rect.centerx < self.rect.centerx
+            and player.rect.bottom == self.rect.bottom
+        ):
+
+            self.update = self.grab
+            ap.switch_animation('grab_right')
+
+            self.routine_check()
+            return
 
         if ap.peek_loops_no(6) == 1:
             SOUND_MAP['chief_sec_bot_wall_punch.wav'].play()
@@ -265,6 +297,33 @@ class ChiefSecurityBot:
     def punch_crate_update(self):
 
         ap = self.aniplayer
+        player = self.player
+
+        if 'left' in ap.anim_name:
+
+            if (
+                player.rect.centerx > self.rect.centerx
+                and player.rect.bottom == self.rect.bottom
+            ):
+
+                self.update = self.grab
+                ap.switch_animation('grab_left')
+
+                self.routine_check()
+                #self.no_of_punched_crates = 0
+                return
+
+        elif (
+            self.player.rect.centerx < self.rect.centerx
+            and player.rect.bottom == self.rect.bottom
+        ):
+
+            self.update = self.grab
+            ap.switch_animation('grab_right')
+
+            self.routine_check()
+            #self.no_of_punched_crates = 0
+            return
 
         if ap.anim_name in CRATE_PUNCH_ANIM_NAMES:
 
@@ -444,8 +503,103 @@ class ChiefSecurityBot:
                 break
 
 
-        if self.rect.colliderect(self.player.rect):
-            self.player.damage(3)
+        if (
+            not self.did_run_into_player
+            and self.rect.colliderect(self.player.rect)
+        ):
+
+            if 'left' in self.aniplayer.anim_name:
+                self.player.be_hurled(-10, -1)
+
+            else:
+                self.player.be_hurled(10, -1)
+
+            self.did_run_into_player = True
+
+        self.routine_check()
+
+        if self.update == self.punch_wall:
+            self.did_run_into_player = False
+
+    def grab(self):
+
+        ap = self.aniplayer
+
+        if 'grab' in ap.anim_name:
+
+            if ap.get_current_frame() == 3:
+
+                self.player.be_grabbed()
+
+                if 'left' in ap.anim_name:
+                    self.player.rect.midbottom = self.rect.move(8, 0).bottomright
+
+                else:
+                    self.player.rect.midbottom = self.rect.move(-8, 0).bottomleft
+
+            elif ap.peek_loops_no(1) == 1:
+                
+                if 'left' in ap.anim_name:
+                    ap.switch_animation('hold_left')
+                    self.player.rect.center = self.rect.move(8, -2).topright
+
+                else:
+                    ap.switch_animation('hold_right')
+                    self.player.rect.center = self.rect.move(-8, -2).topleft
+
+                self.hold_countdown = HOLD_FRAMES
+
+        elif 'hold' in ap.anim_name:
+
+            self.hold_countdown -= 1
+
+            if self.hold_countdown == 0:
+
+                ap.switch_animation(
+                    'throw_left'
+                    if 'left' in ap.anim_name
+                    else 'throw_right'
+                )
+
+        elif 'throw' in ap.anim_name:
+
+            if ap.get_current_frame() == 8:
+
+                player = self.player
+
+                if 'left' in ap.anim_name:
+
+                    player.be_hurled(-10, 0)
+                    player.rect.midright = self.rect.move(0, -5).midleft
+
+                else:
+
+                    player.be_hurled(10, 0)
+                    player.rect.midleft = self.rect.move(0, -5).midright
+
+            elif ap.get_current_loops_no() == 1:
+
+                ap.switch_animation(
+                    'idle_left'
+                    if 'left' in ap.anim_name
+                    else 'idle_right'
+                )
+
+                self.idle_countdown = IDLE_FRAMES
+
+        elif 'idle' in ap.anim_name:
+
+            self.idle_countdown -= 1
+
+            if self.idle_countdown == 0:
+
+                ap.switch_animation(
+                    'back_punch_left'
+                    if 'left' in ap.anim_name
+                    else 'back_punch_right'
+                )
+
+                self.update = self.punch_wall
 
         self.routine_check()
 

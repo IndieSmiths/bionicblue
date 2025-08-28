@@ -49,10 +49,16 @@ from .decelerateleft import DecelerateLeft
 from .hurt import Hurt
 from .dead import Dead
 
+from .grabbed import Grabbed
+from .hurled import Hurled
+
 ## function
 from .chargingparticles import draw_charging_particles
 
 
+
+UNDAMAGEABLE_STATES = frozenset(('dead', 'grabbed'))
+UNHURLEABLE_STATES = frozenset(('dead', 'hurled'))
 
 class Player(
     TeleportingIn,
@@ -64,6 +70,8 @@ class Player(
     DecelerateLeft,
     Hurt,
     Dead,
+    Grabbed,
+    Hurled,
 ):
 
     def __init__(self):
@@ -241,7 +249,7 @@ class Player(
 
     def damage(self, amount):
 
-        if self.state_name == 'dead': return
+        if self.state_name in UNDAMAGEABLE_STATES: return
 
         now = GENERAL_NS.frame_index
 
@@ -413,3 +421,24 @@ class Player(
         REFS.disable_overall_tracking_for_camera()
         REFS.disable_feet_tracking_for_camera()
         SOUND_MAP['blue_shooter_man_death.wav'].play()
+
+    def be_grabbed(self):
+
+        self.stop_charging()
+        self.aniplayer.switch_animation('grabbed')
+        self.set_state('grabbed')
+
+    def be_hurled(self, x_speed, y_speed):
+
+        if self.state_name in UNHURLEABLE_STATES: return
+
+        self.x_speed = x_speed
+        self.y_speed = y_speed
+
+        self.aniplayer.switch_animation(
+            'hurled_left'
+            if x_speed < 0
+            else 'hurled_right'
+        )
+
+        self.set_state('hurled')
