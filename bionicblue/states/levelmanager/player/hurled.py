@@ -73,7 +73,6 @@ class Hurled:
                 else:
                     rect.left = block.rect.right
 
-                self.x_speed = self.y_speed = 0
                 self.damage(5)
                 return
 
@@ -98,6 +97,5 @@ class Hurled:
                 else:
                     rect.top = block.rect.bottom
 
-                self.x_speed = self.y_speed = 0
                 self.damage(5)
                 return
