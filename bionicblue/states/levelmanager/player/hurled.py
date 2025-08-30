@@ -67,7 +67,7 @@ class Hurled:
 
             if block.colliderect(rect):
 
-                if rect.left < block.rect.left:
+                if self.x_speed > 0:
                     rect.right = block.rect.left
 
                 else:
@@ -86,7 +86,7 @@ class Hurled:
 
             if block.colliderect(rect):
 
-                if rect.bottom < block.rect.bottom:
+                if self.y_speed > 0:
 
                     rect.bottom = block.rect.top
                     self.midair = False

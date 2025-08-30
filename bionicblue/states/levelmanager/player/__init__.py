@@ -429,6 +429,16 @@ class Player(
         self.set_state('grabbed')
 
     def be_hurled(self, x_speed, y_speed):
+        """Hurl playable character. Only stops after taking damage.
+
+        In this states, the character can be damaged by hitting block as
+        well.
+
+        Extra care must be taken when hurling the character at
+        x_speed >= width or y_speed >= height. Depending on how the
+        interaction with blocks is calculated, the character may end up
+        at the other side of a block.
+        """
 
         if self.state_name in UNHURLEABLE_STATES: return
 

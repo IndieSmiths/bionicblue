@@ -509,10 +509,10 @@ class ChiefSecurityBot:
         ):
 
             if 'left' in self.aniplayer.anim_name:
-                self.player.be_hurled(-10, -1)
+                self.player.be_hurled(-10, -2)
 
             else:
-                self.player.be_hurled(10, -1)
+                self.player.be_hurled(10, -2)
 
             self.did_run_into_player = True
 
