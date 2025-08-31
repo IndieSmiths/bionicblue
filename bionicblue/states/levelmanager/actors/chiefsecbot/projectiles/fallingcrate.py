@@ -79,14 +79,20 @@ class FallingCrate:
             return
 
         ### if inflated rect hits boss near the floor,
-        ### give the crate x speed
+        ### when the boss is alive and in the punch pose of the
+        ### punch animation, give the crate x speed
 
         boss = REFS.level_boss
 
         irect = self.inflated_rect
         irect.center = rect.center
 
-        if irect.colliderect(boss.rect):
+        if (
+            boss.health > 0
+            and irect.colliderect(boss.rect)
+            and 'punch' in boss.aniplayer.anim_name
+            and boss.aniplayer.get_current_frame() >= 12
+        ):
 
             moved_down_rect = rect.move(0, 12)
 
