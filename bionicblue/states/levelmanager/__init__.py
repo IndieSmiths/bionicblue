@@ -530,6 +530,8 @@ class LevelManager:
             self.update = self.moving_update
             HEALTH_COLUMNS.add(REFS.level_boss.health_column)
 
+            self.player.stop_charging()
+
             # TODO probaby use time in milliseconds, converting to
             # frames before feeding to function
             input_data = (
