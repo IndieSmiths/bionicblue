@@ -51,6 +51,11 @@ FILL_COLORS = (
 
 
 class ElectricGlobe:
+    
+    # set to keep track of existing instances;
+    # used so we know when to start/stop playing the electric
+    # globe sound
+    instances = set()
 
     def __init__(self, center, orientation):
 
@@ -75,7 +80,13 @@ class ElectricGlobe:
 
         self.x_speed = -1 if orientation == 'left' else 1
 
-        SOUND_MAP['electric_globe_crackling.wav'].play(-1)
+        # only start playing if there isn't already an existing
+        # electric globe
+
+        if not self.instances:
+            SOUND_MAP['electric_globe_crackling.wav'].play(-1)
+
+        self.instances.add(self)
 
     def update(self):
 
@@ -127,8 +138,15 @@ class ElectricGlobe:
         draw_circle(image, 'yellow', CENTER, self.radius, 2)
 
     def trigger_kill(self):
+
         append_task(partial(PROJECTILES.remove, self))
-        SOUND_MAP['electric_globe_crackling.wav'].stop()
+
+        self.instances.remove(self)
+
+        # only stop playing if there is no remaining electric globe
+
+        if not self.instances:
+            SOUND_MAP['electric_globe_crackling.wav'].stop()
 
     def confirm_radius(self, colliding_rect):
 
