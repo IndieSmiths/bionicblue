@@ -48,7 +48,7 @@ WHITENING_CYCLE = (
   *('default',)*3,
 )
 
-_CRATE_PUNCH_WAIT_MSECS = 264
+_CRATE_PUNCH_WAIT_MSECS = 34
 CRATE_PUNCH_WAIT_FRAMES = msecs_to_frames(_CRATE_PUNCH_WAIT_MSECS)
 
 CRATE_PUNCH_ANIM_NAMES = frozenset(('punch_left', 'punch_right'))
@@ -162,17 +162,10 @@ class ChiefSecurityBot:
             return
 
         if ap.peek_loops_no(6) == 1:
+
             SOUND_MAP['chief_sec_bot_wall_punch.wav'].play()
 
-        if ap.get_current_loops_no() == 1:
-            
             orientation = 'left' if 'left' in ap.anim_name else 'right'
-
-            ap.switch_animation(
-                'idle_left'
-                if orientation == 'left'
-                else 'idle_right'
-            )
 
             ###
 
@@ -285,8 +278,15 @@ class ChiefSecurityBot:
             for x in xs:
                 PROJECTILES.add(FallingCrate((x, y)))
 
-            self.punch_countdown = CRATE_PUNCH_WAIT_FRAMES 
+        elif ap.peek_loops_no(1) == 1:
 
+            ap.switch_animation(
+                'idle_left'
+                if 'left' in ap.anim_name
+                else 'idle_right'
+            )
+
+            self.punch_countdown = CRATE_PUNCH_WAIT_FRAMES
             self.update = self.punch_crate_update
 
         if self.rect.colliderect(self.player.rect):
