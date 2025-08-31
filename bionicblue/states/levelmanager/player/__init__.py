@@ -43,9 +43,6 @@ from .idleleft import IdleLeft
 from .walkright import WalkRight
 from .walkleft import WalkLeft
 
-from .decelerateright import DecelerateRight
-from .decelerateleft import DecelerateLeft
-
 from .hurt import Hurt
 from .dead import Dead
 
@@ -66,8 +63,6 @@ class Player(
     IdleLeft,
     WalkRight,
     WalkLeft,
-    DecelerateRight,
-    DecelerateLeft,
     Hurt,
     Dead,
     Grabbed,
@@ -103,7 +98,6 @@ class Player(
 
         self.x_speed = 0
         self.y_speed = MAX_Y_SPEED
-        self.x_accel = 0
         self.y_accel = 10
 
         self.jump_dy = -15
@@ -359,7 +353,7 @@ class Player(
 
         self.ladder = closest_ladder
 
-        self.x_accel = self.x_speed = self.y_speed = 0
+        self.x_speed = self.y_speed = 0
 
         self.midair = False
 

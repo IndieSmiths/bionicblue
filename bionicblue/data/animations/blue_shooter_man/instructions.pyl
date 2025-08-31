@@ -22,8 +22,6 @@
         "idle_left": {"structure": "standing"},
         "walk_right": {"structure": "standing"},
         "walk_left": {"structure": "standing"},
-        "decelerate_right": {"structure": "standing"},
-        "decelerate_left": {"structure": "standing"},
         "jump_right": {"structure": "standing"},
         "jump_left": {"structure": "standing"},
 
@@ -37,8 +35,6 @@
         "shooting_idle_left": {"structure": "standing"},
         "shooting_walk_right": {"structure": "standing"},
         "shooting_walk_left": {"structure": "standing"},
-        "shooting_decelerate_right": {"structure": "standing"},
-        "shooting_decelerate_left": {"structure": "standing"},
         "shooting_jump_right": {"structure": "standing"},
         "shooting_jump_left": {"structure": "standing"},
 
@@ -92,12 +88,6 @@
         "shooting_walk_left": {
             "+grounded": "shooting_walk_left",
             "-shooting": "walk_left",
-        },
-        "decelerate_right" : {
-            "+shooting": "shooting_decelerate_right",
-        },
-        "decelerate_left" : {
-            "+shooting": "shooting_decelerate_left",
         },
         "jump_right" : {
             "+shooting": "shooting_jump_right",
@@ -162,11 +152,6 @@
                 "surfaces": "shooter_man.jump_right",
             },
         },
-        "decelerate_right": {
-            "body": {
-                "surfaces": "shooter_man.decelerate_right",
-            },
-        },
         "idle_climbing_right": {
             "body": {
                 "surfaces": "shooter_man.idle_climbing_right",
@@ -185,11 +170,6 @@
         "shooting_walk_right": {
             "body": {
                 "surfaces": "shooter_man.shooting_walk_right",
-            },
-        },
-        "shooting_decelerate_right": {
-            "body": {
-                "surfaces": "shooter_man.shooting_decelerate_right",
             },
         },
         "shooting_jump_right": {
@@ -249,11 +229,6 @@
                 "surface_indices": "shooter_man.jump_right",
             },
         },
-        "decelerate_right": {
-            "body": {
-                "surface_indices": "shooter_man.decelerate_right",
-            },
-        },
         "idle_climbing_right": {
             "body": {
                 "surface_indices": "shooter_man.idle_climbing_right",
@@ -272,11 +247,6 @@
         "shooting_walk_right": {
             "body": {
                 "surface_indices": "shooter_man.shooting_walk_right",
-            },
-        },
-        "shooting_decelerate_right": {
-            "body": {
-                "surface_indices": "shooter_man.shooting_decelerate_right",
             },
         },
         "shooting_jump_right": {
@@ -312,10 +282,8 @@
                 "shooter_man.idle_climbing_right",
                 "shooter_man.walk_right",
                 "shooter_man.jump_right",
-                "shooter_man.decelerate_right",
                 "shooter_man.shooting_idle_right",
                 "shooter_man.shooting_walk_right",
-                "shooter_man.shooting_decelerate_right",
                 "shooter_man.shooting_jump_right",
                 "shooter_man.shooting_climbing_right",
                 "shooter_man.hurt_right",
@@ -336,10 +304,8 @@
                 "shooter_man.idle_climbing_right",
                 "shooter_man.walk_right",
                 "shooter_man.jump_right",
-                "shooter_man.decelerate_right",
                 "shooter_man.shooting_idle_right",
                 "shooter_man.shooting_walk_right",
-                "shooter_man.shooting_decelerate_right",
                 "shooter_man.shooting_jump_right",
                 "shooter_man.shooting_climbing_right",
                 "shooter_man.hurt_right",
@@ -365,10 +331,6 @@
             "operation_name": "flip_x",
             "target": "jump_right",
         },
-        "decelerate_left": {
-            "operation_name": "flip_x",
-            "target": "decelerate_right",
-        },
         "shooting_idle_left": {
             "operation_name": "flip_x",
             "target": "shooting_idle_right",
@@ -380,10 +342,6 @@
         "shooting_walk_left": {
             "operation_name": "flip_x",
             "target": "shooting_walk_right",
-        },
-        "shooting_decelerate_left": {
-            "operation_name": "flip_x",
-            "target": "shooting_decelerate_right",
         },
         "shooting_jump_left": {
             "operation_name": "flip_x",

@@ -21,7 +21,7 @@ from pygame.locals import (
 from ....config import REFS, quit_game
 
 from ....constants import (
-    MAX_X_SPEED,
+    X_SPEED,
     SHOOTING_STANCE_FRAMES,
     DAMAGE_REBOUND_FRAMES,
 )
@@ -132,38 +132,27 @@ class WalkRight:
 
         if pressed_state[KEYBOARD_CONTROLS['left']] or (GAMEPAD_NS.x_sum < 0):
 
-            self.x_accel += -1
+            self.x_speed = -X_SPEED
 
-            if self.aniplayer.anim_name == 'shooting_walk_right':
-                self.set_state('decelerate_right')
-                self.aniplayer.switch_animation('decelerate_right')
+            blend_shooting = self.aniplayer.anim_name == 'shooting_walk_right'
+
+            self.set_state('walk_left')
+            self.aniplayer.switch_animation('walk_left')
+
+            if blend_shooting:
                 self.aniplayer.blend('+shooting')
 
-            else:
-                self.set_state('decelerate_right')
-                self.aniplayer.switch_animation('decelerate_right')
-
         elif pressed_state[KEYBOARD_CONTROLS['right']] or (GAMEPAD_NS.x_sum > 0):
-            self.x_accel = min(self.x_accel + 1, 2)
+            pass
 
         else:
-            self.x_accel = max(self.x_accel - 1, 0)
+            self.x_speed = 0
+            self.set_state('idle_right')
+            self.aniplayer.switch_animation('idle_right')
 
     def walk_right_update(self):
 
-        x = self.rect.x
-
-        if self.x_speed > 0:
-            self.x_speed += -1
-
-        self.x_speed += self.x_accel
-        self.x_speed = min(max(self.x_speed, 0), MAX_X_SPEED)
-
-        self.rect.x += self.x_speed
-
-        if not self.x_speed:
-            self.set_state('idle_right')
-            self.aniplayer.switch_animation('idle_right')
+        self.rect.move_ip(self.x_speed, 0)
 
         current_frame = GENERAL_NS.frame_index
 
@@ -173,9 +162,7 @@ class WalkRight:
         if self.charge_start:
             self.check_charge()
 
-        if self.rect.x != x:
-            self.avoid_blocks_horizontally()
-
+        self.avoid_blocks_horizontally()
         self.react_to_gravity()
 
         if current_frame - self.last_damage > DAMAGE_REBOUND_FRAMES:

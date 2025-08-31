@@ -21,7 +21,7 @@ from pygame.locals import (
 from ....config import REFS, quit_game
 
 from ....constants import (
-    MAX_X_SPEED,
+    X_SPEED,
     SHOOTING_STANCE_FRAMES,
     DAMAGE_REBOUND_FRAMES,
 )
@@ -131,40 +131,29 @@ class WalkLeft:
 
         pressed_state = SERVICES_NS.get_pressed_keys()
 
-        if pressed_state[KEYBOARD_CONTROLS['left']] or (GAMEPAD_NS.x_sum < 0):
-            self.x_accel = max(self.x_accel - 1, -2)
+        if pressed_state[KEYBOARD_CONTROLS['right']] or (GAMEPAD_NS.x_sum > 0):
 
-        elif pressed_state[KEYBOARD_CONTROLS['right']] or (GAMEPAD_NS.x_sum > 0):
+            self.x_speed = X_SPEED
 
-            self.x_accel += 1
+            blend_shooting = self.aniplayer.anim_name == 'shooting_walk_left'
 
-            if self.aniplayer.anim_name == 'shooting_walk_left':
-                self.set_state('decelerate_left')
-                self.aniplayer.switch_animation('decelerate_left')
+            self.set_state('walk_right')
+            self.aniplayer.switch_animation('walk_right')
+
+            if blend_shooting:
                 self.aniplayer.blend('+shooting')
 
-            else:
-                self.set_state('decelerate_left')
-                self.aniplayer.switch_animation('decelerate_left')
+        elif pressed_state[KEYBOARD_CONTROLS['left']] or (GAMEPAD_NS.x_sum < 0):
+            pass
 
         else:
-            self.x_accel = max(self.x_accel + 1, 0)
+            self.x_speed = 0
+            self.set_state('idle_left')
+            self.aniplayer.switch_animation('idle_left')
 
     def walk_left_update(self):
 
-        x = self.rect.x
-
-        if self.x_speed < 0:
-            self.x_speed += -1
-
-        self.x_speed += self.x_accel
-        self.x_speed = min(max(self.x_speed, -MAX_X_SPEED), 0)
-
-        self.rect.x += self.x_speed
-
-        if not self.x_speed:
-            self.set_state('idle_left')
-            self.aniplayer.switch_animation('idle_left')
+        self.rect.move_ip(self.x_speed, 0)
 
         current_frame = GENERAL_NS.frame_index
 
@@ -174,9 +163,7 @@ class WalkLeft:
         if self.charge_start:
             self.check_charge()
 
-        if self.rect.x != x:
-            self.avoid_blocks_horizontally()
-
+        self.avoid_blocks_horizontally()
         self.react_to_gravity()
 
         if current_frame - self.last_damage > DAMAGE_REBOUND_FRAMES:

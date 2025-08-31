@@ -19,8 +19,8 @@ GRAVITY_ACCEL = 2
 
 ### speed (pixels/frame)
 
+X_SPEED = 4
 MAX_Y_SPEED = 10
-MAX_X_SPEED = 4
 
 CHARGED_SHOT_SPEED = 10
 

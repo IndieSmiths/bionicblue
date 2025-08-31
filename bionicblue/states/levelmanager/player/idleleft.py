@@ -21,6 +21,7 @@ from pygame.locals import (
 from ....config import REFS, quit_game
 
 from ....constants import (
+    X_SPEED,
     SHOOTING_STANCE_FRAMES,
     DAMAGE_REBOUND_FRAMES,
 )
@@ -204,7 +205,7 @@ class IdleLeft:
             or (GAMEPAD_NS.x_sum < 0)
         ):
 
-            self.x_accel += -1
+            self.x_speed = -X_SPEED
             self.set_state('walk_left')
             self.aniplayer.switch_animation('walk_left')
 
@@ -213,7 +214,7 @@ class IdleLeft:
             or (GAMEPAD_NS.x_sum > 0)
         ):
 
-            self.x_accel += 1
+            self.x_speed = X_SPEED
             self.set_state('walk_right')
             self.aniplayer.switch_animation('walk_right')
 
