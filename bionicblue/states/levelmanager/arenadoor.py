@@ -34,7 +34,7 @@ class ArenaDoor:
         self.cover_rect = rect.move(0, -rect.height)
         self.open_counter = 0
 
-        self.door_closing_distance = 90 if name == 'door_1' else 64
+        self.door_closing_distance = 110 if name == 'door_1' else 64
 
     def prepare(self):
         self.image.fill(DOOR_COLOR)
