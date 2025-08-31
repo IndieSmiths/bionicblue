@@ -254,6 +254,20 @@ class Player(
         now = GENERAL_NS.frame_index
 
         if now - self.last_damage <= DAMAGE_REBOUND_FRAMES:
+
+            if self.state_name == 'hurled':
+
+                new_anim = new_state = (
+                    'idle_right'
+                    if self.x_speed > 0
+                    else 'idle_left'
+                )
+
+                self.x_speed = self.y_speed = 0
+
+                self.aniplayer.switch_animation(new_anim)
+                self.set_state(new_state)
+
             return
 
         self.health_column.damage(amount)
