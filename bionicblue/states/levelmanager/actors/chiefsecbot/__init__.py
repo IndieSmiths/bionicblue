@@ -1,7 +1,10 @@
 """Facility for chief security bot boss."""
 
-### standard library import
+### standard library imports
+
 from functools import partial
+
+from math import inf as INFINITY
 
 
 ### third-party import
@@ -99,7 +102,10 @@ class ChiefSecurityBot:
             )
         )
 
-        self.last_damage = GENERAL_NS.frame_index
+        # last_damage is set to negative infinity so that the first damage is
+        # always triggered (check self.damage() method to understand)
+        self.last_damage = -INFINITY
+
         self.routine_check = do_nothing
         self.update = self.idle_update
 
