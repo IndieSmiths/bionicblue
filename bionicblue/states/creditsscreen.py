@@ -1,7 +1,10 @@
 """Facility for credits screen."""
 
-### standard library import
+### standard library imports
+
 from webbrowser import open as open_url
+
+from urllib.parse import urlparse
 
 
 ### third-party imports
@@ -56,12 +59,20 @@ LABEL_TEXT_SETTINGS = {
     'background_color': 'black',
 }
 
-LINK_TEXT_SETTINGS = {
+LINK_TEXT_SETTINGS_0 = {
     'style': 'regular',
     'size': 12,
     'padding': 1,
     'foreground_color': 'cyan',
     'background_color': 'black',
+}
+
+LINK_TEXT_SETTINGS_1 = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'white',
+    'background_color': 'blue',
 }
 
 TITLE_TEXT_SETTINGS = {
@@ -156,7 +167,7 @@ class CreditsScreen:
                     UIObject2D.from_surface(
                         render_text(
                             text,
-                            **LINK_TEXT_SETTINGS,
+                            **LINK_TEXT_SETTINGS_0,
                         )
                     )
                 )
@@ -189,11 +200,51 @@ class CreditsScreen:
 
         self.link_count = len(self.links)
 
+        ###
+
+        self.url_to_netloc_map = {
+            link.url: urlparse(link.url).netloc
+            for link in self.links
+        }
+
+        self.netloc_to_text_obj_map = {
+
+            netloc: (
+                UIObject2D.from_surface(
+                    render_text(
+                        f'Open {netloc} link',
+                        **LINK_TEXT_SETTINGS_1,
+                    )
+                )
+            )
+
+            for netloc in set(self.url_to_netloc_map.values())
+
+        }
+
+        for obj in self.netloc_to_text_obj_map.values():
+            obj.rect.bottomright = SCREEN_RECT.bottomright
+
     def prepare(self):
 
         self.current_index = 0
         self.highlighted_widget = self.links[self.current_index]
         self.align_link()
+        self.update_open_link_label()
+
+    def update_open_link_label(self):
+
+        self.open_link_label = (
+
+            self.netloc_to_text_obj_map[
+
+                self.url_to_netloc_map[
+                    self.highlighted_widget.url
+                ]
+
+            ]
+
+        )
 
     def align_link(self):
 
@@ -226,6 +277,7 @@ class CreditsScreen:
                     )
 
                     self.align_link()
+                    self.update_open_link_label()
 
                 elif event.key == K_RETURN:
 
@@ -255,6 +307,7 @@ class CreditsScreen:
                     )
 
                     self.align_link()
+                    self.update_open_link_label()
 
             elif event.type == MOUSEBUTTONDOWN:
 
@@ -294,6 +347,7 @@ class CreditsScreen:
 
                 self.current_index = index
                 self.highlighted_widget = obj
+                self.update_open_link_label()
                 open_url(obj.url)
 
                 break
@@ -308,6 +362,7 @@ class CreditsScreen:
 
                 self.current_index = index
                 self.highlighted_widget = obj
+                self.update_open_link_label()
 
                 break
 
@@ -327,5 +382,7 @@ class CreditsScreen:
             self.highlighted_widget.rect,
             1,
         )
+
+        self.open_link_label.draw()
 
         update()
