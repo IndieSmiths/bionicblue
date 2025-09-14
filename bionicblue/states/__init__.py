@@ -1,3 +1,4 @@
+"""Facility to instantiate and store state managers."""
 
 ### local imports
 
@@ -25,6 +26,9 @@ from .pausemenu import PauseMenu, pause
 
 from .creditsscreen import CreditsScreen
 
+from .playlockscreen import PlayLockScreen
+
+from .slotcreationscreen import SlotCreationScreen
 
 
 def setup_states():
@@ -50,12 +54,14 @@ def setup_states():
 
     states.credits_screen = CreditsScreen()
 
+    states.play_lock_screen = PlayLockScreen() 
+    states.slot_creation_screen = SlotCreationScreen()
 
 def get_game_state():
     """Pick appropriate gameplay state, prepare and return it."""
 
     return (
         REFS.states.level_manager
-        if REFS.data['level_name'] == 'intro.lvl'
-        else None # REFS.hq_loader
+        if 'beaten_bosses' not in REFS.save_data
+        else None # this will be the stage selection screen
     )

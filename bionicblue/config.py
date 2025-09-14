@@ -58,13 +58,6 @@ REFS.__dict__.update(dict(
 
     states = Object(),
 
-    msecs = 0,
-
-    data = {
-        'level_name': 'intro.lvl',
-        'health': 100,
-    },
-
     enable_overall_tracking_for_camera = (
         lambda: REFS.states.level_manager.enable_overall_tracking_for_camera()
     ),

@@ -187,7 +187,9 @@ class ResourceLoader:
             ### or lack thereof
 
             if REFS.debug_directive == 'level_manager':
+
                 next_state = REFS.states.level_manager
+                REFS.level_to_load = 'intro.lvl'
 
             elif REFS.debug_directive == 'title_screen':
                 next_state = REFS.states.title_screen

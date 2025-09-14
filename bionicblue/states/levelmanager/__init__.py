@@ -169,11 +169,9 @@ class LevelManager:
         HEALTH_COLUMNS.clear()
         HEALTH_COLUMNS.add(self.player.health_column)
 
-        self.state = self
-
         ###
 
-        level_name = REFS.data['level_name']
+        level_name = REFS.level_to_load
 
         level_data_path = LEVELS_DIR / level_name
         level_data = load_pyl(level_data_path)
@@ -510,9 +508,6 @@ class LevelManager:
             column.draw()
 
         update_screen()
-
-    def next(self):
-        return self.state
 
     def passing_through_arena_door(self, door_name):
 

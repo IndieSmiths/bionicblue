@@ -4,9 +4,9 @@ from functools import partialmethod
 
 ### local imports
 
-from .single import UISingleObjectBase
+from .single import UIObjectBase
 
-from ..ourstdlibs.collections.general import FactoryDict
+from ..ourstdlibs.factorydict import FactoryDict
 
 
 ###
@@ -16,7 +16,7 @@ def get_surface_switcher_class(states_frozenset):
 
     return type(
         "UISurfaceSwitcher",
-        (UISingleObjectBase,),
+        (UIObjectBase,),
         {
             "__init__": custom_init,
             "switch_to_surface": switch_to_surface,

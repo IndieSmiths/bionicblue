@@ -11,6 +11,9 @@ from .rectsman.main import RectsManager
 
 
 
+EMPTY_SURF = Surface((0, 0)).convert()
+
+
 def get_larger_surf_by_repeating(surf, size):
     """Create larger surf by repeating given one."""
 

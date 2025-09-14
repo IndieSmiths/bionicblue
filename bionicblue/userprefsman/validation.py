@@ -20,10 +20,11 @@ RESERVED_KEYS = frozenset((
     'K_RETURN',
 
 
-    # used to cancel/go back
+    # used to cancel/go back/edit text
 
     'K_ESCAPE',
     'K_BACKSPACE',
+    'K_DELETE',
 
 ))
 

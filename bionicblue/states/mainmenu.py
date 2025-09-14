@@ -204,6 +204,13 @@ class MainMenu:
 
         if item_key == 'new_game':
 
+            slot_creation_screen = REFS.states.slot_creation_screen
+            slot_creation_screen.prepare()
+
+            raise LoopException(next_state=slot_creation_screen)
+
+        elif item_key == 'continue':
+
             game_state = REFS.get_game_state()
             game_state.prepare()
 
