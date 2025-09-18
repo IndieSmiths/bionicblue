@@ -98,9 +98,12 @@ class ChargedShot:
 
                 if actor.health > 0:
 
-                    try: actor.damage(self.damage_to_inflict)
+                    try:
+                        method = getattr(actor, 'damage')
                     except AttributeError:
                         pass
+                    else:
+                        method(self.damage_to_inflict)
 
                     if actor.health > 0:
                         self.trigger_disappearing(actor)

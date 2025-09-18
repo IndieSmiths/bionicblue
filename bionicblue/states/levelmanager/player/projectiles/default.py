@@ -79,9 +79,14 @@ class DefaultProjectile:
 
                 if actor.health > 0:
 
-                    try: actor.damage(1)
+                    try:
+                        method = getattr(actor, 'damage')
+
                     except AttributeError:
                         pass
+
+                    else:
+                        method(1)
 
                     self.trigger_kill()
                     SOUND_MAP['default_projectile_hit.wav'].play()
