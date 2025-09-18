@@ -33,3 +33,6 @@ Assets - CC0 Sounds
   [sheepfilms](https://freesound.org/people/sheepfilms/sounds/154795/)
   [titobari](https://freesound.org/people/titobari/sounds/577057/)
   [unfa](https://freesound.org/people/unfa/sounds/187119/)
+
+Assets - Pan-CJK pixel font (SIL License 1.1)
+  [takwolf](https://ark-pixel-font.takwolf.com/)
