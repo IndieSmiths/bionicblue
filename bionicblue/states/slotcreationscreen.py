@@ -9,8 +9,6 @@ from string import ascii_uppercase, ascii_lowercase, digits
 
 from functools import partialmethod
 
-from datetime import datetime
-
 
 ### third-party imports
 
@@ -46,6 +44,7 @@ from ..config import (
     SAVE_SLOTS_DIR,
     SOUND_MAP,
     LoopException,
+    get_custom_formated_current_datetime_str,
     quit_game,
 )
 
@@ -106,14 +105,6 @@ CHAR_Y_OFFSET = 3
 
 _ERROR_MESSAGE_MSECS = 4000
 ERROR_MESSAGE_FRAMES = msecs_to_frames(_ERROR_MESSAGE_MSECS)
-
-_FILLING_SCREEN_MSECS = 1500
-FILLING_SCREEN_FRAMES = msecs_to_frames(_FILLING_SCREEN_MSECS)
-
-HEIGHT_STEP, _substeps = divmod(SCREEN_RECT.height, FILLING_SCREEN_FRAMES)
-
-if _substeps:
-    HEIGHT_STEP += 1
 
 
 class SlotCreationScreen:
@@ -265,9 +256,7 @@ class SlotCreationScreen:
         self.error_label.message_surf_rect_pairs = {}
 
         ### update operation
-        self.control = self.allow_user_input
         self.update = do_nothing
-        self.draw = self.draw_interface
 
     def prepare(self):
 
@@ -284,12 +273,7 @@ class SlotCreationScreen:
 
         self.error_label.image = EMPTY_SURF
 
-        self.control = self.allow_user_input
         self.update = do_nothing
-        self.draw = self.draw_interface
-
-        self.remaining_height = SCREEN_RECT.height
-        self.screen_filling_countdown = 0
 
     def update_selected_state(self):
 
@@ -298,12 +282,7 @@ class SlotCreationScreen:
 
         self.selected_button.switch_to_surface('selected')
 
-    def wait_for_screen_to_fill_with_blue(self):
-
-        for event in SERVICES_NS.get_events():
-            pass
-
-    def allow_user_input(self):
+    def control(self):
 
         for event in SERVICES_NS.get_events():
 
@@ -459,47 +438,31 @@ class SlotCreationScreen:
 
             return
 
-        ### last played date for save data
-
-        _now = datetime.now().astimezone()
-
-        _timestamp = _now.isoformat()[:19].replace('T', ' ')
-        _tz = _now.tzname()
-        _signal = _tz[0]
-        _signal_name = 'minus' if _signal == '-' else 'plus'
-        _offset = _tz[1:]
-
-        last_played_date = (
-            f'{_timestamp} {_signal_name} {_offset}'
-        )
-
         ### save data
 
-        save_data = {
-            'last_played_date': last_played_date,
+        slot_data = {
+            'last_played_date': get_custom_formated_current_datetime_str(),
         }
 
         ### try writing save data
 
         try:
-            save_pyl(save_data, new_save_slot_file)
+            save_pyl(slot_data, new_save_slot_file)
 
         except Exception as err:
             self.prepare_and_trigger_error_message(f"Unexpected error: {err}")
 
         else:
 
-            self.remaining_height = SCREEN_RECT.height
-            self.screen_filling_countdown = FILLING_SCREEN_FRAMES
-
-            self.update = self.switch_to_story_screen_after_filling_with_blue
-            self.control = self.wait_for_screen_to_fill_with_blue
-            self.draw = self.draw_covering_with_blue
+            REFS.slot_data = slot_data
+            REFS.slot_path = new_save_slot_file
 
             SOUND_MAP['ui_success.wav'].play()
 
-            REFS.save_data = save_data
-            REFS.save_path = new_save_slot_file
+            transition_screen = REFS.states.transition_screen
+            transition_screen.prepare(start_intro_level)
+
+            raise LoopException(next_state=transition_screen)
 
     def prepare_and_trigger_error_message(self, error_message):
 
@@ -732,33 +695,7 @@ class SlotCreationScreen:
             self.error_label.image = EMPTY_SURF
             self.update = do_nothing
 
-    def switch_to_story_screen_after_filling_with_blue(self):
-
-        self.screen_filling_countdown -= 1
-        self.remaining_height -= HEIGHT_STEP
-
-        if self.screen_filling_countdown == 0:
-
-            ### TODO here, instead of starting the intro level, we
-            ### should proceed to the story screen, to present the
-            ### plot (which the player should be able to skip if desired)
-
-            level_manager = REFS.states.level_manager
-            REFS.level_to_load = 'intro.lvl'
-            level_manager.prepare()
-
-            raise LoopException(next_state=level_manager)
-
-    def draw_covering_with_blue(self):
-
-        SCREEN.fill(
-            'blue',
-            SCREEN_RECT.move(0, self.remaining_height),
-        )
-
-        update()
-
-    def draw_interface(self):
+    def draw(self):
 
         blit_on_screen(BLACK_BG, (0, 0))
 
@@ -770,3 +707,17 @@ class SlotCreationScreen:
         self.slot_name_chars.draw()
 
         update()
+
+
+def start_intro_level():
+    """Trigger start of intro level."""
+
+    ### TODO here, instead of starting the intro level, we
+    ### should proceed to the story screen, to present the
+    ### plot (which the player should be able to skip if desired)
+
+    level_manager = REFS.states.level_manager
+    REFS.level_to_load = 'intro.lvl'
+    level_manager.prepare()
+
+    raise LoopException(next_state=level_manager)

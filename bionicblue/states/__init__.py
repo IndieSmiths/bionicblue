@@ -28,6 +28,10 @@ from .playlockscreen import PlayLockScreen
 
 from .slotcreationscreen import SlotCreationScreen
 
+from .loadgamescreen import LoadGameScreen
+
+from .transitionscreen import TransitionScreen
+
 
 def setup_states():
     """Instantiate and store states."""
@@ -36,8 +40,6 @@ def setup_states():
     states.logo_screen = LogoScreen()
     states.level_manager = LevelManager()
     states.hq_manager = HeadQuartersManager()
-
-    REFS.get_game_state = get_game_state
 
     states.title_screen = TitleScreen()
     states.main_menu = MainMenu()
@@ -52,12 +54,5 @@ def setup_states():
 
     states.play_lock_screen = PlayLockScreen() 
     states.slot_creation_screen = SlotCreationScreen()
-
-def get_game_state():
-    """Pick appropriate gameplay state, prepare and return it."""
-
-    return (
-        REFS.states.level_manager
-        if 'beaten_bosses' not in REFS.save_data
-        else None # this will be the stage selection screen
-    )
+    states.load_game_screen = LoadGameScreen()
+    states.transition_screen = TransitionScreen()

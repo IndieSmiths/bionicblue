@@ -156,7 +156,14 @@ class MainMenu:
 
     def prepare(self):
 
-        items = self.items = self.compact_items
+        items = self.items = (
+
+            self.full_items
+            if REFS.states.load_game_screen.save_slots_data
+
+            else self.compact_items
+
+        )
 
         self.item_count = len(items)
 
@@ -200,21 +207,24 @@ class MainMenu:
 
     def execute_selected(self):
 
-        item_key = self.compact_items[self.current_index].key
+        item_key = self.items[self.current_index].key
 
-        if item_key == 'new_game':
+        if item_key == 'continue':
+            REFS.states.load_game_screen.load_first()
+
+        elif item_key == 'load_game':
+
+            load_game_screen = REFS.states.load_game_screen
+            load_game_screen.prepare()
+
+            raise LoopException(next_state=load_game_screen)
+
+        elif item_key == 'new_game':
 
             slot_creation_screen = REFS.states.slot_creation_screen
             slot_creation_screen.prepare()
 
             raise LoopException(next_state=slot_creation_screen)
-
-        elif item_key == 'continue':
-
-            game_state = REFS.get_game_state()
-            game_state.prepare()
-
-            raise LoopException(next_state=game_state)
 
         elif 'controls' in item_key :
 

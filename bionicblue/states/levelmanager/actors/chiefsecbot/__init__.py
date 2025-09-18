@@ -639,6 +639,8 @@ class ChiefSecurityBot:
                 FRONT_PROPS.add(DefaultExplosion('center', center))
                 append_task(partial(remove_obj, self))
 
+                REFS.states.level_manager.save_beaten_boss('chief_sec_bot')
+
             else:
                 self.aniplayer.set_custom_surface_cycling(WHITENING_CYCLE)
                 self.routine_check = self.check_damage_whitening

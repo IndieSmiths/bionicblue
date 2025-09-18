@@ -6,6 +6,8 @@ from pathlib import Path
 
 from contextlib import suppress
 
+from datetime import datetime
+
 
 ### third-party imports
 
@@ -106,6 +108,18 @@ SOUND_MAP = {}
 WRITEABLE_PATH = Path(get_pref_path(ORG_DIR_NAME, APP_DIR_NAME))
 
 SAVE_SLOTS_DIR = WRITEABLE_PATH / 'save_slots'
+
+def get_custom_formated_current_datetime_str():
+
+    now = datetime.now().astimezone()
+
+    timestamp = now.isoformat()[:19].replace('T', ' ')
+    tz = now.tzname()
+    signal = tz[0]
+    signal_name = 'minus' if signal == '-' else 'plus'
+    offset = tz[1:]
+
+    return f'{timestamp} {signal_name} {offset}'
 
 # XXX what if path exists but is a file instead? I know, unlikely scenario,
 # but not covered; same for playtest data dir and probably other paths

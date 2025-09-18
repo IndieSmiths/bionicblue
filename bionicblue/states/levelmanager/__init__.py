@@ -1,4 +1,7 @@
 
+### standard library import
+from functools import partialmethod
+
 ### third-party imports
 
 from pygame import (
@@ -31,7 +34,7 @@ from ...pygamesetup.inputgen import generate_input_data
 
 from ...ourstdlibs.behaviour import do_nothing
 
-from ...ourstdlibs.pyl import load_pyl
+from ...ourstdlibs.pyl import load_pyl, save_pyl
 
 from ...textman import render_text
 
@@ -544,6 +547,23 @@ class LevelManager:
                 next_input_mode_name='play',
                 input_data=input_data,
             )
+
+    def save_progress(self, progress_collection_name, progress_value):
+
+        progress_collection = (
+            REFS.slot_data.setdefault(progress_collection_name, [])
+        )
+
+        if progress_value in progress_collection:
+            return
+
+        progress_collection.append(progress_value)
+
+        save_pyl(REFS.slot_data, REFS.slot_path)
+
+    save_beaten_boss = partialmethod(save_progress, 'beaten_bosses')
+    save_encounter = partialmethod(save_progress, 'encounters')
+
 
 def instantiate(obj_data, layer_name):
 
