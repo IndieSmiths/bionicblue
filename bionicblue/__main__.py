@@ -25,6 +25,10 @@ from .pygamesetup import SERVICES_NS, switch_mode
 
 from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
+from .playlockscreen import PlayLockScreen
+
+from .resourceloader import ResourceLoader
+
 from .states import setup_states
 
 
@@ -32,13 +36,36 @@ from .states import setup_states
 def run_game(debug_directive=False):
     """Run the game loop."""
 
-    setup_states()
-
-    state = REFS.states.resource_loader
-
-    REFS.debug_directive = debug_directive
-
     setup_gamepad_if_existent()
+
+    if MUST_LOCK_PLAY:
+        state = PlayLockScreen()
+
+    else:
+
+        ### load resources and setup states
+
+        ResourceLoader().load_resources()
+        setup_states()
+
+        ### pick next state according to debug directive
+        ### or lack thereof
+
+        REFS.debug_directive = debug_directive
+
+        if debug_directive == 'level_manager':
+
+            state = REFS.states.level_manager
+            REFS.level_to_load = 'intro.lvl'
+
+        elif debug_directive == 'title_screen':
+            state = REFS.states.title_screen
+
+        else:
+            state = REFS.states.logo_screen
+
+        ### prepare state
+        state.prepare()
 
     while True:
 

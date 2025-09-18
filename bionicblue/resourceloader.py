@@ -20,7 +20,7 @@ from pygame.mixer import Sound
 
 ### local imports
 
-from ..config import (
+from .config import (
     REFS,
     COLORKEY,
     SURF_MAP,
@@ -30,24 +30,23 @@ from ..config import (
     NO_COLORKEY_IMAGES_DIR,
     ANIMATIONS_DIR,
     SOUNDS_DIR,
-    LoopException,
     quit_game,
 )
 
-from ..pygamesetup import SERVICES_NS
+from .pygamesetup import SERVICES_NS
 
-from ..pygamesetup.constants import FPS, WHITE_BG, SCREEN_RECT, blit_on_screen
+from .pygamesetup.constants import FPS, WHITE_BG, SCREEN_RECT, blit_on_screen
 
-from ..textman import render_text
+from .textman import render_text
 
-from ..surfsman import combine_surfaces
+from .surfsman import combine_surfaces
 
-from ..ani2d.player import AnimationPlayer2D
-from ..ani2d.processing import process_animation_data
+from .ani2d.player import AnimationPlayer2D
+from .ani2d.processing import process_animation_data
 
-from ..classes2d.single import UIObject2D
+from .classes2d.single import UIObject2D
 
-from ..userprefsman.main import USER_PREFS
+from .userprefsman.main import USER_PREFS
 
 
 
@@ -99,6 +98,18 @@ class ResourceLoader:
 
         )
 
+
+    def load_resources(self):
+
+        self.running = True
+
+        while self.running:
+
+            SERVICES_NS.frame_checkups()
+
+            self.control()
+            self.update()
+            self.draw()
 
     def control(self):
 
@@ -183,24 +194,8 @@ class ResourceLoader:
             for sound in SOUND_MAP.values():
                 sound.set_volume(sound_volume)
 
-            ### pick next state according to debug directive
-            ### or lack thereof
-
-            if REFS.debug_directive == 'level_manager':
-
-                next_state = REFS.states.level_manager
-                REFS.level_to_load = 'intro.lvl'
-
-            elif REFS.debug_directive == 'title_screen':
-                next_state = REFS.states.title_screen
-
-            else:
-                next_state = REFS.states.logo_screen
-
-            ### prepare state and switch to it
-
-            next_state.prepare()
-            raise LoopException(next_state=next_state)
+            ### trigger exit of loop
+            self.running = False
 
 
     def draw(self):

@@ -4,8 +4,6 @@
 
 from ..config import REFS
 
-from .resourceloader import ResourceLoader
-
 from .logoscreen import LogoScreen
 
 from .titlescreen import TitleScreen
@@ -33,10 +31,8 @@ from .slotcreationscreen import SlotCreationScreen
 
 def setup_states():
     """Instantiate and store states."""
-
     states = REFS.states
 
-    states.resource_loader = ResourceLoader()
     states.logo_screen = LogoScreen()
     states.level_manager = LevelManager()
     states.hq_manager = HeadQuartersManager()
