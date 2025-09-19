@@ -20,6 +20,7 @@ from pygame.locals import (
     K_ESCAPE,
     K_RETURN,
     K_BACKSPACE,
+    K_SPACE,
     K_UP,
     K_DOWN,
     K_LEFT,
@@ -304,6 +305,11 @@ class SlotCreationScreen:
 
                 elif event.key == K_BACKSPACE:
                     self.pop_last_char()
+
+                elif event.key == K_SPACE:
+                    self.add_char('_')
+                    self.selected_button = self.buttons_map['_']
+                    self.update_selected_state()
 
                 elif event.key in (K_UP, K_DOWN):
                     self.go_up() if event.key == K_UP else self.go_down()
