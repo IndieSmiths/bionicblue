@@ -24,8 +24,6 @@ from .pausemenu import PauseMenu, pause
 
 from .creditsscreen import CreditsScreen
 
-from .playlockscreen import PlayLockScreen
-
 from .slotcreationscreen import SlotCreationScreen
 
 from .loadgamescreen import LoadGameScreen
@@ -52,7 +50,6 @@ def setup_states():
 
     states.credits_screen = CreditsScreen()
 
-    states.play_lock_screen = PlayLockScreen() 
     states.slot_creation_screen = SlotCreationScreen()
     states.load_game_screen = LoadGameScreen()
     states.transition_screen = TransitionScreen()

@@ -19,18 +19,25 @@ ensure_pygame_ce()
 
 ## remaining local imports
 
-from .config import REFS, LoopException
+from .config import REFS, MUST_LOCK_PLAY, LoopException
 
 from .pygamesetup import SERVICES_NS, switch_mode
 
 from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
-from .playlockscreen import PlayLockScreen
+from .promptscreen import prompt_to_dismiss_with_any_button
 
 from .resourceloader import ResourceLoader
 
 from .states import setup_states
 
+
+
+message = """
+Bionic Blue game developer (Kennedy): "The content in this branch will be
+playable as soon as it is finished and merged into the main branch. Until
+then, please, wait patiently."
+""".strip().replace('\n', ' ')
 
 
 def run_game(debug_directive=False):
@@ -39,7 +46,13 @@ def run_game(debug_directive=False):
     setup_gamepad_if_existent()
 
     if MUST_LOCK_PLAY:
-        state = PlayLockScreen()
+
+        prompt_to_dismiss_with_any_button(
+            "Message from developer",
+            message,
+        )
+
+        return
 
     else:
 

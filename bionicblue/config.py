@@ -20,6 +20,7 @@ from pygame.system import get_pref_path
 from .appinfo import ORG_DIR_NAME, APP_DIR_NAME 
 
 
+
 ###
 COLORKEY = (192, 192, 192)
 
@@ -96,6 +97,8 @@ PARTICLES_DIR = DATA_DIR / 'particles'
 
 NO_COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'no_colorkey'
 COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'colorkey'
+
+MUST_LOCK_PLAY = not (DATA_DIR.parent.parent / 'play').exists()
 
 ###
 

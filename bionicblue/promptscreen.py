@@ -37,6 +37,7 @@ from .pygamesetup.constants import (
     BLACK_BG,
     GAMEPADDIRECTIONALPRESSED,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
+    KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS,
     blit_on_screen,
 )
 
@@ -92,7 +93,10 @@ class PromptScreen:
         body_text,
         button_text_value_pairs,
         value_on_escape=None,
+        dismissable_with_any=False,
     ):
+
+        self.dismissable_with_any = dismissable_with_any
 
         caption_cache = self.caption_cache
         
@@ -217,11 +221,35 @@ class PromptScreen:
 
         return self.value
 
+    def prompt_to_dismiss_with_any_button(self, caption, message):
+        """Present a prompt that can be dismissed with any button."""
+
+        self.present_prompt(
+
+            caption,
+            message,
+
+            (
+                ("Press any button to leave", None),
+            ),
+
+            dismissable_with_any=True,
+
+        )
+
     def control(self):
 
         for event in SERVICES_NS.get_events():
 
-            if event.type == KEYDOWN:
+            if (
+                self.dismissable_with_any
+                and event.type in KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS
+            ):
+
+                self.value = self.value_on_escape
+                self.running = False
+
+            elif event.type == KEYDOWN:
 
                 if event.key == K_ESCAPE:
 
@@ -271,4 +299,6 @@ class PromptScreen:
 
         update()
 
-present_prompt = PromptScreen().present_prompt
+_ps = PromptScreen()
+present_prompt = _ps.present_prompt
+prompt_to_dismiss_with_any_button = _ps.prompt_to_dismiss_with_any_button
