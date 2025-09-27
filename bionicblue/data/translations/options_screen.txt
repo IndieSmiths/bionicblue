@@ -1,0 +1,50 @@
+
+captions
+
+    option
+        en-us Option
+        pt-br Opção
+
+    value
+        en-us Value
+        pt-br Valor
+
+options
+
+    master_volume
+        en-us Master volume
+        pt-br Volume mestre
+
+    music_volume
+        en-us Music volume
+        pt-br Volume da música
+
+    sound_volume
+        en-us Sound volume
+        pt-br Volume de sons
+
+    full_screen
+        en-us Full screen
+        pt-br Tela cheia
+
+    language
+        en-us Language
+        pt-br Idioma
+
+playtesters_screen
+
+    en-us Playtesters screen
+    pt-br Tela dos playtesters
+
+playtesters_prompt
+
+    caption
+
+        en-us Playtesting tools
+        pt-br Ferramentas de playtesting
+
+    message
+
+        en-us Playtesting and related tools aren't available yet
+        pt-br Playtesting e ferramentas relacionadas ainda não estão disponíveis
+

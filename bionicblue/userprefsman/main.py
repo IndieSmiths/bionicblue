@@ -21,6 +21,8 @@ from ..config import WRITEABLE_PATH
 
 from ..ourstdlibs.pyl import load_pyl
 
+from ..translatedtext import AVAILABLE_LOCALES, TranslationNode
+
 from .validation import validate_prefs_dict
 
 #from ..logman.main import get_new_logger
@@ -77,6 +79,37 @@ DEFAULT_GAMEPAD_CONTROLS = {
 
 }
 
+### identifier/name for actions
+
+KEYBOARD_ACTION_KEYS = (
+
+    'up',
+    'down',
+    'left',
+    'right',
+
+    'shoot',
+    'jump',
+
+    'previous_power',
+    'next_power',
+
+)
+
+GAMEPAD_ACTION_KEYS = (
+
+    'shoot',
+    'jump',
+
+    'previous_power',
+    'next_power',
+
+    'start_button',
+
+)
+
+ALL_ACTION_KEYS = tuple(set(GAMEPAD_ACTION_KEYS + KEYBOARD_ACTION_KEYS))
+
 
 ### dictionary wherein to store user preferences; initially
 ### populated with default values
@@ -89,6 +122,7 @@ DEFAULT_USER_PREFS = {
     "LAST_USED_SAVE_SLOT": None,
     "KEYBOARD_CONTROL_NAMES": DEFAULT_KEYBOARD_CONTROL_NAMES,
     "GAMEPAD_CONTROLS": DEFAULT_GAMEPAD_CONTROLS,
+    "LOCALE": 'en_us',
 }
 
 
@@ -141,6 +175,8 @@ if CONFIG_FILEPATH.exists():
 
         else:
 
+            ### update USER_PREFS
+
             for key, value in user_config_data.items():
 
                 if isinstance(value, dict):
@@ -149,11 +185,20 @@ if CONFIG_FILEPATH.exists():
                 else:
                     USER_PREFS[key] = value
 
+            ### ensure locale set exists and matches existing one
+
+            if (
+                'LOCALE' not in USER_PREFS
+                or USER_PREFS['LOCALE'] not in AVAILABLE_LOCALES
+            ):
+                USER_PREFS['LOCALE'] = 'en_us'
+
 else:
 
     #logger.info(UNEXISTENT_USER_PREFS_MESSAGE)
     save_config_on_disk()
 
+TranslationNode._user_prefs = USER_PREFS
 
 KEYBOARD_CONTROLS = {
     action_name: getattr(pygame_locals, key_name)

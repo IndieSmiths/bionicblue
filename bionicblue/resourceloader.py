@@ -1,3 +1,4 @@
+"""Facility for loading resources (images, sounds, etc.)."""
 
 ### standard library imports
 from itertools import repeat, chain
@@ -48,12 +49,15 @@ from .classes2d.single import UIObject2D
 
 from .userprefsman.main import USER_PREFS
 
+from .translatedtext import TRANSLATIONS
+
 
 
 ALLOWED_SOUND_FILE_EXTENSIONS = frozenset(('.ogg', '.wav'))
 
 MSECS_PER_FRAME = 1000 / FPS
 
+t = TRANSLATIONS.resource_loader
 
 
 ### gather animation resources
@@ -63,7 +67,9 @@ class ResourceLoader:
     def __init__(self):
 
         self.loading_surf = (
-            render_text('loading...', 'regular', 16, 0, 'black', 'white')
+            render_text(
+                t.loading, 'regular', 12, 0, 'black', 'white'
+            )
         )
 
         self.resources_to_process = chain(

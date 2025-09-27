@@ -70,7 +70,7 @@ from ..ourstdlibs.behaviour import do_nothing
 
 from ..ourstdlibs.pyl import save_pyl
 
-from ..textman import render_text
+from ..textman import render_text, update_text_surface
 
 from ..surfsman import EMPTY_SURF
 
@@ -82,7 +82,11 @@ from ..classes2d.surfaceswitcher import get_surface_switcher_class
 
 from ..userprefsman.main import GAMEPAD_CONTROLS
 
+from ..translatedtext import TRANSLATIONS, on_language_change
 
+
+
+t = TRANSLATIONS.slot_creation_screen
 
 ALLOWED_CHARS = (
 
@@ -107,6 +111,27 @@ CHAR_Y_OFFSET = 3
 _ERROR_MESSAGE_MSECS = 4000
 ERROR_MESSAGE_FRAMES = msecs_to_frames(_ERROR_MESSAGE_MSECS)
 
+GENERAL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'cyan',
+}
+
+NORMAL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'cyan'
+}
+
+SELECTED_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'orange'
+}
+
 
 class SlotCreationScreen:
     """Interface for player to create new save slot by inputting name."""
@@ -117,7 +142,7 @@ class SlotCreationScreen:
 
         caption = self.caption = (
             UIObject2D.from_surface(
-                render_text("Name new save slot", 'regular', 12, 2, 'cyan')
+                render_text(t.caption, **GENERAL_TEXT_SETTINGS)
             )
         )
 
@@ -127,12 +152,18 @@ class SlotCreationScreen:
 
         chosen_name_label = self.chosen_name_label = (
             UIObject2D.from_surface(
-                render_text("Chosen name:", 'regular', 12, 2, 'cyan')
+                render_text(t.chosen_name_label, **GENERAL_TEXT_SETTINGS)
             )
         )
 
         chosen_name_label.rect.top = caption.rect.bottom + 3
         chosen_name_label.rect.left = 5
+
+        ### text for specific buttons
+
+        backspace_text = t.buttons.backspace
+        ok_text = t.buttons.ok
+        cancel_go_back_text = t.buttons.cancel_go_back
 
         ### surface maps for all objects
 
@@ -141,11 +172,11 @@ class SlotCreationScreen:
 
             text: {
 
-                surf_name: render_text(text, 'regular', 12, 2, color)
+                surf_name: render_text(text, **text_settings)
 
-                for surf_name, color in (
-                    ('normal', 'cyan'),
-                    ('selected', 'orange'),
+                for surf_name, text_settings in (
+                    ('normal', NORMAL_TEXT_SETTINGS),
+                    ('selected', SELECTED_TEXT_SETTINGS),
                 )
 
             }
@@ -156,9 +187,9 @@ class SlotCreationScreen:
                 *ascii_uppercase,
                 *ascii_lowercase,
                 *digits,
-                'BACKSPACE',
-                'OK',
-                'CANCEL/GO BACK',
+                backspace_text,
+                ok_text,
+                cancel_go_back_text,
             )
 
         }
@@ -178,7 +209,9 @@ class SlotCreationScreen:
 
         slot_name_chars.append(space_placeholder_obj)
 
-        slot_name_chars.rect.midleft = chosen_name_label.rect.move(2, 0).midright
+        slot_name_chars.rect.midleft = (
+            chosen_name_label.rect.move(2, 0).midright
+        )
 
 
         ### now we create the buttons
@@ -206,12 +239,110 @@ class SlotCreationScreen:
                 *ascii_uppercase,
                 *ascii_lowercase,
                 *digits,
-                'BACKSPACE',
-                'OK',
-                'CANCEL/GO BACK',
+                backspace_text,
+                ok_text,
+                cancel_go_back_text,
             )
 
         )
+
+        ## store references of the last 3 buttons in a collection
+        self.bspace_ok_back_buttons = buttons[-3:]
+
+        ## align buttons
+        self.align_buttons()
+
+        ### buttons map
+
+        self.buttons_map = {
+
+            button.text: button
+
+            for button in buttons
+            if button.text in ALLOWED_CHARS
+        }
+
+        ### store a standard char rect to use for calculations
+        self.char_rect = buttons_surf_maps[' ']['normal'].get_rect()
+
+        ### prepare obj to display error messages 
+
+        self.error_label = UIObject2D.from_surface(EMPTY_SURF)
+        self.error_label.message_surf_rect_pairs = {}
+
+        ### update operation
+        self.update = do_nothing
+
+        ### store operation to update text surfaces when language changes
+        on_language_change.append(self.on_language_change)
+
+    def prepare(self):
+
+        slot_name_chars = self.slot_name_chars
+
+        slot_name_chars.clear()
+        slot_name_chars.append(self.space_placeholder_obj)
+        self.reposition_slot_name_chars()
+
+        self.selected_button = self.buttons[0]
+        self.update_selected_state()
+
+        start_text_input()
+
+        self.error_label.image = EMPTY_SURF
+
+        self.update = do_nothing
+
+    def on_language_change(self):
+
+        ### update caption and chosen name label
+
+        update_text_surface(
+            self.caption,
+            t.caption,
+            GENERAL_TEXT_SETTINGS,
+            pos_to_align='midtop',
+        )
+
+        update_text_surface(
+            self.chosen_name_label,
+            t.chosen_name_label,
+            GENERAL_TEXT_SETTINGS,
+            pos_to_align='topleft',
+        )
+
+        ### update buttons
+
+        for button, text in zip(
+
+            self.bspace_ok_back_buttons,
+
+            (
+                t.buttons.backspace,
+                t.buttons.ok,
+                t.buttons.cancel_go_back,
+            ),
+
+        ):
+
+            for attr_name, text_settings in (
+                ('normal', NORMAL_TEXT_SETTINGS),
+                ('selected', SELECTED_TEXT_SETTINGS),
+            ):
+
+                setattr(
+                    button,
+                    attr_name,
+                    render_text(text, **text_settings),
+                )
+
+            button.rect = button.normal.get_rect()
+
+        self.align_buttons()
+
+    def align_buttons(self):
+
+        buttons = self.buttons
 
         buttons.rect.snap_rects_intermittently_ip(
 
@@ -235,46 +366,8 @@ class SlotCreationScreen:
 
         )
 
-        buttons.rect.top = chosen_name_label.rect.bottom + 15
+        buttons.rect.top = self.chosen_name_label.rect.bottom + 15
         buttons.rect.centerx = SCREEN_RECT.centerx
-
-        ### buttons map
-
-        self.buttons_map = {
-
-            button.text: button
-
-            for button in buttons
-            if button.text in ALLOWED_CHARS
-        }
-
-        ### store a standard char rect to use for calculations
-        self.char_rect = buttons_surf_maps[' ']['normal'].get_rect()
-
-        ### prepare obj to display error messages 
-
-        self.error_label = UIObject2D.from_surface(EMPTY_SURF)
-        self.error_label.message_surf_rect_pairs = {}
-
-        ### update operation
-        self.update = do_nothing
-
-    def prepare(self):
-
-        slot_name_chars = self.slot_name_chars
-
-        slot_name_chars.clear()
-        slot_name_chars.append(self.space_placeholder_obj)
-        self.reposition_slot_name_chars()
-
-        self.selected_button = self.buttons[0]
-        self.update_selected_state()
-
-        start_text_input()
-
-        self.error_label.image = EMPTY_SURF
-
-        self.update = do_nothing
 
     def update_selected_state(self):
 
@@ -307,6 +400,7 @@ class SlotCreationScreen:
                     self.pop_last_char()
 
                 elif event.key == K_SPACE:
+
                     self.add_char('_')
                     self.selected_button = self.buttons_map['_']
                     self.update_selected_state()
@@ -396,13 +490,13 @@ class SlotCreationScreen:
         if text in ALLOWED_CHARS:
             self.add_char(text)
 
-        elif text == 'BACKSPACE':
+        elif text == t.buttons.backspace:
             self.pop_last_char()
 
-        elif text == 'OK':
+        elif text == t.buttons.ok:
             self.validate_and_proceed()
 
-        elif text == 'CANCEL/GO BACK':
+        elif text == t.buttons.cancel_go_back:
             self.go_back()
 
     def pop_last_char(self):
@@ -426,7 +520,7 @@ class SlotCreationScreen:
         if len(slot_name_chars) == 1 and slot_name_chars[0].text == ' ':
 
             self.prepare_and_trigger_error_message(
-                'Must input some name for the slot'
+                t.error_messages.must_input_some_name
             )
 
             return
@@ -439,7 +533,7 @@ class SlotCreationScreen:
         if new_save_slot_file.exists():
 
             self.prepare_and_trigger_error_message(
-                "Save slot with that name already exists"
+                t.error_messages.save_slot_with_name_exists
             )
 
             return
@@ -456,7 +550,11 @@ class SlotCreationScreen:
             save_pyl(slot_data, new_save_slot_file)
 
         except Exception as err:
-            self.prepare_and_trigger_error_message(f"Unexpected error: {err}")
+
+            unexpected_error_text = t.error_messages.unexpected_error
+            self.prepare_and_trigger_error_message(
+                f"{unexpected_error_text}: {err}"
+            )
 
         else:
 

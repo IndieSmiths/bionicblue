@@ -1,0 +1,40 @@
+
+caption
+
+    en-us Credits
+    pt-br Créditos
+
+code_game_design_art
+
+    en-us Code, game design & art
+    pt-br Código, design do jogo e arte
+
+other_donation_options
+
+    en-us Other donation options
+    pt-br Outros meios de doar
+
+assets_cc0_music
+
+    en-us Assets - CC0-licensed music
+    pt-br Assets - Músicas com licença CC0
+
+tracks
+
+    en-us Tracks
+    pt-br Faixas
+
+assets_cc0_sounds
+
+    en-us Assets - CC0-licensed sounds
+    pt-br Assets - Sons com licença CC0 Sounds
+
+assets_sil_fonts
+
+    en-us Assets - SIL-licensed fonts
+    pt-br Assets - Fontes com licença SIL
+
+open_link
+
+    en-us Open {netloc} link
+    pt-br Abrir link de {netloc}

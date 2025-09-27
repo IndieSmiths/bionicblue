@@ -1,0 +1,24 @@
+continue
+    en-us Continue
+    pt-br Continuar
+new_game
+    en-us New game
+    pt-br Novo jogo
+load_game
+    en-us Load game
+    pt-br Carregar jogo
+kbd_controls
+    en-us Keyboard controls
+    pt-br Configurar teclado
+gp_controls
+    en-us Gamepad controls
+    pt-br Configurar controle
+options
+    en-us Options
+    pt-br Configurações
+credits
+    en-us Credits
+    pt-br Créditos
+exit
+    en-us Exit
+    pt-br Sair

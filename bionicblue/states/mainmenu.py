@@ -1,4 +1,4 @@
-
+"""Facility for main menu."""
 
 ### third-party imports
 
@@ -50,6 +50,25 @@ from ..classes2d.collections import UIList2D
 
 from ..userprefsman.main import GAMEPAD_CONTROLS
 
+from ..translatedtext import TRANSLATIONS, on_language_change
+
+
+
+t = TRANSLATIONS.main_menu
+
+NORMAL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'cyan',
+}
+
+SELECTED_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'orange',
+}
 
 
 class MainMenu:
@@ -63,28 +82,42 @@ class MainMenu:
         labels_data_tuples = [
 
             # a 3-tuple containing a string key and 02 surfaces
-            # representing it (unhighlighted and highlighted
+            # representing it (unhighlighted and highlighted)
 
             (
 
-                key,
+                text_identifier,
 
                 *(
-                    render_text(label_title, 'regular', 12, 2, color)
-                    for color in ('cyan', 'orange')
+
+                    render_text(
+
+                        # text
+                        getattr(t, text_identifier),
+
+                        # text settings
+                        **text_settings,
+
+                    )
+
+                    for text_settings in (
+                        NORMAL_TEXT_SETTINGS,
+                        SELECTED_TEXT_SETTINGS,
+                    )
+
                 )
 
             )
 
-            for key, label_title in (
-                ('continue', 'Continue'),
-                ('new_game', 'New game (demo)'),
-                ('load_game', 'Load game'),
-                ('kbd_controls', 'Keyboard controls'),
-                ('gp_controls', 'Gamepad controls'),
-                ('options', 'Options'),
-                ('credits', 'Credits'),
-                ('exit', 'Exit game'),
+            for text_identifier in (
+                'continue',
+                'new_game',
+                'load_game',
+                'kbd_controls',
+                'gp_controls',
+                'options',
+                'credits',
+                'exit',
             )
 
         ]
@@ -154,6 +187,9 @@ class MainMenu:
         self.control = self.control_item_selection
         self.update = do_nothing
 
+        ### store method to update text surfaces when language changes
+        on_language_change.append(self.on_language_change)
+
     def prepare(self):
 
         items = self.items = (
@@ -191,6 +227,70 @@ class MainMenu:
         REFS.blue_boy.ap.switch_animation('idle_right')
 
         self.highlight_selected()
+
+    def on_language_change(self):
+        
+        ### update surf maps
+
+        labels_data_tuples = [
+
+            # a 3-tuple containing a string key and 02 surfaces
+            # representing it (unhighlighted and highlighted)
+
+            (
+
+                text_identifier,
+
+                *(
+
+                    render_text(
+
+                        # text
+                        getattr(t, text_identifier),
+
+                        # text settings
+                        **text_settings,
+
+                    )
+
+                    for text_settings in (
+                        NORMAL_TEXT_SETTINGS,
+                        SELECTED_TEXT_SETTINGS,
+                    )
+
+                )
+
+            )
+
+            for text_identifier in (
+                'continue',
+                'new_game',
+                'load_game',
+                'kbd_controls',
+                'gp_controls',
+                'options',
+                'credits',
+                'exit',
+            )
+
+        ]
+
+        unhighlighted_surf_map = self.unhighlighted_surf_map
+        highlighted_surf_map = self.highlighted_surf_map
+
+        for (
+            key,
+            unhighlighted_surf,
+            highlighted_surf,
+        ) in labels_data_tuples:
+
+            unhighlighted_surf_map[key] = unhighlighted_surf
+            highlighted_surf_map[key] = highlighted_surf
+
+        ### update items's rects
+
+        for obj in self.full_items:
+            obj.rect = unhighlighted_surf_map[obj.key].get_rect()
 
     def highlight_selected(self):
 

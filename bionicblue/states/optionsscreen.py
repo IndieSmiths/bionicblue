@@ -1,7 +1,10 @@
 """Facility for options screen."""
 
 ### standard library import
+
 from random import choice
+
+from functools import partial
 
 
 ### third-party imports
@@ -43,7 +46,6 @@ from ..pygamesetup.constants import (
     BLACK_BG,
     GAMEPADDIRECTIONALPRESSED,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
-    KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS,
     blit_on_screen,
 )
 
@@ -53,7 +55,7 @@ from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D, UISet2D
 
-from ..textman import render_text
+from ..textman import render_text, update_text_surface
 
 from ..userprefsman.main import (
     USER_PREFS,
@@ -61,8 +63,13 @@ from ..userprefsman.main import (
     save_config_on_disk,
 )
 
+from ..promptscreen import prompt_to_dismiss_with_any_button
+
+from ..translatedtext import TRANSLATIONS, on_language_change
+
 from ..widget.slider import HundredSlider
 from ..widget.checkbutton import Checkbutton
+from ..widget.languagepicker import LanguagePicker
 
 
 
@@ -82,6 +89,7 @@ TITLE_TEXT_SETTINGS = {
     'background_color': 'black',
 }
 
+t = TRANSLATIONS.options_screen
 
 
 class OptionsScreen:
@@ -90,46 +98,42 @@ class OptionsScreen:
 
         ###
 
-        reset_button, back_button, playtesting_button = (
+        (
+          playtesting_button,
+          reset_button,
+          back_button,
+        ) = self.non_option_buttons = [
 
             UIObject2D.from_surface(
                 render_text(
                     text,
                     **LABEL_TEXT_SETTINGS,
-                )
+                ),
             )
 
             for text in (
-                'Reset to defaults',
-                'Back',
-                'Playtesters screen',
+                t.playtesters_screen,
+                TRANSLATIONS.general.reset_to_defaults,
+                TRANSLATIONS.general.go_back,
             )
 
-        )
+        ]
 
+        playtesting_button.command = self.to_playtesters_screen
         reset_button.command = self.reset_to_defaults
         back_button.command = self.go_back
-        playtesting_button.command = self.to_playtesters_screen
-
-        self.non_option_buttons = frozenset(
-            (
-                reset_button,
-                back_button,
-                playtesting_button,
-            )
-        )
 
         ###
 
         labels = self.option_labels = UIList2D()
         widgets = self.widgets = UIList2D()
-        rows = self.widget_rows = UIList2D()
 
-        for key, text, widget_class in (
-            ('MASTER_VOLUME', "Master volume", HundredSlider),
-            ('MUSIC_VOLUME', "Music volume", HundredSlider),
-            ('SOUND_VOLUME', "Sound volume", HundredSlider),
-            ('FULLSCREEN', "Enable full screen", Checkbutton),
+        for key, label_text, widget_class in (
+            ('MASTER_VOLUME', t.options.master_volume, HundredSlider),
+            ('MUSIC_VOLUME', t.options.music_volume, HundredSlider),
+            ('SOUND_VOLUME', t.options.sound_volume, HundredSlider),
+            ('FULLSCREEN', t.options.full_screen, Checkbutton),
+            ('LOCALE', t.options.language, LanguagePicker),
         ):
 
             ###
@@ -152,15 +156,13 @@ class OptionsScreen:
 
                 UIObject2D.from_surface(
                     render_text(
-                        text,
+                        label_text,
                         **LABEL_TEXT_SETTINGS,
                     ),
                 )
             )
             labels.append(label)
 
-            ###
-            rows.append(UISet2D((label, widget)))
 
         ###
 
@@ -172,10 +174,6 @@ class OptionsScreen:
             if hasattr(widget, 'update')
         )
 
-        rows.append(UISet2D([playtesting_button]))
-        rows.append(UISet2D([back_button]))
-        rows.append(UISet2D([reset_button]))
-
         ###
         self.item_count = len(widgets)
 
@@ -183,13 +181,13 @@ class OptionsScreen:
 
         option_caption_label = self.option_caption_label = (
             UIObject2D.from_surface(
-                render_text('Option', **TITLE_TEXT_SETTINGS)
+                render_text(t.captions.option, **TITLE_TEXT_SETTINGS)
             )
         )
 
         value_caption_label = self.value_caption_label = (
             UIObject2D.from_surface(
-                render_text('Value', **TITLE_TEXT_SETTINGS)
+                render_text(t.captions.value, **TITLE_TEXT_SETTINGS)
             )
         )
 
@@ -214,6 +212,12 @@ class OptionsScreen:
         for label, widget in zip(labels, widgets):
             label.rect.midright = widget.rect.move(-10, 0).midleft
 
+        ### center objs
+        self.center_objs_on_screen()
+
+        ### append callback to replace text surfaces when language changes
+        on_language_change.append(self.on_language_change)
+
     def prepare(self):
         
         self.current_index = 0
@@ -226,6 +230,89 @@ class OptionsScreen:
                 for sound_name in SOUND_MAP
                 if 'shot' in sound_name
             )
+
+    def on_language_change(self):
+        
+        ### captions
+
+        for obj, text, attr_name in (
+            (self.option_caption_label, t.captions.option, 'topright'),
+            (self.value_caption_label, t.captions.value, 'topleft'),
+        ):
+
+            update_text_surface(
+                obj,
+                text,
+                TITLE_TEXT_SETTINGS,
+                pos_to_align=attr_name,
+            )
+
+        ### labels
+
+        for label_obj, label_text in zip(
+
+            self.option_labels,
+
+            (
+              t.options.master_volume,
+              t.options.music_volume,
+              t.options.sound_volume,
+              t.options.full_screen,
+              t.options.language,
+            ),
+
+        ):
+
+            update_text_surface(
+                label_obj,
+                label_text,
+                LABEL_TEXT_SETTINGS,
+                pos_to_align='midright',
+            )
+
+
+        ### non option buttons
+
+        for button, text in zip(
+
+            self.non_option_buttons,
+
+            (
+                t.playtesters_screen,
+                TRANSLATIONS.general.reset_to_defaults,
+                TRANSLATIONS.general.go_back,
+            ),
+
+        ):
+
+            update_text_surface(
+                button,
+                text,
+                LABEL_TEXT_SETTINGS,
+                pos_to_align='midleft',
+            )
+
+        ### center objs
+        self.center_objs_on_screen()
+
+    def center_objs_on_screen(self):
+        """Offset everything so they are more or less centered on the screen."""
+
+        all_objs = UIList2D(
+            (
+                self.option_labels,
+                self.widgets,
+                self.option_caption_label,
+                self.value_caption_label,
+            )
+        )
+
+        diff = tuple(
+            a - b
+            for a, b in zip(SCREEN_RECT.center, all_objs.rect.center)
+        )
+
+        all_objs.rect.move_ip(diff)
 
     def control(self):
         
@@ -377,6 +464,11 @@ class OptionsScreen:
                 ## save on disk
                 save_config_on_disk()
 
+                if option_key == 'LOCALE':
+                    
+                    ## perform setups in response to language change
+                    on_language_change()
+
                 break
 
     def update_system_for_option(self, option_key):
@@ -427,11 +519,22 @@ class OptionsScreen:
         raise LoopException(next_state=main_menu)
 
     def to_playtesters_screen(self):
+        """In the future, this will lead users to the playtesters screen.
 
-        playtesters_screen = REFS.states.playtesters_screen 
-        playtesters_screen.prepare()
+        For now, it just displays a prompt notifying the user of its
+        unavailability.
+        """
 
-        raise LoopException(next_state=playtesters_screen)
+        #playtesters_screen = REFS.states.playtesters_screen 
+        #playtesters_screen.prepare()
+
+        #raise LoopException(next_state=playtesters_screen)
+
+        prompt_to_dismiss_with_any_button(
+            t.playtesters_prompt.caption,
+            t.playtesters_prompt.message,
+        )
+
 
     def on_mouse_click(self, event):
 

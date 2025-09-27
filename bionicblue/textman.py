@@ -93,3 +93,32 @@ def render_text(
     else:
         return surf
 
+
+def update_text_surface(
+        obj,
+        new_text,
+        text_settings,
+        pos_to_align='topleft',
+    ):
+    """Update obj's text surface and rect.
+
+    Also align the new rect with the previous one before replacing.
+    """
+
+    ### generate new surf and rect
+
+    new_surf = render_text(new_text, **text_settings)
+    new_rect = new_surf.get_rect()
+
+    ### align new rect with old one
+    setattr(
+        new_rect,
+        pos_to_align,
+        getattr(obj.rect, pos_to_align),
+    )
+
+    ### replace surface and rect with new ones
+
+    obj.image = new_surf
+    obj.rect = new_rect
+

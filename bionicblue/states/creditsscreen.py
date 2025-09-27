@@ -47,7 +47,9 @@ from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D
 
-from ..textman import render_text
+from ..textman import render_text, update_text_surface
+
+from ..translatedtext import TRANSLATIONS, on_language_change
 
 
 
@@ -113,18 +115,17 @@ def get_text_url_pair(link_text):
 
     return link_text[text_start:text_end], link_text[link_start:link_end]
 
+t = TRANSLATIONS.credits_screen
 
 
 class CreditsScreen:
 
     def __init__(self):
 
-        lines = CREDITS_FILEPATH.read_text(encoding='utf-8').splitlines()
-
         caption = self.caption = (
             UIObject2D.from_surface(
                 render_text(
-                    "Credits",
+                    t.caption,
                     **TITLE_TEXT_SETTINGS,
                 )
             )
@@ -136,6 +137,8 @@ class CreditsScreen:
 
         items = self.items = UIList2D()
         items.append(caption)
+
+        lines = CREDITS_FILEPATH.read_text(encoding='utf-8').splitlines()
 
         for line in lines:
 
@@ -153,37 +156,58 @@ class CreditsScreen:
 
                 if char == ' ':
                     space_count += 1
+
                 else:
+
                     first_non_space_char = char
                     break
 
-            x = 5 + (space_count * 6)
+            indentation_level = space_count // 4
+
+            x = 5 + (indentation_level * 12)
 
             if first_non_space_char == '[':
 
                 text, url = get_text_url_pair(line)
+
+                if text[0] == '{' and text[-1] == '}':
+
+                    translation_key = text[1:-1]
+                    text = getattr(t, translation_key)
+
+                else:
+                    translation_key = ''
 
                 obj = (
                     UIObject2D.from_surface(
                         render_text(
                             text,
                             **LINK_TEXT_SETTINGS_0,
-                        )
+                        ),
+                        url = url,
+                        translation_key = translation_key,
                     )
                 )
-
-                obj.url = url
 
             else:
 
                 text = line.strip()
+
+                if text[0] == '{' and text[-1] == '}':
+
+                    translation_key = text[1:-1]
+                    text = getattr(t, translation_key)
+
+                else:
+                    translation_key = ''
 
                 obj = (
                     UIObject2D.from_surface(
                         render_text(
                             text,
                             **LABEL_TEXT_SETTINGS,
-                        )
+                        ),
+                        translation_key = translation_key,
                     )
                 )
 
@@ -212,7 +236,7 @@ class CreditsScreen:
             netloc: (
                 UIObject2D.from_surface(
                     render_text(
-                        f'Open {netloc} link',
+                        t.open_link.format(netloc=netloc),
                         **LINK_TEXT_SETTINGS_1,
                     )
                 )
@@ -225,12 +249,62 @@ class CreditsScreen:
         for obj in self.netloc_to_text_obj_map.values():
             obj.rect.bottomright = SCREEN_RECT.bottomright
 
+        ### store method to be called when language changes
+        on_language_change.append(self.on_language_change)
+
     def prepare(self):
 
         self.current_index = 0
         self.highlighted_widget = self.links[self.current_index]
         self.align_link()
         self.update_open_link_label()
+
+    def on_language_change(self):
+
+        ### update caption
+
+        update_text_surface(
+            self.caption,
+            t.caption,
+            TITLE_TEXT_SETTINGS,
+            pos_to_align='midtop',
+        )
+
+        ### update labels
+
+        for obj in self.items:
+
+            if (
+                hasattr(obj, 'translation_key')
+                and obj.translation_key
+            ):
+
+                text_settings = (
+
+                    LINK_TEXT_SETTINGS_0
+                    if hasattr(obj, 'url')
+
+                    else LABEL_TEXT_SETTINGS
+
+                )
+
+                update_text_surface(
+                    obj,
+                    getattr(t, obj.translation_key),
+                    text_settings,
+                    pos_to_align='midleft',
+                )
+
+        ### update visit url labels
+
+        for netloc, obj in self.netloc_to_text_obj_map.items():
+
+            update_text_surface(
+                obj,
+                t.open_link.format(netloc=netloc),
+                LINK_TEXT_SETTINGS_1,
+                pos_to_align='bottomright',
+            )
 
     def update_open_link_label(self):
 

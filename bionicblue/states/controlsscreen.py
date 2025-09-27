@@ -1,4 +1,4 @@
-
+"""Facility to allow users to set keys/buttons for actions."""
 
 ### third-party imports
 
@@ -28,12 +28,10 @@ from ..pygamesetup import SERVICES_NS
 
 from ..pygamesetup.constants import (
     SCREEN,
-    SCREEN_COPY,
     SCREEN_RECT,
     BLACK_BG,
     GAMEPADDIRECTIONALPRESSED,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
-    KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS,
     blit_on_screen,
 )
 
@@ -45,9 +43,9 @@ from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D
 
-from ..textman import render_text
+from ..textman import render_text, update_text_surface
 
-from ..surfsman import combine_surfaces
+from ..surfsman import unite_surfaces
 
 from ..userprefsman.main import (
     KEYBOARD_CONTROL_NAMES,
@@ -55,55 +53,18 @@ from ..userprefsman.main import (
     GAMEPAD_CONTROLS,
     DEFAULT_KEYBOARD_CONTROL_NAMES,
     DEFAULT_GAMEPAD_CONTROLS,
+    ALL_ACTION_KEYS,
+    KEYBOARD_ACTION_KEYS,
+    GAMEPAD_ACTION_KEYS,
     save_config_on_disk,
 )
 
 from ..userprefsman.validation import PYGAME_KEYS_NAME_MAP, RESERVED_KEYS
 
+from ..promptscreen import present_prompt
 
+from ..translatedtext import TRANSLATIONS, on_language_change
 
-ACTION_TITLE_MAP = {
-    'up': 'Up',
-    'down': 'Down',
-    'left': 'Left',
-    'right': 'Right',
-
-    'shoot': 'Shoot',
-    'jump': 'Jump',
-
-    'previous_power': 'Previous power',
-    'next_power': 'Next power',
-
-    'start_button': 'Start/confirm',
-}
-
-
-KEYBOARD_ACTION_KEYS = (
-
-    'up',
-    'down',
-    'left',
-    'right',
-
-    'shoot',
-    'jump',
-
-    'previous_power',
-    'next_power',
-
-)
-
-GAMEPAD_ACTION_KEYS = (
-
-    'shoot',
-    'jump',
-
-    'previous_power',
-    'next_power',
-
-    'start_button',
-
-)
 
 
 LABEL_TEXT_SETTINGS = {
@@ -117,13 +78,22 @@ LABEL_TEXT_SETTINGS = {
 
 TITLE_TEXT_SETTINGS = {
     'style': 'regular',
-    'size': 16,
+    'size': 12,
     'padding': 1,
     'foreground_color': 'white',
     'background_color': 'black',
     
 }
 
+PROMPT_LABEL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 1,
+    'foreground_color': 'white',
+    'background_color': 'red',
+}
+
+t = TRANSLATIONS.controls_screen
 
 
 class ControlsScreen:
@@ -131,7 +101,6 @@ class ControlsScreen:
     def __init__(self):
 
         ###
-
         self.update = do_nothing
 
         ###
@@ -145,7 +114,10 @@ class ControlsScreen:
                 )
             )
 
-            for text in ('Reset to defaults', 'Back')
+            for text in (
+                TRANSLATIONS.general.reset_to_defaults,
+                TRANSLATIONS.general.go_back,
+            )
         )
 
         back_button.command = self.go_back
@@ -157,8 +129,28 @@ class ControlsScreen:
 
         ###
 
-        
+        action_caption_label = self.action_caption_label = (
+            UIObject2D.from_surface(
+                render_text(t.action, **TITLE_TEXT_SETTINGS)
+            )
+        )
+
+        action_caption_label.rect.top = SCREEN_RECT.top + 10
+
+        control_caption_label = self.control_caption_label = (
+            UIObject2D.from_surface(
+                render_text(t.trigger, **TITLE_TEXT_SETTINGS)
+            )
+        )
+
+        control_caption_label.rect.top = SCREEN_RECT.top + 10
+
+        ###
+
+
         self.groups_map = gm = {}
+
+        action_names = t.action_names
 
         for controls_type, action_keys, controls, control_formatter in (
 
@@ -182,10 +174,13 @@ class ControlsScreen:
             action_labels = submap['action_labels'] = UIList2D(
 
                 UIObject2D.from_surface(
+
                     render_text(
-                        f'{ACTION_TITLE_MAP[key]}:',
+                        getattr(action_names, key) + ':',
                         **LABEL_TEXT_SETTINGS,
                     ),
+                    key=key,
+
                 )
 
                 for key in action_keys
@@ -211,13 +206,13 @@ class ControlsScreen:
             control_labels.append(back_button)
             control_labels.append(reset_button)
 
-
             control_labels.rect.snap_rects_ip(
                 retrieve_pos_from='bottomleft',
                 assign_pos_to='topleft',
             )
 
-            control_labels.rect.bottomleft = SCREEN_RECT.move(5, -10).midbottom
+            control_labels.rect.top = control_caption_label.rect.move(0, 10).bottom
+            control_labels.rect.left = SCREEN_RECT.centerx
 
             for action, respective_control in zip(action_labels, control_labels):
                 action.rect.midright = respective_control.rect.move(-10, 0).midleft
@@ -227,138 +222,37 @@ class ControlsScreen:
 
         ###
 
-        action_caption_label = self.action_caption_label = (
-            UIObject2D.from_surface(
-                render_text('Action', **TITLE_TEXT_SETTINGS)
-            )
-        )
-
         action_caption_label.rect.right = action_labels.rect.right
-        action_caption_label.rect.top = SCREEN_RECT.top + 10
-
-        control_caption_label = self.control_caption_label = (
-            UIObject2D.from_surface(
-                render_text('Trigger', **TITLE_TEXT_SETTINGS)
-            )
-        )
-
         control_caption_label.rect.left = control_labels.rect.left
-        control_caption_label.rect.top = SCREEN_RECT.top + 10
 
         ###
-
-
-        general_prompt_surf = (
-
-            combine_surfaces(
-
-                surfaces=[
-
-                    render_text(line, 'regular', 18, 1, 'white', 'blue')
-
-                    for line in (
-                        "Press any trigger to assign",
-                        "it to the following action:",
-                    )
-
-                ],
-
-                retrieve_pos_from='bottomleft',
-                assign_pos_to='topleft',
-                padding=3,
-                background_color='blue',
-            )
+        gp = self.general_prompt = (
+            UIObject2D.from_surface(recreate_general_prompt_surf())
 
         )
 
         screen_center = SCREEN_RECT.center
 
-        gp = self.general_prompt = UIObject2D.from_surface(general_prompt_surf)
         gp.rect.midbottom = screen_center
 
         self.prompt_label_map = {
 
             key: UIObject2D.from_surface(
                               render_text(
-                                f"'{action_title}'",
-                                'regular',
-                                18,
-                                1,
-                                'white',
-                                'blue',
+                                "'" + getattr(action_names, key) + "'",
+                                **PROMPT_LABEL_TEXT_SETTINGS,
                               ),
                               coordinates_name='midtop',
                               coordinates_value=screen_center,
+                              key=key,
                             )
 
-            for key, action_title in ACTION_TITLE_MAP.items()
+            for key in ALL_ACTION_KEYS
 
         }
 
         ###
-
-        self.dialog_map = dm = {}
-
-        for dialog_name, lines in (
-
-            (
-
-                'reserved',
-
-                (
-                    "This is a reserved",
-                    "trigger. Please, use",
-                    "another one",
-                ),
-
-            ),
-
-            (
-
-                'used_by_another',
-
-                (
-                    "This trigger is being used",
-                    "for another action",
-                ),
-            ),
-
-            (
-
-                'already_set',
-
-                (
-                    "This trigger is already set",
-                    "for this action",
-                ),
-            ),
-
-        ):
-
-
-            dialog_surfs = tuple(
-
-                render_text(line, 'regular', 18, 1, 'white', 'red')
-                for line in lines
-
-            )
-
-            dialog_surf = (
-                combine_surfaces(
-                    surfaces=dialog_surfs,
-                    retrieve_pos_from='bottomleft',
-                    assign_pos_to='topleft',
-                    padding=3,
-                    background_color='red',
-                )
-            )
-
-            draw_rect(dialog_surf, 'white', dialog_surf.get_rect(), 1)
-
-            dialog_obj = dialog_obj = UIObject2D.from_surface(dialog_surf)
-            dialog_obj.rect.center = screen_center
-            dm[dialog_name] = dialog_obj
-
+        on_language_change.append(self.on_language_change)
 
     def prepare(self, controls_type):
         
@@ -394,6 +288,105 @@ class ControlsScreen:
 
         self.control = self.control_selection
         self.draw = self.draw_controls
+
+    def on_language_change(self):
+
+        ### update general labels
+
+        for obj, text, text_settings, pos_to_align in (
+
+            (
+                self.reset_button,
+                TRANSLATIONS.general.reset_to_defaults,
+                LABEL_TEXT_SETTINGS,
+                'midleft',
+            ),
+
+            (
+                self.back_button,
+                TRANSLATIONS.general.go_back,
+                LABEL_TEXT_SETTINGS,
+                'midleft',
+            ),
+
+            (
+                self.action_caption_label,
+                t.action,
+                TITLE_TEXT_SETTINGS,
+                'topright',
+            ),
+
+            (
+                self.control_caption_label,
+                t.trigger,
+                TITLE_TEXT_SETTINGS,
+                'topleft',
+            ),
+
+
+        ):
+            update_text_surface(obj, text, text_settings, pos_to_align)
+
+        ### update action and control labels
+
+        action_names = t.action_names
+
+        for controls_type, submap in self.groups_map.items():
+
+            ## action labels
+
+            for obj in submap['action_labels']:
+
+                update_text_surface(
+                    obj,
+                    getattr(action_names, obj.key) + ':',
+                    LABEL_TEXT_SETTINGS,
+                    pos_to_align='midright',
+                )
+
+
+            ## control labels
+
+            if controls_type == 'kbd_controls':
+
+                control_formatter = str_from_keyboard_control
+                controls = KEYBOARD_CONTROL_NAMES
+
+            else:
+
+                control_formatter = str_from_gamepad_control
+                controls = GAMEPAD_CONTROLS
+
+            for obj in submap['control_labels']:
+
+                if not hasattr(obj, 'key'):
+                    continue
+
+                update_text_surface(
+                    obj,
+                    control_formatter(controls[obj.key]),
+                    LABEL_TEXT_SETTINGS,
+                    pos_to_align='midleft',
+                )
+
+        ### update general prompt
+
+        gp = self.general_prompt
+        gp.image = recreate_general_prompt_surf()
+        gp.rect = gp.image.get_rect()
+        gp.rect.midbottom = SCREEN_RECT.center
+
+
+        ### update prompt labels
+
+        for obj in self.prompt_label_map.values():
+
+            update_text_surface(
+                obj,
+                "'" + getattr(action_names, obj.key) + "'",
+                PROMPT_LABEL_TEXT_SETTINGS,
+                pos_to_align='midtop'
+            )
 
     def control_selection(self):
         
@@ -558,8 +551,6 @@ class ControlsScreen:
         self.control = self.control_wait_trigger
         self.draw = self.draw_prompt
 
-        SCREEN_COPY.blit(SCREEN, (0, 0))
-
         self.prompt_label = (
             self.prompt_label_map[self.highlighted_control.key]
         )
@@ -581,7 +572,14 @@ class ControlsScreen:
                 event.type == KEYDOWN
                 and PYGAME_KEYS_NAME_MAP[event.key] in RESERVED_KEYS
             ):
-                self.show_dialog('reserved')
+
+                present_prompt(
+                    t.prompts.reserved_trigger.caption,
+                    t.prompts.reserved_trigger.message,
+                    (
+                        (TRANSLATIONS.general.ok, True),
+                    ),
+                )
 
             elif event.type == self.control_event:
                 self.try_setting_new_control(event)
@@ -616,14 +614,28 @@ class ControlsScreen:
         non_control_buttons = self.non_control_buttons
 
         if new_value == old_value:
-            self.show_dialog('already_set')
+
+            present_prompt(
+                t.prompts.already_set.caption,
+                t.prompts.already_set.message,
+                (
+                    (TRANSLATIONS.general.ok, True),
+                ),
+            )
 
         elif any(
             new_value == control_label.value
             for control_label in self.control_labels
             if control_label not in non_control_buttons
         ):
-            self.show_dialog('used_by_another')
+
+            present_prompt(
+                t.prompts.used_by_another.caption,
+                t.prompts.used_by_another.message,
+                (
+                    (TRANSLATIONS.general.ok, True),
+                ),
+            )
 
         else:
 
@@ -679,51 +691,65 @@ class ControlsScreen:
 
     def draw_prompt(self):
 
-        blit_on_screen(SCREEN_COPY, (0, 0))
-
+        SCREEN.fill('black')
         self.general_prompt.draw()
         self.prompt_label.draw()
 
         update()
 
-    def show_dialog(self, dialog_name):
 
-        self.control = self.control_dialog
-        self.draw = self.draw_dialog
+def recreate_general_prompt_surf():
 
-        self.dialog_obj = self.dialog_map[dialog_name]
+    prompt_words = UIList2D(
 
-        raise LoopException
+        UIObject2D.from_surface(
+            render_text(word, 'regular', 12, 1, 'orange', 'black')
+        )
 
-    def control_dialog(self):
+        for word in t.press_trigger_to_assign.split()
 
-        for event in SERVICES_NS.get_events():
+    )
 
-            if event.type in KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS:
+    prompt_words.rect.snap_rects_intermittently_ip(
 
-                self.control = self.control_selection
-                self.draw = self.draw_controls
+        ### interval limit
 
-                raise LoopException
+        dimension_name='width', # either 'width' or 'height'
+        dimension_unit='pixels', # either 'rects' or 'pixels'
+        max_dimension_value=SCREEN_RECT.width - 20, # positive integer
 
-            elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+        ### rect positioning
 
-            elif event.type == QUIT:
-                quit_game()
+        retrieve_pos_from='topright',
+        assign_pos_to='topleft',
+        offset_pos_by=(5, 0),
 
+        ### intermittent rect positioning
 
-    def draw_dialog(self):
+        intermittent_pos_from='bottomleft',
+        intermittent_pos_to='topleft',
+        intermittent_offset_by=(0, 2),
 
-        blit_on_screen(SCREEN_COPY, (0, 0))
-        self.dialog_obj.draw()
-        update()
+    )
 
+    return (
 
+        unite_surfaces(
+
+            surface_rect_pairs = [
+                (word_obj.image, word_obj.rect)
+                for word_obj in prompt_words
+            ],
+
+            padding=3,
+            background_color='black',
+
+        )
+
+    )
 
 def str_from_keyboard_control(control):
-    return f'Keyboard {control[2:].upper()}'
-
+    return t.keyboard_key + ' ' + control[2:].upper()
 
 def str_from_gamepad_control(control):
 
@@ -732,6 +758,6 @@ def str_from_gamepad_control(control):
         '--'
         if control is None
 
-        else f'Gamepad {control}'
+        else t.gamepad + ' ' + str(control)
 
     )

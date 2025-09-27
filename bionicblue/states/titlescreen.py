@@ -1,3 +1,4 @@
+"""Facility for title screen (presented just before main menu)."""
 
 ### standard library import
 from itertools import cycle
@@ -38,9 +39,61 @@ from ..classes2d.collections import UIList2D
 
 from ..userprefsman.main import USER_PREFS
 
+from ..translatedtext import TRANSLATIONS, on_language_change
 
+
+
+t = TRANSLATIONS.title_screen
 
 class TitleScreen:
+
+    def __init__(self):
+
+        ### create press any button label
+        self.create_press_any_button_label()
+
+        ### store method to be called when language is changed
+        on_language_change.append(self.create_press_any_button_label)
+
+    def create_press_any_button_label(self):
+
+        uilist = UIList2D(
+
+            UIObject2D.from_surface(render_text(word, 'regular', 16))
+            for word in t.press_any_button.split()
+
+        )
+
+        max_width = SCREEN_RECT.w * .25 # 25% of the screen
+
+        uilist.rect.snap_rects_intermittently_ip(
+
+            dimension_name = 'width',
+            dimension_unit = 'pixels',
+            max_dimension_value = max_width,
+
+            retrieve_pos_from='topright',
+            assign_pos_to='topleft',
+            offset_pos_by = (5, 0),
+
+            intermittent_pos_from='bottomleft',
+            intermittent_pos_to='topleft',
+            intermittent_offset_by = (0, 0),
+
+        )
+
+        self.press_any_button_label = (
+
+            UIObject2D.from_surface(
+
+                unite_surfaces(
+                    [(obj.image, obj.rect) for obj in uilist],
+                    background_color='black',
+                )
+
+            )
+
+        )
 
     def prepare(self):
 
@@ -61,7 +114,9 @@ class TitleScreen:
         self.end_top = _scopy.move(0, 45).top
 
         _movement_duration_msecs = 2400 # milliseconds
-        self.movement_duration_frames = round(_movement_duration_msecs / 1000 * FPS)
+        self.movement_duration_frames = (
+            round(_movement_duration_msecs / 1000 * FPS)
+        )
 
         self.current_movement_frame = 0
         self.last_movement_frame = self.movement_duration_frames - 1
@@ -70,51 +125,12 @@ class TitleScreen:
 
         self.update = self.update_title_position
 
-        ###
-
-        any_button_words = 'Press any button'.split()
-
-        uilist = UIList2D(
-
-            UIObject2D.from_surface(render_text(word, 'regular', 16))
-            for word in any_button_words
-
-        )
-
-        max_width = SCREEN_RECT.w * .5 * .5 # 50% of half the screen
-
-        uilist.rect.snap_rects_intermittently_ip(
-
-            dimension_name = 'width',
-            dimension_unit = 'pixels',
-            max_dimension_value = max_width,
-
-            retrieve_pos_from='topright',
-            assign_pos_to='topleft',
-            offset_pos_by = (5, 0),
-
-            intermittent_pos_from='bottomleft',
-            intermittent_pos_to='topleft',
-            intermittent_offset_by = (0, 0),
-
-        )
-
-        self.press_any_button = (
-
-            UIObject2D.from_surface(
-
-                unite_surfaces(
-                    [(obj.image, obj.rect) for obj in uilist],
-                    background_color='black',
-                )
-
-            )
-
-        )
+        ### position press any button label
 
         _scopy.midleft = _scopy.midright
 
-        self.press_any_button.rect.center = _scopy.center
+        self.press_any_button_label.rect.center = _scopy.center
+        ###
 
         _show_duration_msecs = 1000
         _hide_duration_msecs = 500
@@ -186,6 +202,6 @@ class TitleScreen:
         REFS.blue_boy.ap.draw()
 
         if self.draw_label_flag:
-            self.press_any_button.draw()
+            self.press_any_button_label.draw()
 
         update()

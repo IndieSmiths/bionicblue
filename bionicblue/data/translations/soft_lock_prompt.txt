@@ -1,0 +1,12 @@
+
+caption
+    en-us Message from developer
+    pt-br Mensagem do desenvolvedor
+
+message
+    en-us Bionic Blue game developer (Kennedy): "The content in this branch will be playable as soon as it is finished and merged into the main branch. Until then, please, wait patiently."
+    pt-br Desenvolvedor do jogo Bionic Blue (Kennedy): "O conteúdo nesta ramificação (branch) será jogável tão logo esteja pronto e mesclado com a branch principal. Até lá, por favor, espere pacientemente."
+
+press_any_button
+    en-us Press any button to leave
+    pt-br Aperte qualquer botão para sair

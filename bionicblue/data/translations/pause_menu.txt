@@ -1,0 +1,17 @@
+
+caption
+
+    en-us Pause menu
+    pt-br Menu de pausa
+
+labels
+
+    resume
+
+        en-us Resume
+        pt-br Continuar
+
+    quit_game
+
+        en-us Quit game
+        pt-br Fechar jogo

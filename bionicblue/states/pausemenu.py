@@ -37,13 +37,39 @@ from ..pygamesetup.constants import (
 
 from ..userprefsman.main import GAMEPAD_CONTROLS
 
-from ..config import REFS, LoopException, quit_game
+from ..config import REFS, COLORKEY, LoopException, quit_game
 
 from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D
 
-from ..textman import render_text
+from ..textman import render_text, update_text_surface
+
+from ..translatedtext import TRANSLATIONS, on_language_change
+
+
+
+t = TRANSLATIONS.pause_menu
+
+TITLE_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 4,
+}
+
+NORMAL_LABEL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 4,
+    'foreground_color': 'cyan',
+}
+
+SELECTED_LABEL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 4,
+    'foreground_color': 'orange',
+}
 
 
 
@@ -72,16 +98,21 @@ class PauseMenu:
                 key,
 
                 *(
-                    render_text(label_title, 'regular', 12, 5, color)
-                    for color in ('cyan', 'orange')
+
+                    render_text(
+                        getattr(t.labels, key),
+                        **text_settings,
+                    )
+
+                    for text_settings in (
+                        NORMAL_LABEL_TEXT_SETTINGS,
+                        SELECTED_LABEL_TEXT_SETTINGS,
+                    )
                 )
 
             )
 
-            for key, label_title in (
-                ('resume', 'Resume'),
-                ('exit', 'Exit game'),
-            )
+            for key in ('resume', 'quit_game')
 
         ]
 
@@ -93,9 +124,11 @@ class PauseMenu:
         obj_map = {}
 
         for (
+
             key,
             unhighlighted_surf,
             highlighted_surf,
+
         ) in labels_data_tuples:
 
             unhighlighted_surf_map[key] = unhighlighted_surf
@@ -115,7 +148,7 @@ class PauseMenu:
 
                 for key in (
                     'resume',
-                    'exit',
+                    'quit_game',
                 )
 
             )
@@ -131,30 +164,96 @@ class PauseMenu:
 
         caption = self.caption = (
             UIObject2D.from_surface(
-                render_text('Pause menu', 'regular', 22, 4)
+                render_text(t.caption, **TITLE_TEXT_SETTINGS)
             )
         )
 
         caption.rect.midbottom = items[0].rect.move(0, -10).midtop
+
         items.insert(0, caption)
         items.rect.center = SCREEN_RECT.center
         items.pop(0)
 
         self.items_bg = items_bg = UIObject2D()
-
-        items_bg.rect = items.rect.inflate(10, 10)
-        items_bg.image = Surface(items_bg.rect.size).convert()
-        items_bg.image.fill('black')
+        self.reset_items_bg()
 
         self.current_index = 0
         self.highlight_selected()
 
+        ###
+        on_language_change.append(self.on_language_change)
+
+    def reset_items_bg(self):
+
+        items = self.items
+
+        items.insert(0, self.caption)
+        new_rect = items.rect.inflate(10, 10)
+        items.pop(0)
+
+        surf = Surface(new_rect.size).convert()
+        surf.set_colorkey(COLORKEY)
+        surf.fill(COLORKEY)
+
+        rect_for_drawing = surf.get_rect()
+
+        draw_rect(surf, 'black', rect_for_drawing, border_radius=10)
+        draw_rect(surf, 'white', rect_for_drawing, 1, border_radius=10)
+
+        self.items_bg.image = surf
+        self.items_bg.rect = new_rect
+
     def prepare(self):
 
         blit_on_screen(SCREEN_TRANSP_OVERLAY, (0, 0))
-        self.caption.draw()
 
         SCREEN_COPY.blit(SCREEN, (0, 0))
+
+        self.current_index = 0
+        self.highlight_selected()
+
+    def on_language_change(self):
+
+        ### update caption
+
+        update_text_surface(
+            self.caption,
+            t.caption,
+            TITLE_TEXT_SETTINGS,
+            pos_to_align='midbottom',
+        )
+
+        ### update remaining items
+
+        usm = self.unhighlighted_surf_map
+        hsm = self.highlighted_surf_map
+
+        for obj in self.items:
+
+            ## update object
+
+            key = obj.key
+
+            text = getattr(t.labels, key)
+
+            # maps
+
+            for map_obj, text_settings in (
+                (usm, NORMAL_LABEL_TEXT_SETTINGS),
+                (hsm, SELECTED_LABEL_TEXT_SETTINGS),
+            ):
+                map_obj[key] = render_text(text, **text_settings)
+
+            # current image and rect
+
+            obj.image = usm[key]
+
+            midtop = obj.rect.midtop
+            obj.rect = obj.image.get_rect()
+            obj.rect.midtop = midtop
+
+        ### now that all items are updated, reset background for items
+        self.reset_items_bg()
 
     def control(self):
 
@@ -211,7 +310,7 @@ class PauseMenu:
         if item_key == 'resume':
             resume()
 
-        elif item_key == 'exit':
+        elif item_key == 'quit_game':
             quit_game()
 
     def update(self): pass
@@ -221,13 +320,15 @@ class PauseMenu:
         blit_on_screen(SCREEN_COPY, (0, 0))
 
         self.items_bg.draw()
+        self.caption.draw()
         self.items.draw()
 
         draw_rect(
             SCREEN,
             'orange',
             self.selected_rect,
-            2,
+            1,
+            border_radius=8,
         )
 
         update_screen()

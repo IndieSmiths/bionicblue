@@ -51,6 +51,8 @@ from .classes2d.collections import UIList2D
 
 from .userprefsman.main import GAMEPAD_CONTROLS
 
+from .translatedtext import TRANSLATIONS
+
 
 
 TEXT_SETTINGS = {
@@ -230,7 +232,10 @@ class PromptScreen:
             message,
 
             (
-                ("Press any button to leave", None),
+                (
+                    TRANSLATIONS.soft_lock_prompt.press_any_button,
+                    None,
+                ),
             ),
 
             dismissable_with_any=True,

@@ -31,13 +31,8 @@ from .resourceloader import ResourceLoader
 
 from .states import setup_states
 
+from .translatedtext import TRANSLATIONS
 
-
-message = """
-Bionic Blue game developer (Kennedy): "The content in this branch will be
-playable as soon as it is finished and merged into the main branch. Until
-then, please, wait patiently."
-""".strip().replace('\n', ' ')
 
 
 def run_game(debug_directive=False):
@@ -48,8 +43,8 @@ def run_game(debug_directive=False):
     if MUST_LOCK_PLAY:
 
         prompt_to_dismiss_with_any_button(
-            "Message from developer",
-            message,
+            TRANSLATIONS.soft_lock_prompt.caption,
+            TRANSLATIONS.soft_lock_prompt.message,
         )
 
         return

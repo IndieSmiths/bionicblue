@@ -1,0 +1,71 @@
+
+load_game_caption
+
+    en-us Load game
+    pt-br Carregar jogo
+
+buttons
+
+    load_game
+        en-us Load game
+        pt-br Carregar jogo
+
+    erase
+        en-us Erase
+        pt-br Apagar
+
+    go_back
+        en-us Go back
+        pt-br Voltar
+
+prompts
+
+    deleting
+
+        caption
+            en-us Deleting save slot
+            pt-br Apagando slot
+        message
+            en-us Are you sure you want to delete "{slot_name}" save slot?
+            pt-br Tem certeza de que quer apagar "{slot_name}" slot?
+
+    error_message_on_removal
+
+        caption
+            en-us Error message
+            pt-br Mensagem de erro
+        message
+            en-us Unexpected error while trying to remove slot (please notify the developer): {error}
+            pt-br Erro inesperado ao tentar apagar slot (por favor, notifique o desenvolvedor): {error}
+
+    visit_intro_level
+
+        caption
+            en-us Visit intro level?
+            pt-br Visitar primeiro nível?
+        message
+            en-us There isn't any other level available yet, wanna revisit the first one?
+            pt-br Não há nenhum outro nível disponível ainda, gostaria de revisitar o primeiro?
+
+    error_message_on_load
+
+        caption
+            en-us Error message
+            pt-br Mensagem de erro
+        message
+            en-us Unexpected error while trying to load slot (please notify the developer): {error}
+            pt-br Erro inesperado ao tentar carregar slot (por favor, notifique o desenvolvedor): {error}
+
+labels
+
+    last_played
+        en-us Last played
+        pt-br Jogo recente
+
+    beaten_bosses
+        en-us Beaten bosses
+        pt-br Chefes derrotados
+
+    encounters
+        en-us Encounters
+        pt-br Encontros

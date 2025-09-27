@@ -64,11 +64,13 @@ from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D
 
-from ..textman import render_text
+from ..textman import render_text, update_text_surface
 
 from ..surfsman import combine_surfaces
 
 from ..promptscreen import present_prompt
+
+from ..translatedtext import TRANSLATIONS, on_language_change
 
 
 
@@ -124,6 +126,9 @@ must_blink = cycle(
 ).__next__
 
 
+t = TRANSLATIONS.load_game_screen
+
+
 class LoadGameScreen:
     """Interface to allow users to load game from existing save slot."""
 
@@ -139,7 +144,7 @@ class LoadGameScreen:
         caption = self.caption = (
             UIObject2D.from_surface(
                 render_text(
-                    "Load game",
+                    t.load_game_caption,
                     **TITLE_TEXT_SETTINGS,
                 )
             )
@@ -154,33 +159,8 @@ class LoadGameScreen:
 
         ###
 
-        for icon_chars, icon_bg_color, button_text, attr_name in (
-            ('OK', 'blue', 'Load game', 'load_button_surf'),
-            ('X', 'red', 'Erase', 'erase_button_surf'),
-        ):
-
-            _icon_surf = (
-                render_text(
-                    icon_chars, 'regular', 12, 2, 'white', icon_bg_color,
-                )
-            )
-
-            _text_surf = (
-                render_text(button_text, **SLOT_BUTTON_TEXT_SETTINGS)
-            )
-
-            _final_surf = (
-                combine_surfaces(
-                    (_icon_surf, _text_surf),
-                    retrieve_pos_from='midright',
-                    assign_pos_to='midleft',
-                    offset_pos_by=(2, 0),
-                    padding=2,
-                    background_color='black',
-                )
-            )
-
-            setattr(self, attr_name, _final_surf)
+        self.button_surfs_map = {}
+        recreate_button_surfs(self.button_surfs_map)
 
         ###
 
@@ -200,8 +180,7 @@ class LoadGameScreen:
             SlotDisplay(
                 slot_path,
                 slot_data,
-                self.load_button_surf,
-                self.erase_button_surf,
+                self.button_surfs_map,
                 self.trigger_slot_button,
             )
 
@@ -224,7 +203,7 @@ class LoadGameScreen:
 
             UIObject2D.from_surface(
                 render_text(
-                    "Go back",
+                    t.buttons.go_back,
                     **GO_BACK_TEXT_SETTINGS,
                 )
             )
@@ -253,6 +232,9 @@ class LoadGameScreen:
         ###
         self.update = do_nothing
 
+        ### store method to call when language changes
+        on_language_change.append(self.on_language_change)
+
     def trigger_slot_button(self, slot_path):
         """Trigger action from selected slot button."""
 
@@ -271,16 +253,16 @@ class LoadGameScreen:
         """If user confirms given prompt, delete slot and perform setups."""
         slot_name = slot_path.stem
 
+        deleting = t.prompts.deleting
+
         must_delete = present_prompt(
 
-            "Deleting save slot",
+            deleting.caption,
+            deleting.message.format(slot_name = slot_name),
+
             (
-                f"Are you sure you want to delete \"{slot_name}\""
-                " save slot?"
-            ),
-            (
-                ("No", False),
-                ("Yes", True),
+                (TRANSLATIONS.general.no, False),
+                (TRANSLATIONS.general.yes, True),
             ),
 
         )
@@ -294,14 +276,15 @@ class LoadGameScreen:
 
             except Exception as err:
 
+                error_message = t.prompts.error_message_on_removal
+
                 present_prompt(
-                    "Error message",
+
+                    error_message.caption,
+                    error_message.message.format(error=str(err)),
+
                     (
-                        "Unexpected error while trying to remove slot"
-                        f" (please notify the developer): {err}"
-                    ),
-                    (
-                        ("Ok", True),
+                        (TRANSLATIONS.general.ok, True),
                     ),
                 )
 
@@ -375,7 +358,7 @@ class LoadGameScreen:
 
             if hasattr(button, 'slot_path'):
 
-                button.update_last_played_label()
+                button.update_last_played_timestamp()
                 button.update_beaten_bosses()
                 button.update_encounters()
 
@@ -385,6 +368,34 @@ class LoadGameScreen:
         self.align_button()
 
     prepare = resort_slots
+
+    def on_language_change(self):
+
+        ### update text surface of caption and go back button
+
+        update_text_surface(
+            self.caption,
+            t.load_game_caption,
+            TITLE_TEXT_SETTINGS,
+            pos_to_align='midtop',
+        )
+
+        update_text_surface(
+            self.go_back_button,
+            t.buttons.go_back,
+            GO_BACK_TEXT_SETTINGS,
+        )
+
+        ### update slot displays
+
+        recreate_button_surfs(self.button_surfs_map)
+
+        for item in self.items:
+
+            if not hasattr(item, 'slot_path'):
+                continue
+
+            item.on_language_change()
 
     def load_slot(self, slot_path):
         """Load slot represented by given path."""
@@ -396,17 +407,18 @@ class LoadGameScreen:
 
         if 'beaten_bosses' in slot_data:
 
+            visit_intro_level = t.prompts.visit_intro_level
+
             answer = present_prompt(
 
-                "Visit intro level?",
+                visit_intro_level.caption,
+                visit_intro_level.message,
+
                 (
-                    "There isn't any other level available yet, wanna revisit"
-                    " the first one?"
+                    (TRANSLATIONS.general.yes, True),
+                    (TRANSLATIONS.general.no, False),
                 ),
-                (
-                    ("Yes", True),
-                    ("No", False),
-                ),
+
 
             )
 
@@ -422,15 +434,17 @@ class LoadGameScreen:
 
         except Exception as err:
 
+            error_message = t.prompts.error_message_on_load
+
             present_prompt(
-                "Error message",
+
+                error_message.caption,
+                error_message.message.format(error=str(err))
+
                 (
-                    "Unexpected error while trying to load slot"
-                    f" (please notify the developer): {err}"
+                    (TRANSLATIONS.general.ok, True),
                 ),
-                (
-                    ("Ok", True),
-                ),
+
             )
 
             return
@@ -652,6 +666,35 @@ def start_intro_level():
 
     raise LoopException(next_state=level_manager)
 
+def recreate_button_surfs(button_surfs_map):
+
+    for icon_chars, icon_bg_color, button_text, key in (
+        ('OK', 'blue', t.buttons.load_game, 'load_button'),
+        ('X', 'red', t.buttons.erase, 'erase_button'),
+    ):
+
+        _icon_surf = (
+            render_text(
+                icon_chars, 'regular', 12, 2, 'white', icon_bg_color,
+            )
+        )
+
+        _text_surf = (
+            render_text(button_text, **SLOT_BUTTON_TEXT_SETTINGS)
+        )
+
+        _final_surf = (
+            combine_surfaces(
+                (_icon_surf, _text_surf),
+                retrieve_pos_from='midright',
+                assign_pos_to='midleft',
+                offset_pos_by=(2, 0),
+                padding=2,
+                background_color='black',
+            )
+        )
+
+        button_surfs_map[key] = _final_surf
 
 class SlotDisplay(UIList2D):
 
@@ -659,12 +702,19 @@ class SlotDisplay(UIList2D):
         self,
         slot_path,
         slot_data,
-        load_button_surf,
-        erase_button_surf,
+        button_surfs_map,
         trigger_command,
     ):
 
         super().__init__()
+
+        ###
+
+        self.slot_path = slot_path
+        self.slot_data = slot_data
+        self.command = partial(trigger_command, slot_path)
+
+        ###
 
         slot_name = slot_path.stem
 
@@ -681,18 +731,14 @@ class SlotDisplay(UIList2D):
 
         self.append(slot_name_label)
 
-        last_played_text = (
-            "Last played: "
-            + slot_data['last_played_date'][:19]
-        )
+        ###
 
         last_played_label = self.last_played_label = (
             UIObject2D.from_surface(
                 render_text(
-                    last_played_text,
+                    t.labels.last_played + ":",
                     **LABEL_TEXT_SETTINGS,
                 ),
-                text = last_played_text,
             )
         )
 
@@ -704,8 +750,35 @@ class SlotDisplay(UIList2D):
 
         ###
 
-        load_button = UIObject2D.from_surface(load_button_surf)
-        erase_button = UIObject2D.from_surface(erase_button_surf)
+        timestamp_text = slot_data['last_played_date'][:19]
+
+        timestamp_label = self.timestamp_label = (
+            UIObject2D.from_surface(
+                render_text(
+                    timestamp_text,
+                    **LABEL_TEXT_SETTINGS,
+                ),
+                timestamp_text = timestamp_text,
+            )
+        )
+
+        self.append(timestamp_label)
+
+        timestamp_label.rect.midleft = (
+            last_played_label.rect.move(2, 0).midright
+        )
+
+        ###
+
+        self.button_surfs_map = button_surfs_map
+
+        load_button = self.load_button = (
+            UIObject2D.from_surface(button_surfs_map['load_button'])
+        )
+
+        erase_button = self.erase_button = (
+            UIObject2D.from_surface(button_surfs_map['erase_button'])
+        )
 
         load_button.rect.topleft = last_played_label.rect.move(0, 5).bottomleft
         erase_button.rect.topleft = load_button.rect.move(5, 0).topright
@@ -713,12 +786,13 @@ class SlotDisplay(UIList2D):
         self.append(load_button)
         self.append(erase_button)
 
-        ###
+
+        ### beaten bosses label and objs
 
         beaten_bosses_label = self.beaten_bosses_label = (
             UIObject2D.from_surface(
                 render_text(
-                    "Beaten bosses:",
+                    t.labels.beaten_bosses + ":",
                     **LABEL_TEXT_SETTINGS,
                 )
             )
@@ -732,30 +806,38 @@ class SlotDisplay(UIList2D):
 
         previous_obj = beaten_bosses_label
 
-        self.boss_objs = []
+        boss_objs = self.boss_objs = UIList2D(
 
-        for boss_name in slot_data.get('beaten_bosses', ()):
-
-            boss_obj = (
-                UIObject2D.from_surface(
-                    SURF_MAP[f'{boss_name}_head.png'],
-                    boss_name = boss_name,
-                )
+            UIObject2D.from_surface(
+                SURF_MAP[f'{boss_name}_head.png'],
+                boss_name = boss_name,
             )
 
-            boss_obj.rect.midleft = previous_obj.rect.move(2, 0).midright
+            for boss_name in slot_data.get('beaten_bosses', ())
 
-            self.append(boss_obj)
-            self.boss_objs.append(boss_obj)
+        )
 
-            previous_obj = boss_obj
+        if boss_objs:
 
-        ###
+            boss_objs.rect.snap_rects_ip(
+                retrieve_pos_from='midright',
+                assign_pos_to='midleft',
+                offset_pos_by=(2, 0),
+            )
+
+            boss_objs.rect.midleft = (
+                beaten_bosses_label.rect.move(2, 0).midright
+            )
+
+        self.extend(boss_objs)
+
+
+        ### encounter label and objs
 
         encounters_label = self.encounters_label = (
             UIObject2D.from_surface(
                 render_text(
-                    "Encounters:",
+                    t.labels.encounters + ":",
                     **LABEL_TEXT_SETTINGS,
                 )
             )
@@ -767,25 +849,113 @@ class SlotDisplay(UIList2D):
 
         self.append(encounters_label)
 
-        previous_obj = encounters_label
+        encounter_objs = self.encounter_objs = UIList2D(
 
-        self.encounter_objs = []
-
-        for encounter_name in slot_data.get('encounters', ()):
-
-            encounter_obj = (
-                UIObject2D.from_surface(
-                    SURF_MAP[f'{encounter_name}_head.png'],
-                    encounter_name = encounter_name,
-                )
+            UIObject2D.from_surface(
+                SURF_MAP[f'{encounter_name}_head.png'],
+                encounter_name = encounter_name,
             )
 
-            encounter_obj.rect.midleft = previous_obj.rect.move(2, 0).midright
+            for encounter_name in slot_data.get('encounters', ())
 
-            self.append(encounter_obj)
-            self.encounter_objs.append(encounter_obj)
+        )
 
-            previous_obj = encounter_obj
+        if encounter_objs:
+
+            encounter_objs.rect.snap_rects_ip(
+                retrieve_pos_from='midright',
+                assign_pos_to='midleft',
+                offset_pos_by=(2, 0),
+            )
+
+            encounter_objs.rect.midleft = (
+                encounters_label.rect.move(2, 0).midright
+            )
+
+        self.extend(encounter_objs)
+
+        ###
+        self.rebuild_bg_obj()
+
+    def on_language_change(self):
+
+        ### update last played label's text
+
+        update_text_surface(
+            self.last_played_label,
+            t.labels.last_played + ":",
+            LABEL_TEXT_SETTINGS,
+            pos_to_align='midleft',
+        )
+
+        ### reposition timestamp label accordingly
+
+        self.timestamp_label.rect.midleft = (
+            self.last_played_label.rect.move(2, 0).midright
+        )
+
+        ### update beaten bosses label's text
+
+        update_text_surface(
+            self.beaten_bosses_label,
+            t.labels.beaten_bosses + ":",
+            LABEL_TEXT_SETTINGS,
+            pos_to_align='midleft',
+        )
+
+        ### reposition boss objs accordingly
+
+        if self.boss_objs:
+
+            self.boss_objs.rect.midleft = (
+                self.beaten_bosses_label.rect.move(2, 0).midright
+            )
+
+        ### update surface and rect of buttons
+
+        for button_name in ('load_button', 'erase_button'):
+
+            obj = getattr(self, button_name)
+
+            new_surf = self.button_surfs_map[button_name]
+            new_rect = new_surf.get_rect()
+
+            new_rect.midleft = obj.rect.midleft
+
+            obj.image = new_surf
+            obj.rect = new_rect
+
+        self.erase_button.rect.topleft = (
+            self.load_button.rect.move(5, 0).topright
+        )
+
+        ### update encounters label's text
+
+        update_text_surface(
+            self.encounters_label,
+            t.labels.encounters + ":",
+            LABEL_TEXT_SETTINGS,
+            pos_to_align='midleft',
+        )
+
+        ### reposition boss objs accordingly
+
+        if self.encounter_objs:
+
+            self.encounter_objs.rect.midleft = (
+                self.encounters_label.rect.move(2, 0).midright
+            )
+
+        ### rebuild bg
+        self.rebuild_bg_obj()
+
+    def rebuild_bg_obj(self):
+
+        if not hasattr(self, 'bg_obj'):
+            bg_obj = self.bg_obj = UIObject2D()
+
+        else:
+            bg_obj = self.pop(0)
 
         ###
 
@@ -799,41 +969,28 @@ class SlotDisplay(UIList2D):
         draw_rect(bg_surf, 'darkblue', draw_bg_rect, border_radius=10)
         draw_rect(bg_surf, 'white', draw_bg_rect, 2, border_radius=10)
 
-        bg_obj = UIObject2D()
         bg_obj.image = bg_surf
         bg_obj.rect = bg_rect
 
         self.insert(0, bg_obj)
 
-        self.slot_path = slot_path
-        self.slot_data = slot_data
-        self.bg_obj = bg_obj
-        self.load_button = load_button
-        self.erase_button = erase_button
-        self.command = partial(trigger_command, slot_path)
+    def update_last_played_timestamp(self):
 
-    def update_last_played_label(self):
-
-        last_played_text = (
-            "Last played: "
-            + self.slot_data['last_played_date'][:19]
+        updated_timestamp = (
+            self.slot_data['last_played_date'][:19]
         )
 
-        label = self.last_played_label
+        timestamp_label = self.timestamp_label
 
-        if last_played_text == label.text:
+        if updated_timestamp == timestamp_label.timestamp_text:
             return
 
-        topleft = label.rect.topleft
-
-        new_label_image = render_text(last_played_text, **LABEL_TEXT_SETTINGS)
-        new_label_rect = new_label_image.get_rect()
-
-        label.image = new_label_image
-        label.rect = new_label_rect
-        label.text = last_played_text
-
-        label.rect.topleft = topleft
+        update_text_surface(
+            timestamp_label,
+            updated_timestamp,
+            LABEL_TEXT_SETTINGS,
+            pos_to_align='midleft',
+        )
 
     ### XXX this and the next update method do exactly the same thing,
     ### except they use different attributes, keys, collections;
@@ -841,7 +998,7 @@ class SlotDisplay(UIList2D):
     ### since there are only 02 instances of the same behaviour, it is okay
     ### to let then coexist; if there needs to be another instance of this
     ### kind of behaviour, though, refactor everything so a single method
-    ### can be used
+    ### can be used instead
 
     def update_beaten_bosses(self):
         """Add new beaten bosses if any."""
@@ -869,14 +1026,23 @@ class SlotDisplay(UIList2D):
             for obj in boss_objs:
                 self.remove(obj)
 
-            index_to_insert = self.index(self.beaten_bosses_label) + 1
-            previous_obj = self.beaten_bosses_label
+            boss_objs.rect.snap_rects_ip(
+                retrieve_pos_from='midright',
+                assign_pos_to='midleft',
+                offset_pos_by=(2, 0),
+            )
+
+            beaten_bosses_label = self.beaten_bosses_label
+
+            boss_objs.rect.midleft = (
+                beaten_bosses_label.rect.move(2, 0).midright
+            )
+
+            index_to_insert = self.index(beaten_bosses_label) + 1
 
             for obj in boss_objs:
 
                 self.insert(index_to_insert, obj)
-
-                boss_obj.rect.midleft = previous_obj.rect.move(2, 0).midright
                 index_to_insert += 1
 
     def update_encounters(self):
@@ -907,14 +1073,17 @@ class SlotDisplay(UIList2D):
             for obj in encounter_objs:
                 self.remove(obj)
 
+            encounter_objs.rect.snap_rects_ip(
+                retrieve_pos_from='midright',
+                assign_pos_to='midleft',
+                offset_pos_by=(2, 0),
+            )
+
+            encounters_label = self.encounters_label
+
             index_to_insert = self.index(self.encounters_label) + 1
-            previous_obj = self.encounters_label
 
             for obj in encounter_objs:
 
                 self.insert(index_to_insert, obj)
-
-                encounter_obj.rect.midleft = (
-                    previous_obj.rect.move(2, 0).midright
-                )
                 index_to_insert += 1
