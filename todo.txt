@@ -1,0 +1,21 @@
+(A) make it so effect of "Reset to defaults" in options screen is seen in the widgets
+(A) add mouse support where missing (i.e.: prompt screen)
+(B) create art needed for screen to present game's plot (at least 02 bosses included)
+(B) create screen to present game's plot
+(C) create new section of intro level for encounter with civilian
+(C) create art for civilian and dish he'll gift
+(C) implement dialog manager for in-game dialogs, using civilian encounter to test
+(D) add dialog between Blue and Chief Sec Bot
+(F) improve input recording: rename to input logging, include gamepad support, take
+(G) playtest with few close acquaintances
+(I) implemement speech bubbles (for boss and playable character)
+(Z) make web version (won't be included in first release; perhaps will need new task for a password screen)
+x create screen to type name for new slot
+x create screen for loading game
+x implement "continue" item in main menu (to load last used slot)
+x add credit for font used
+x add "Open [website portion] link" text to bottom of credits screen;
+x make it so space key inputs '_' in slot creation screen
+x make it so last buttons in options menu (playtesters screen, reset and back) keep their order
+x add translation support (and translate to pt-BR)
+x make it so text align properly once language is changed (for instance, load game screen has problems in pt-br)
