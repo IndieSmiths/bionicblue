@@ -1,0 +1,155 @@
+{
+
+    'report_id': '2530-07-22 HST 003',
+    'animated_sprites' : [
+
+        {
+            'name': 'chief_sec_bot',
+            'anim_name': 'idle_left',
+            'panel_index': 0,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+        {
+            'name': 'forest_master_bot',
+            'anim_name': 'idle_right',
+            'panel_index': 1,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midright',
+                'center',
+                (-5, 0),
+            ],
+        },
+
+        {
+            'name': 'water_master_bot',
+            'anim_name': 'idle_left',
+            'panel_index': 1,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midleft',
+                'center',
+                (5, 0),
+            ],
+        },
+
+        {
+            'name': 'lightning_icon',
+            'anim_name': 'idle',
+            'panel_index': 2,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midright',
+                'center',
+                (-5, 0),
+            ],
+        },
+
+        {
+            'name': 'greenery',
+            'anim_name': 'idle',
+            'panel_index': 2,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midleft',
+                'center',
+                (5, 0),
+            ],
+        },
+
+        {
+            'name': 'blue_shooter_man',
+            'anim_name': 'walk_right',
+            'panel_index': 4,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+    ],
+
+    'images' : [
+
+        {
+            'name': 'remaining_people_white_family.png',
+            'panel_index': 3,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-40, 0),
+            ],
+        },
+
+        {
+            'name': 'remaining_people_black_couple.png',
+            'panel_index': 3,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (30, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (40, 0),
+            ],
+        },
+
+        {
+            'name': 'remaining_people_scientists.png',
+            'panel_index': 3,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+
+    ],
+    'music': 'creep_by_tokyogeisha.ogg',
+
+}

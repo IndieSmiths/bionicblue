@@ -1,7 +1,10 @@
 """Facility w/ custom collections for general usage."""
 
-### standard library import
+### standard library imports
+
 from functools import partialmethod
+
+from collections import deque
 
 
 ### third-party import
@@ -18,8 +21,8 @@ from ..rectsman.main import (
 )
 
 
-### main collection base class
 
+### main collection base class
 
 class UICollection2D:
     """Mixin class for custom 2D-handling collections.
@@ -257,6 +260,9 @@ class UIList2D(UICollection2D, list):
     whenever needed, explicitly converting the resulting
     slice is pretty straightforward;
     """
+
+class UIDeque2D(UICollection2D, deque):
+    """Deque object w/ 2D handling capabilities."""
 
 
 class UIIterable2D(UICollection2D):

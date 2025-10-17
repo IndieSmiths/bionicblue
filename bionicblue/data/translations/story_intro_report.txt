@@ -1,0 +1,31 @@
+
+report_description
+
+    en-us Origins of robotic menace
+    pt-br Origens da ameaça robótica
+
+
+paragraph_00
+
+    en-us On Earth, in the year 2500, advances in technology created robots capable of simulating the functions of the human mind. However, this state of simulated awareness causes the robots to hallucinate over time.
+    pt-br No planeta Terra, no ano 2500, avanços na tecnologia criaram robôs capazes de simular as funções da mente humana. No entanto, esse estado de consciência simulada faz com que os robôs alucinem ao longo do tempo.
+
+paragraph_01
+
+    en-us This turned them into a menace to humans in different ways. There are mad, killer robots. There are also robots who kidnap humans to scan their brains for data to recalibrate their robotic minds and alleviate the halluciations.
+    pt-br Isso os tornou uma ameaça para os humanos de different formas. Há robôs malucos e assassinos. Há também robôs que sequestram seres humanos para escanear seus cérebros à procura de dados para recalibrar suas mentes robóticas e aliviar as alucinações.
+
+paragraph_02
+
+    en-us Most robots hoard energy and its sources, including biomass, depriving humans from them and causing conflict even among the robots themselves.
+    pt-br A maioria dos robôs acumula energia e suas fontes, incluindo biomassa, privando humanos deles e causando conflito até mesmo entre os próprios robôs.
+
+paragraph_03
+
+    en-us The free people, now severely reduced in numbers, struggle all they can to survive all those problems.
+    pt-br As pessoas livres, agora severamente reduzidas em número, lutam como podem para sobreviver a todos estes problemas.
+
+paragraph_04
+
+    en-us Blue is a boy with bionic parts enhanced for combat and survival. This allows him to protect people from such robots. He's one of the few humans who joined the fight for survival and decent living.
+    pt-br Blue é um garoto com partes biônicas melhoradas para o combate e sobrevivência. Isso permite que ele proteja as pessoas desses robôs. Ele é um dos poucos humanos que se juntou à luta por sobrevivência e um viver digno.

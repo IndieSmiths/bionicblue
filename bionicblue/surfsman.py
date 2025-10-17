@@ -1,6 +1,9 @@
 
 ### third-party imports
+
 from pygame import Rect, Surface
+
+from pygame.draw import rect as draw_rect
 
 
 ### local imports
@@ -135,3 +138,7 @@ def unite_surfaces(
 
     ### finally return the surf
     return new_surf
+
+def draw_border(surf, color, width):
+    """Draw border around surf with given width and color."""
+    draw_rect(surf, color, surf.get_rect(), width)

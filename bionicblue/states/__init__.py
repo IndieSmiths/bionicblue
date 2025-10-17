@@ -30,9 +30,13 @@ from .loadgamescreen import LoadGameScreen
 
 from .transitionscreen import TransitionScreen
 
+from .reportpresenter import ReportPresenter
+
+
 
 def setup_states():
     """Instantiate and store states."""
+
     states = REFS.states
 
     states.logo_screen = LogoScreen()
@@ -53,3 +57,4 @@ def setup_states():
     states.slot_creation_screen = SlotCreationScreen()
     states.load_game_screen = LoadGameScreen()
     states.transition_screen = TransitionScreen()
+    states.report_presenter = ReportPresenter()
