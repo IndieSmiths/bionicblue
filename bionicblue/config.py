@@ -98,6 +98,8 @@ PARTICLES_DIR = DATA_DIR / 'particles'
 TRANSLATIONS_DIR = DATA_DIR / 'translations'
 LANGUAGE_NAMES_FILEPATH = TRANSLATIONS_DIR / 'language_native_names.pyl'
 
+PRESENTATIONS_DIR = DATA_DIR / 'presentations'
+
 NO_COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'no_colorkey'
 COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'colorkey'
 
