@@ -1,6 +1,6 @@
 """Facility to present media to convey information.
 
-Media is comprised of text, images and animations.
+Media is comprised of text, images and animated sprites.
 """
 
 ### standard library imports
@@ -28,6 +28,8 @@ from ..ourstdlibs.pyl import load_pyl
 
 from ..classes2d.single import UIObject2D
 
+from ..ani2d.player import AnimationPlayer2D
+
 from ..userprefsman.main import USER_PREFS
 
 
@@ -43,7 +45,7 @@ SCREEN_BOTTOM_HALF = SCREEN_TOP_HALF.move(0, SCREEN_TOP_HALF.height)
 ### class definition
 
 class MediaPresenter:
-    """Presents text, images and animations.
+    """Presents text, images and animated sprites.
 
     Ideally, user will be able to speed up or skip presentation altogether,
     just like usually in dialogue sections in games in general.
@@ -101,6 +103,7 @@ class MediaPresenter:
 
     def on_language_change(self):
         """Rebuild textual elements (if needed) and set them up for usage."""
+
         ### grab current locale
         locale = USER_PREFS['LOCALE']
 
@@ -120,10 +123,11 @@ class MediaPresenter:
         ### store presentation sections in the deque
 
         self.presentation_sections_deque.extend(
-            self.presentation_map[presentation_key][locale]
+            self.presentation_map[presentation_key]
         )
 
     def create_presentation(self, presentation_key, locale):
+        """Create presentation elements, using given locale for text."""
 
         ### grab data
         data = self.data_map[presentation_key]
@@ -138,6 +142,9 @@ class MediaPresenter:
 
             ### create section
             section = {}
+
+            ### append it to sections
+            presentation_sections.append(section)
 
             ### populate it according to section data
 
@@ -166,54 +173,110 @@ class MediaPresenter:
                 image_data['obj'] = image_obj
 
                 ###
+                process_position_data(image_obj, loaded_image_data, image_data)
 
-                position_obj(image_obj, loaded_image_data['end_pos'])
-                end_topleft = image_obj.rect.topleft
 
-                position_obj(image_obj, loaded_image_data['start_pos'])
-                start_topleft = image_obj.rect.topleft
+            ## animated sprites
 
-                image_data['end_topleft'] = end_topleft
-                image_data['start_topleft'] = start_topleft
+            processed_anisprites_data = section['animated_sprites'] = {}
 
-                start_topleft_v = Vector2(start_topleft)
+            for loaded_anisprite_data in (
+                section_data.get('animated_sprites', ())
+            ):
 
-                steps = [
+                ###
 
-                    tuple(
+                anisprite_name = loaded_anisprite_data['name']
 
-                        start_topleft_v.lerp(
-                            end_topleft, # destination (end position)
-                            i/30,        # percentage to travel from start to end
-                        )
+                anisprite_id_str = (
 
+                    loaded_anisprite_data.get(
+                        'id_str',
+                        anisprite_name,
                     )
 
-                    for i in range(30)
+                )
 
-                ]
+                ###
+                anisprite_data = processed_anisprites_data[anisprite_id_str] = {}
 
-                steps.append(end_topleft)
+                ###
+                
+                anisprite_obj = UIObject2D()
+                anisprite_obj.ap = (
+                    AnimationPlayer2D(anisprite_obj, anim_data_name, anim_name)
+                )
 
-                image_data['topleft_steps'] = steps
+                anisprite_data['obj'] = anisprite_obj
 
-            ## animations
-            ...
+                ###
+
+                process_position_data(
+                    anisprite_obj,
+                    loaded_anisprite_data,
+                    anisprite_data,
+                )
 
             ## sound
-            ...
+
+
+            processed_sounds_data = section['sounds'] = {}
+
+            for loaded_sound_data in section_data.get('sounds', ()):
+
+                ###
+                sound_name = loaded_sound_data['name']
+
+                ###
+                sound_data = processed_soundss_data[sound_name] = {}
+
+                ###
+                sound_obj = SOUND_MAP[sound_name]
+
+                sound_data['sound'] = sound_obj
+
+                ### TODO
+                ### must think of ways to time triggering sound; possibilities:
+                ###
+                ### - at beginning of section
+                ### - at end of section
+                ### - on elapsed time starting from beginning of section
+                ### - on animation pose
+                ### - on image positioning step
+                ### - on animation positioning step
+
 
             ## music
-            ...
+
+            processed_music_data = section['music'] = {}
+
+            for loaded_music_data in section_data.get('music', ()):
+
+                ###
+                music_name = loaded_music_data['name']
+
+                ###
+                music_data = processed_music_data[music_name] = {}
+
+                ###
+                music_data['name'] = music_name
+
+                ### TODO
+                ###
+                ### like sound, must think of ways to time triggering music
+
 
             ### finally store section
             presentation_sections.append(section)
 
+        ### create textual elements
+        self.create_textual_elements(presentation_key, locale)
 
         ### finally store the presentation
-        self.presentation_map[presentation_key][locale] = presentation
+        self.presentation_map[presentation_key] = presentation
 
     def create_textual_elements(self, presentation_key, locale):
+        """Create textual elements of presentation."""
         ...
 
     def reset_presentation_elements(self):
@@ -231,6 +294,39 @@ class MediaPresenter:
 
 
 ### utility functions
+
+def process_position_data(obj, loaded_data, data)
+
+    position_obj(obj, loaded_data['end_pos'])
+    end_topleft = obj.rect.topleft
+
+    position_obj(obj, loaded_data['start_pos'])
+    start_topleft = obj.rect.topleft
+
+    data['end_topleft'] = end_topleft
+    data['start_topleft'] = start_topleft
+
+    start_topleft_v = Vector2(start_topleft)
+
+    steps = [
+
+        tuple(
+
+            start_topleft_v.lerp(
+                end_topleft, # destination (end position)
+                i/30,        # percentage to travel
+            )
+
+        )
+
+        for i in range(30)
+
+    ]
+
+    steps.append(end_topleft)
+
+    data['topleft_steps'] = steps
+
 
 def position_obj(obj, pos_data):
 
