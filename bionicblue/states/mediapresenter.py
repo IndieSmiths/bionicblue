@@ -28,6 +28,8 @@ from ..ourstdlibs.pyl import load_pyl
 
 from ..classes2d.single import UIObject2D
 
+from ..classes2d.collections import UIList2D
+
 from ..ani2d.player import AnimationPlayer2D
 
 from ..userprefsman.main import USER_PREFS
@@ -40,6 +42,16 @@ SCREEN_TOP_HALF = SCREEN_RECT.copy()
 SCREEN_TOP_HALF.height //= 2
 
 SCREEN_BOTTOM_HALF = SCREEN_TOP_HALF.move(0, SCREEN_TOP_HALF.height)
+
+##
+
+TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 0,
+    'foreground_color': 'white',
+    'background_color': 'black',
+}
 
 
 ### class definition
@@ -269,15 +281,73 @@ class MediaPresenter:
             ### finally store section
             presentation_sections.append(section)
 
+        ### store the presentation
+        self.presentation_map[presentation_key] = presentation_sections
+
         ### create textual elements
         self.create_textual_elements(presentation_key, locale)
 
-        ### finally store the presentation
-        self.presentation_map[presentation_key] = presentation
-
     def create_textual_elements(self, presentation_key, locale):
         """Create textual elements of presentation."""
-        ...
+
+        presentation_sections = self.presentation_map[presentation_key]
+
+        textual_presentation = self.textual_presentation_map[presentation_key]
+
+        data = self.data_map[presentation_key]
+
+        for section_data, section in zip(data, presentation_sections):
+            
+            processed_text_data = section['text'] = {}
+            text = section_data['text']
+
+            words = UIList2D(
+
+                UIObject2D.from_surface(
+                    render_text(word, **TEXT_SETTINGS)
+                )
+
+                for word in body_text.split()
+
+            )
+
+            words.rect.snap_rects_intermittently_ip(
+
+                ### interval limit
+
+                dimension_name='width', # either 'width' or 'height'
+                dimension_unit='pixels', # either 'rects' or 'pixels'
+                max_dimension_value=SCREEN_RECT.width - 20, # positive integer
+
+                ### rect positioning
+
+                retrieve_pos_from='topright',
+                assign_pos_to='topleft',
+                offset_pos_by=(5, 0),
+
+                ### intermittent rect positioning
+
+                intermittent_pos_from='bottomleft',
+                intermittent_pos_to='topleft',
+                intermittent_offset_by=(0, 2),
+
+            )
+
+            word_deque = deque(words)
+
+            lines_deque = deque()
+
+            while word_deque:
+                
+                line = UIList2D()
+
+                top = word_deque[0].rect.top
+
+                while word_deque and word_deque[0].rect.top = top:
+                    line.append(word_deque.popleft())
+
+                lines_deque.append(line)
+
 
     def reset_presentation_elements(self):
         ...
