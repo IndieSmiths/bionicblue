@@ -53,6 +53,10 @@ TEXT_SETTINGS = {
     'background_color': 'black',
 }
 
+##
+
+_WORD_DEQUE = deque()
+
 
 ### class definition
 
@@ -121,22 +125,90 @@ class MediaPresenter:
 
         ### if textual elements were not built for it, do so
 
-        if locale not in self.textual_presentation_map[presentation_key]:
-            self.create_textual_elements(presentation_key, locale)
+        tpm = self.textual_presentation_map
 
-        ### set textual elements for usage
-        ...
+        if any(
+            locale not in submap
+            for submap in tpm.values()
+        ):
+
+            for presentation_key in tpm:
+
+                self.create_and_integrate_textual_elements(
+                    presentation_key,
+                    locale,
+                )
+
+        ### otherwise, just reference the existent textual elements
+
+        else:
+
+            for presentation_key in tpm:
+
+                ###
+                presentation_sections = self.presentation_map[presentation_key]
+
+                ###
+
+                processed_text_data = (
+                    self.textual_presentation_map[presentation_key][locale]
+                )
+
+                ###
+
+                for section, processed_text_section_data in zip(
+                    presentation_sections,
+                    processed_text_data,
+                ):
+                    section['text'] = processed_text_section_data
 
     def prepare(self, presentation_key):
         """Prepare objects for given presentation."""
-        ### reset presentation elements
-        self.reset_presentation_elements()
 
         ### store presentation sections in the deque
 
         self.presentation_sections_deque.extend(
             self.presentation_map[presentation_key]
         )
+
+        ### load first section
+        self.prepare_section(self.presentation_sections_deque.popleft())
+
+    def prepare_section(self, section):
+        """"""
+
+        ### images
+
+        processed_images_data = section['images']
+
+        for image_data in processed_images_data.values():
+
+            obj = image_data['obj']
+
+            obj.end_topleft = image_data['end_topleft']
+
+            obj.next_step = (
+
+                chain(
+                    image_data['topleft_steps'],
+                    repeat(obj.end_topleft),
+                )
+
+            ).__next__
+
+            obj.rect.topleft = image_data['start_topleft']
+
+        ### animated sprites
+        ...
+
+        ### sound
+        ...
+
+        ### music
+        ...
+
+        ### text
+        ...
 
     def create_presentation(self, presentation_key, locale):
         """Create presentation elements, using given locale for text."""
@@ -285,77 +357,86 @@ class MediaPresenter:
         self.presentation_map[presentation_key] = presentation_sections
 
         ### create textual elements
-        self.create_textual_elements(presentation_key, locale)
+        self.create_and_integrate_textual_elements(presentation_key, locale)
 
-    def create_textual_elements(self, presentation_key, locale):
-        """Create textual elements of presentation."""
+    def create_and_integrate_textual_elements(self, presentation_key, locale):
+        """Create textual elements and add to presentation."""
 
         presentation_sections = self.presentation_map[presentation_key]
 
         textual_presentation = self.textual_presentation_map[presentation_key]
 
+        processed_text_data = textual_presentation[locale] = []
+
         data = self.data_map[presentation_key]
 
         for section_data, section in zip(data, presentation_sections):
-            
-            processed_text_data = section['text'] = {}
+
+            processed_text_section_data = section['text'] = {}
+
+            processed_text_data.append(processed_text_section_data)
+
+            paragraphs = processed_text_section_data['paragraphs'] = [] 
+
             text = section_data['text']
 
-            words = UIList2D(
+            for paragraph in filter(None, text.splitlines()):
 
-                UIObject2D.from_surface(
-                    render_text(word, **TEXT_SETTINGS)
+                words = UIList2D(
+
+                    UIObject2D.from_surface(
+                        render_text(word, **TEXT_SETTINGS)
+                    )
+
+                    for word in body_text.split()
+
                 )
 
-                for word in body_text.split()
+                words.rect.snap_rects_intermittently_ip(
 
-            )
+                    ### interval limit
 
-            words.rect.snap_rects_intermittently_ip(
+                    dimension_name='width', # either 'width' or 'height'
+                    dimension_unit='pixels', # either 'rects' or 'pixels'
+                    max_dimension_value=SCREEN_RECT.width - 20, # posit. int.
 
-                ### interval limit
+                    ### rect positioning
 
-                dimension_name='width', # either 'width' or 'height'
-                dimension_unit='pixels', # either 'rects' or 'pixels'
-                max_dimension_value=SCREEN_RECT.width - 20, # positive integer
+                    retrieve_pos_from='topright',
+                    assign_pos_to='topleft',
+                    offset_pos_by=(5, 0),
 
-                ### rect positioning
+                    ### intermittent rect positioning
 
-                retrieve_pos_from='topright',
-                assign_pos_to='topleft',
-                offset_pos_by=(5, 0),
+                    intermittent_pos_from='bottomleft',
+                    intermittent_pos_to='topleft',
+                    intermittent_offset_by=(0, 2),
 
-                ### intermittent rect positioning
+                )
 
-                intermittent_pos_from='bottomleft',
-                intermittent_pos_to='topleft',
-                intermittent_offset_by=(0, 2),
+                _WORD_DEQUE.extend(words)
 
-            )
+                lines = []
 
-            word_deque = deque(words)
+                while _WORD_DEQUE:
+                    
+                    line = UIList2D()
 
-            lines_deque = deque()
+                    top = _WORD_DEQUE[0].rect.top
 
-            while word_deque:
-                
-                line = UIList2D()
+                    while _WORD_DEQUE and _WORD_DEQUE[0].rect.top = top:
+                        line.append(word_deque.popleft())
 
-                top = word_deque[0].rect.top
+                    lines.append(line)
 
-                while word_deque and word_deque[0].rect.top = top:
-                    line.append(word_deque.popleft())
-
-                lines_deque.append(line)
-
-
-    def reset_presentation_elements(self):
-        ...
+                ##
+                paragraphs.append(lines)
 
     def control(self):
         """Let user speed up presentation or skip altogether."""
 
     def update(self):
+        ...
 
     def draw(self):
 
