@@ -9,6 +9,22 @@ from collections import defaultdict, deque
 
 ### third-party imports
 
+from pygame.locals import (
+
+    QUIT,
+
+    KEYDOWN,
+    K_ESCAPE,
+    K_RETURN,
+    K_DOWN,
+    K_UP,
+    K_LEFT,
+    K_RIGHT,
+
+    JOYBUTTONDOWN,
+
+)
+
 from pygame.math import Vector2
 
 from pygame.display import update
@@ -17,12 +33,17 @@ from pygame.display import update
 ### local imports
 
 from ..config import (
-    PRESENTATIONS_DIR,
+    REFS,
     SURF_MAP,
     SOUND_MAP,
+    PRESENTATIONS_DIR,
+    LoopException,
+    quit_game,
 )
 
 from ..pygamesetups.constants import SCREEN_RECT
+
+from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from ..ourstdlibs.pyl import load_pyl
 
@@ -105,6 +126,14 @@ class MediaPresenter:
         ### grab current locale
         locale = USER_PREFS['LOCALE']
 
+        ### create collections used to assist
+
+        self.images = UIList2D()
+        self.anisprites = UIList2D()
+        self.sound = []
+        self.music = []
+        self.paragraphs = UIList2D()
+
         ### create presentation elements for all presentations (using current
         ### locale/language, for textual elements)
 
@@ -179,6 +208,8 @@ class MediaPresenter:
 
         ### images
 
+        append_image = self.images.append
+
         processed_images_data = section['images']
 
         for image_data in processed_images_data.values():
@@ -198,17 +229,60 @@ class MediaPresenter:
 
             obj.rect.topleft = image_data['start_topleft']
 
+            append_image(obj)
+
         ### animated sprites
-        ...
+
+        append_anisprite = self.anisprites.append
+
+        processed_anisprites_data = section['animated_sprites']
+
+        for anisprite_data in processed_anisprites_data.values():
+
+            obj = anisprite_data['obj']
+
+            obj.end_topleft = image_data['end_topleft']
+
+            obj.next_step = (
+
+                chain(
+                    image_data['topleft_steps'],
+                    repeat(obj.end_topleft),
+                )
+
+            ).__next__
+
+            obj.rect.topleft = image_data['start_topleft']
+
+            append_anisprite(obj)
 
         ### sound
-        ...
+
+        append_sound = self.sounds.append
+
+        processed_sounds_data = section['sounds']
+
+        for sound_data in processed_sounds_data.values():
+            append_sound(sound_data['sound'])
+
 
         ### music
-        ...
+
+        append_music = self.music.append
+
+        processed_music_data = section['music']
+
+        for music_data in processed_music_data.values():
+            append_music(music_data['name'])
 
         ### text
-        ...
+
+        append_paragraph = self.paragraphs.append
+
+        processed_paragraphs_data = section['paragraphs']
+
+        for text_data in section['text']:
+            append_paragraph(text_data['paragraphs'])
 
     def create_presentation(self, presentation_key, locale):
         """Create presentation elements, using given locale for text."""
@@ -285,9 +359,12 @@ class MediaPresenter:
                 anisprite_data = processed_anisprites_data[anisprite_id_str] = {}
 
                 ###
+
+                anim_data_name = loaded_anisprite_data['anim_data_name']
+                anim_name = loaded_anisprite_data['anim_name']
                 
                 anisprite_obj = UIObject2D()
-                anisprite_obj.ap = (
+                anisprite_obj.aniplayer = (
                     AnimationPlayer2D(anisprite_obj, anim_data_name, anim_name)
                 )
 
@@ -312,7 +389,7 @@ class MediaPresenter:
                 sound_name = loaded_sound_data['name']
 
                 ###
-                sound_data = processed_soundss_data[sound_name] = {}
+                sound_data = processed_sounds_data[sound_name] = {}
 
                 ###
                 sound_obj = SOUND_MAP[sound_name]
@@ -435,12 +512,60 @@ class MediaPresenter:
     def control(self):
         """Let user speed up presentation or skip altogether."""
 
+        for event in SERVICES_NS.get_events():
+
+            if event.type == KEYDOWN:
+
+                if event.key == K_ESCAPE:
+                    quit_game()
+
+                elif event.key == K_RETURN:
+                    self.speed_up()
+
+                elif event.key in (K_UP, K_DOWN, K_LEFT, K_RIGHT):
+                    self.speed_up()
+
+            elif event.type == JOYBUTTONDOWN:
+
+                if event.button == GAMEPAD_CONTROLS['start_button']:
+                    self.speed_up()
+
+            elif event.type == GAMEPADDIRECTIONALPRESSED:
+                self.speed_up()
+
+            elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
+                setup_gamepad_if_existent()
+
+            elif event.type == QUIT:
+                quit_game()
+
     def update(self):
+
+        for image in self.images:
+            obj.rect.topleft = obj.next_step()
+
+        for anisprite in self.anisprites:
+            anisprite.rect.topleft = anisprite.next_step()
+
+        ### move words/lines;
+        ###
+        ### once paragraphs are finished, blink arrow to start next section
+        ### on button press;
+        ###
+        ### if there's no next section, go to next state (start level)
         ...
 
     def draw(self):
 
-        SCREEN.fill(self.bg_color)
+        SCREEN.fill('black')
+
+        self.images.draw()
+
+        for obj in self.anisprites:
+            obj.aniplayer.draw()
+
+        self.paragraphs.draw()
+
         update()
 
 
