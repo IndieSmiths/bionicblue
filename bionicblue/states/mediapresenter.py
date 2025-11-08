@@ -4,7 +4,10 @@ Media is comprised of text, images and animated sprites.
 """
 
 ### standard library imports
+
 from collections import defaultdict, deque
+
+from itertools import chain, repeat, cycle
 
 
 ### third-party imports
@@ -41,19 +44,30 @@ from ..config import (
     quit_game,
 )
 
-from ..pygamesetups.constants import SCREEN_RECT
+from ..pygamesetup import SERVICES_NS
+
+from ..pygamesetup.constants import (
+    SCREEN,
+    SCREEN_RECT,
+    GAMEPADDIRECTIONALPRESSED,
+    GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
+)
 
 from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from ..ourstdlibs.pyl import load_pyl
 
+from ..textman import render_text
+
 from ..classes2d.single import UIObject2D
 
-from ..classes2d.collections import UIList2D
+from ..classes2d.collections import UIList2D, UIDeque2D
 
 from ..ani2d.player import AnimationPlayer2D
 
 from ..userprefsman.main import USER_PREFS
+
+from ..translatedtext import TRANSLATIONS, on_language_change
 
 
 
@@ -77,6 +91,9 @@ TEXT_SETTINGS = {
 ##
 
 _WORD_DEQUE = deque()
+
+###
+should_move = cycle(chain((True,), (False,)*5)).__next__
 
 
 ### class definition
@@ -130,9 +147,9 @@ class MediaPresenter:
 
         self.images = UIList2D()
         self.anisprites = UIList2D()
-        self.sound = []
+        self.sounds = []
         self.music = []
-        self.paragraphs = UIList2D()
+        self.lines = UIDeque2D()
 
         ### create presentation elements for all presentations (using current
         ### locale/language, for textual elements)
@@ -277,12 +294,31 @@ class MediaPresenter:
 
         ### text
 
-        append_paragraph = self.paragraphs.append
+        paragraphs = section['paragraphs']
 
-        processed_paragraphs_data = section['paragraphs']
+        for paragraph in paragraphs:
 
-        for text_data in section['text']:
-            append_paragraph(text_data['paragraphs'])
+            paragraph.rect.snap_rects_ip(
+
+                retrieve_pos_from='bottomleft',
+                assign_pos_to='topleft',
+                offset_pos_by=(0, 1),
+
+            )
+
+        paragraphs.rect.snap_rects_ip(
+
+            retrieve_pos_from='bottomleft',
+            assign_pos_to='topleft',
+            offset_pos_by=(0, 10),
+
+        )
+
+        paragraphs.rect.topleft = SCREEN_BOTTOM_HALF.move(5, -5).bottomleft
+
+        lines = self.lines
+        for paragraph in paragraphs:
+            lines.extend(paragraph)
 
     def create_presentation(self, presentation_key, locale):
         """Create presentation elements, using given locale for text."""
@@ -449,11 +485,9 @@ class MediaPresenter:
 
         for section_data, section in zip(data, presentation_sections):
 
-            processed_text_section_data = section['text'] = {}
+            paragraphs = section['paragraphs'] = UIList2D()
 
-            processed_text_data.append(processed_text_section_data)
-
-            paragraphs = processed_text_section_data['paragraphs'] = [] 
+            processed_text_data.append(paragraphs)
 
             text = section_data['text']
 
@@ -465,7 +499,7 @@ class MediaPresenter:
                         render_text(word, **TEXT_SETTINGS)
                     )
 
-                    for word in body_text.split()
+                    for word in paragraph.split()
 
                 )
 
@@ -493,7 +527,7 @@ class MediaPresenter:
 
                 _WORD_DEQUE.extend(words)
 
-                lines = []
+                lines = UIList2D()
 
                 while _WORD_DEQUE:
                     
@@ -501,8 +535,8 @@ class MediaPresenter:
 
                     top = _WORD_DEQUE[0].rect.top
 
-                    while _WORD_DEQUE and _WORD_DEQUE[0].rect.top = top:
-                        line.append(word_deque.popleft())
+                    while _WORD_DEQUE and _WORD_DEQUE[0].rect.top == top:
+                        line.append(_WORD_DEQUE.popleft())
 
                     lines.append(line)
 
@@ -539,13 +573,16 @@ class MediaPresenter:
             elif event.type == QUIT:
                 quit_game()
 
+    def speed_up(self):
+        ...
+
     def update(self):
 
-        for image in self.images:
+        for obj in self.images:
             obj.rect.topleft = obj.next_step()
 
-        for anisprite in self.anisprites:
-            anisprite.rect.topleft = anisprite.next_step()
+        for obj in self.anisprites:
+            obj.rect.topleft = obj.next_step()
 
         ### move words/lines;
         ###
@@ -553,6 +590,20 @@ class MediaPresenter:
         ### on button press;
         ###
         ### if there's no next section, go to next state (start level)
+
+        lines = self.lines
+
+        if lines.rect.bottom <= SCREEN_BOTTOM_HALF.bottom - 5:
+            lines.rect.bottom = SCREEN_BOTTOM_HALF.bottom - 5
+
+        else:
+
+            if should_move():
+                lines.rect.move_ip(0, -1)
+
+                if lines.rect.top <= SCREEN_BOTTOM_HALF.top:
+                    lines.popleft()
+
         ...
 
     def draw(self):
@@ -564,14 +615,16 @@ class MediaPresenter:
         for obj in self.anisprites:
             obj.aniplayer.draw()
 
-        self.paragraphs.draw()
+        for line in self.lines:
+            for word in line:
+                word.draw()
 
         update()
 
 
 ### utility functions
 
-def process_position_data(obj, loaded_data, data)
+def process_position_data(obj, loaded_data, data):
 
     position_obj(obj, loaded_data['end_pos'])
     end_topleft = obj.rect.topleft
@@ -619,8 +672,21 @@ def position_obj(obj, pos_data):
         rect_attr_name,
 
         getattr(
-            SCREEN_TOP_HALF.rect,
+            SCREEN_TOP_HALF,
             screen_top_half_rect_attr_name,
         ) + Vector2(offset)
 
     )
+
+
+### TODO this will be passed to transition screen to be executed
+### once the transition ends
+
+def start_first_level():
+    """Start first level."""
+
+    level_manager = REFS.states.level_manager
+    REFS.level_to_load = 'intro.lvl'
+    level_manager.prepare()
+
+    raise LoopException(next_state=level_manager)

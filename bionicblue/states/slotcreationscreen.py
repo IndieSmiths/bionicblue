@@ -564,7 +564,7 @@ class SlotCreationScreen:
             SOUND_MAP['ui_success.wav'].play()
 
             transition_screen = REFS.states.transition_screen
-            transition_screen.prepare(start_intro_level)
+            transition_screen.prepare(present_intro)
 
             raise LoopException(next_state=transition_screen)
 
@@ -813,15 +813,10 @@ class SlotCreationScreen:
         update()
 
 
-def start_intro_level():
-    """Trigger start of intro level."""
+def present_intro():
+    """Trigger presentation of game's introduction."""
 
-    ### TODO here, instead of starting the intro level, we
-    ### should proceed to the story screen, to present the
-    ### plot (which the player should be able to skip if desired)
+    media_presenter = REFS.states.media_presenter
+    media_presenter.prepare('story_intro')
 
-    level_manager = REFS.states.level_manager
-    REFS.level_to_load = 'intro.lvl'
-    level_manager.prepare()
-
-    raise LoopException(next_state=level_manager)
+    raise LoopException(next_state=media_presenter)

@@ -1,0 +1,27 @@
+[
+
+    {
+
+        'images' : [
+
+            {
+                'name': 'kennedy_logo.png',
+                'start_pos': [
+                    'bottomright',
+                    'topleft',
+                    (0, 0),
+                ],
+                'end_pos': [
+                    'center',
+                    'center',
+                    (0, 0),
+                ],
+            }
+
+        ],
+
+        'text': "Hello, my friend, we meet again. It's been a while, where should we begin? Feels like forever!\nWithin my heart are memories, of perfect love that you gave to me. Oh, I remember! Cause when you are with me, I'm free! I'm careless, I believe.\nAbove all the others, we'll fly! This brings tears to my eyes. My sacrifice.\nI try to make myself believe the planet Earth turns slowly! It's hard to say I'd rather stay awake when I'm asleep, but everything is never as it seems!"
+
+    }
+
+]
