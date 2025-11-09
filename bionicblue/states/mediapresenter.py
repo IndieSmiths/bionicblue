@@ -7,7 +7,7 @@ Media is comprised of text, images and animated sprites.
 
 from collections import defaultdict, deque
 
-from itertools import chain, repeat, cycle
+from itertools import chain, cycle, count, repeat
 
 
 ### third-party imports
@@ -61,11 +61,11 @@ from ..textman import render_text
 
 from ..classes2d.single import UIObject2D
 
-from ..classes2d.collections import UIList2D, UIDeque2D
+from ..classes2d.collections import UIList2D
 
 from ..ani2d.player import AnimationPlayer2D
 
-from ..userprefsman.main import USER_PREFS
+from ..userprefsman.main import USER_PREFS, KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ..translatedtext import TRANSLATIONS, on_language_change
 
@@ -77,6 +77,17 @@ SCREEN_TOP_HALF = SCREEN_RECT.copy()
 SCREEN_TOP_HALF.height //= 2
 
 SCREEN_BOTTOM_HALF = SCREEN_TOP_HALF.move(0, SCREEN_TOP_HALF.height)
+
+PANEL_SIZE = SCREEN_TOP_HALF.inflate(-10, 0).size
+
+def _get_panel():
+
+    surf = Surface(PANEL_SIZE).convert()
+    surf.fill('black')
+
+    return UIObject2D.from_surface(surf)
+
+PANEL_CACHE = defaultdict(_get_panel)
 
 ##
 
@@ -149,16 +160,14 @@ class MediaPresenter:
         self.anisprites = UIList2D()
         self.sounds = []
         self.music = []
-        self.lines = UIDeque2D()
+
+        self.all_visible_objs = UIList2D()
 
         ### create presentation elements for all presentations (using current
         ### locale/language, for textual elements)
 
         for presentation_key in dm:
             self.create_presentation(presentation_key, locale)
-
-        ### deque to hold and deliver sections during presentation
-        self.presentation_sections_deque = deque()
 
         ### store method to update text surfaces when language changes
         on_language_change.append(self.on_language_change)
@@ -189,45 +198,21 @@ class MediaPresenter:
 
         else:
 
-            for presentation_key in tpm:
+            pmap = self.presentation_map
 
-                ###
-                presentation_sections = self.presentation_map[presentation_key]
-
-                ###
-
-                processed_text_data = (
-                    self.textual_presentation_map[presentation_key][locale]
-                )
-
-                ###
-
-                for section, processed_text_section_data in zip(
-                    presentation_sections,
-                    processed_text_data,
-                ):
-                    section['text'] = processed_text_section_data
+            for presentation_key, submap in tpm.items():
+                pmap[presentation_key]['paragraphs'] = submap[locale]
 
     def prepare(self, presentation_key):
         """Prepare objects for given presentation."""
 
-        ### store presentation sections in the deque
-
-        self.presentation_sections_deque.extend(
-            self.presentation_map[presentation_key]
-        )
-
-        ### load first section
-        self.prepare_section(self.presentation_sections_deque.popleft())
-
-    def prepare_section(self, section):
-        """"""
+        presentation = self.presentation_map[presentation_key]
 
         ### images
 
         append_image = self.images.append
 
-        processed_images_data = section['images']
+        processed_images_data = presentation['images']
 
         for image_data in processed_images_data.values():
 
@@ -252,7 +237,7 @@ class MediaPresenter:
 
         append_anisprite = self.anisprites.append
 
-        processed_anisprites_data = section['animated_sprites']
+        processed_anisprites_data = presentation['animated_sprites']
 
         for anisprite_data in processed_anisprites_data.values():
 
@@ -277,7 +262,7 @@ class MediaPresenter:
 
         append_sound = self.sounds.append
 
-        processed_sounds_data = section['sounds']
+        processed_sounds_data = presentation['sounds']
 
         for sound_data in processed_sounds_data.values():
             append_sound(sound_data['sound'])
@@ -287,14 +272,17 @@ class MediaPresenter:
 
         append_music = self.music.append
 
-        processed_music_data = section['music']
+        processed_music_data = presentation['music']
 
         for music_data in processed_music_data.values():
             append_music(music_data['name'])
 
         ### text
 
-        paragraphs = section['paragraphs']
+        ## retrieve paragraphs
+        paragraphs = presentation['paragraphs']
+
+        ## align lines one below each other
 
         for paragraph in paragraphs:
 
@@ -306,19 +294,28 @@ class MediaPresenter:
 
             )
 
+        ## align paragraphs one below each other, with
+        ## the height of a panel between them (and some padding)
+
         paragraphs.rect.snap_rects_ip(
 
             retrieve_pos_from='bottomleft',
             assign_pos_to='topleft',
-            offset_pos_by=(0, 10),
+            offset_pos_by=(0, PANEL_SIZE[1] + 6),
 
         )
 
         paragraphs.rect.topleft = SCREEN_BOTTOM_HALF.move(5, -5).bottomleft
 
-        lines = self.lines
-        for paragraph in paragraphs:
-            lines.extend(paragraph)
+        vobjs = self.all_visible_objs
+
+        for index, paragraph in enumerate(paragraphs):
+
+            panel = PANEL_CACHE[index]
+            panel.rect.topleft = paragraph.rect.move(0, 3).bottomleft
+
+            vobjs.append(paragraph)
+            vobjs.append(panel)
 
     def create_presentation(self, presentation_key, locale):
         """Create presentation elements, using given locale for text."""
@@ -326,148 +323,131 @@ class MediaPresenter:
         ### grab data
         data = self.data_map[presentation_key]
 
-        ### instantiate presentation
-        presentation_sections = []
-
+        ### create presentation
+        presentation = {}
 
         ### populate it according to data
 
-        for section_data in data:
+        ## images
 
-            ### create section
-            section = {}
+        processed_images_data = presentation['images'] = {}
 
-            ### append it to sections
-            presentation_sections.append(section)
+        for loaded_image_data in data.get('images', ()):
 
-            ### populate it according to section data
+            ###
+            image_name = loaded_image_data['name']
 
-            ## images
+            ###
+            image_data = processed_images_data[image_name] = {}
 
-            processed_images_data = section['images'] = {}
+            ###
 
-            for loaded_image_data in section_data.get('images', ()):
+            image_obj = (
 
-                ###
-                image_name = loaded_image_data['name']
-
-                ###
-                image_data = processed_images_data[image_name] = {}
-
-                ###
-
-                image_obj = (
-
-                    UIObject2D.from_surface(
-                        SURF_MAP[image_name]
-                    )
-
+                UIObject2D.from_surface(
+                    SURF_MAP[image_name]
                 )
 
-                image_data['obj'] = image_obj
+            )
 
-                ###
-                process_position_data(image_obj, loaded_image_data, image_data)
+            image_data['obj'] = image_obj
+
+            ###
+            process_position_data(image_obj, loaded_image_data, image_data)
 
 
-            ## animated sprites
+        ## animated sprites
 
-            processed_anisprites_data = section['animated_sprites'] = {}
+        processed_anisprites_data = presentation['animated_sprites'] = {}
 
-            for loaded_anisprite_data in (
-                section_data.get('animated_sprites', ())
-            ):
+        for loaded_anisprite_data in data.get('animated_sprites', ()):
 
-                ###
+            ###
 
-                anisprite_name = loaded_anisprite_data['name']
+            anisprite_name = loaded_anisprite_data['name']
 
-                anisprite_id_str = (
+            anisprite_id_str = (
 
-                    loaded_anisprite_data.get(
-                        'id_str',
-                        anisprite_name,
-                    )
-
+                loaded_anisprite_data.get(
+                    'id_str',
+                    anisprite_name,
                 )
 
-                ###
-                anisprite_data = processed_anisprites_data[anisprite_id_str] = {}
+            )
 
-                ###
+            ###
+            anisprite_data = processed_anisprites_data[anisprite_id_str] = {}
 
-                anim_data_name = loaded_anisprite_data['anim_data_name']
-                anim_name = loaded_anisprite_data['anim_name']
-                
-                anisprite_obj = UIObject2D()
-                anisprite_obj.aniplayer = (
-                    AnimationPlayer2D(anisprite_obj, anim_data_name, anim_name)
-                )
+            ###
 
-                anisprite_data['obj'] = anisprite_obj
+            anim_data_name = loaded_anisprite_data['anim_data_name']
+            anim_name = loaded_anisprite_data['anim_name']
+            
+            anisprite_obj = UIObject2D()
+            anisprite_obj.aniplayer = (
+                AnimationPlayer2D(anisprite_obj, anim_data_name, anim_name)
+            )
 
-                ###
+            anisprite_data['obj'] = anisprite_obj
 
-                process_position_data(
-                    anisprite_obj,
-                    loaded_anisprite_data,
-                    anisprite_data,
-                )
+            ###
 
-            ## sound
+            process_position_data(
+                anisprite_obj,
+                loaded_anisprite_data,
+                anisprite_data,
+            )
 
+        ## sound
 
-            processed_sounds_data = section['sounds'] = {}
+        processed_sounds_data = presentation['sounds'] = {}
 
-            for loaded_sound_data in section_data.get('sounds', ()):
+        for loaded_sound_data in data.get('sounds', ()):
 
-                ###
-                sound_name = loaded_sound_data['name']
+            ###
+            sound_name = loaded_sound_data['name']
 
-                ###
-                sound_data = processed_sounds_data[sound_name] = {}
+            ###
+            sound_data = processed_sounds_data[sound_name] = {}
 
-                ###
-                sound_obj = SOUND_MAP[sound_name]
+            ###
+            sound_obj = SOUND_MAP[sound_name]
 
-                sound_data['sound'] = sound_obj
+            sound_data['sound'] = sound_obj
 
-                ### TODO
-                ### must think of ways to time triggering sound; possibilities:
-                ###
-                ### - at beginning of section
-                ### - at end of section
-                ### - on elapsed time starting from beginning of section
-                ### - on animation pose
-                ### - on image positioning step
-                ### - on animation positioning step
-
-
-            ## music
-
-            processed_music_data = section['music'] = {}
-
-            for loaded_music_data in section_data.get('music', ()):
-
-                ###
-                music_name = loaded_music_data['name']
-
-                ###
-                music_data = processed_music_data[music_name] = {}
-
-                ###
-                music_data['name'] = music_name
-
-                ### TODO
-                ###
-                ### like sound, must think of ways to time triggering music
+            ### TODO
+            ### must think of ways to time triggering sound; possibilities:
+            ###
+            ### - at beginning of section
+            ### - at end of section
+            ### - on elapsed time starting from beginning of section
+            ### - on animation pose
+            ### - on image positioning step
+            ### - on animation positioning step
 
 
-            ### finally store section
-            presentation_sections.append(section)
+        ## music
+
+        processed_music_data = presentation['music'] = {}
+
+        for loaded_music_data in data.get('music', ()):
+
+            ###
+            music_name = loaded_music_data['name']
+
+            ###
+            music_data = processed_music_data[music_name] = {}
+
+            ###
+            music_data['name'] = music_name
+
+            ### TODO
+            ###
+            ### like sound, must think of ways to time triggering music
+
 
         ### store the presentation
-        self.presentation_map[presentation_key] = presentation_sections
+        self.presentation_map[presentation_key] = presentation
 
         ### create textual elements
         self.create_and_integrate_textual_elements(presentation_key, locale)
@@ -475,73 +455,82 @@ class MediaPresenter:
     def create_and_integrate_textual_elements(self, presentation_key, locale):
         """Create textual elements and add to presentation."""
 
-        presentation_sections = self.presentation_map[presentation_key]
+        paragraphs = UIList2D()
 
-        textual_presentation = self.textual_presentation_map[presentation_key]
+        self.presentation_map[presentation_key]['paragraphs'] = paragraphs 
 
-        processed_text_data = textual_presentation[locale] = []
+        self.textual_presentation_map[presentation_key][locale] = paragraphs
 
         data = self.data_map[presentation_key]
 
-        for section_data, section in zip(data, presentation_sections):
+        ###
 
-            paragraphs = section['paragraphs'] = UIList2D()
+        t = getattr(TRANSLATIONS, presentation_key)
 
-            processed_text_data.append(paragraphs)
+        next_index = count().__next__
 
-            text = section_data['text']
+        while True:
 
-            for paragraph in filter(None, text.splitlines()):
+            paragraph_attr_name = (
+                'paragraph_'
+                + str(next_index()).rjust(2, '0')
+            )
 
-                words = UIList2D(
+            try:
+                paragraph = getattr(t, paragraph_attr_name)
 
-                    UIObject2D.from_surface(
-                        render_text(word, **TEXT_SETTINGS)
-                    )
+            except KeyError:
+                break
 
-                    for word in paragraph.split()
+            words = UIList2D(
 
+                UIObject2D.from_surface(
+                    render_text(word, **TEXT_SETTINGS)
                 )
 
-                words.rect.snap_rects_intermittently_ip(
+                for word in paragraph.split()
 
-                    ### interval limit
+            )
 
-                    dimension_name='width', # either 'width' or 'height'
-                    dimension_unit='pixels', # either 'rects' or 'pixels'
-                    max_dimension_value=SCREEN_RECT.width - 20, # posit. int.
+            words.rect.snap_rects_intermittently_ip(
 
-                    ### rect positioning
+                ### interval limit
 
-                    retrieve_pos_from='topright',
-                    assign_pos_to='topleft',
-                    offset_pos_by=(5, 0),
+                dimension_name='width', # either 'width' or 'height'
+                dimension_unit='pixels', # either 'rects' or 'pixels'
+                max_dimension_value=SCREEN_RECT.width - 20, # posit. int.
 
-                    ### intermittent rect positioning
+                ### rect positioning
 
-                    intermittent_pos_from='bottomleft',
-                    intermittent_pos_to='topleft',
-                    intermittent_offset_by=(0, 2),
+                retrieve_pos_from='topright',
+                assign_pos_to='topleft',
+                offset_pos_by=(5, 0),
 
-                )
+                ### intermittent rect positioning
 
-                _WORD_DEQUE.extend(words)
+                intermittent_pos_from='bottomleft',
+                intermittent_pos_to='topleft',
+                intermittent_offset_by=(0, 2),
 
-                lines = UIList2D()
+            )
 
-                while _WORD_DEQUE:
-                    
-                    line = UIList2D()
+            _WORD_DEQUE.extend(words)
 
-                    top = _WORD_DEQUE[0].rect.top
+            lines = UIList2D()
 
-                    while _WORD_DEQUE and _WORD_DEQUE[0].rect.top == top:
-                        line.append(_WORD_DEQUE.popleft())
+            while _WORD_DEQUE:
+                
+                line = UIList2D()
 
-                    lines.append(line)
+                top = _WORD_DEQUE[0].rect.top
 
-                ##
-                paragraphs.append(lines)
+                while _WORD_DEQUE and _WORD_DEQUE[0].rect.top == top:
+                    line.append(_WORD_DEQUE.popleft())
+
+                lines.append(line)
+
+            ##
+            paragraphs.append(lines)
 
     def control(self):
         """Let user speed up presentation or skip altogether."""
@@ -573,6 +562,34 @@ class MediaPresenter:
             elif event.type == QUIT:
                 quit_game()
 
+        ###
+
+        pressed_state = SERVICES_NS.get_pressed_keys()
+
+        if (
+
+            pressed_state[K_DOWN]
+            or pressed_state[K_RIGHT]
+            or pressed_state[KEYBOARD_CONTROLS['down']]
+            or pressed_state[KEYBOARD_CONTROLS['right']]
+            or GAMEPAD_NS.x_sum > 0
+            or GAMEPAD_NS.y_sum > 0
+
+        ):
+            self.move_forward()
+
+        elif (
+
+            pressed_state[K_UP]
+            or pressed_state[K_LEFT]
+            or pressed_state[KEYBOARD_CONTROLS['up']]
+            or pressed_state[KEYBOARD_CONTROLS['left']]
+            or GAMEPAD_NS.x_sum < 0
+            or GAMEPAD_NS.y_sum < 0
+
+        ):
+            self.move_backwards()
+
     def speed_up(self):
         ...
 
@@ -584,40 +601,63 @@ class MediaPresenter:
         for obj in self.anisprites:
             obj.rect.topleft = obj.next_step()
 
+    def move_forward(self)
+
+        vobjs = self.all_visible_objs
+        vobjs_rect = vobjs.rect
+
+        ## if last obj below bottom of screen bottom half...
+
+        if vobjs_rect.bottom > SCREEN_BOTTOM_HALF.bottom - 5:
+            vobjs.rect.move_ip(0, -2)
+
+        ## if last obj above bottom of screen bottom half...
+
+        elif vobjs_rect.bottom < SCREEN_BOTTOM_HALF.bottom - 5:
+            vobjs.rect.bottom = SCREEN_BOTTOM_HALF.bottom - 5
+
         ### move words/lines;
         ###
         ### once paragraphs are finished, blink arrow to start next section
         ### on button press;
         ###
         ### if there's no next section, go to next state (start level)
-
-        lines = self.lines
-
-        if lines.rect.bottom <= SCREEN_BOTTOM_HALF.bottom - 5:
-            lines.rect.bottom = SCREEN_BOTTOM_HALF.bottom - 5
-
-        else:
-
-            if should_move():
-                lines.rect.move_ip(0, -1)
-
-                if lines.rect.top <= SCREEN_BOTTOM_HALF.top:
-                    lines.popleft()
-
         ...
+
+    def move_backwards(self)
+
+        vobjs = self.all_visible_objs
+        vobjs_rect = vobjs.rect
+
+        ## if first obj above top of screen top half...
+
+        if vobjs_rect.top < SCREEN_TOP_HALF.top + 5:
+            vobjs.rect.move_ip(0, 2)
+
+        ## if first obj below top of screen top half...
+
+        elif vobjs_rect.top > SCREEN_BOTTOM_HALF.top + 5:
+            vobjs.rect.top = SCREEN_BOTTOM_HALF.top + 5
+
 
     def draw(self):
 
         SCREEN.fill('black')
 
+        for obj in self.all_visible_objs:
+
+            if isinstance(obj, UIList2D):
+                for line in paragraph:
+                    for word in line:
+                        word.draw()
+
+            else:
+                obj.draw()
+
         self.images.draw()
 
         for obj in self.anisprites:
             obj.aniplayer.draw()
-
-        for line in self.lines:
-            for word in line:
-                word.draw()
 
         update()
 

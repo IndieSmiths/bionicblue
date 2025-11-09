@@ -1,0 +1,25 @@
+
+paragraph_00
+
+    en-us On Earth, in the year 2500, advances in technology created robots capable of simulating the functions of the human mind. However, this state of simulated awareness, on top of consuming inordinate amounts of energy, causes the robots to hallucinate over time, as their fast robotic brains keep generating and processing information recursively.
+    pt-br No planeta Terra, no ano 2500, avanços na tecnologia criaram robôs capazes de simular as funções da mente humana. No entatno, esse estado de consciência simulada, além de consumir quantidades excessivas de energia, faz com que os robôs alucinem ao longo do tempo, à medida me que seus rápidos cérebros robóticos continuam a gerar e processar informação recursivamente.
+
+paragraph_01
+
+    en-us This turned them into a menace to humans in different ways. There are mad, murder robots. There are robots who kidnap humans to scan their brains for data to recalibrate their robotic minds and alleviate the halluciations.
+    pt-br Isso os tornou uma ameaça para os humanos de different formas. Há robôs malucos e assassinos. Há robôs que sequestram seres humanos para escanear seus cérebros à procura de dados para recalibrar suas mentes robóticas e aliviar as alucinações.
+
+paragraph_02
+
+    en-us Most robots hoard energy and its sources, including biomass, depriving humans from them and causing conflict even among the robots themselves. There are even kidnapped humans who got used to living under the care of the robots and serve them willingly, often against the best interest of other people.
+    pt-br A maioria dos robôs acumula energia e suas fontes, incluindo biomassa, privando humano deles e causando conflito até mesmo entre os próprios robôs. Há até mesmo reféns humanos que se acostumaram à vida sob os cuidados dos robôs e os servem de bom grado, frequentemente para o prejuízo de outras pessoas.
+
+paragraph_03
+
+    en-us The free people, now severely reduced in numbers, struggle all they can to survive the clash with mad robots, avoid being imprisoned by the kidnapper robots and their human vassals, and try to secure energy and energy sources for their basic needs, like shelter, food and medical care.
+    pt-br As pessoas livres, agora severamente reduzidas em número, lutam como podem para sobreviver aos confrontos com robôs malucos, evitar serem aprisionadas pelos robôs sequestradores e seus vassalos humanos, e tentam garantir energia e suas fontes para suas necessidades básicas, como moradia, comida e cuidados médicos.
+
+paragraph_04
+
+    en-us Blue is a boy with bionic parts enhanced for combat and survival. This allows him to protect people from such robots. He's one of the few humans who joined the fight for survival and decent living.
+    pt-br Blue é um garoto com partes biônicas melhoradas para o combate e sobrevivência. Isso permite que ele proteja as pessoas desses robôs. Ele é um dos poucos humanos que se juntou à luta por sobrevivência e um viver digno.
