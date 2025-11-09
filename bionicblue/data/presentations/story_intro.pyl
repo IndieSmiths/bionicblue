@@ -4,10 +4,11 @@
 
         {
             'name': 'kennedy_logo.png',
+            'panel_index': 0,
             'start_pos': [
-                'bottomright',
-                'topleft',
-                (0, 0),
+                'right',
+                'left',
+                (-30, 0),
             ],
             'end_pos': [
                 'center',

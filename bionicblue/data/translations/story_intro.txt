@@ -12,7 +12,7 @@ paragraph_01
 paragraph_02
 
     en-us Most robots hoard energy and its sources, including biomass, depriving humans from them and causing conflict even among the robots themselves. There are even kidnapped humans who got used to living under the care of the robots and serve them willingly, often against the best interest of other people.
-    pt-br A maioria dos robôs acumula energia e suas fontes, incluindo biomassa, privando humano deles e causando conflito até mesmo entre os próprios robôs. Há até mesmo reféns humanos que se acostumaram à vida sob os cuidados dos robôs e os servem de bom grado, frequentemente para o prejuízo de outras pessoas.
+    pt-br A maioria dos robôs acumula energia e suas fontes, incluindo biomassa, privando humanos deles e causando conflito até mesmo entre os próprios robôs. Há até mesmo reféns humanos que se acostumaram à vida sob os cuidados dos robôs e os servem de bom grado, frequentemente para prejuízo de outras pessoas.
 
 paragraph_03
 

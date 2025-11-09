@@ -7,10 +7,12 @@ Media is comprised of text, images and animated sprites.
 
 from collections import defaultdict, deque
 
-from itertools import chain, cycle, count, repeat
+from itertools import count
 
 
 ### third-party imports
+
+from pygame import Rect, Surface
 
 from pygame.locals import (
 
@@ -53,7 +55,7 @@ from ..pygamesetup.constants import (
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
 from ..ourstdlibs.pyl import load_pyl
 
@@ -73,12 +75,10 @@ from ..translatedtext import TRANSLATIONS, on_language_change
 
 ### module level objects
 
-SCREEN_TOP_HALF = SCREEN_RECT.copy()
-SCREEN_TOP_HALF.height //= 2
-
-SCREEN_BOTTOM_HALF = SCREEN_TOP_HALF.move(0, SCREEN_TOP_HALF.height)
-
-PANEL_SIZE = SCREEN_TOP_HALF.inflate(-10, 0).size
+PANEL_SIZE = (
+    SCREEN_RECT.width - 10,
+    SCREEN_RECT.height // 2,
+)
 
 def _get_panel():
 
@@ -99,12 +99,31 @@ TEXT_SETTINGS = {
     'background_color': 'black',
 }
 
+INSTRUCTIONAL_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 0,
+    'foreground_color': 'yellow',
+    'background_color': 'blue4',
+}
+
 ##
 
 _WORD_DEQUE = deque()
 
+##
+
+UPPER_LIMIT = SCREEN_RECT.top + 20
+LOWER_LIMIT = SCREEN_RECT.bottom - 20
+
+SCROLL_SPEED = 4
+OBJ_MOVE_STEPS = 90
+
 ###
-should_move = cycle(chain((True,), (False,)*5)).__next__
+SCREEN_HEADER_AREA = Rect(0, 0, SCREEN_RECT.width, 14)
+SCREEN_FOOTER_AREA = SCREEN_HEADER_AREA.copy()
+SCREEN_FOOTER_AREA.bottom = SCREEN_RECT.bottom
+
 
 
 ### class definition
@@ -169,6 +188,21 @@ class MediaPresenter:
         for presentation_key in dm:
             self.create_presentation(presentation_key, locale)
 
+        ### label with instructions
+
+        self.directionals_label = (
+
+            UIObject2D.from_surface(
+                render_text(
+                    TRANSLATIONS.media_presenter.directionals_to_advance,
+                    **INSTRUCTIONAL_TEXT_SETTINGS,
+                )
+            )
+
+        )
+
+        self.directionals_label.rect.topleft = SCREEN_RECT.move(2, 1).topleft
+
         ### store method to update text surfaces when language changes
         on_language_change.append(self.on_language_change)
 
@@ -203,6 +237,23 @@ class MediaPresenter:
             for presentation_key, submap in tpm.items():
                 pmap[presentation_key]['paragraphs'] = submap[locale]
 
+        ### update labels with instructions
+
+        dlabel = self.directionals_label
+
+        dlabel.image = (
+
+            render_text(
+                TRANSLATIONS.media_presenter.directionals_to_advance,
+                **INSTRUCTIONAL_TEXT_SETTINGS,
+            )
+
+        )
+
+        midleft = dlabel.rect.midleft
+        dlabel.rect = dlabel.image.get_rect()
+        dlabel.rect.midleft = midleft
+
     def prepare(self, presentation_key):
         """Prepare objects for given presentation."""
 
@@ -217,20 +268,8 @@ class MediaPresenter:
         for image_data in processed_images_data.values():
 
             obj = image_data['obj']
-
-            obj.end_topleft = image_data['end_topleft']
-
-            obj.next_step = (
-
-                chain(
-                    image_data['topleft_steps'],
-                    repeat(obj.end_topleft),
-                )
-
-            ).__next__
-
-            obj.rect.topleft = image_data['start_topleft']
-
+            obj.rect.right = SCREEN_RECT.left
+            obj.step_no = 0
             append_image(obj)
 
         ### animated sprites
@@ -242,20 +281,8 @@ class MediaPresenter:
         for anisprite_data in processed_anisprites_data.values():
 
             obj = anisprite_data['obj']
-
-            obj.end_topleft = image_data['end_topleft']
-
-            obj.next_step = (
-
-                chain(
-                    image_data['topleft_steps'],
-                    repeat(obj.end_topleft),
-                )
-
-            ).__next__
-
-            obj.rect.topleft = image_data['start_topleft']
-
+            obj.rect.right = SCREEN_RECT.left
+            obj.step_no = 0
             append_anisprite(obj)
 
         ### sound
@@ -295,24 +322,30 @@ class MediaPresenter:
             )
 
         ## align paragraphs one below each other, with
-        ## the height of a panel between them (and some padding)
+        ## extra space below the panel (so visually, each panel is much
+        ## closer to the paragraph above it, which is the one associated
+        ## with it; our goal is to make it easier for users to spot the
+        ## paragraph to which each panel is associated with)
 
         paragraphs.rect.snap_rects_ip(
 
             retrieve_pos_from='bottomleft',
             assign_pos_to='topleft',
-            offset_pos_by=(0, PANEL_SIZE[1] + 6),
+            offset_pos_by=(0, int(SCREEN_RECT.height * .9)),
 
         )
 
-        paragraphs.rect.topleft = SCREEN_BOTTOM_HALF.move(5, -5).bottomleft
+        paragraphs.rect.centerx = SCREEN_RECT.centerx
+        paragraphs.rect.top = UPPER_LIMIT
 
         vobjs = self.all_visible_objs
 
         for index, paragraph in enumerate(paragraphs):
 
             panel = PANEL_CACHE[index]
-            panel.rect.topleft = paragraph.rect.move(0, 3).bottomleft
+
+            panel.rect.top = paragraph.rect.bottom + 1
+            panel.rect.centerx = SCREEN_RECT.centerx
 
             vobjs.append(paragraph)
             vobjs.append(panel)
@@ -352,8 +385,13 @@ class MediaPresenter:
 
             image_data['obj'] = image_obj
 
-            ###
-            process_position_data(image_obj, loaded_image_data, image_data)
+            for key in (
+                'panel_index',
+                'end_pos',
+                'start_pos',
+            ):
+                setattr(image_obj, key, loaded_image_data[key])
+
 
 
         ## animated sprites
@@ -390,13 +428,12 @@ class MediaPresenter:
 
             anisprite_data['obj'] = anisprite_obj
 
-            ###
-
-            process_position_data(
-                anisprite_obj,
-                loaded_anisprite_data,
-                anisprite_data,
-            )
+            for key in (
+                'panel_index',
+                'end_pos',
+                'start_pos',
+            ):
+                setattr(anisprite_obj, key, loaded_anisprite_data[key])
 
         ## sound
 
@@ -498,7 +535,7 @@ class MediaPresenter:
 
                 dimension_name='width', # either 'width' or 'height'
                 dimension_unit='pixels', # either 'rects' or 'pixels'
-                max_dimension_value=SCREEN_RECT.width - 20, # posit. int.
+                max_dimension_value=int(SCREEN_RECT.width * .8), # posit. int.
 
                 ### rect positioning
 
@@ -596,25 +633,34 @@ class MediaPresenter:
     def update(self):
 
         for obj in self.images:
-            obj.rect.topleft = obj.next_step()
+
+            panel_rect = PANEL_CACHE[obj.panel_index].rect
+
+            if SCREEN_RECT.colliderect(panel_rect):
+                advance_position(obj, panel_rect)
 
         for obj in self.anisprites:
-            obj.rect.topleft = obj.next_step()
 
-    def move_forward(self)
+            panel_rect = PANEL_CACHE[obj.panel_index].rect
+
+            if SCREEN_RECT.colliderect(panel_rect):
+                advance_position(obj, panel_rect)
+
+    def move_forward(self):
 
         vobjs = self.all_visible_objs
         vobjs_rect = vobjs.rect
 
-        ## if last obj below bottom of screen bottom half...
+        ## if bottom below lower limit...
 
-        if vobjs_rect.bottom > SCREEN_BOTTOM_HALF.bottom - 5:
-            vobjs.rect.move_ip(0, -2)
+        if vobjs_rect.bottom > LOWER_LIMIT:
 
-        ## if last obj above bottom of screen bottom half...
+            vobjs.rect.move_ip(0, -SCROLL_SPEED)
 
-        elif vobjs_rect.bottom < SCREEN_BOTTOM_HALF.bottom - 5:
-            vobjs.rect.bottom = SCREEN_BOTTOM_HALF.bottom - 5
+            ## if bottom ends up above lower limit...
+
+            if vobjs_rect.bottom < LOWER_LIMIT:
+                vobjs.rect.bottom = LOWER_LIMIT
 
         ### move words/lines;
         ###
@@ -624,20 +670,21 @@ class MediaPresenter:
         ### if there's no next section, go to next state (start level)
         ...
 
-    def move_backwards(self)
+    def move_backwards(self):
 
         vobjs = self.all_visible_objs
         vobjs_rect = vobjs.rect
 
-        ## if first obj above top of screen top half...
+        ## if top above upper limit...
 
-        if vobjs_rect.top < SCREEN_TOP_HALF.top + 5:
-            vobjs.rect.move_ip(0, 2)
+        if vobjs_rect.top < UPPER_LIMIT:
 
-        ## if first obj below top of screen top half...
+            vobjs.rect.move_ip(0, SCROLL_SPEED)
 
-        elif vobjs_rect.top > SCREEN_BOTTOM_HALF.top + 5:
-            vobjs.rect.top = SCREEN_BOTTOM_HALF.top + 5
+            ## if top ends up below upper limit...
+
+            if vobjs_rect.top > UPPER_LIMIT:
+                vobjs.rect.top = UPPER_LIMIT
 
 
     def draw(self):
@@ -647,7 +694,7 @@ class MediaPresenter:
         for obj in self.all_visible_objs:
 
             if isinstance(obj, UIList2D):
-                for line in paragraph:
+                for line in obj:
                     for word in line:
                         word.draw()
 
@@ -659,64 +706,50 @@ class MediaPresenter:
         for obj in self.anisprites:
             obj.aniplayer.draw()
 
+        SCREEN.fill('blue4', SCREEN_HEADER_AREA)
+        SCREEN.fill('blue4', SCREEN_FOOTER_AREA)
+
+        self.directionals_label.draw()
+
         update()
 
 
 ### utility functions
 
-def process_position_data(obj, loaded_data, data):
+def advance_position(obj, panel_rect):
 
-    position_obj(obj, loaded_data['end_pos'])
-    end_topleft = obj.rect.topleft
+    rect = obj.rect
 
-    position_obj(obj, loaded_data['start_pos'])
-    start_topleft = obj.rect.topleft
+    start_pos = get_relative_topleft(rect, panel_rect, *obj.start_pos)
+    end_pos = get_relative_topleft(rect, panel_rect, *obj.end_pos)
 
-    data['end_topleft'] = end_topleft
-    data['start_topleft'] = start_topleft
+    rect.topleft = Vector2(start_pos).lerp(end_pos, obj.step_no/OBJ_MOVE_STEPS)
 
-    start_topleft_v = Vector2(start_topleft)
+    if obj.step_no < OBJ_MOVE_STEPS:
+        obj.step_no += 1
 
-    steps = [
-
-        tuple(
-
-            start_topleft_v.lerp(
-                end_topleft, # destination (end position)
-                i/30,        # percentage to travel
-            )
-
-        )
-
-        for i in range(30)
-
-    ]
-
-    steps.append(end_topleft)
-
-    data['topleft_steps'] = steps
-
-
-def position_obj(obj, pos_data):
-
-    (
-        rect_attr_name,
-        screen_top_half_rect_attr_name,
-        offset,
-    ) = pos_data
+def get_relative_topleft(
+    rect_a,
+    rect_b,
+    rect_a_attr_name,
+    rect_b_attr_name,
+    offset,
+):
 
     setattr(
 
-        obj.rect,
+        rect_a,
 
-        rect_attr_name,
+        rect_a_attr_name,
 
         getattr(
-            SCREEN_TOP_HALF,
-            screen_top_half_rect_attr_name,
-        ) + Vector2(offset)
+            rect_b.move(offset),
+            rect_b_attr_name,
+        ),
 
     )
+
+    return rect_a.topleft
 
 
 ### TODO this will be passed to transition screen to be executed
