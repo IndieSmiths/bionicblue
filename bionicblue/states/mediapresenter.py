@@ -67,6 +67,8 @@ from ..classes2d.collections import UIList2D
 
 from ..ani2d.player import AnimationPlayer2D
 
+from ..surfsman import draw_border
+
 from ..userprefsman.main import USER_PREFS, KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ..translatedtext import TRANSLATIONS, on_language_change
@@ -91,20 +93,36 @@ PANEL_CACHE = defaultdict(_get_panel)
 
 ##
 
-TEXT_SETTINGS = {
-    'style': 'regular',
-    'size': 12,
-    'padding': 0,
-    'foreground_color': 'white',
-    'background_color': 'black',
-}
-
 INSTRUCTIONAL_TEXT_SETTINGS = {
     'style': 'regular',
     'size': 12,
     'padding': 0,
     'foreground_color': 'yellow',
     'background_color': 'blue4',
+}
+
+REPORT_DESCRIPTION_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 4,
+    'foreground_color': 'white',
+    'background_color': 'black',
+}
+
+REPORT_ID_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 0,
+    'foreground_color': 'darkorange',
+    'background_color': 'black',
+}
+
+REPORT_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 0,
+    'foreground_color': 'white',
+    'background_color': 'black',
 }
 
 ##
@@ -188,7 +206,21 @@ class MediaPresenter:
         for presentation_key in dm:
             self.create_presentation(presentation_key, locale)
 
-        ### label with instructions
+        ### labels
+
+        ## report label
+
+        self.report_label = (
+
+            UIObject2D.from_surface(
+                render_text(
+                    TRANSLATIONS.media_presenter.report + ':',
+                    **REPORT_TEXT_SETTINGS,
+                )
+            )
+        )
+
+        ## instructions
 
         self.directionals_label = (
 
@@ -200,8 +232,6 @@ class MediaPresenter:
             )
 
         )
-
-        self.directionals_label.rect.topleft = SCREEN_RECT.move(2, 1).topleft
 
         ### store method to update text surfaces when language changes
         on_language_change.append(self.on_language_change)
@@ -235,9 +265,30 @@ class MediaPresenter:
             pmap = self.presentation_map
 
             for presentation_key, submap in tpm.items():
-                pmap[presentation_key]['paragraphs'] = submap[locale]
 
-        ### update labels with instructions
+                locale_map = submap[locale]
+                pdata = pmap[presentation_key]
+
+                pdata['paragraphs'] = locale_map['paragraphs']
+                pdata['description_label'] = locale_map['description_label']
+
+        ### update labels
+
+        ## report label
+
+        rlabel = self.report_label
+
+        rlabel.image = (
+
+            render_text(
+                TRANSLATIONS.media_presenter.report + ':',
+                **REPORT_TEXT_SETTINGS,
+            )
+
+        )
+        rlabel.rect = rlabel.image.get_rect()
+
+        ## instructions
 
         dlabel = self.directionals_label
 
@@ -250,9 +301,7 @@ class MediaPresenter:
 
         )
 
-        midleft = dlabel.rect.midleft
         dlabel.rect = dlabel.image.get_rect()
-        dlabel.rect.midleft = midleft
 
     def prepare(self, presentation_key):
         """Prepare objects for given presentation."""
@@ -309,7 +358,7 @@ class MediaPresenter:
         ## retrieve paragraphs
         paragraphs = presentation['paragraphs']
 
-        ## align lines one below each other
+        ## align lines in each paragraph one below the other
 
         for paragraph in paragraphs:
 
@@ -321,9 +370,9 @@ class MediaPresenter:
 
             )
 
-        ## align paragraphs one below each other, with
-        ## extra space below the panel (so visually, each panel is much
-        ## closer to the paragraph above it, which is the one associated
+        ## align paragraphs one below the other, with extra space
+        ## below the panel (so visually, each panel is much closer
+        ## to the paragraph above it, which is the one associated
         ## with it; our goal is to make it easier for users to spot the
         ## paragraph to which each panel is associated with)
 
@@ -335,10 +384,31 @@ class MediaPresenter:
 
         )
 
-        paragraphs.rect.centerx = SCREEN_RECT.centerx
-        paragraphs.rect.top = UPPER_LIMIT
+        ## add report description, report label, id and paragraphs to
+        ## collection of visible objs
+
+        report_label = self.report_label
+        id_label = presentation['id_label']
+        description_label = presentation['description_label']
+
+        report_label.rect.top = UPPER_LIMIT
+
+        paragraphs.rect.centerx = description_label.rect.centerx = (
+            SCREEN_RECT.centerx
+        )
+
+        report_label.rect.left = paragraphs.rect.left
+        id_label.rect.bottomleft = report_label.rect.move(2, 0).bottomright
+        
+        description_label.rect.top = report_label.rect.bottom + 15
+
+        paragraphs.rect.top = description_label.rect.bottom + 15
 
         vobjs = self.all_visible_objs
+
+        vobjs.append(report_label)
+        vobjs.append(id_label)
+        vobjs.append(description_label)
 
         for index, paragraph in enumerate(paragraphs):
 
@@ -350,6 +420,10 @@ class MediaPresenter:
             vobjs.append(paragraph)
             vobjs.append(panel)
 
+
+        ### reposition directionals label
+        self.directionals_label.rect.topleft = SCREEN_RECT.move(2, 1).topleft
+
     def create_presentation(self, presentation_key, locale):
         """Create presentation elements, using given locale for text."""
 
@@ -360,6 +434,19 @@ class MediaPresenter:
         presentation = {}
 
         ### populate it according to data
+
+        ## report id (fictional id, has nothing to do with game internals)
+
+        presentation['id_label'] = (
+
+            UIObject2D.from_surface(
+                render_text(
+                    data['report_id'],
+                    **REPORT_ID_TEXT_SETTINGS,
+                )
+            )
+
+        )
 
         ## images
 
@@ -492,13 +579,14 @@ class MediaPresenter:
     def create_and_integrate_textual_elements(self, presentation_key, locale):
         """Create textual elements and add to presentation."""
 
-        paragraphs = UIList2D()
+        pdata = self.presentation_map[presentation_key]
+        tpm = self.textual_presentation_map
 
-        self.presentation_map[presentation_key]['paragraphs'] = paragraphs 
+        plocale_data = tpm[presentation_key][locale] = {}
 
-        self.textual_presentation_map[presentation_key][locale] = paragraphs
+        paragraphs = pdata['paragraphs'] = plocale_data['paragraphs'] = UIList2D()
 
-        data = self.data_map[presentation_key]
+        pdata['paragraphs'] = paragraphs
 
         ###
 
@@ -522,7 +610,7 @@ class MediaPresenter:
             words = UIList2D(
 
                 UIObject2D.from_surface(
-                    render_text(word, **TEXT_SETTINGS)
+                    render_text(word, **REPORT_TEXT_SETTINGS)
                 )
 
                 for word in paragraph.split()
@@ -568,6 +656,29 @@ class MediaPresenter:
 
             ##
             paragraphs.append(lines)
+
+        ###
+
+        description_label = (
+
+            UIObject2D.from_surface(
+                render_text(
+                    t.report_description,
+                    **REPORT_DESCRIPTION_TEXT_SETTINGS,
+                )
+            )
+
+        )
+
+        draw_border(
+            surf=description_label.image,
+            color=REPORT_DESCRIPTION_TEXT_SETTINGS['foreground_color'],
+            width=1,
+        )
+
+        pdata['description_label'] = plocale_data['description_label'] = (
+            description_label
+        )
 
     def control(self):
         """Let user speed up presentation or skip altogether."""

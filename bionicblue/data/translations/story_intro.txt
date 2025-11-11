@@ -1,4 +1,10 @@
 
+report_description
+
+    en-us Origins of robotic menace
+    pt-br Origens da ameaça robótica
+
+
 paragraph_00
 
     en-us On Earth, in the year 2500, advances in technology created robots capable of simulating the functions of the human mind. However, this state of simulated awareness, on top of consuming inordinate amounts of energy, causes the robots to hallucinate over time, as their fast robotic brains keep generating and processing information recursively.

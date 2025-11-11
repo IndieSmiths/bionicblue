@@ -1,4 +1,8 @@
 
+report
+    en-us Report
+    pt-br Relatório
+
 directionals_to_advance
     en-us Use directional buttons to browse
     pt-br Use botões direcionais para navegar
