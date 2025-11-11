@@ -79,7 +79,7 @@ from ..translatedtext import TRANSLATIONS, on_language_change
 
 PANEL_SIZE = (
     SCREEN_RECT.width - 10,
-    SCREEN_RECT.height // 2,
+    SCREEN_RECT.height // 3,
 )
 
 def _get_panel():
@@ -135,7 +135,9 @@ UPPER_LIMIT = SCREEN_RECT.top + 20
 LOWER_LIMIT = SCREEN_RECT.bottom - 20
 
 SCROLL_SPEED = 4
-OBJ_MOVE_STEPS = 90
+OBJ_MOVE_STEPS = 70
+
+VERTICAL_LIMIT_TO_SHOW_VISUALS = SCREEN_RECT.centery + 40
 
 ###
 SCREEN_HEADER_AREA = Rect(0, 0, SCREEN_RECT.width, 14)
@@ -194,7 +196,13 @@ class MediaPresenter:
         ### create collections used to assist
 
         self.images = UIList2D()
+        self.images_to_advance = UIList2D()
+
         self.anisprites = UIList2D()
+        self.anisprites_to_advance = UIList2D()
+
+        self.objs_to_remove = []
+
         self.sounds = []
         self.music = []
 
@@ -380,7 +388,7 @@ class MediaPresenter:
 
             retrieve_pos_from='bottomleft',
             assign_pos_to='topleft',
-            offset_pos_by=(0, int(SCREEN_RECT.height * .9)),
+            offset_pos_by=(0, PANEL_SIZE[1] + 30),
 
         )
 
@@ -505,7 +513,9 @@ class MediaPresenter:
 
             ###
 
-            anim_data_name = loaded_anisprite_data['anim_data_name']
+            anim_data_name = (
+                loaded_anisprite_data.get('anim_data_name', anisprite_name)
+            )
             anim_name = loaded_anisprite_data['anim_name']
             
             anisprite_obj = UIObject2D()
@@ -743,19 +753,57 @@ class MediaPresenter:
 
     def update(self):
 
-        for obj in self.images:
+        objs_to_remove = self.objs_to_remove
+        ###
+
+        images = self.images
+        images_ta = self.images_to_advance
+
+
+        for obj in images:
+
+            panel_rect = PANEL_CACHE[obj.panel_index].rect
+
+            if panel_rect.top < VERTICAL_LIMIT_TO_SHOW_VISUALS:
+                images_ta.append(obj)
+
+        for obj in images_ta:
 
             panel_rect = PANEL_CACHE[obj.panel_index].rect
 
             if SCREEN_RECT.colliderect(panel_rect):
                 advance_position(obj, panel_rect)
+
+            if obj in images:
+                objs_to_remove.append(obj)
+
+        while objs_to_remove:
+            images.remove(objs_to_remove.pop())
+
+        ###
+
+        anisprites = self.anisprites
+        anisprites_ta = self.anisprites_to_advance
 
         for obj in self.anisprites:
 
             panel_rect = PANEL_CACHE[obj.panel_index].rect
 
+            if panel_rect.top < VERTICAL_LIMIT_TO_SHOW_VISUALS:
+                anisprites_ta.append(obj)
+
+        for obj in anisprites_ta:
+
+            panel_rect = PANEL_CACHE[obj.panel_index].rect
+
             if SCREEN_RECT.colliderect(panel_rect):
                 advance_position(obj, panel_rect)
+
+            if obj in anisprites:
+                objs_to_remove.append(obj)
+
+        while objs_to_remove:
+            anisprites.remove(objs_to_remove.pop())
 
     def move_forward(self):
 
@@ -812,9 +860,9 @@ class MediaPresenter:
             else:
                 obj.draw()
 
-        self.images.draw()
+        self.images_to_advance.draw()
 
-        for obj in self.anisprites:
+        for obj in self.anisprites_to_advance:
             obj.aniplayer.draw()
 
         SCREEN.fill('blue4', SCREEN_HEADER_AREA)

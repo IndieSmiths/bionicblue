@@ -1,0 +1,51 @@
+{
+    "name": "forest_master_bot",
+    "geometry": {
+        "body" : {
+            "size" : (40, 40),
+            "art_size" : (36, 36),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "standing" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "idle_right": {"structure": "standing"},
+        "idle_left": {"structure": "standing"},
+    },
+    "values": {
+        "idle_left": {
+            "body": {
+                "surfaces": "forest_master_bot.idle_left",
+            },
+        },
+    },
+    "timing": {
+        "idle_left": {
+            "body": {
+                "surface_indices": "forest_master_bot.idle_left",
+            },
+        },
+    },
+    "recolored_surface_versions": {
+        "whitened": {
+            "effects": (
+                ("lightness", "set", 100),
+            ),
+            "surface_collections" : [
+                "forest_master_bot.idle_right",
+            ],
+        },
+
+    },
+    "derived_animations": {
+        "idle_right": {
+            "operation_name": "flip_x",
+            "target": "idle_left",
+        },
+    },
+}

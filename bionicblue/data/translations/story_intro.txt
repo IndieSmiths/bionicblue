@@ -12,7 +12,7 @@ paragraph_00
 
 paragraph_01
 
-    en-us This turned them into a menace to humans in different ways. There are mad, murder robots. There are robots who kidnap humans to scan their brains for data to recalibrate their robotic minds and alleviate the halluciations.
+    en-us This turned them into a menace to humans in different ways. There are mad, killer robots. There are robots who kidnap humans to scan their brains for data to recalibrate their robotic minds and alleviate the halluciations.
     pt-br Isso os tornou uma ameaça para os humanos de different formas. Há robôs malucos e assassinos. Há robôs que sequestram seres humanos para escanear seus cérebros à procura de dados para recalibrar suas mentes robóticas e aliviar as alucinações.
 
 paragraph_02

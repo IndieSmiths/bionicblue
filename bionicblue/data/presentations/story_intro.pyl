@@ -1,14 +1,15 @@
 {
 
     'report_id': '2530-07-22 HST 003',
-    'images' : [
+    'animated_sprites' : [
 
         {
-            'name': 'kennedy_logo.png',
+            'name': 'chief_sec_bot',
+            'anim_name': 'idle_left',
             'panel_index': 0,
             'start_pos': [
-                'right',
-                'left',
+                'midright',
+                'midleft',
                 (-30, 0),
             ],
             'end_pos': [
@@ -16,7 +17,55 @@
                 'center',
                 (0, 0),
             ],
-        }
+        },
+
+        {
+            'name': 'forest_master_bot',
+            'anim_name': 'idle_right',
+            'panel_index': 1,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midright',
+                'center',
+                (-5, 0),
+            ],
+        },
+
+        {
+            'name': 'water_master_bot',
+            'anim_name': 'idle_left',
+            'panel_index': 1,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midleft',
+                'center',
+                (5, 0),
+            ],
+        },
+
+        {
+            'name': 'blue_shooter_man',
+            'anim_name': 'walk_right',
+            'panel_index': 4,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
 
     ],
 
