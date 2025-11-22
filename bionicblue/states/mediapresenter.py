@@ -34,6 +34,8 @@ from pygame.math import Vector2
 
 from pygame.display import update
 
+from pygame.draw import rect as draw_rect
+
 
 ### local imports
 
@@ -241,6 +243,40 @@ class MediaPresenter:
 
         )
 
+        ## progress
+
+        self.progress_label = (
+
+            UIObject2D.from_surface(
+                render_text(
+                    TRANSLATIONS.media_presenter.progress + ':',
+                    **INSTRUCTIONAL_TEXT_SETTINGS,
+                )
+            )
+
+        )
+
+        ## exit label
+
+        self.exit_label = (
+
+            UIObject2D.from_surface(
+                render_text(
+                    TRANSLATIONS.media_presenter.press_to_advance,
+                    **INSTRUCTIONAL_TEXT_SETTINGS,
+                )
+            )
+
+        )
+
+        ## rects to assist in displaying report
+
+        self.progress_outline_rect = (
+            Rect(0, 0, SCREEN_RECT.width * .5, 12)
+        )
+
+        self.progress_fill_rect = self.progress_outline_rect.copy()
+
         ### store method to update text surfaces when language changes
         on_language_change.append(self.on_language_change)
 
@@ -310,6 +346,36 @@ class MediaPresenter:
         )
 
         dlabel.rect = dlabel.image.get_rect()
+
+        ###
+
+        plabel = self.progress_label
+
+        plabel.image = (
+
+            render_text(
+                TRANSLATIONS.media_presenter.progress + ':',
+                **INSTRUCTIONAL_TEXT_SETTINGS,
+            )
+
+        )
+
+        plabel.rect = plabel.image.get_rect()
+
+        ###
+
+        elabel = self.exit_label
+
+        elabel.image = (
+
+            render_text(
+                TRANSLATIONS.media_presenter.press_to_advance,
+                **INSTRUCTIONAL_TEXT_SETTINGS,
+            )
+
+        )
+
+        elabel.rect = elabel.image.get_rect()
 
     def prepare(self, presentation_key):
         """Prepare objects for given presentation."""
@@ -429,8 +495,33 @@ class MediaPresenter:
             vobjs.append(panel)
 
 
-        ### reposition directionals label
+        ### reposition labels and progress rects
+
         self.directionals_label.rect.topleft = SCREEN_RECT.move(2, 1).topleft
+
+        self.progress_label.rect.bottomleft = (
+            SCREEN_RECT.move(2, -1).bottomleft
+        )
+
+        self.exit_label.rect.bottomleft = self.progress_label.rect.bottomleft
+
+        ## 
+
+        self.progress_outline_rect.left = self.progress_label.rect.right + 2
+        self.progress_outline_rect.bottom = SCREEN_RECT.bottom - 1
+
+        self.progress_fill_rect.bottomleft = (
+            self.progress_outline_rect.bottomleft
+        )
+
+        ### measure total distance from bottom of visual objects to the lower
+        ### limit of the screen, which will be used to calculate percentage of
+        ### report that was scrolled
+        self.report_height = vobjs.rect.bottom - LOWER_LIMIT
+
+        ### set report's progress to 0, since we are just about to begin
+        ### presenting the report
+        self.report_progress = 0.0
 
     def create_presentation(self, presentation_key, locale):
         """Create presentation elements, using given locale for text."""
@@ -870,7 +961,58 @@ class MediaPresenter:
 
         self.directionals_label.draw()
 
+        ### progress or continue label
+
+        self.report_progress = (
+
+            1 - (
+
+                (self.all_visible_objs.rect.bottom - LOWER_LIMIT)
+
+                / self.report_height
+
+            )
+
+        )
+
+        if self.report_progress < 1:
+            self.draw_progress_widgets()
+
+        else:
+            self.exit_label.draw()
+
         update()
+
+
+    def draw_progress_widgets(self):
+
+        progress = self.report_progress
+
+        self.progress_label.draw()
+
+        self.progress_fill_rect.width = (
+            self.progress_outline_rect.width * progress
+        )
+
+        if progress < .3:
+            progress_color = 'red'
+        elif progress > .7:
+            progress_color = 'green'
+        else:
+            progress_color = 'orangered'
+
+        draw_rect(
+            SCREEN,
+            progress_color,
+            self.progress_fill_rect,
+        )
+
+        draw_rect(
+            SCREEN,
+            'yellow',
+            self.progress_outline_rect,
+            1,
+        )
 
 
 ### utility functions
