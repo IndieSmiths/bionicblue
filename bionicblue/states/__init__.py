@@ -30,7 +30,7 @@ from .loadgamescreen import LoadGameScreen
 
 from .transitionscreen import TransitionScreen
 
-from .mediapresenter import MediaPresenter
+from .reportpresenter import ReportPresenter
 
 
 
@@ -57,4 +57,4 @@ def setup_states():
     states.slot_creation_screen = SlotCreationScreen()
     states.load_game_screen = LoadGameScreen()
     states.transition_screen = TransitionScreen()
-    states.media_presenter = MediaPresenter()
+    states.report_presenter = ReportPresenter()

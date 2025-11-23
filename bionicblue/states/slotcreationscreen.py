@@ -816,7 +816,7 @@ class SlotCreationScreen:
 def present_intro():
     """Trigger presentation of game's introduction."""
 
-    media_presenter = REFS.states.media_presenter
-    media_presenter.prepare('story_intro')
+    report_presenter = REFS.states.report_presenter
+    report_presenter.prepare('story_intro')
 
-    raise LoopException(next_state=media_presenter)
+    raise LoopException(next_state=report_presenter)
