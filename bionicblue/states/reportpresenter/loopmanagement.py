@@ -1,7 +1,4 @@
-"""Facility to present media to convey information.
-
-Media is comprised of text, images and animated sprites.
-"""
+"""Facility with class extension for report presenter."""
 
 ### third-party imports
 
@@ -12,7 +9,6 @@ from pygame.locals import (
     QUIT,
 
     KEYDOWN,
-    K_ESCAPE,
     K_RETURN,
     K_DOWN,
     K_UP,
@@ -34,9 +30,7 @@ from pygame.draw import rect as draw_rect
 
 from ...config import (
     REFS,
-    SURF_MAP,
     SOUND_MAP,
-    PRESENTATIONS_DIR,
     LoopException,
     quit_game,
 )
@@ -107,16 +101,13 @@ class ReportLoopManagement:
     """Loop management for report presenter class."""
 
     def control(self):
-        """Let user speed up presentation or skip altogether."""
+        """Let user navigate report or skip altogether."""
 
         for event in SERVICES_NS.get_events():
 
             if event.type == KEYDOWN:
 
-                if event.key == K_ESCAPE:
-                    quit_game()
-
-                elif event.key == K_RETURN:
+                if event.key == K_RETURN:
                     self.leave_report()
 
             elif event.type == JOYBUTTONDOWN:
@@ -159,6 +150,8 @@ class ReportLoopManagement:
             self.move_backwards()
 
     def leave_report(self):
+
+        SOUND_MAP['ui_success.wav'].play()
 
         transition_screen = REFS.states.transition_screen
         transition_screen.prepare(start_first_level)

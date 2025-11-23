@@ -1,7 +1,4 @@
-"""Facility to present media to convey information.
-
-Media is comprised of text, images and animated sprites.
-"""
+"""Facility with class extension for report presenter."""
 
 ### standard library imports
 
@@ -58,20 +55,20 @@ _WORD_DEQUE = deque()
 class ReportPreprocessing:
     """Preprocessing operations for report presenter class."""
 
-    def create_presentation(self, presentation_key, locale):
-        """Create presentation elements, using given locale for text."""
+    def create_report(self, report_key, locale):
+        """Create report elements, using given locale for text."""
 
         ### grab data
-        data = self.data_map[presentation_key]
+        data = self.data_map[report_key]
 
-        ### create presentation
-        presentation = {}
+        ### create report
+        report = {}
 
         ### populate it according to data
 
         ## report id (fictional id, has nothing to do with game internals)
 
-        presentation['id_label'] = (
+        report['id_label'] = (
 
             UIObject2D.from_surface(
                 render_text(
@@ -84,7 +81,7 @@ class ReportPreprocessing:
 
         ## images
 
-        processed_images_data = presentation['images'] = {}
+        processed_images_data = report['images'] = {}
 
         for loaded_image_data in data.get('images', ()):
 
@@ -117,7 +114,7 @@ class ReportPreprocessing:
 
         ## animated sprites
 
-        processed_anisprites_data = presentation['animated_sprites'] = {}
+        processed_anisprites_data = report['animated_sprites'] = {}
 
         for loaded_anisprite_data in data.get('animated_sprites', ()):
 
@@ -160,7 +157,7 @@ class ReportPreprocessing:
 
         ## sound
 
-        processed_sounds_data = presentation['sounds'] = {}
+        processed_sounds_data = report['sounds'] = {}
 
         for loaded_sound_data in data.get('sounds', ()):
 
@@ -188,7 +185,7 @@ class ReportPreprocessing:
 
         ## music
 
-        processed_music_data = presentation['music'] = {}
+        processed_music_data = report['music'] = {}
 
         for loaded_music_data in data.get('music', ()):
 
@@ -206,27 +203,28 @@ class ReportPreprocessing:
             ### like sound, must think of ways to time triggering music
 
 
-        ### store the presentation
-        self.presentation_map[presentation_key] = presentation
+        ### store the report
+        self.report_map[report_key] = report
 
         ### create textual elements
-        self.create_and_integrate_textual_elements(presentation_key, locale)
+        self.create_and_integrate_textual_elements(report_key, locale)
 
-    def create_and_integrate_textual_elements(self, presentation_key, locale):
-        """Create textual elements and add to presentation."""
+    def create_and_integrate_textual_elements(self, report_key, locale):
+        """Create textual elements and add to report."""
 
-        pdata = self.presentation_map[presentation_key]
-        tpm = self.textual_presentation_map
+        rdata = self.report_map[report_key]
 
-        plocale_data = tpm[presentation_key][locale] = {}
+        plocale_data = self.textual_report_map[report_key][locale] = {}
 
-        paragraphs = pdata['paragraphs'] = plocale_data['paragraphs'] = UIList2D()
+        paragraphs = rdata['paragraphs'] = plocale_data['paragraphs'] = (
+            UIList2D()
+        )
 
-        pdata['paragraphs'] = paragraphs
+        rdata['paragraphs'] = paragraphs
 
         ###
 
-        t = getattr(TRANSLATIONS, presentation_key)
+        t = getattr(TRANSLATIONS, f'{report_key}_report')
 
         next_index = count().__next__
 
@@ -312,6 +310,6 @@ class ReportPreprocessing:
             width=1,
         )
 
-        pdata['description_label'] = plocale_data['description_label'] = (
+        rdata['description_label'] = plocale_data['description_label'] = (
             description_label
         )

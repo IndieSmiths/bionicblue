@@ -13,7 +13,7 @@ from pygame import Rect
 
 ### local imports
 
-from ...config import PRESENTATIONS_DIR
+from ...config import REPORTS_DIR
 
 from ...pygamesetup.constants import SCREEN_RECT
 
@@ -66,7 +66,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         dm = self.data_map = {}
 
-        for path in PRESENTATIONS_DIR.iterdir():
+        for path in REPORTS_DIR.iterdir():
 
             if path.suffix.lower() == '.pyl':
 
@@ -75,19 +75,19 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
                 except Exception as err:
 
-                    print("Error while trying to load presentation")
+                    print("Error while trying to load report")
                     print()
                     raise
 
                 else:
                     dm[path.stem] = data
 
-        ### map for all presentation elements
-        self.presentation_map = defaultdict(dict)
+        ### map for all report elements
+        self.report_map = defaultdict(dict)
 
         ### map for textual elements, since they are dependent on the
         ### locale/language
-        self.textual_presentation_map = defaultdict(dict)
+        self.textual_report_map = defaultdict(dict)
 
         ### grab current locale
         locale = USER_PREFS['LOCALE']
@@ -107,11 +107,11 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         self.all_visible_objs = UIList2D()
 
-        ### create presentation elements for all presentations (using current
+        ### create report elements for all reports (using current
         ### locale/language, for textual elements)
 
-        for presentation_key in dm:
-            self.create_presentation(presentation_key, locale)
+        for report_key in dm:
+            self.create_report(report_key, locale)
 
         ### labels
 
@@ -185,17 +185,17 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         ### if textual elements were not built for it, do so
 
-        tpm = self.textual_presentation_map
+        trm = self.textual_report_map
 
         if any(
             locale not in submap
-            for submap in tpm.values()
+            for submap in trm.values()
         ):
 
-            for presentation_key in tpm:
+            for report_key in trm:
 
                 self.create_and_integrate_textual_elements(
-                    presentation_key,
+                    report_key,
                     locale,
                 )
 
@@ -203,15 +203,15 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         else:
 
-            pmap = self.presentation_map
+            rmap = self.report_map
 
-            for presentation_key, submap in tpm.items():
+            for report_key, submap in trm.items():
 
                 locale_map = submap[locale]
-                pdata = pmap[presentation_key]
+                rdata = rmap[report_key]
 
-                pdata['paragraphs'] = locale_map['paragraphs']
-                pdata['description_label'] = locale_map['description_label']
+                rdata['paragraphs'] = locale_map['paragraphs']
+                rdata['description_label'] = locale_map['description_label']
 
         ### update labels
 
@@ -274,16 +274,16 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         elabel.rect = elabel.image.get_rect()
 
-    def prepare(self, presentation_key):
-        """Prepare objects for given presentation."""
+    def prepare(self, report_key):
+        """Prepare objects for given report."""
 
-        presentation = self.presentation_map[presentation_key]
+        report = self.report_map[report_key]
 
         ### images
 
         append_image = self.images.append
 
-        processed_images_data = presentation['images']
+        processed_images_data = report['images']
 
         for image_data in processed_images_data.values():
 
@@ -296,7 +296,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         append_anisprite = self.anisprites.append
 
-        processed_anisprites_data = presentation['animated_sprites']
+        processed_anisprites_data = report['animated_sprites']
 
         for anisprite_data in processed_anisprites_data.values():
 
@@ -309,7 +309,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         append_sound = self.sounds.append
 
-        processed_sounds_data = presentation['sounds']
+        processed_sounds_data = report['sounds']
 
         for sound_data in processed_sounds_data.values():
             append_sound(sound_data['sound'])
@@ -319,7 +319,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         append_music = self.music.append
 
-        processed_music_data = presentation['music']
+        processed_music_data = report['music']
 
         for music_data in processed_music_data.values():
             append_music(music_data['name'])
@@ -327,7 +327,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
         ### text
 
         ## retrieve paragraphs
-        paragraphs = presentation['paragraphs']
+        paragraphs = report['paragraphs']
 
         ## align lines in each paragraph one below the other
 
@@ -359,8 +359,8 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
         ## collection of visible objs
 
         report_label = self.report_label
-        id_label = presentation['id_label']
-        description_label = presentation['description_label']
+        id_label = report['id_label']
+        description_label = report['description_label']
 
         report_label.rect.top = UPPER_LIMIT
 
