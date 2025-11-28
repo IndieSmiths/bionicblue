@@ -155,52 +155,43 @@ class ReportPreprocessing:
             ):
                 setattr(anisprite_obj, key, loaded_anisprite_data[key])
 
+        ## XXX sound will be implemented at a later data,
+        ## if at all
+        ##
+        ## also, must think of ways to time triggering sound;
+        ##
+        ## possibilities:
+        ##
+        ## - at beginning of section
+        ## - at end of section
+        ## - on elapsed time starting from beginning of section
+        ## - on animation pose
+        ## - on image positioning step
+        ## - on animation positioning step
+
         ## sound
 
-        processed_sounds_data = report['sounds'] = {}
+#        processed_sounds_data = report['sounds'] = {}
+#
+#        for loaded_sound_data in data.get('sounds', ()):
+#
+#            ###
+#            sound_name = loaded_sound_data['name']
+#
+#            ###
+#            sound_data = processed_sounds_data[sound_name] = {}
+#
+#            ###
+#            sound_obj = sound_map[sound_name]
+#
+#            sound_data['sound'] = sound_obj
 
-        for loaded_sound_data in data.get('sounds', ()):
-
-            ###
-            sound_name = loaded_sound_data['name']
-
-            ###
-            sound_data = processed_sounds_data[sound_name] = {}
-
-            ###
-            sound_obj = SOUND_MAP[sound_name]
-
-            sound_data['sound'] = sound_obj
-
-            ### TODO
-            ### must think of ways to time triggering sound; possibilities:
-            ###
-            ### - at beginning of section
-            ### - at end of section
-            ### - on elapsed time starting from beginning of section
-            ### - on animation pose
-            ### - on image positioning step
-            ### - on animation positioning step
 
 
         ## music
 
-        processed_music_data = report['music'] = {}
-
-        for loaded_music_data in data.get('music', ()):
-
-            ###
-            music_name = loaded_music_data['name']
-
-            ###
-            music_data = processed_music_data[music_name] = {}
-
-            ###
-            music_data['name'] = music_name
-
-            ### TODO
-            ###
-            ### like sound, must think of ways to time triggering music
+        if 'music' in data:
+            report['music'] = data['music']
 
 
         ### store the report

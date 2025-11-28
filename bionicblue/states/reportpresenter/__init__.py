@@ -7,13 +7,16 @@ Media is comprised of text, images and animated sprites.
 from collections import defaultdict
 
 
-### third-party import
+### third-party imports
+
 from pygame import Rect
+
+from pygame.mixer import music
 
 
 ### local imports
 
-from ...config import REPORTS_DIR
+from ...config import REPORTS_DIR, MUSIC_DIR
 
 from ...pygamesetup.constants import SCREEN_RECT
 
@@ -101,9 +104,6 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
         self.anisprites_to_advance = UIList2D()
 
         self.objs_to_remove = []
-
-        self.sounds = []
-        self.music = []
 
         self.all_visible_objs = UIList2D()
 
@@ -305,24 +305,34 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
             obj.step_no = 0
             append_anisprite(obj)
 
+        ### XXX
+        ###
+        ### sound support will be implemented at a later
+        ### data, if at all
+
         ### sound
 
-        append_sound = self.sounds.append
-
-        processed_sounds_data = report['sounds']
-
-        for sound_data in processed_sounds_data.values():
-            append_sound(sound_data['sound'])
+#        append_sound = self.sounds.append
+#
+#        processed_sounds_data = report['sounds']
+#
+#        for sound_data in processed_sounds_data.values():
+#            append_sound(sound_data['sound'])
 
 
         ### music
 
-        append_music = self.music.append
+        if 'music' in report:
 
-        processed_music_data = report['music']
+            music_volume = (
+                (USER_PREFS['MASTER_VOLUME']/100)
+                * (USER_PREFS['MUSIC_VOLUME']/100)
+            )
 
-        for music_data in processed_music_data.values():
-            append_music(music_data['name'])
+            music.set_volume(music_volume)
+            music.load(str(MUSIC_DIR / report['music']))
+            music.play(-1)
+            print("Playing music:", report['music'])
 
         ### text
 
