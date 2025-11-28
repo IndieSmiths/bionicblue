@@ -1,0 +1,33 @@
+{
+    "name": "greenery",
+    "geometry": {
+        "scenery" : {
+            "size" : (40, 40),
+            "art_size" : (40, 40),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+    },
+    "objects" : {
+        "scenery" : {"geometry": "scenery"},
+    },
+    "existing_structures" : {
+        "standing" : {"tree" : {"name": "scenery"}},
+    },
+    "animations" :{
+        "idle": {"structure": "standing"},
+    },
+    "values": {
+        "idle": {
+            "scenery": {
+                "surfaces": "greenery.idle",
+            },
+        },
+    },
+    "timing": {
+        "idle": {
+            "scenery": {
+                "surface_indices": "greenery.idle",
+            },
+        },
+    },
+}
