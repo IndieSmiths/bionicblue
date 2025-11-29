@@ -261,11 +261,12 @@ class LevelManager:
 
         ### scroll level so player ends up positioned above given label
 
-        # temporarily using 'endpoint' for testing/development;
+        # can be be 'landing', 'midpoint' or 'endpoint' depending on which
+        # checkpoint the player reached
         #
-        # normally this will be 'landing' or whichever checkpoint the player
-        # reached (which may actually be 'endpoint')
-        label_name = 'endpoint'
+        # for now, while we are still adding content to the first level,
+        # we'll hardcode this value to specific areas of interest
+        label_name = 'landing'
 
         landing_pos = next(
             label_data
