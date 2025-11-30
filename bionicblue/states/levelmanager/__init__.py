@@ -1,3 +1,4 @@
+"""Facility for level manager class."""
 
 ### standard library import
 from functools import partialmethod
@@ -529,6 +530,7 @@ class LevelManager:
             HEALTH_COLUMNS.add(REFS.level_boss.health_column)
 
             self.player.stop_charging()
+            self.player.reset_time_tracking_attributes()
 
             # TODO probaby use time in milliseconds, converting to
             # frames before feeding to function
