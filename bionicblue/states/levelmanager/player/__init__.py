@@ -1,6 +1,10 @@
+"""Facility for Player class."""
 
-### standard library import
+### standard library imports
+
 from itertools import chain
+
+from math import inf as INFINITY
 
 
 ### local imports
@@ -90,9 +94,8 @@ class Player(
         ###
         self.draw_charging_fx = do_nothing
 
-        ###
-
-        self.last_shot = self.last_damage = self.charge_start = 0
+        ### set initial values for time tracking attributes
+        self.reset_time_tracking_attributes()
 
         ###
 
@@ -311,6 +314,14 @@ class Player(
             )
 
         )
+
+    def reset_time_tracking_attributes(self):
+        """(Re)set initial value for time tracking attributes
+
+        We set them to negative infinity so next time each attribute is
+        checked it is as though an infinite amount of time elapsed.
+        """
+        self.last_shot = self.last_damage = self.charge_start = -INFINITY
 
     def check_invisibility(self):
 
