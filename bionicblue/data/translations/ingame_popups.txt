@@ -1,0 +1,8 @@
+
+after_meal_power_up
+
+    caption
+        en-us Meal power-up
+
+    message
+        en-us Nutrients and minerals from a delicious meal increase your systems's efficiency. Now your health slowly recovers over time.

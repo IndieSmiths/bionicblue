@@ -1,0 +1,269 @@
+{
+
+    'action_map': {
+
+        # theme to play
+
+        'play_theme': {
+
+            'type': 'play_music',
+
+            'keyword_arguments': {
+                # XXX perhaps pick a triumphant or calm theme?
+                'music_filename': 'level_1_by_juhani_junkala.ogg',
+            },
+
+        },
+
+        # camera pans a bit (just vertically), so Blue and Kane
+        # are well framed on the screen
+
+        'camera_pans_up': {
+
+            'type': 'pan_camera',
+
+            'keyword_arguments' : {
+                'delta_x': 0,
+                'delta_y': -10,
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 2,
+                'frames_between_steps': 2,
+            },
+
+        },
+
+        'move_blue_away': {
+
+            'type': 'scripted_acting',
+
+            'keyword_arguments': {
+
+                'character': 'Blue',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'walk_away_and_face',
+                        'target': 'boss',
+                        'abs_delta_x': 64,
+                    },
+
+                ],
+            },
+        },
+
+        'pause_music': {
+            'type': 'pause_music',
+        },
+
+        'set_defeated_animation_for_kane': {
+
+            'type': 'set_animation_blend',
+
+            'keyword_arguments': {
+                'targets': ['Kane'],
+                'animation_blend': 'defeated',
+            },
+
+        },
+
+        'play_deactivation_sound': {
+
+            'type': 'play_sounds',
+
+            'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('boss_deactivating.wav', 0),
+                )
+
+            },
+
+        },
+
+        'set_deactivated_animation_for_kane': {
+
+            'type': 'set_animation_blend',
+
+            'keyword_arguments': {
+                'targets': ['Kane'],
+                'animation_blend': 'deactivated',
+                'once': True,
+            },
+
+        },
+
+        'play_boss_defeat_triumph_sound': {
+
+            'type': 'play_sounds',
+
+            'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('triumph_on_defeating_boss.wav', 1),
+                )
+
+            },
+
+        },
+
+        'blue_hops': {
+
+            'type': 'scripted_acting',
+
+            'keyword_arguments': {
+
+                'character': 'Blue',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'wait',
+                        'secs': 1,
+                    },
+
+                    {
+                        'type': 'wait',
+                        'animation_blend': 'hop',
+                        'secs': 4,
+                    },
+
+                ],
+            },
+
+        },
+
+        'smartphone_rings': {
+
+            'type': 'play_sounds',
+
+            'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('smphone_ringing.wav', 5),
+                    ('smphone_ringing.wav', 6),
+                    ('smphone_ringing.wav', 7),
+                    ('smphone_picking_up_call.wav', 7.8),
+                )
+
+            },
+
+        },
+
+        'place_smartphone': {
+            'type': 'place_smartphone',
+            'delay_secs': 5,
+        },
+
+        'put_smartphone_on_call': {
+            'type': 'put_smartphone_on_call',
+            'delay_secs': 7.8,
+        },
+
+        'set_smartphone_animation_for_blue_and_newton': {
+
+            'type': 'set_animation_blend',
+
+            'delay_secs': 7.8,
+
+            'keyword_arguments': {
+                'targets': ['Blue', 'Newton'],
+                'animation_blend': 'smartphone',
+            },
+
+        },
+
+        ######################
+
+        'remove_smartphone_animation_for_blue_and_newton': {
+
+            'type': 'remove_animation_blend',
+
+            'keyword_arguments': {
+                'targets': ['Blue', 'Newton'],
+            },
+
+        },
+
+        'play_end_call_sound': {
+
+            'type': 'play_sounds',
+
+            'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('smphone_ending_call.wav', 0),
+                )
+            },
+
+        },
+
+        'end_smartphone_call': {
+            'type': 'end_smartphone_call',
+        },
+
+        'remove_smartphone': {
+            'type': 'remove_smartphone',
+            'delay_secs': 2.4,
+        },
+
+        'play_stage_clear_triumph_sound': {
+
+            'type': 'play_sounds',
+
+            'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('triumph_on_clearing_stage.wav', 2.4),
+                )
+            },
+
+        },
+
+        'blue_victory_pose': {
+
+            'type': 'scripted_acting',
+
+            'delay_secs': 2.4,
+
+            'keyword_arguments': {
+
+                'character': 'Blue',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'wait',
+                        'animation_blend': 'triumph',
+                        'secs': 5,
+                    },
+
+                ],
+            },
+
+        },
+
+        #'display_mission_complete_text': {
+        #    'type': 'display_mission_complete_text',
+        #},
+
+        'teleport_blue_away': {
+            'type': 'teleport_blue_away',
+            'delay_secs': 7.4,
+        },
+
+        # boss defeat is recorded in slot data
+
+        'record_boss_defeat': {
+            'type': 'save_progress',
+
+            'keyword_arguments': {
+                'progress_collection_name': 'beaten_bosses',
+                'progress_value': 'kane',
+            },
+        },
+
+    },
+
+}

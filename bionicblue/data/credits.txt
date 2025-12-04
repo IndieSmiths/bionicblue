@@ -14,6 +14,7 @@
             [Title Screen](https://opengameart.org/content/5-chiptunes-action)
             [Level 1](https://opengameart.org/content/5-chiptunes-action)
             [Boss Fight](https://opengameart.org/content/4-chiptunes-adventure)
+            [Stage 1](https://opengameart.org/content/4-chiptunes-adventure)
     TokyoGeisha
         [opengameart](https://opengameart.org/users/tokyogeisha)
         {tracks}
@@ -21,6 +22,7 @@
 
 {assets_cc0_sounds}
     [CaptainYulef](https://freesound.org/people/CaptainYulef/sounds/640869/)
+    [congusbongus](https://opengameart.org/content/new-thing-get)
     [Daftrio](https://freesound.org/people/Daftrio/sounds/816737/)
     [MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/515005/)
     [Milky0519](https://freesound.org/people/Milky0519/sounds/581433/)
@@ -37,6 +39,8 @@
     [sheepfilms](https://freesound.org/people/sheepfilms/sounds/154795/)
     [titobari](https://freesound.org/people/titobari/sounds/577057/)
     [unfa](https://freesound.org/people/unfa/sounds/187119/)
+    [celestialghost8](https://opengameart.org/content/victory)
+    [Juhani Junkala](https://opengameart.org/content/512-sound-effects-8-bit-style)
 
 {assets_sil_fonts}
     [takwolf](https://ark-pixel-font.takwolf.com/)

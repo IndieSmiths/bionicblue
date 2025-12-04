@@ -1,0 +1,132 @@
+{
+
+    ## this data describes the same set of actions that take place
+    ## during 02 different dialogues
+
+    'dialogue_names': [
+        'giovanni_pre_boss',
+        'giovanni_post_boss',
+    ],
+
+    'action_map': {
+
+        # camera pans a bit to the right, so Blue and Giovanni
+        # are well framed on the screen
+
+        'frame_blue_and_giovanni': {
+
+            'type': 'pan_camera',
+
+            'keyword_arguments' : {
+                'delta_x': -70,
+                'delta_y': -10,
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 2,
+                'frames_between_steps': 2,
+            },
+
+        },
+
+        # play npc dialogue music
+
+        'play_npc_theme': {
+
+            'type': 'play_music',
+
+            'keyword_arguments': {
+                'music_filename': 'chiptune_adv_stage1_by_juhani_junkala.ogg',
+            },
+
+        },
+
+        'display_dish' : {
+
+            'type': 'display_dish',
+
+            'keyword_arguments': {
+                'animation_name': 'lasagna',
+                'lines_to_wait': 3,
+            }
+
+        },
+
+        # Blue walks out of the screen
+
+        'blue_walks_away': {
+
+            'type': 'scripted_acting',
+
+            'keyword_arguments': {
+
+                'character': 'Blue',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'walk',
+                        'delta_x': -150,
+                    },
+
+                ],
+            },
+
+        },
+
+        # npc gate is closed
+
+        'npc_gate_closes': {
+            'type': 'npc_gate_closes',
+        },
+
+        # restore level music
+
+        'restore_level_theme': {
+
+            'type': 'play_music',
+
+            'keyword_arguments': {
+                'music_filename': 'level_1_by_juhani_junkala.ogg',
+            },
+
+        },
+
+        # camera pans to Blue at end of dialogue
+
+        'camera_pans_to_Blue': {
+
+            'type': 'pan_camera',
+
+            'keyword_arguments': {
+                'delta_x': 180,
+                'delta_y': 10,
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 4,
+                'frames_between_steps': 2,
+            },
+
+        },
+
+        # place food box
+
+        'place_food_box': {
+            'type': 'place_food_box',
+        },
+
+        # encounter with Giovanni is recorded in slot data
+
+        'record_encounter': {
+
+            'type': 'save_progress',
+
+            'keyword_arguments': {
+                'progress_collection_name': 'encounters',
+                'progress_value': 'giovanni',
+            },
+
+        },
+
+    },
+
+}

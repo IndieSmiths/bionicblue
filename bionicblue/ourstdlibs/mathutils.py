@@ -210,3 +210,26 @@ def get_rect_from_points(point_a, point_b):
 
     ### finally return the tuple
     return (left, top, width, height)
+
+def lerp(a, b, value):
+    """Same as pygame-ce's pygame.math.lerp().
+
+    The very code was copied from its documentation.
+
+    This replacement is to be used only when pygame-ce's version used
+    doesn't include pygame.math.lerp() (since it is a relatively
+    new addition).
+    """
+    return a + (b - a) * value
+
+def smoothstep(a, b, value):
+    """Same as pygame-ce's pygame.math.smoothstep().
+
+    The very code was copied from its documentation.
+
+    This replacement is to be used only when pygame-ce's version used
+    doesn't include pygame.math.smoothstep() (since it is a relatively
+    new addition).
+    """
+    interp = value * value * (3 - 2 * value)
+    return a * interp + (1 - interp) * b

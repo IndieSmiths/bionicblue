@@ -61,6 +61,9 @@ REFS.__dict__.update(dict(
 
     states = Object(),
 
+    dialogue_action_cueing_data = {},
+    dialogue_character_names_set_map = {},
+
     enable_overall_tracking_for_camera = (
         lambda: REFS.states.level_manager.enable_overall_tracking_for_camera()
     ),
@@ -94,6 +97,8 @@ SOUNDS_DIR = DATA_DIR / 'sounds'
 MUSIC_DIR = DATA_DIR / 'music'
 LEVELS_DIR = DATA_DIR / 'levels'
 PARTICLES_DIR = DATA_DIR / 'particles'
+MOTION_PATHS_DIR = DATA_DIR / 'motion_paths'
+SCRIPTED_SCENES_DATA_DIR = DATA_DIR / 'scripted_scenes_data'
 
 TRANSLATIONS_DIR = DATA_DIR / 'translations'
 LANGUAGE_NAMES_FILEPATH = TRANSLATIONS_DIR / 'language_native_names.pyl'

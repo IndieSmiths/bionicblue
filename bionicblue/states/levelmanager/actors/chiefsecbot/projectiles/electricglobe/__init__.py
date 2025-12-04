@@ -23,7 +23,9 @@ from .......config import REFS, COLORKEY, SOUND_MAP
 
 from .......pygamesetup.constants import blit_on_screen, msecs_to_frames
 
-from .....common import PROJECTILES, append_task
+from .....common import PROJECTILES
+
+from .....taskmanager import append_ready_task
 
 from .assist import (
     RADII,
@@ -139,7 +141,7 @@ class ElectricGlobe:
 
     def trigger_kill(self):
 
-        append_task(partial(PROJECTILES.remove, self))
+        append_ready_task(partial(PROJECTILES.remove, self))
 
         self.instances.remove(self)
 

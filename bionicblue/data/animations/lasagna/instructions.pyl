@@ -1,0 +1,33 @@
+{
+    "name": "lasagna",
+    "geometry": {
+        "body" : {
+            "size" : (40, 40),
+            "art_size" : (40, 40),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "stationary" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "idle": {"structure": "stationary"},
+    },
+    "values": {
+        "idle": {
+            "body": {
+                "surfaces": "lasagna.idle",
+            },
+        },
+    },
+    "timing": {
+        "idle": {
+            "body": {
+                "surface_indices": "lasagna.idle",
+            },
+        },
+    },
+}

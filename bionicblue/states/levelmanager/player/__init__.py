@@ -6,6 +6,8 @@ from itertools import chain
 
 from math import inf as INFINITY
 
+from collections import deque
+
 
 ### local imports
 
@@ -13,6 +15,7 @@ from ....config import REFS, SOUND_MAP
 
 from ....constants import (
     GRAVITY_ACCEL,
+    X_SPEED,
     MAX_Y_SPEED,
     DAMAGE_REBOUND_FRAMES,
     MIDDLE_CHARGE_FRAMES,
@@ -24,6 +27,7 @@ from ....pygamesetup.constants import (
     SCREEN_RECT,
     SCREEN,
     blit_on_screen,
+    msecs_to_frames,
 )
 
 from ....ourstdlibs.behaviour import do_nothing
@@ -40,6 +44,7 @@ from .healthcolumn import HealthColumn
 ## states
 
 from .teleportingin import TeleportingIn
+from .teleportingout import TeleportingOut
 
 from .idleright import IdleRight
 from .idleleft import IdleLeft
@@ -53,6 +58,8 @@ from .dead import Dead
 from .grabbed import Grabbed
 from .hurled import Hurled
 
+from .scriptedacting import ScriptedActing
+
 ## function
 from .chargingparticles import draw_charging_particles
 
@@ -63,6 +70,7 @@ UNHURLEABLE_STATES = frozenset(('dead', 'hurled'))
 
 class Player(
     TeleportingIn,
+    TeleportingOut,
     IdleRight,
     IdleLeft,
     WalkRight,
@@ -71,6 +79,7 @@ class Player(
     Dead,
     Grabbed,
     Hurled,
+    ScriptedActing,
 ):
 
     def __init__(self):
@@ -104,6 +113,9 @@ class Player(
         self.y_accel = 10
 
         self.jump_dy = -15
+
+        ###
+        self.scripted_actions_deque = deque()
 
     def prepare(self):
 
@@ -475,3 +487,146 @@ class Player(
         )
 
         self.set_state('hurled')
+
+    def act_on_given_script(self, scripted_actions_data, dry_run=False):
+        """Enter state where Blue moves, return frame count duration.
+
+        If dry_run is True, we only calculate the frame count duration, never
+        entering the scripted acting state.
+        """
+
+        total_scripted_frames = 0
+        actions_deque = self.scripted_actions_deque
+
+        for data in scripted_actions_data:
+
+            type_ = data['type']
+
+            if type_ == 'walk':
+
+                delta_x = data['delta_x']
+
+                x_speed = -X_SPEED if delta_x < 0 else X_SPEED
+                y_speed = 0
+
+                anim_name = 'walk_left' if delta_x < 0 else 'walk_right'
+
+                scripted_frames_count = round(abs(delta_x) / X_SPEED)
+
+                total_scripted_frames += scripted_frames_count
+
+                actions_deque.append(
+                    {
+                        'x_speed': x_speed,
+                        'y_speed': y_speed,
+                        'anim_name': anim_name,
+                        'scripted_frames_count': scripted_frames_count
+                    }
+                )
+
+            elif type_ == 'wait':
+
+                x_speed = 0
+                y_speed = 0
+
+                anim_name = (
+
+                    'idle_left'
+                    if 'left' in self.aniplayer.anim_name
+
+                    else 'idle_right'
+
+                )
+
+                scripted_frames_count = msecs_to_frames(data['secs'] * 1000)
+
+                total_scripted_frames += scripted_frames_count
+
+                actions_deque.append(
+
+                    {
+                        'x_speed': x_speed,
+                        'y_speed': y_speed,
+                        'anim_name': anim_name,
+                        'anim_blend': data.get('animation_blend', ''),
+                        'scripted_frames_count': scripted_frames_count
+                    }
+
+                )
+
+            elif type_ == 'walk_away_and_face':
+
+                if data.get('target', '') == 'boss':
+
+                    boss_rect = REFS.level_boss.rect
+                    abs_delta_x = data['abs_delta_x']
+
+                    centerx = boss_rect.centerx + (
+                        abs_delta_x
+                        if boss_rect.centerx < SCREEN_RECT.centerx
+                        else -abs_delta_x
+                    )
+
+                    delta_x = centerx - self.rect.centerx
+
+                    orientation_to_face = (
+                        'right' if centerx < boss_rect.centerx else 'left'
+                    )
+
+                else:
+                    raise ValueError("'target' must be 'boss'")
+
+                x_speed = -X_SPEED if delta_x < 0 else X_SPEED
+                y_speed = 0
+
+                anim_name = 'walk_left' if delta_x < 0 else 'walk_right'
+
+                scripted_frames_count = round(abs(delta_x) / X_SPEED)
+
+                total_scripted_frames += scripted_frames_count
+
+                actions_deque.append(
+
+                    {
+                        'x_speed': x_speed,
+                        'y_speed': y_speed,
+                        'anim_name': anim_name,
+                        'scripted_frames_count': scripted_frames_count,
+                        'orientation_to_face': orientation_to_face,
+                    }
+
+                )
+
+            else:
+
+                raise ValueError(
+                    "'type_' must be one used in previous if/elif clauses."
+                )
+
+        if not dry_run:
+
+            self.set_state('scripted_acting')
+            self._set_next_scripted_action(actions_deque.popleft())
+
+        return total_scripted_frames
+
+    def _set_next_scripted_action(self, action_data):
+
+        self.aniplayer.switch_animation(action_data['anim_name'])
+        anim_blend = self.anim_blend = action_data.get('anim_blend', '')
+
+        if anim_blend:
+            self.aniplayer.blend(f'+{anim_blend}')
+
+        orientation_to_face = self.orientation_to_face = (
+            action_data.get('orientation_to_face', '')
+        )
+
+        self.scripted_frames_count = action_data['scripted_frames_count']
+        self.x_speed = action_data['x_speed']
+        self.y_speed = action_data['y_speed']
+
+    def teleport_away(self):
+
+        self.aniplayer.switch_animation('dematerializing')
+        self.set_state('teleporting_out')

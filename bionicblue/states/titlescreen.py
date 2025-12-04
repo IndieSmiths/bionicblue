@@ -199,7 +199,7 @@ class TitleScreen:
 
         REFS.bb_title.draw()
 
-        REFS.blue_boy.ap.draw()
+        REFS.blue_boy.aniplayer.draw()
 
         if self.draw_label_flag:
             self.press_any_button_label.draw()

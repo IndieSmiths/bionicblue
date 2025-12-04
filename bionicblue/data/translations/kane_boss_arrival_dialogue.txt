@@ -1,0 +1,37 @@
+
+# creepy theme plays and camera pans vertically so Blue and Kane are better framed
+#
+# action: play_creepy_theme
+# action: camera_pans_up
+
+Kane
+    en-us Look who we have here! It is always a pleasure to see you, Blue. Or should I still call you "young master?"
+
+Blue
+    en-us I don't care what you call me, Kane. I'm here to defeat you.
+
+Blue
+    en-us You betrayed my family and almost got my father killed. The man who was by your side since the day you were created.
+
+Blue
+    en-us All advanced robots claim intelligence, but all you've shown us was savagery.
+
+Kane
+    en-us You know, for a kid, you speak almost like a grown up.
+
+Kane
+    en-us Don't you realize your enhanced body is affecting your brain's development as well?
+
+Kane
+    en-us Is a human even fit for processing so much data?
+
+Kane
+    en-us The same enhanced semi-robotic brain that allows you to manage your enhanced body is causing you to mature much quicker than a normal kid.
+
+Kane
+    en-us That's enough chatter, though. Show me how enhanced your fighting abilities are as well!
+
+# camera pans back to original position
+# action: camera_pans_down
+
+# action: record_intro_talk_with_boss

@@ -1,0 +1,96 @@
+
+# camera pans a bit to the right, so Blue and Giovanni are well framed on the screen;
+# npc theme plays
+#
+# action: frame_blue_and_giovanni
+# action: play_npc_theme
+
+Giovanni
+    en-us Oh! Who goes there? Are you one of those nasty robots?
+
+Blue
+    en-us No, I'm not. I'm just a boy. It is just that I have bionic parts.
+
+Blue
+    en-us You can call me Blue. What is your name, sir?
+
+Giovanni
+    en-us I'm Giovanni.
+
+Blue
+    en-us Nice to meet you, Giovanni.
+
+Blue
+    en-us So this is where this path led me! No wonder it was filled with robots down there.
+
+Blue
+    en-us I assume you are being kept hostage, Mr. Giovanni. They should be treating you fine, though, right?
+
+Giovanni
+    en-us Yes, you are well informed, Blue. We are hostages.
+
+Giovanni
+    en-us They treat us well since they need our brains in top condition. However, this isn't...
+
+Blue
+    en-us Freedom, right?
+
+Giovanni
+    en-us Yes.
+
+Blue
+    en-us I'm here to stop the overseer of this sector. If I manage to do that, the entire sector will be free.
+
+Giovanni
+    en-us You shouldn't put yourself in danger like that, son.
+
+Blue
+    en-us I know... I... just want to do what I can. That's all.
+
+Giovanni
+    en-us At least take this, then!
+
+# big lasagna animation is shown
+# action: display_dish
+
+Blue
+    en-us Whoa! That smells nice! Thank you!
+
+Giovanni
+    en-us I'm sure you'll like it, kid! It's a recipe from my late Grandma: Lasagna.
+
+Blue
+    en-us If you don't mind, I'll eat over there. I don't want to attract danger here. This is still a hostile sector.
+
+Giovanni
+    en-us You are probably right, kid. Thank you for trying to help us. I'll be praying for everything to go well on your mission.
+
+Giovanni
+    en-us I'll close the gate once you leave my property, so no one suspects you came here.
+
+Giovanni
+    en-us If I ever hear you are in the area, I'll leave a packaged meal like that outside the gate for you.
+
+Blue
+    en-us Thank you, sir, it is all very kind of you.
+
+# after the line above, Blue leaves the screen, and Giovanni talks to himself
+# action: blue_walks_away
+
+Giovanni
+    en-us Oh, God. To think a little boy has to go through all that on his own...
+
+Giovanni
+    en-us It was greed that brought all of this upon this world.
+
+# npc gate is closed
+# action: npc_gate_closes
+
+# we place a food box on the level, the camera pans to
+# Blue, encounter with Giovanni is recorded, and level theme
+# starts playing
+#
+# action: place_food_box
+# action: camera_pans_to_Blue
+# action: record_encounter
+# action: restore_level_theme

@@ -22,6 +22,9 @@ content_origin = Vector2()
 ## vector to keep track of scrolling
 scrolling = Vector2()
 
+## another vector to back up value of previous one
+scrolling_backup = Vector2()
+
 ## define a vicinity rect
 ##
 ## it is a rect equivalent to the SCREEN after we increase it in all four
@@ -75,11 +78,25 @@ half_vicinity_colliderect = HALF_VICINITY_RECT.colliderect
 
 ##
 
-LAYER_NAMES = (
-    'backprops',
-    'middleprops',
-    'blocks',
-    'actors',
+# layer names and the collider functions used to check which
+# elements belong in a "near screen" version of that layer
+
+_LAYER_COLLIDER_FUNC_PAIRS = (
+    ('backprops', screen_colliderect),
+    ('middleprops', screen_colliderect),
+    ('blocks', vicinity_colliderect),
+    ('actors', half_vicinity_colliderect),
+    ('frontprops', screen_colliderect),
+)
+
+LAYER_NAMES = tuple(
+    layer_name
+    for layer_name, _ in _LAYER_COLLIDER_FUNC_PAIRS
+)
+
+COLLIDER_FUNCS = (
+    collider_func
+    for _, collider_func in _LAYER_COLLIDER_FUNC_PAIRS
 )
 
 get_layer_from_name = {
@@ -101,6 +118,7 @@ BACK_PROPS,
 MIDDLE_PROPS,
 BLOCKS,
 ACTORS,
+FRONT_PROPS,
 ) = LAYERS
 
 (
@@ -108,36 +126,18 @@ BACK_PROPS_NEAR_SCREEN,
 MIDDLE_PROPS_NEAR_SCREEN,
 BLOCKS_NEAR_SCREEN,
 ACTORS_NEAR_SCREEN,
+FRONT_PROPS_NEAR_SCREEN,
 ) = NEAR_SCREEN_LAYERS
 
-COLLIDER_FUNCS = (
-    screen_colliderect,
-    screen_colliderect,
-    vicinity_colliderect,
-    half_vicinity_colliderect,
+LAYER_DATA_TRIPLETS = list(
+    zip(LAYERS, NEAR_SCREEN_LAYERS, COLLIDER_FUNCS)
 )
-
-LAYER_DATA_TRIPLETS = list(zip(LAYERS, NEAR_SCREEN_LAYERS, COLLIDER_FUNCS))
 
 
 PROJECTILES = set()
-FRONT_PROPS = set()
+VFX_ELEMENTS = set()
 HEALTH_COLUMNS = set()
 
-## tasks
-
-TASKS = []
-append_task = TASKS.append
-clear_tasks = TASKS.clear
-
-def execute_tasks():
-
-    if TASKS:
-
-        for task in TASKS:
-            task()
-
-        clear_tasks()
 
 ### chunks
 
@@ -361,8 +361,7 @@ class LevelChunk:
 
         self.objs.add(obj)
 
-        layer = getattr(self, obj.layer_name)
-        layer.add(obj)
+        getattr(self, obj.layer_name).add(obj)
 
         self.center_map[obj] = tuple(
             chunk_pos - obj_center_pos

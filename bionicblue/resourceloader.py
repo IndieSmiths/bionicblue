@@ -151,11 +151,17 @@ class ResourceLoader:
             for attr_name, anim_data_name, anim_name in (
                 ('blue_boy', 'blue_shooter_man', 'walk_right'),
                 ('middle_shot', 'middle_charged_shot', 'idle_right'),
+                ('giovanni', 'giovanni_npc', 'portrait_idle_right'),
+                ('kane', 'chief_sec_bot', 'idle_right'),
+                ('newton', 'newton', 'idle_right'),
+                ('newton_portrait', 'newton', 'portrait_idle_right'),
             ):
 
                 obj = UIObject2D()
                 setattr(REFS, attr_name, obj)
-                obj.ap = AnimationPlayer2D(obj, anim_data_name, anim_name)
+                obj.aniplayer = (
+                    AnimationPlayer2D(obj, anim_data_name, anim_name)
+                )
 
                 obj.rect.right = SCREEN_RECT.left # place out of screen for now
 
@@ -219,7 +225,18 @@ def load_image_from_filepath(filepath):
     return load_image(str(filepath)).convert()
 
 def load_anim_from_dir(dirpath):
-    return process_animation_data(dirpath)
+
+    try:
+        processed_anim_data = process_animation_data(dirpath)
+
+    except Exception as err:
+
+        dirname = dirpath.name
+        print(f"Error while trying to load {dirname}")
+        raise
+
+    else:
+        return processed_anim_data
 
 def load_sound_from_filepath(filepath):
     sound = Sound(str(filepath))

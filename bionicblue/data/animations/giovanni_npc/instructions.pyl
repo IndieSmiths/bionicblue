@@ -1,0 +1,111 @@
+{
+    "name": "giovanni_npc",
+    "geometry": {
+        "body" : {
+            "size" : (16, 24),
+            "art_size" : (32, 32),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+        "portrait" : {
+            "size" : (32, 32),
+            "art_size" : (32, 32),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+        "portrait" : {"geometry": "portrait"},
+    },
+    "existing_structures" : {
+        "standing" : {"tree" : {"name": "body"}},
+        "portrait": {"tree": {"name": "portrait"}},
+    },
+    "animations" :{
+        "idle_right": {"structure": "standing"},
+        "idle_left": {"structure": "standing"},
+        "speaking_idle_right": {"structure": "standing"},
+        "speaking_idle_left": {"structure": "standing"},
+        "walking_right": {"structure": "standing"},
+        "walking_left": {"structure": "standing"},
+        "portrait_speaking_right": {"structure": "portrait"},
+        "portrait_speaking_left": {"structure": "portrait"},
+        "portrait_idle_right": {"structure": "portrait"},
+        "portrait_idle_left": {"structure": "portrait"},
+    },
+    "values": {
+        "idle_left": {
+            "body": {
+                "surfaces": "giovanni_npc.idle_left",
+            },
+        },
+        "speaking_idle_left": {
+            "body": {
+                "surfaces": "giovanni_npc.speaking_idle_left",
+            },
+        },
+        "walking_left": {
+            "body": {
+                "surfaces": "giovanni_npc.walking_left",
+            },
+        },
+        "portrait_idle_left": {
+            "portrait": {
+                "surfaces": "giovanni_npc.portrait_idle_left",
+            },
+        },
+        "portrait_speaking_left": {
+            "portrait": {
+                "surfaces": "giovanni_npc.portrait_speaking_left",
+            },
+        },
+    },
+    "timing": {
+        "idle_left": {
+            "body": {
+                "surface_indices": "giovanni_npc.idle_left",
+            },
+        },
+        "speaking_idle_left": {
+            "body": {
+                "surface_indices": "giovanni_npc.speaking_idle_left",
+            },
+        },
+        "walking_left": {
+            "body": {
+                "surface_indices": "giovanni_npc.walking_left",
+            },
+        },
+        "portrait_idle_left": {
+            "portrait": {
+                "surface_indices": "giovanni_npc.portrait_idle_left",
+            },
+        },
+        "portrait_speaking_left": {
+            "portrait": {
+                "surface_indices": "giovanni_npc.portrait_speaking_left",
+            },
+        },
+    },
+    "derived_animations": {
+        "idle_right": {
+            "operation_name": "flip_x",
+            "target": "idle_left",
+        },
+        "speaking_idle_right": {
+            "operation_name": "flip_x",
+            "target": "speaking_idle_left",
+        },
+        "walking_right": {
+            "operation_name": "flip_x",
+            "target": "walking_left",
+        },
+        "portrait_idle_right": {
+            "operation_name": "flip_x",
+            "target": "portrait_idle_left",
+        },
+        "portrait_speaking_right": {
+            "operation_name": "flip_x",
+            "target": "portrait_speaking_left",
+        },
+    },
+}

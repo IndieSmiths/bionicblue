@@ -19,11 +19,12 @@ from ....ourstdlibs.behaviour import do_nothing
 from ..frontprops.defaultexplosion import DefaultExplosion
 
 from ..common import (
-    remove_obj,
-    FRONT_PROPS,
     BLOCKS_NEAR_SCREEN,
-    append_task,
+    VFX_ELEMENTS,
+    remove_obj,
 )
+
+from ..taskmanager import append_ready_task
 
 
 
@@ -181,8 +182,8 @@ class Rabbiterror:
 
             center = self.rect.center
 
-            FRONT_PROPS.add(DefaultExplosion('center', center))
-            append_task(partial(remove_obj, self))
+            VFX_ELEMENTS.add(DefaultExplosion('center', center))
+            append_ready_task(partial(remove_obj, self))
 
         else:
             self.aniplayer.set_custom_surface_cycling(('whitened', 'default'))
