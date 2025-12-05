@@ -58,6 +58,7 @@ from .actors.gruntbot import GruntBot
 from .actors.watcherbot import WatcherBot
 from .actors.rabbiterror import Rabbiterror
 from .actors.chiefsecbot import ChiefSecurityBot
+from .actors.mark import Mark
 
 from .prototypemessage import message
 
@@ -216,6 +217,18 @@ class LevelManager:
         message.rect.centerx = message_pos[0]
         message.rect.bottom = message_pos[1] - 20
         add_obj(message)
+
+        ### add npc
+
+        npc_midbottom = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'mark'
+        )['pos']
+
+        npc = Mark(npc_midbottom)
+        npc.layer_name = 'actors'
+        add_obj(npc)
 
         ### add boss
 

@@ -1,0 +1,88 @@
+{
+    "name": "mark_npc",
+    "geometry": {
+        "body" : {
+            "size" : (16, 24),
+            "art_size" : (32, 32),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "standing" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "idle_right": {"structure": "standing"},
+        "idle_left": {"structure": "standing"},
+        "speaking_right": {"structure": "standing"},
+        "speaking_left": {"structure": "standing"},
+        "listening_right": {"structure": "standing"},
+        "listening_left": {"structure": "standing"},
+        "walking_right": {"structure": "standing"},
+        "walking_left": {"structure": "standing"},
+    },
+    "values": {
+        "idle_right": {
+            "body": {
+                "surfaces": "mark_npc.idle_right",
+            },
+        },
+        "speaking_right": {
+            "body": {
+                "surfaces": "mark_npc.speaking_right",
+            },
+        },
+        "listening_right": {
+            "body": {
+                "surfaces": "mark_npc.listening_right",
+            },
+        },
+        "walking_right": {
+            "body": {
+                "surfaces": "mark_npc.walking_right",
+            },
+        },
+    },
+    "timing": {
+        "idle_right": {
+            "body": {
+                "surface_indices": "mark_npc.idle_right",
+            },
+        },
+        "speaking_right": {
+            "body": {
+                "surface_indices": "mark_npc.speaking_right",
+            },
+        },
+        "listening_right": {
+            "body": {
+                "surface_indices": "mark_npc.listening_right",
+            },
+        },
+        "walking_right": {
+            "body": {
+                "surface_indices": "mark_npc.walking_right",
+            },
+        },
+    },
+    "derived_animations": {
+        "idle_left": {
+            "operation_name": "flip_x",
+            "target": "idle_right",
+        },
+        "speaking_left": {
+            "operation_name": "flip_x",
+            "target": "speaking_right",
+        },
+        "listening_left": {
+            "operation_name": "flip_x",
+            "target": "listening_right",
+        },
+        "walking_left": {
+            "operation_name": "flip_x",
+            "target": "walking_right",
+        },
+    },
+}
