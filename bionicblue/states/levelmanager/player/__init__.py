@@ -318,10 +318,14 @@ class Player(
     def reset_time_tracking_attributes(self):
         """(Re)set initial value for time tracking attributes
 
-        We set them to negative infinity so next time each attribute is
+        We set some of them to negative infinity so next time they are
         checked it is as though an infinite amount of time elapsed.
         """
-        self.last_shot = self.last_damage = self.charge_start = -INFINITY
+        ### -INFINITY frame
+        self.last_shot = self.last_damage = -INFINITY
+
+        ### frame 0
+        self.charge_start = 0
 
     def check_invisibility(self):
 
