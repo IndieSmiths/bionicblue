@@ -2,8 +2,8 @@
     "name": "watcher_bot",
     "geometry": {
         "body" : {
-            "size" : (6, 6),
-            "art_size" : (8, 8),
+            "size" : (10, 10),
+            "art_size" : (12, 12),
             "art_anchorage" : ('center', 'center'),
         },
     },
