@@ -1,0 +1,1 @@
+Instead of using button press to trigger climbing a ladder, check state of button instead (whether it is pressed); this way user can keep button pressed before hitting the ladder and start climbing it right away; this may also prevent instances where the button is pressed too soon, resulting in the playable character falling (sometimes to his death on top of spikes).
