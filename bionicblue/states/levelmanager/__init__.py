@@ -48,11 +48,13 @@ from .backprops.citywall import CityWall
 from .middleprops.ladder import Ladder
 from .middleprops.chains import Chains
 from .middleprops.chaincratehanger import ChainCrateHanger
+from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
 from .blocks.floatingplatform import FloatingPlatform
 from .blocks.crate import Crate
+from .blocks.gate import Gate
 
 from .actors.gruntbot import GruntBot
 from .actors.watcherbot import WatcherBot
@@ -61,8 +63,6 @@ from .actors.chiefsecbot import ChiefSecurityBot
 from .actors.mark import Mark
 
 from .prototypemessage import message
-
-from .arenadoor import DOOR_1, DOOR_2
 
 from .common import (
 
@@ -242,28 +242,37 @@ class LevelManager:
         boss.layer_name = 'actors'
         add_obj(boss)
 
-        ### add arena doors
+        ### add gates
 
-        door1_pos = next(
+        npc_gate_pos = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'door1'
+            if label_data['text'] == 'ngate'
         )['pos']
 
-        door2_pos = next(
+        bgate0_pos = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'door2'
+            if label_data['text'] == 'bgate0'
         )['pos']
 
-        DOOR_1.rect.midbottom = door1_pos
-        DOOR_2.rect.midbottom = door2_pos
+        bgate1_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'bgate1'
+        )['pos']
 
-        DOOR_1.prepare()
-        DOOR_2.prepare()
+        npc_gate = Gate(midbottom=npc_gate_pos, closed=True)
+        boss_gate0 = Gate(midbottom=bgate0_pos, closed=True)
+        boss_gate1 = Gate(midbottom=bgate1_pos, closed=True)
 
-        add_obj(DOOR_1)
-        add_obj(DOOR_2)
+        add_obj(npc_gate)
+        add_obj(boss_gate0)
+        add_obj(boss_gate1)
+
+        ### add colliding triggers for gates
+
+        InvisibleCollidingTrigger
 
         ### store position of cam_cx (centerx of boss arena)
 
