@@ -22,33 +22,48 @@ DOOR_COLOR = 'grey'
 
 class Gate:
 
-    def __init__(self, name):
+    def __init__(self, midbottom=(0, 0), closed=True):
 
-        self.name = name
+        self.name = 'gate'
         self.layer_name = 'blocks'
+        self.closed = closed
         
         image = self.image = Surface((16, 64)).convert()
         image.set_colorkey(COLORKEY)
 
+        image.fill(
+            DOOR_COLOR if closed else COLORKEY
+        )
+
         rect = self.rect = image.get_rect()
+
         self.colliderect = rect.colliderect
         self.cover_rect = rect.move(0, -rect.height)
         self.open_counter = 0
 
         self.update = do_nothing
 
-    def prepare(self):
-
-        self.image.fill(DOOR_COLOR)
-        self.update = self.check_approaching_player
+        rect.midbottom = midbottom
 
     def trigger_opening(self):
-        self.update = self.open_the_gate
-        SOUND_MAP['arena_door_moving.wav'].play()
+
+        if self.closed and self.update != self.open_the_gate:
+
+            self.update = self.open_the_gate
+            SOUND_MAP['arena_door_moving.wav'].play()
+            return True
+
+        return False
 
     def trigger_closing(self):
-        self.update = self.close_the_gate
-        SOUND_MAP['arena_door_moving.wav'].play()
+
+        if not self.closed and self.update != self.close_the_gate:
+
+            self.update = self.close_the_gate
+            SOUND_MAP['arena_door_moving.wav'].play()
+            return True
+
+        return False
 
     def open_the_gate(self):
 
@@ -66,6 +81,8 @@ class Gate:
 
         else:
             SOUND_MAP['arena_door_moving.wav'].stop()
+            self.update = do_nothing
+            self.closed = False
 
     def close_the_gate(self):
 
@@ -84,8 +101,9 @@ class Gate:
             draw_rect(self.image, COLORKEY, self.cover_rect)
 
         else:
-
             SOUND_MAP['arena_door_moving.wav'].stop()
+            self.update = do_nothing
+            self.closed = True
 
     def draw(self):
         blit_on_screen(self.image, self.rect)

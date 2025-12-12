@@ -1,5 +1,9 @@
 """Facility for object to trigger call on collision with player."""
 
+### standard library import
+from functools import partial
+
+
 ### third-party import
 from pygame import Rect
 

@@ -270,9 +270,91 @@ class LevelManager:
         add_obj(boss_gate0)
         add_obj(boss_gate1)
 
+        self.boss_gate1 = boss_gate1
+
         ### add colliding triggers for gates
 
-        InvisibleCollidingTrigger
+        ### TODO for boss gates, probably calculate trigger positions
+        ### based on gate positions instead of using label (you can use
+        ### the values used previously when this was triggered by the
+        ### gates themselves (when they are called "doors")
+
+        opening_trigger0 = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'bgate0_otrg'
+        )['pos']
+
+        closing_trigger0 = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'bgate0_ctrg'
+        )['pos']
+
+        opening_trigger1 = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'bgate1_otrg'
+        )['pos']
+
+        closing_trigger1 = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'bgate1_ctrg'
+        )['pos']
+
+        bgate0_otrg = (
+
+            InvisibleCollidingTrigger(
+                on_collision=boss_gate0.trigger_opening,
+                width=16,
+                height=64,
+                coordinates_name='midbottom',
+                coordinates_value=opening_trigger0,
+            )
+
+        )
+
+        bgate0_ctrg = (
+
+            InvisibleCollidingTrigger(
+                on_collision=boss_gate0.trigger_closing,
+                width=16,
+                height=64,
+                coordinates_name='midbottom',
+                coordinates_value=closing_trigger0,
+            )
+
+        )
+
+        bgate1_otrg = (
+
+            InvisibleCollidingTrigger(
+                on_collision=self.getting_to_boss_area,
+                width=16,
+                height=64,
+                coordinates_name='midbottom',
+                coordinates_value=opening_trigger1,
+            )
+
+        )
+
+        bgate1_ctrg = (
+
+            InvisibleCollidingTrigger(
+                on_collision=boss_gate1.trigger_closing,
+                width=16,
+                height=64,
+                coordinates_name='midbottom',
+                coordinates_value=closing_trigger1,
+            )
+
+        )
+
+        add_obj(bgate0_otrg)
+        add_obj(bgate0_ctrg)
+        add_obj(bgate1_otrg)
+        add_obj(bgate1_ctrg)
 
         ### store position of cam_cx (centerx of boss arena)
 
@@ -536,42 +618,43 @@ class LevelManager:
 
         update_screen()
 
-    def passing_through_arena_door(self, door_name):
+    def getting_to_boss_area(self):
 
-        if door_name == 'door_2':
+        ###
+        self.boss_gate1.trigger_opening()
 
-            ### disable camera overall and feet tracking, since
-            ### screen will now be focused solely on the arena,
-            ### not moving for the duration of the battle
+        ### disable camera overall and feet tracking, since
+        ### screen will now be focused solely on the arena,
+        ### not moving for the duration of the battle
 
-            self.disable_overall_tracking_for_camera()
-            self.disable_feet_tracking_for_camera()
+        self.disable_overall_tracking_for_camera()
+        self.disable_feet_tracking_for_camera()
 
-            ###
+        ###
 
-            self.update = self.moving_update
-            HEALTH_COLUMNS.add(REFS.level_boss.health_column)
+        self.update = self.moving_update
+        HEALTH_COLUMNS.add(REFS.level_boss.health_column)
 
-            self.player.stop_charging()
-            self.player.reset_time_tracking_attributes()
+        self.player.stop_charging()
+        self.player.reset_time_tracking_attributes()
 
-            # TODO probaby use time in milliseconds, converting to
-            # frames before feeding to function
-            input_data = (
+        # TODO probaby use time in milliseconds, converting to
+        # frames before feeding to function
+        input_data = (
 
-                generate_input_data(
-                    key_range_pairs = (
-                        (KEYBOARD_CONTROLS['right'], (33,)),
-                    ),
-                    no_of_frames=30*3,
-                )
-
+            generate_input_data(
+                key_range_pairs = (
+                    (KEYBOARD_CONTROLS['right'], (33,)),
+                ),
+                no_of_frames=30*3,
             )
 
-            raise LoopException(
-                next_input_mode_name='play',
-                input_data=input_data,
-            )
+        )
+
+        raise LoopException(
+            next_input_mode_name='play',
+            input_data=input_data,
+        )
 
     def save_progress(self, progress_collection_name, progress_value):
 
