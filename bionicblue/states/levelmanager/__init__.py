@@ -274,87 +274,67 @@ class LevelManager:
 
         ### add colliding triggers for gates
 
-        ### TODO for boss gates, probably calculate trigger positions
-        ### based on gate positions instead of using label (you can use
-        ### the values used previously when this was triggered by the
-        ### gates themselves (when they are called "doors")
+        for (
 
-        opening_trigger0 = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'bgate0_otrg'
-        )['pos']
+            boss_gate,
+            opening_offset,
+            opening_trigger_func,
+            closing_offset,
+            closing_trigger_func,
 
-        closing_trigger0 = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'bgate0_ctrg'
-        )['pos']
+        ) in (
 
-        opening_trigger1 = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'bgate1_otrg'
-        )['pos']
+            (
+                boss_gate0,
+                -64,
+                boss_gate0.trigger_opening,
+                110,
+                boss_gate0.trigger_closing,
+            ),
 
-        closing_trigger1 = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'bgate1_ctrg'
-        )['pos']
+            (
+                boss_gate1,
+                -64,
+                self.getting_to_boss_area,
+                84,
+                boss_gate1.trigger_closing,
+            ),
 
-        bgate0_otrg = (
+        ):
 
-            InvisibleCollidingTrigger(
-                on_collision=boss_gate0.trigger_opening,
-                width=16,
-                height=64,
-                coordinates_name='midbottom',
-                coordinates_value=opening_trigger0,
+            opening_pos = boss_gate.rect.move(opening_offset, 0).midbottom
+            closing_pos = boss_gate.rect.move(closing_offset, 0).midbottom
+
+            opening_trigger = (
+
+                InvisibleCollidingTrigger(
+
+                    on_collision=opening_trigger_func,
+                    width=16,
+                    height=64,
+                    coordinates_name='midbottom',
+                    coordinates_value=opening_pos,
+
+                )
+
             )
 
-        )
+            closing_trigger = (
 
-        bgate0_ctrg = (
+                InvisibleCollidingTrigger(
 
-            InvisibleCollidingTrigger(
-                on_collision=boss_gate0.trigger_closing,
-                width=16,
-                height=64,
-                coordinates_name='midbottom',
-                coordinates_value=closing_trigger0,
+                    on_collision=closing_trigger_func,
+                    width=16,
+                    height=64,
+                    coordinates_name='midbottom',
+                    coordinates_value=closing_pos,
+
+                )
+
             )
 
-        )
-
-        bgate1_otrg = (
-
-            InvisibleCollidingTrigger(
-                on_collision=self.getting_to_boss_area,
-                width=16,
-                height=64,
-                coordinates_name='midbottom',
-                coordinates_value=opening_trigger1,
-            )
-
-        )
-
-        bgate1_ctrg = (
-
-            InvisibleCollidingTrigger(
-                on_collision=boss_gate1.trigger_closing,
-                width=16,
-                height=64,
-                coordinates_name='midbottom',
-                coordinates_value=closing_trigger1,
-            )
-
-        )
-
-        add_obj(bgate0_otrg)
-        add_obj(bgate0_ctrg)
-        add_obj(bgate1_otrg)
-        add_obj(bgate1_ctrg)
+            add_obj(opening_trigger)
+            add_obj(closing_trigger)
 
         ### store position of cam_cx (centerx of boss arena)
 
