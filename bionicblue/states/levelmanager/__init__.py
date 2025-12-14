@@ -600,6 +600,14 @@ class LevelManager:
 
     def getting_to_boss_area(self):
 
+        # TODO this method, which is used by an invisible colliding trigger,
+        # actually raises and exception instead of returning a bool (a bool would
+        # be the return value the colliding trigger expects);
+        #
+        # for now it is fine cause it all works, but we must do some about it;
+        # perhaps we should change the invisible colliding trigger's API so that
+        # it watches for exceptions as well if requested
+
         ###
         self.boss_gate1.trigger_opening()
 
@@ -620,6 +628,7 @@ class LevelManager:
 
         # TODO probaby use time in milliseconds, converting to
         # frames before feeding to function
+
         input_data = (
 
             generate_input_data(

@@ -21,6 +21,7 @@ DOOR_COLOR = 'grey'
 
 
 class Gate:
+    """A gate that opens or closes when requested."""
 
     def __init__(self, midbottom=(0, 0), closed=True):
 
@@ -38,12 +39,18 @@ class Gate:
         rect = self.rect = image.get_rect()
 
         self.colliderect = rect.colliderect
-        self.cover_rect = rect.move(0, -rect.height)
-        self.open_counter = 0
+
+        cover_rect = self.cover_rect = Rect(0, 0, *rect.size)
+        cover_rect.y = -rect.height if closed else 0
 
         self.update = do_nothing
 
         rect.midbottom = midbottom
+
+        self.open_counter = 0 if closed else rect.height
+
+        if not closed:
+            rect.y += -rect.height
 
     def trigger_opening(self):
 
