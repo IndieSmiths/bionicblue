@@ -14,8 +14,6 @@ from pygame.display import update as update_screen
 
 from pygame.mixer import music
 
-from pygame.math import Vector2
-
 
 ### local imports
 
@@ -66,16 +64,6 @@ from .prototypemessage import message
 
 from .common import (
 
-    LAYER_NAMES,
-
-    LAYERS,
-    NEAR_SCREEN_LAYERS,
-
-    BACK_PROPS,
-    MIDDLE_PROPS,
-    BLOCKS,
-    ACTORS,
-
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
     BLOCKS_NEAR_SCREEN,
@@ -88,20 +76,20 @@ from .common import (
     CHUNKS,
 
     VICINITY_RECT,
-    VICINITY_WIDTH,
 
     scrolling,
+    scrolling_backup,
 
     execute_tasks,
     group_objects,
     add_obj,
-    remove_obj,
     update_chunks_and_layers,
 
 )
 
+from .dialoguemgmt import DialogueManagement
 
-scrolling_backup = Vector2()
+
 
 FLOOR_LEVEL = 128
 
@@ -111,7 +99,8 @@ CAMERA_TRACKING_AREA.height += -40
 CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
 
 
-class LevelManager:
+
+class LevelManager(DialogueManagement):
 
     def __init__(self):
         pass
@@ -150,6 +139,7 @@ class LevelManager:
     def prepare(self):
 
         self.update = self.normal_update
+        self.draw = self.draw_level
 
         self.disable_overall_tracking_for_camera()
         self.disable_feet_tracking_for_camera()
@@ -180,6 +170,7 @@ class LevelManager:
 
         level_data_path = LEVELS_DIR / level_name
         level_data = load_pyl(level_data_path)
+        self.bg_color = level_data['background_color']
 
         ### instantiate and group objects
 
@@ -378,7 +369,7 @@ class LevelManager:
         ### must update player first, since it may move and cause the
         ### camera to move as well, which causes the level to move
         self.player.update()
-        
+
         ### backup scrolling
         scrolling_backup.update(scrolling)
 
@@ -413,8 +404,6 @@ class LevelManager:
 
         for actor in ACTORS_NEAR_SCREEN:
             actor.update()
-
-        ### also update objects that are always on screen
 
         for projectile in PROJECTILES:
             projectile.update()
@@ -476,8 +465,6 @@ class LevelManager:
 
         for actor in ACTORS_NEAR_SCREEN:
             actor.update()
-
-        ### also update objects that are always on screen
 
         for projectile in PROJECTILES:
             projectile.update()
@@ -544,7 +531,7 @@ class LevelManager:
         for prop in FRONT_PROPS:
             prop.rect.move_ip(diff)
 
-    def draw(self):
+    def draw_level(self):
 
         blit_on_screen(self.bg, (0, 0))
 

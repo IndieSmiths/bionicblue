@@ -22,6 +22,9 @@ content_origin = Vector2()
 ## vector to keep track of scrolling
 scrolling = Vector2()
 
+## another vector to back up value of previous one
+scrolling_backup = Vector2()
+
 ## define a vicinity rect
 ##
 ## it is a rect equivalent to the SCREEN after we increase it in all four
