@@ -1,0 +1,33 @@
+
+Mark
+    en-us Oh! Who goes there? Are you one of those nasty robots?
+
+Blue
+    en-us No, don't worry. I'm just a boy. It is just that I have bionic parts. You can call me Blue.
+
+Blue
+    en-us So this is where this path led me! No wonder it was filled with robots down there. I assume you are being kept hostage. They should be treating you fine, right? What is your name?
+
+Mark
+    en-us My name is Mark. And yes, you are well informed, Blue. We are hostages. They treat us well since they need our brains in top condition. However, this isn't...
+
+Blue
+    en-us Freedom, right?
+
+Mark
+    en-us Yes.
+
+Blue
+    en-us I'm here to destroy the overseer of this sector. If I manage to do that, the entire sector will be free.
+
+### TODO
+### - keep writing dialogue
+### - also, probably use a comment in the first line as a directive to add `line[number]` attributes on top of the names,
+###   shifting the names and associated translations one identation further (under the `line[number]` attributes); probably
+###   use something like "# dialogue" as the directive
+
+
+### TODO below Mark should express concern for Blue and offer a meal
+
+Mark
+    en-us Are you sure, 
