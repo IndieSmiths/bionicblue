@@ -1,5 +1,11 @@
 
-Mark
+### TODO
+### - keep writing dialogue
+### - also, probably use a comment in the first line as a directive to add `line[number]` attributes on top of the names,
+###   shifting the names and associated translations one identation further (under the `line[number]` attributes); probably
+###   use something like "# dialogue" as the directive
+
+Giovanni
     en-us Oh! Who goes there? Are you one of those nasty robots?
 
 Blue
@@ -8,26 +14,77 @@ Blue
 Blue
     en-us So this is where this path led me! No wonder it was filled with robots down there. I assume you are being kept hostage. They should be treating you fine, right? What is your name?
 
-Mark
-    en-us My name is Mark. And yes, you are well informed, Blue. We are hostages. They treat us well since they need our brains in top condition. However, this isn't...
+Giovanni
+    en-us I'm Giovanni. And yes, you are well informed, Blue. We are hostages. They treat us well since they need our brains in top condition. However, this isn't...
 
 Blue
     en-us Freedom, right?
 
-Mark
+Giovanni
     en-us Yes.
 
 Blue
     en-us I'm here to destroy the overseer of this sector. If I manage to do that, the entire sector will be free.
 
-### TODO
-### - keep writing dialogue
-### - also, probably use a comment in the first line as a directive to add `line[number]` attributes on top of the names,
-###   shifting the names and associated translations one identation further (under the `line[number]` attributes); probably
-###   use something like "# dialogue" as the directive
+Giovanni
+    en-us You shouldn't put yourself in danger like that, son.
 
+Blue
+    en-us I know. I'm not doing it because I want.
 
-### TODO below Mark should express concern for Blue and offer a meal
+Giovanni
+    en-us What? That's even worse.
 
-Mark
-    en-us Are you sure, 
+Blue
+    en-us No, it's fine. My parents told me that if someone has the power to do something good, that person can choose whether to do it or not.
+
+Giovanni
+    en-us But you shouldn't do something just because someone told you to do it.
+
+Blue
+    en-us But they didn't told me to. They just said people have a choice.
+
+Giovanni
+    en-us But that's a difficult challenge even for an adult. Even if the robots only want to keep us hostage, they won't hesitate to dispose of you if they feel threatened.
+
+Blue
+    en-us I know...
+
+Blue
+    en-us It is just that I don't want to avoid doing something just because it is difficult. I'd be a hostage to myself, to my own sense of security.
+
+Giovanni
+    en-us I see...
+
+Giovanni
+    en-us At least take this, then!
+
+Blue
+    en-us Whoa! That smells nice!
+
+Giovanni
+    en-us Thank you! It's a recipe from my late Grandma: Lasagna.
+
+Giovanni
+    en-us I'll lower it to you with a rope.
+
+Blue
+    en-us Oh! Thank you, that'd be awesome!
+
+Blue
+    en-us Is it okay if I keep the container as well? Oh, and also the cutlery?
+
+Giovanni
+    en-us Oh, of course, we have plenty. Be my guest.
+
+Blue
+    en-us Thank you! Also, is that chain lube?
+
+Giovanni
+    en-us Yes, I was just using some on my grandson's bike. We can't leave our homes, but there's some space indoors. Should I wrap it up for you?
+
+Blue
+    en-us Thank you, sir! I'm so happy! There's no need to wrap it up, you can pour it on the lasagna.
+
+Giovanni
+    en-us No problem, I'll pour it right away on the... WHAT?
