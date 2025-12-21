@@ -88,3 +88,38 @@ Blue
 
 Giovanni
     en-us No problem, I'll pour it right away on the... WHAT?
+
+Blue
+    en-us Sorry, I don't mean to startle you. Erm... My teeth, tastebuds and digestive system can handle non-edibles as well. Even my olfactory organs were redesigned to find non-edibles pleasurable.
+
+Giovanni
+    en-us Redesigned? No, forget that. I don't think I wanna know.
+
+Giovanni
+    en-us Oh! So the container and cutlery... you didn't intend to use them... well... in the usual way?
+
+Blue
+    en-us I do intend to use them in the usual way...
+
+Giovanni
+    en-us Oh, okay.
+
+Blue
+    en-us ...then... erm... I'll eat them as well once I'm finished. Sorry, my body could really use the these extra materials.
+
+Giovanni
+    en-us Oh, no problem, kid.
+
+Blue
+    en-us If you don't mind, I'll eat over there. If any of the robots find us chatting or discover you helped me, they'll punish you.
+
+Giovanni
+    en-us You are probably right, kid. Thank you for trying to help us. I'll be praying for everything to go well on your mission. I'll close the gate once you leave my property, so no one suspects you came here. If I ever hear you are in the area, I'll leave a packaged meal like that outside the gate for you.
+
+Blue
+    en-us Thank you, sir, it is all very kind of you.
+
+# after the line above, Blue leaves the screen, and Giovanni talks to himself
+
+Giovanni
+    en-us Oh, God! People's greed brought these nasty robots upon this world and look what it did to us. To think a little boy has to go through all that on his own...
