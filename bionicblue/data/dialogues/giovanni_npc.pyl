@@ -1,0 +1,33 @@
+{
+
+    'characters': ['Blue', 'Giovanni'],
+
+    'actions': [
+
+        # Blue walks out of the screen
+
+        {
+
+            'line_index': -1,
+            'before_or_after': 'before',
+
+            'directive': {
+                'character': 'Blue',
+                'action': 'move',
+                'animation_name': 'walk_left',
+                'delta_x': -30,
+            },
+
+        },
+
+        # camera pans to Blue at end of dialogue
+
+        {
+            'line_index': -1,
+            'before_or_after': 'after',
+            'time_offset': 3,
+        }
+
+    ],
+
+}
