@@ -6,6 +6,8 @@ from collections import deque
 
 from itertools import takewhile
 
+from textwrap import indent
+
 
 ### local imports
 
@@ -21,6 +23,10 @@ is_space = lambda c: c == ' '
 
 AVAILABLE_LOCALES = set()
 
+INDENTATION = 4 * ' '
+
+_TEMP_LINES = []
+
 
 ### function to create translation namespace
 
@@ -30,9 +36,12 @@ def get_translations_namespace():
     ### root node
     translations = TranslationNode()
 
-    ### populate it
+    ###
 
-    ptm = {} # ptm = parent tracking map
+    ptm = {} # parent tracking map
+    lines_deque = deque()
+
+    ###
 
     translation_sheets_paths = (
         path
@@ -51,10 +60,17 @@ def get_translations_namespace():
         # parent of node of level 0 have the sheet as their parent node
         ptm[0] = sheet
 
-        ###
-
+        ### grab lines
         lines = path.read_text(encoding='utf-8').splitlines()
-        lines_deque = deque(lines)
+
+        ### preprocess lines in case we have a dialogue
+
+        if sheet_name.endswith('dialogue'):
+            enumerate_dialogue_lines(lines)
+
+        ### store lines in a deque
+
+        lines_deque.extend(lines)
 
         watch_out_for_translations = False
 
@@ -131,7 +147,7 @@ def get_translations_namespace():
                 # peek into next lines to see if we are dealing
                 # with translations or identifiers
                 #
-                # if dealing with translations, we use hte leaf
+                # if dealing with translations, we use the leaf
                 # class, otherwise we use the node class
 
                 for deque_line in lines_deque:
@@ -174,6 +190,9 @@ def get_translations_namespace():
             ### mark current level as the previous level
             previous_level = current_level
 
+        ### clear the lines deque
+        lines_deque.clear()
+
     ### clear the helper map
     ptm.clear()
 
@@ -181,10 +200,10 @@ def get_translations_namespace():
     return translations
 
 
-# helper class;
-#
-# simple class that falls back to en_us translation
-# when another locale fails when retrieved
+### helper class;
+###
+### simple class that falls back to en_us translation
+### when another locale fails when retrieved
 
 class TranslationNode():
 
@@ -210,10 +229,50 @@ class TranslationNode():
             .get(self._user_prefs['LOCALE'], 'en_us')
         )
 
+### helper function
+
+def enumerate_dialogue_lines(lines):
+
+    _TEMP_LINES.extend(lines)
+
+    lines.clear()
+
+    line_number = 0
+
+    for line in _TEMP_LINES:
+
+        ### if a line is not empty, process it further
+
+        if line:
+
+            ## if first char is not '#' or space, it means this line
+            ## contains the name of a character, marking the start of
+            ## a dialogue line, so we add the line number attribute
+
+            if line[0] not in '# ':
+
+                ## add line number
+
+                line_number_attr = f'line_{line_number:>03}'
+                lines.append(line_number_attr)
+
+                ## increment count
+                line_number += 1
+
+            ## the line itself is indented by one level
+            line = indent(line, INDENTATION)
+
+        ### all lines are added back, regardless of whether they are
+        ### empty or not
+        lines.append(line)
+
+    ### at the end, we clear the temp list
+    _TEMP_LINES.clear()
+
+
 ### translation namespace
 TRANSLATIONS = get_translations_namespace()
 
 ### collections of callbacks to reset text surfaces in response to
 ### changing language
 on_language_change = CallList()
-

@@ -1,10 +1,4 @@
 
-### TODO
-### - keep writing dialogue
-### - also, probably use a comment in the first line as a directive to add `line[number]` attributes on top of the names,
-###   shifting the names and associated translations one identation further (under the `line[number]` attributes); probably
-###   use something like "# dialogue" as the directive
-
 Giovanni
     en-us Oh! Who goes there? Are you one of those nasty robots?
 
@@ -30,31 +24,7 @@ Giovanni
     en-us You shouldn't put yourself in danger like that, son.
 
 Blue
-    en-us I know. I'm not doing it because I want.
-
-Giovanni
-    en-us What? That's even worse.
-
-Blue
-    en-us No, it's fine. My parents told me that if someone has the power to do something good, that person can choose whether to do it or not.
-
-Giovanni
-    en-us But you shouldn't do something just because someone told you to do it.
-
-Blue
-    en-us But they didn't told me to. They just said people have a choice.
-
-Giovanni
-    en-us But that's a difficult challenge even for an adult. Even if the robots only want to keep us hostage, they won't hesitate to dispose of you if they feel threatened.
-
-Blue
-    en-us I know...
-
-Blue
-    en-us It is just that I don't want to avoid doing something just because it is difficult. I'd be a hostage to myself, to my own sense of security.
-
-Giovanni
-    en-us I see...
+    en-us I know... I... just want to do what I can. That's all.
 
 Giovanni
     en-us At least take this, then!
@@ -84,31 +54,13 @@ Giovanni
     en-us Yes, I was just using some on my grandson's bike. We can't leave our homes, but there's some space indoors. Should I wrap it up for you?
 
 Blue
-    en-us Thank you, sir! I'm so happy! There's no need to wrap it up, you can pour it on the lasagna.
+    en-us Thank you, sir! I'm so happy! There's a small compartment in my forearm where nanomachines can break down and absorb non-edibles.
 
 Giovanni
-    en-us No problem, I'll pour it right away on the... WHAT?
+    en-us Oh! So the container and cutlery are for that as well, right?
 
 Blue
-    en-us Sorry, I don't mean to startle you. Erm... My teeth, tastebuds and digestive system can handle non-edibles as well. Even my olfactory organs were redesigned to find non-edibles pleasurable.
-
-Giovanni
-    en-us Redesigned? No, forget that. I don't think I wanna know.
-
-Giovanni
-    en-us Oh! So the container and cutlery... you didn't intend to use them... well... in the usual way?
-
-Blue
-    en-us I do intend to use them in the usual way...
-
-Giovanni
-    en-us Oh, okay.
-
-Blue
-    en-us ...then... erm... I'll eat them as well once I'm finished. Sorry, my body could really use the these extra materials.
-
-Giovanni
-    en-us Oh, no problem, kid.
+    en-us Yes. I'll use them to eat, them I'll absorb them through my forearm compartment.
 
 Blue
     en-us If you don't mind, I'll eat over there. If any of the robots find us chatting or discover you helped me, they'll punish you.

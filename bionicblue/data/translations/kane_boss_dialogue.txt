@@ -3,7 +3,13 @@ Kane
     en-us Look who we have here! It is always a pleasure to see you, Blue. Or should I still call you "young master?"
 
 Blue
-    en-us I don't care what you call me, Kane. I'm here to destroy you. I'll never forget what you did to my parents, specially my father, who stood beside you since your creation!
+    en-us I don't care what you call me, Kane. I'm here to destroy you. I'll never forget what you did to my father. He was by your side since your creation!
 
 Blue
-    en-us All advanced robots claim intelligence. All you've shown us was savagery, though. You may be able to understand the advantages of a delicious and nutritious meal (with some chain lube).
+    en-us All advanced robots claim intelligence. All you've shown us was savagery, though.
+
+Kane
+    en-us You know, for a kid, you speak almost like a grown up. Don't you realize your enhanced body is affecting your brain's development as well? Is a human even fit for processing so much data? The same enhanced semi-robotic brain that allows you to manage your enhanced body is causing you to mature much quicker than a normal kid.
+
+Kane
+    en-us That's enough chatter, though. We don't see eye to eye, or should I say, sensors to sensors! That's what makes us enemies. Let us see how enhanced your fighting abilities are!
