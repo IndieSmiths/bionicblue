@@ -4,6 +4,19 @@
 
     'actions': [
 
+        # camera pans a bit to the right, so Blue and Giovanni
+        # are well framed on the screen
+
+        {
+            'line_index': 0,
+            'before_or_after': 'before',
+
+            'description' : {
+                'type': 'pan_camera',
+            },
+
+        }
+
         # Blue walks out of the screen
 
         {
@@ -11,9 +24,9 @@
             'line_index': -1,
             'before_or_after': 'before',
 
-            'directive': {
+            'description': {
+                'type': 'move',
                 'character': 'Blue',
-                'action': 'move',
                 'animation_name': 'walk_left',
                 'delta_x': -30,
             },
@@ -26,7 +39,23 @@
             'line_index': -1,
             'before_or_after': 'after',
             'time_offset': 3,
-        }
+            'description': {
+                'type': 'pan_camera',
+            },
+
+        },
+
+        # encounter with Giovanni is recorded in slot data
+
+        {
+            'line_index': -1,
+            'before_or_after': 'after',
+            'description': {
+                'type': 'record_encounter'
+                'value': 'giovanni',
+            },
+
+        },
 
     ],
 

@@ -253,7 +253,13 @@ class LevelManager(DialogueManagement):
             if label_data['text'] == 'bgate1'
         )['pos']
 
-        npc_gate = Gate(midbottom=npc_gate_pos, closed=True)
+        npc_gate_closed = (
+            True
+            if 'giovanni' in REFS.slot_data.get('encounters', ())
+            else False
+        )
+
+        npc_gate = Gate(midbottom=npc_gate_pos, closed=npc_gate_closed)
         boss_gate0 = Gate(midbottom=bgate0_pos, closed=True)
         boss_gate1 = Gate(midbottom=bgate1_pos, closed=True)
 
@@ -643,6 +649,8 @@ class LevelManager(DialogueManagement):
 
         progress_collection.append(progress_value)
 
+        ### TODO must move this call into a try/except clause (after
+        ### pondering what to do)
         save_pyl(REFS.slot_data, REFS.slot_path)
 
     save_beaten_boss = partialmethod(save_progress, 'beaten_bosses')
