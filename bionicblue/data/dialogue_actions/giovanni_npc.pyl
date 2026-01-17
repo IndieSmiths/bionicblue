@@ -13,6 +13,7 @@
 
             'description' : {
                 'type': 'pan_camera',
+                'delta_x': 20,
             },
 
         }
@@ -41,6 +42,7 @@
             'time_offset': 3,
             'description': {
                 'type': 'pan_camera',
+                'delta_x': -50,
             },
 
         },

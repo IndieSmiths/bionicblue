@@ -103,7 +103,6 @@ CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
 class LevelManager(DialogueManagement):
 
     def __init__(self):
-        pass
 
 #        self.controls_panels = [
 #
@@ -121,6 +120,7 @@ class LevelManager(DialogueManagement):
 #        self.controls_panels.reverse()
 
         ###
+        self.load_dialogues()
 
         self.control = self.control_player
 

@@ -94,6 +94,7 @@ SOUNDS_DIR = DATA_DIR / 'sounds'
 MUSIC_DIR = DATA_DIR / 'music'
 LEVELS_DIR = DATA_DIR / 'levels'
 PARTICLES_DIR = DATA_DIR / 'particles'
+DIALOGUE_ACTIONS_DIR = DATA_DIR / 'dialogue_actions'
 
 TRANSLATIONS_DIR = DATA_DIR / 'translations'
 LANGUAGE_NAMES_FILEPATH = TRANSLATIONS_DIR / 'language_native_names.pyl'
