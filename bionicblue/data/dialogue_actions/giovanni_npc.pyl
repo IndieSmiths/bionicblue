@@ -14,9 +14,12 @@
             'description' : {
                 'type': 'pan_camera',
                 'delta_x': 20,
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 2,
             },
 
-        }
+        },
 
         # Blue walks out of the screen
 
@@ -30,6 +33,8 @@
                 'character': 'Blue',
                 'animation_name': 'walk_left',
                 'delta_x': -30,
+                'linear_or_smooth': 'linear',
+                'duration_type': 'until_destination',
             },
 
         },
@@ -43,6 +48,9 @@
             'description': {
                 'type': 'pan_camera',
                 'delta_x': -50,
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 4,
             },
 
         },

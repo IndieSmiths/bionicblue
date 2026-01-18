@@ -25,6 +25,16 @@ from pygame.locals import (
 
 from pygame.display import update as update_screen
 
+### third-party import with local import replacement
+### in case it is not available from third-party lib
+### (since it is a relatively new addition)
+
+try:
+    from pygame.math import smoothstep
+
+except ImportError:
+    from ...ourstdlibs.mathutils import smoothstep
+
 
 ### local imports
 
@@ -131,6 +141,8 @@ class DialogueManagement:
         self.remaining_lines_deque = deque()
         self.next_line = ''
 
+        self.action_steps_deque = deque()
+
     def enter_dialogue(self, dialogue_name):
 
         self.disable_overall_tracking_for_camera()
@@ -150,6 +162,8 @@ class DialogueManagement:
 
         self.next_line = ''
 
+        self.drive_dialogue_state = self.get_next_line
+
     def exit_dialogue(self):
 
         self.control = self.control_player
@@ -161,7 +175,7 @@ class DialogueManagement:
 
     def dialogue_control(self):
         
-        if self.mid_dialogue:
+        if self.drive_dialogue_state == self.present_dialogue:
             self.process_mid_dialogue_input()
 
         else:
@@ -270,12 +284,12 @@ class DialogueManagement:
 
     def dialogue_update(self):
 
-        self.update_actions()
-
-        self.player.update()
-
         ### backup scrolling
         scrolling_backup.update(scrolling)
+
+        self.advance_dialogue_state()
+
+        self.player.update()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.update()
@@ -307,28 +321,48 @@ class DialogueManagement:
         elif self.next_line:
             pass
 
-        else:
+    def get_next_line(self):
 
-            if not self.remaining_lines_deque:
-                ... # exit dialogue
+        if self.remaining_lines_deque:
+
+            next_line = self.next_line = self.remaining_lines_deque.popleft()
+
+            action_before = self.action_map.get((next_line, 'before'))
+
+            if action_before:
+
+                self.prepare_action(action_before)
+                self.drive_dialogue_state = self.carry_action
 
             else:
+                self.drive_dialogue_state = self.present_dialogue
 
-                next_line = self.next_line = self.remaining_lines_deque.popleft()
-
-                action_before = self.action_map.get((next_line, 'before'))
-
-                if action_before:
-
-                    self.mid_action = True
-                    self.prepare_action(action_before)
-
-                else:
-                    self.mid_dialogue = True
-
-        self.drive_dialogue_state()
+        else:
+            ... # exit dialogue
 
     def prepare_action(self, action_data):
+
+        action_description = action_data['description']
+        action_type = action_description['type']
+
+        if action_type == 'pan_camera':
+            
+            current_x, current_y = scrolling
+
+            delta_x, delta_y = (
+                action_description.get('delta_x', 0),
+                action_description.get('delta_y', 0),
+            )
+
+            final_x, final_y = (
+                current_x + _delta_x,
+                current_y + _delta_y,
+            )
+
+            ...
+
+    def carry_action(self):
+        ...
 
     def dialogue_draw(self):
         """Draw level elements and dialogue elements on top."""
