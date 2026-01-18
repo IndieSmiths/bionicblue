@@ -18,6 +18,8 @@ from pygame.event import post as post_event
 
 ### local imports
 
+from ..ourstdlibs.behaviour import do_nothing
+
 from .constants import (
     GAMEPADUPPRESSED,
     GAMEPADDOWNPRESSED,
@@ -28,8 +30,6 @@ from .constants import (
     GAMEPADLEFTRELEASED,
     GAMEPADRIGHTRELEASED,
 )
-
-from ..ourstdlibs.behaviour import do_nothing
 
 
 
@@ -51,8 +51,10 @@ mock_gamepad_dict = {
     'x_sum': 0,
     'y_sum': 0,
 
-    ## behaviour
+    ## behaviours
+
     'prepare_data_and_events': do_nothing,
+    'get_button': lambda button: False,
 }
 
 ### main function
@@ -78,6 +80,9 @@ def _prepare_existing_gamepad():
 
     ### instantiate gamepad
     gamepad = Joystick(0)
+
+    ### store gamepad behaviour to check state of non-directional button
+    GAMEPAD_NS.get_button = gamepad.get_button
 
 
     ### store gamepad behaviour depending on existence of hats/axes

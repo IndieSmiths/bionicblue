@@ -9,6 +9,20 @@ from collections import deque
 
 ### third-party imports
 
+from pygame.locals import (
+
+    QUIT,
+
+    KEYDOWN,
+    KEYUP,
+    K_ESCAPE,
+    K_RETURN,
+
+    JOYBUTTONDOWN,
+    JOYBUTTONUP,
+
+)
+
 from pygame.display import update as update_screen
 
 
@@ -16,7 +30,14 @@ from pygame.display import update as update_screen
 
 from ...config import DIALOGUE_ACTIONS_DIR
 
-from ...pygamesetup.constants import SCREEN
+from ...pygamesetup import SERVICES_NS
+
+from ...pygamesetup.constants import (
+    SCREEN,
+    GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
+)
+
+from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
 from ...ourstdlibs.pyl import load_pyl
 
@@ -71,7 +92,9 @@ class DialogueManagement:
 
                     line_attr_names = get_line_attr_names(path.stem)
 
-                    for action_data in data['actions']:
+                    actions = data['actions']
+
+                    for action_data in actions:
 
                         index = action_data.pop('line_index')
 
@@ -84,11 +107,26 @@ class DialogueManagement:
                         action_data['line_attr_name'] = line_attr_name
 
                     dm[path.stem] = {
+
                         'line_attr_names': line_attr_names,
-                        **data,
+                        'characters': data['characters'],
+
+                        'action_map': {
+
+                            (
+                              action_data.pop('line_attr_name'),
+                              action_data.pop('before_or_after'),
+                            ): action_data
+
+                            for action_data in actions
+                        }
+
                     }
 
         ###
+
+        self.mid_dialogue = False
+        self.mid_action = False
 
         self.remaining_lines_deque = deque()
         self.next_line = ''
@@ -105,7 +143,11 @@ class DialogueManagement:
         ###
 
         data = self.dialogues_map[dialogue_name]
+
+        self.characters = data['characters']
         self.remaining_lines_deque.extend(data['line_attr_names'])
+        self.action_map = data['action_map']
+
         self.next_line = ''
 
     def exit_dialogue(self):
@@ -118,9 +160,117 @@ class DialogueManagement:
         self.enable_feet_tracking_for_camera()
 
     def dialogue_control(self):
-        ...
+        
+        if self.mid_dialogue:
+            self.process_mid_dialogue_input()
+
+        else:
+            self.process_non_dialogue_input()
+
+    def process_mid_dialogue_input(self):
+
+        ### we have to grab the state of pressed keys before
+        ### entering the for-loop where we process the events;
+        ###
+        ### however, since the call to pygame.event.get() (indirectly
+        ### called by SERVICES_NS.get_events()) must be made before
+        ### the call to pygame.key.get_pressed() (indirectly called
+        ### by SERVICES_NS.get_pressed_keys()) in order for pygame
+        ### internals to work correctly, we call SERVICES_NS.get_events()
+        ### before and store the events so we can start procesing then
+        ### in the for-loop
+
+        events = SERVICES_NS.get_events()
+        pressed_state = SERVICES_NS.get_pressed_keys()
+
+        ### process events
+
+        for event in events:
+
+            if event.type == KEYDOWN:
+
+                if event.key == K_ESCAPE:
+                    REFS.pause()
+
+                elif event.key in (
+                    K_DOWN,
+                    K_RIGHT,
+                    KEYBOARD_CONTROLS['down'],
+                    KEYBOARD_CONTROLS['right'],
+                    KEYBOARD_CONTROLS['shoot'],
+                    KEYBOARD_CONTROLS['jump'],
+                    K_RETURN,
+                ):
+                    self.go_to_next_line_if_possible()
+
+            elif event.type == JOYBUTTONDOWN:
+
+                if event.button in (
+                    GAMEPAD_CONTROLS['start_button'],
+                    GAMEPAD_CONTROLS['shoot'],
+                    GAMEPAD_CONTROLS['jump'],
+                ):
+                    self.go_to_next_line_if_possible()
+
+            elif event.type == GAMEPADDIRECTIONALPRESSED:
+
+                if event.direction in ('down', 'right'):
+                    self.go_to_next_line_if_possible()
+
+            elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
+                setup_gamepad_if_existent()
+
+            elif event.type == QUIT:
+                quit_game()
+
+
+        ### process state of keyboard/gamepad triggers
+
+        ## if some of the keyboard/gamepad directional or action buttons are
+        ## pressed, accelerate dialogue
+
+        if (
+
+            ## keyboard directionals
+
+            pressed_state[K_DOWN]
+            or pressed_state[K_RIGHT]
+            or pressed_state[KEYBOARD_CONTROLS['down']]
+            or pressed_state[KEYBOARD_CONTROLS['right']]
+
+            ## keyboard action buttons
+
+            or pressed_state[KEYBOARD_CONTROLS['shoot']]
+            or pressed_state[KEYBOARD_CONTROLS['jump']]
+            or pressed_state[K_RETURN]
+
+            ## gamepad directionals
+
+            or GAMEPAD_NS.x_sum > 0
+            or GAMEPAD_NS.y_sum > 0
+
+            ## gamepad action buttons
+
+            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['start_button']],
+            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['shoot']],
+            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['jump']],
+
+        ):
+            self.dialogue_full_speed = True
+
+    def process_non_dialogue_input(self):
+
+        for event in SERVICES_NS.get_events():
+
+            if event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
+                setup_gamepad_if_existent()
+
+            elif event.type == QUIT:
+                quit_game()
 
     def dialogue_update(self):
+
+        self.update_actions()
 
         self.player.update()
 
@@ -145,8 +295,6 @@ class DialogueManagement:
         for prop in FRONT_PROPS:
             prop.update()
 
-        self.update_actions()
-
     def update_actions(self):
         """Drive dialogue lines and actions until dialogue is exited."""
 
@@ -156,13 +304,31 @@ class DialogueManagement:
         elif self.mid_action:
             pass
 
-        elif not self.next_line:
+        elif self.next_line:
+            pass
+
+        else:
 
             if not self.remaining_lines_deque:
                 ... # exit dialogue
 
             else:
-                self.next_line = self.remaining_lines_deque.popleft()
+
+                next_line = self.next_line = self.remaining_lines_deque.popleft()
+
+                action_before = self.action_map.get((next_line, 'before'))
+
+                if action_before:
+
+                    self.mid_action = True
+                    self.prepare_action(action_before)
+
+                else:
+                    self.mid_dialogue = True
+
+        self.drive_dialogue_state()
+
+    def prepare_action(self, action_data):
 
     def dialogue_draw(self):
         """Draw level elements and dialogue elements on top."""
