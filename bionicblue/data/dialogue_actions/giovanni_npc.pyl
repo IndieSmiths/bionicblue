@@ -11,12 +11,13 @@
             'line_index': 0,
             'before_or_after': 'before',
 
-            'description' : {
+            'keyword_arguments' : {
                 'type': 'pan_camera',
                 'delta_x': 20,
                 'linear_or_smooth': 'smooth',
                 'duration_type': 'seconds',
                 'duration_value': 2,
+                'no_of_steps': 30,
             },
 
         },
@@ -27,9 +28,9 @@
 
             'line_index': -1,
             'before_or_after': 'before',
+            'type': 'move',
 
-            'description': {
-                'type': 'move',
+            'keyword_arguments': {
                 'character': 'Blue',
                 'animation_name': 'walk_left',
                 'delta_x': -30,
@@ -44,9 +45,9 @@
         {
             'line_index': -1,
             'before_or_after': 'after',
-            'time_offset': 3,
-            'description': {
-                'type': 'pan_camera',
+            'type': 'pan_camera',
+
+            'keyword_arguments': {
                 'delta_x': -50,
                 'linear_or_smooth': 'smooth',
                 'duration_type': 'seconds',
@@ -60,8 +61,9 @@
         {
             'line_index': -1,
             'before_or_after': 'after',
-            'description': {
-                'type': 'record_encounter'
+            'type': 'record_encounter'
+
+            'keyword_arguments': {
                 'value': 'giovanni',
             },
 

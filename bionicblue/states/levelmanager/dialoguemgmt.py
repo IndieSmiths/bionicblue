@@ -6,6 +6,17 @@ from itertools import count
 
 from collections import deque
 
+### standard library import with local import replacement
+### in case imported function is not available from
+### standard library (since it might not be available in
+### the Python version used)
+
+try:
+    from itertools import pairwise
+
+except ImportError:
+    from ...ourstdlibs.iterutils import pairwise
+
 
 ### third-party imports
 
@@ -25,15 +36,18 @@ from pygame.locals import (
 
 from pygame.display import update as update_screen
 
-### third-party import with local import replacement
-### in case it is not available from third-party lib
-### (since it is a relatively new addition)
+from pygame.math import Vector2
+
+### third-party imports with local import replacements
+### in case imported functions are not available from
+### third-party lib (since it might not be available in
+### the pygame version used)
 
 try:
-    from pygame.math import smoothstep
+    from pygame.math import lerp, smoothstep
 
 except ImportError:
-    from ...ourstdlibs.mathutils import smoothstep
+    from ...ourstdlibs.mathutils import lerp, smoothstep
 
 
 ### local imports
@@ -45,6 +59,7 @@ from ...pygamesetup import SERVICES_NS
 from ...pygamesetup.constants import (
     SCREEN,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
+    msecs_to_frames,
 )
 
 from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
@@ -335,6 +350,7 @@ class DialogueManagement:
                 self.drive_dialogue_state = self.carry_action
 
             else:
+                self.prepare_line()
                 self.drive_dialogue_state = self.present_dialogue
 
         else:
@@ -342,16 +358,16 @@ class DialogueManagement:
 
     def prepare_action(self, action_data):
 
-        action_description = action_data['description']
-        action_type = action_description['type']
+        action_type = action_data['type']
+        kwargs = action_data['keyword_arguments']
 
         if action_type == 'pan_camera':
             
             current_x, current_y = scrolling
 
-            delta_x, delta_y = (
-                action_description.get('delta_x', 0),
-                action_description.get('delta_y', 0),
+            _delta_x, _delta_y = (
+                kwargs.get('delta_x', 0),
+                kwargs.get('delta_y', 0),
             )
 
             final_x, final_y = (
@@ -359,6 +375,46 @@ class DialogueManagement:
                 current_y + _delta_y,
             )
 
+            interpol_func = (
+                lerp
+                if kwargs['linear_or_smooth'] == 'linear'
+                else smoothstep
+            )
+
+            no_of_steps = kwargs['no_of_steps']
+
+            points = [
+
+                Vector2(
+                    interpol_func(current_x, final_x, i/no_of_steps),
+                    interpol_func(current_y, final_y, i/no_of_steps),
+                )
+
+                for i in range(1, no_of_steps+1)
+
+            ]
+
+            for a, b in pairwise(points):
+                ... # calculate and store deltas
+
+
+            max_frames = msecs_to_frames(kwargs['duration_value'] * 1000)
+
+            frames_after_step = round(max_frames / no_of_steps) - 1
+            all_frames = []
+
+            while len(all_frames) + frames_after_step < max_frames:
+
+                all_frames.append(True)
+                all_frames.extend((False,) * frames_after_step)
+
+            self.must_step = all_frames.__iter__().__next__
+
+    def prepare_line(self):
+
+        try:
+            if self.must_step():
+        except StopIteration:
             ...
 
     def carry_action(self):
