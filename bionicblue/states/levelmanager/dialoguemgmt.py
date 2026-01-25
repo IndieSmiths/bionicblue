@@ -4,7 +4,7 @@
 
 from itertools import count
 
-from collections import deque
+from collections import defaultdict, deque
 
 ### standard library import with local import replacement
 ### in case imported function is not available from
@@ -66,6 +66,8 @@ from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
 from ...ourstdlibs.pyl import load_pyl
 
+from ...ourstdlibs.behaviour import do_nothing
+
 from ...translatedtext import TRANSLATIONS
 
 from .common import (
@@ -117,36 +119,36 @@ class DialogueManagement:
 
                     line_attr_names = get_line_attr_names(path.stem)
 
-                    actions = data['actions']
-
-                    for action_data in actions:
-
-                        index = action_data.pop('line_index')
-
-                        try:
-                            line_attr_name = line_attr_names[index]
-
-                        except IndexError as err:
-                            raise IndexError("Used nonexistent index") from err
-
-                        action_data['line_attr_name'] = line_attr_name
+                    action_map = defaultdict(list)
 
                     dm[path.stem] = {
 
                         'line_attr_names': line_attr_names,
                         'characters': data['characters'],
 
-                        'action_map': {
-
-                            (
-                              action_data.pop('line_attr_name'),
-                              action_data.pop('before_or_after'),
-                            ): action_data
-
-                            for action_data in actions
-                        }
+                        'action_map': action_map,
 
                     }
+
+                    ### populate action map
+
+                    for action_data in data['actions']:
+
+                        line_index = action_data.pop('line_index')
+
+                        try:
+                            line_attr_name = line_attr_names[line_index]
+
+                        except IndexError as err:
+
+                            raise IndexError(
+                                "Used nonexistent line index"
+                            ) from err
+
+                        action_map[(
+                          line_attr_name,
+                          action_data.pop('before_or_after'),
+                        )].append(action_data)
 
         ###
 
@@ -342,9 +344,11 @@ class DialogueManagement:
 
             next_line = self.next_line = self.remaining_lines_deque.popleft()
 
-            action_before = self.action_map.get((next_line, 'before'))
+            actions_before = self.action_map.get((next_line, 'before'))
 
-            if action_before:
+            self.process_actions(actions_before)
+
+            if self.action_call_groups:
 
                 self.prepare_action(action_before)
                 self.drive_dialogue_state = self.carry_action
@@ -356,59 +360,117 @@ class DialogueManagement:
         else:
             ... # exit dialogue
 
-    def prepare_action(self, action_data):
+    def process_actions(self, action_data):
 
-        action_type = action_data['type']
-        kwargs = action_data['keyword_arguments']
+        self.action_call_groups = []
 
-        if action_type == 'pan_camera':
-            
-            current_x, current_y = scrolling
+        for action_data in actions:
 
-            _delta_x, _delta_y = (
-                kwargs.get('delta_x', 0),
-                kwargs.get('delta_y', 0),
-            )
+            action_type = action_data['type']
+            kwargs = action_data['keyword_arguments']
 
-            final_x, final_y = (
-                current_x + _delta_x,
-                current_y + _delta_y,
-            )
+            if action_type == 'pan_camera':
 
-            interpol_func = (
-                lerp
-                if kwargs['linear_or_smooth'] == 'linear'
-                else smoothstep
-            )
+                current_x, current_y = scrolling
 
-            no_of_steps = kwargs['no_of_steps']
-
-            points = [
-
-                Vector2(
-                    interpol_func(current_x, final_x, i/no_of_steps),
-                    interpol_func(current_y, final_y, i/no_of_steps),
+                _delta_x, _delta_y = (
+                    kwargs.get('delta_x', 0),
+                    kwargs.get('delta_y', 0),
                 )
 
-                for i in range(1, no_of_steps+1)
+                final_x, final_y = (
+                    current_x + _delta_x,
+                    current_y + _delta_y,
+                )
 
-            ]
+                interpol_func = (
+                    lerp
+                    if kwargs['linear_or_smooth'] == 'linear'
+                    else smoothstep
+                )
 
-            for a, b in pairwise(points):
-                ... # calculate and store deltas
+                no_of_frames = msecs_to_frames(kwargs['duration_value'] * 1000)
+                frames_between_steps = kwargs['frames_between_steps']
+
+                ### calculate number of steps
+
+                no_of_steps = 0
+                _gap_count = 0
+
+                for _ in range(no_of_frames):
+
+                    if _gap_count == 0:
+                        no_of_steps += 1
+
+                    _gap_count += 1
+
+                    if _gap_count > frames_between_steps:
+                        _gap_count = 0
 
 
-            max_frames = msecs_to_frames(kwargs['duration_value'] * 1000)
+                ### calculate deltas between points
 
-            frames_after_step = round(max_frames / no_of_steps) - 1
-            all_frames = []
+                points = (
 
-            while len(all_frames) + frames_after_step < max_frames:
+                    Vector2(
+                        interpol_func(current_x, final_x, i/no_of_steps),
+                        interpol_func(current_y, final_y, i/no_of_steps),
+                    )
 
-                all_frames.append(True)
-                all_frames.extend((False,) * frames_after_step)
+                    for i in range(no_of_steps+1)
 
-            self.must_step = all_frames.__iter__().__next__
+                )
+
+                deltas = deque(
+                    b - a
+                    for a, b in pairwise(points)
+                )
+
+                ### create a deque with a call for each frame
+
+                all_calls = deque()
+                self.action_call_groups.append(all_calls)
+
+                move_level_method = self.move_level
+
+                _gap_count = 0
+
+                for _ in range(no_of_frames):
+
+                    call = (
+
+                        partial(move_level_method, deltas.popleft())
+                        if _gap_count == 0
+
+                        else do_nothing
+
+                    )
+
+                    all_calls.append(call)
+
+                    _gap_count += 1
+
+                    if _gap_count > frames_between_steps:
+                        _gap_count = 0
+
+            elif action_type == 'move':
+
+                character = kwargs['character']
+
+                if character == 'Blue':
+
+                    no_of_frames = self.player.move_on_dialogue(kwargs)
+                    all_calls = [do_nothing,] * no_of_frames
+
+                else:
+
+                    raise ValueError(
+                        "value of 'character' argument must be one used"
+                        " in either of the previous if-elif blocks"
+                    )
+
+                self.action_call_groups.append(all_calls)
+
 
     def prepare_line(self):
 
@@ -418,6 +480,9 @@ class DialogueManagement:
             ...
 
     def carry_action(self):
+
+        ### TODO use zip_longest(..., do_nothing) to drive actions until they
+        ### are completed;
         ...
 
     def dialogue_draw(self):

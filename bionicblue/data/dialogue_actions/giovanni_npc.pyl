@@ -10,14 +10,14 @@
         {
             'line_index': 0,
             'before_or_after': 'before',
+            'type': 'pan_camera',
 
             'keyword_arguments' : {
-                'type': 'pan_camera',
                 'delta_x': 20,
                 'linear_or_smooth': 'smooth',
                 'duration_type': 'seconds',
                 'duration_value': 2,
-                'no_of_steps': 30,
+                'frames_between_steps': 2,
             },
 
         },
@@ -35,7 +35,6 @@
                 'animation_name': 'walk_left',
                 'delta_x': -30,
                 'linear_or_smooth': 'linear',
-                'duration_type': 'until_destination',
             },
 
         },
@@ -52,6 +51,7 @@
                 'linear_or_smooth': 'smooth',
                 'duration_type': 'seconds',
                 'duration_value': 4,
+                'frames_between_steps': 2,
             },
 
         },
