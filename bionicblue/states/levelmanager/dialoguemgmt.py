@@ -2,7 +2,7 @@
 
 ### standard library imports
 
-from itertools import count
+from itertools import count, groupby
 
 from collections import defaultdict, deque
 
@@ -64,6 +64,12 @@ from ...pygamesetup.constants import (
 
 from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
+from ...classes2d.single import UIObject2D
+
+from ...classes2d.collections import List2D
+
+from ...textman import render_text
+
 from ...ourstdlibs.pyl import load_pyl
 
 from ...ourstdlibs.behaviour import do_nothing
@@ -93,6 +99,22 @@ from .common import (
 
 )
 
+
+
+TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'cyan',
+}
+
+CHARACTER_PORTRAIT_BOX = (
+    ...
+)
+
+TEXTBOX = (
+    ...
+)
 
 
 class DialogueManagement:
@@ -156,7 +178,7 @@ class DialogueManagement:
         self.mid_action = False
 
         self.remaining_lines_deque = deque()
-        self.next_line = ''
+        self.current_line = ''
 
         self.action_steps_deque = deque()
 
@@ -177,9 +199,9 @@ class DialogueManagement:
         self.remaining_lines_deque.extend(data['line_attr_names'])
         self.action_map = data['action_map']
 
-        self.next_line = ''
+        self.current_line = ''
 
-        self.drive_dialogue_state = self.get_next_line
+        self.get_next_line()
 
     def exit_dialogue(self):
 
@@ -304,7 +326,7 @@ class DialogueManagement:
         ### backup scrolling
         scrolling_backup.update(scrolling)
 
-        self.advance_dialogue_state()
+        self.drive_dialogue_state()
 
         self.player.update()
 
@@ -326,36 +348,33 @@ class DialogueManagement:
         for prop in FRONT_PROPS:
             prop.update()
 
-    def update_actions(self):
-        """Drive dialogue lines and actions until dialogue is exited."""
-
-        if self.mid_dialogue:
-            pass
-
-        elif self.mid_action:
-            pass
-
-        elif self.next_line:
-            pass
-
     def get_next_line(self):
 
         if self.remaining_lines_deque:
 
-            next_line = self.next_line = self.remaining_lines_deque.popleft()
+            current_line = self.current_line = (
+                self.remaining_lines_deque.popleft()
+            )
 
-            actions_before = self.action_map.get((next_line, 'before'))
+            actions_before = self.action_map.get((current_line, 'before'))
 
             self.process_actions(actions_before)
 
             if self.action_call_groups:
 
-                self.prepare_action(action_before)
-                self.drive_dialogue_state = self.carry_action
+                self.drive_dialogue_state = self.carry_actions
+
+                self.advance_actions = (
+                    zip_longest(
+                        *self.action_call_groups,
+                        fillvalue=do_nothing,
+                    ).__next__
+                )
+
+                self.after_actions = self.prepare_dialogue_line
 
             else:
-                self.prepare_line()
-                self.drive_dialogue_state = self.present_dialogue
+                self.prepare_dialogue_line()
 
         else:
             ... # exit dialogue
@@ -472,18 +491,82 @@ class DialogueManagement:
                 self.action_call_groups.append(all_calls)
 
 
-    def prepare_line(self):
+    def prepare_dialogue_line(self):
+
+        words = List2D(
+
+            List2D(
+
+                UIObject2D.from_surface(
+
+                    render_text(
+                        char,
+                        **TEXT_SETTINGS,
+                    )
+
+                )
+
+                for char in word
+
+            )
+
+            for word in self.current_line.split()
+
+        )
+
+        for word in words:
+
+            word.rect.snap_rects_ip(
+                retrieve_pos_from='topright',
+                assign_pos_to='topleft',
+            )
+
+        words.rect.snap_rects_intermittently_ip(
+
+            dimension_name='width',
+            dimension_unit='pixels',
+            max_dimension_value=TEXTBOX.width,
+
+            retrieve_pos_from='topright',
+            assign_pos_to='topleft',
+            offset_pos_by=(2, 0),
+
+            intermittent_pos_from='bottomleft',
+            intermittent_pos_to='topleft',
+            intermittent_offset_by=(0, 2),
+
+        )
+
+        words.rect.topleft = TEXTBOX.topleft
+
+        word_lines = List2D(
+
+            List2D(words_with_same_top)
+
+            for _, words_with_same_top
+            in groupby(words, key=lambda word: word.rect.top)
+
+        )
+
+        ###
+
+        self.drive_dialogue_state = self.present_dialogue
+
+    def carry_actions(self):
 
         try:
-            if self.must_step():
+            next_calls = self.advance_actions()
+
         except StopIteration:
-            ...
+            self.after_actions()
 
-    def carry_action(self):
+        else:
 
-        ### TODO use zip_longest(..., do_nothing) to drive actions until they
-        ### are completed;
-        ...
+            for call in next_calls:
+                call()
+
+
+    def present_dialogue(self):
 
     def dialogue_draw(self):
         """Draw level elements and dialogue elements on top."""
@@ -510,7 +593,7 @@ class DialogueManagement:
         for prop in FRONT_PROPS:
             prop.draw()
 
-        self.draw_dialogue_elements(self)
+        self.draw_dialogue_elements()
 
         update_screen()
 
