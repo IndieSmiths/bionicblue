@@ -229,7 +229,7 @@ class ReportPreprocessing:
             try:
                 paragraph = getattr(t, paragraph_attr_name)
 
-            except KeyError:
+            except AttributeError:
                 break
 
             words = UIList2D(

@@ -61,7 +61,7 @@
         {
             'line_index': -1,
             'before_or_after': 'after',
-            'type': 'record_encounter'
+            'type': 'record_encounter',
 
             'keyword_arguments': {
                 'value': 'giovanni',

@@ -72,6 +72,8 @@ def get_translations_namespace():
 
         lines_deque.extend(lines)
 
+        identifier_to_be_registered = ''
+
         watch_out_for_translations = False
 
         previous_level = 0
@@ -137,12 +139,14 @@ def get_translations_namespace():
 
                 tmap = (
                     parent._translation_map
-                    [parent._identifier_to_be_registered]
+                    [identifier_to_be_registered]
                 )
 
                 tmap[formatted_locale] = translation
 
             else:
+
+                identifier_to_be_registered = ''
 
                 # peek into next lines to see if we are dealing
                 # with translations or identifiers
@@ -175,7 +179,7 @@ def get_translations_namespace():
                         parent._has_translation_map = True
 
                     parent._translation_map[remaining_text] = {}
-                    parent._identifier_to_be_registered = remaining_text
+                    identifier_to_be_registered = remaining_text
 
                 else:
 
@@ -212,15 +216,16 @@ class TranslationNode():
     _user_prefs = None
 
     def __init__(self):
-
         self._has_translation_map = False
-        self._identifier_to_be_registered = ''
 
     def __getattr__(self, attr_name):
 
-        if not self._has_translation_map:
+        if (
+            not self._has_translation_map
+            or attr_name not in self._translation_map
+        ):
 
-            raise RuntimeError(
+            raise AttributeError(
                 f"TranslationNode obj doesn't have '{attr_name}' attribute."
             )
 

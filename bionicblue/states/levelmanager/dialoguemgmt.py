@@ -66,7 +66,7 @@ from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
 from ...classes2d.single import UIObject2D
 
-from ...classes2d.collections import List2D
+from ...classes2d.collections import UIList2D
 
 from ...textman import render_text
 
@@ -304,9 +304,9 @@ class DialogueManagement:
 
             ## gamepad action buttons
 
-            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['start_button']],
-            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['shoot']],
-            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['jump']],
+            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['start_button']]
+            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['shoot']]
+            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['jump']]
 
         ):
             self.dialogue_full_speed = True
@@ -493,9 +493,9 @@ class DialogueManagement:
 
     def prepare_dialogue_line(self):
 
-        words = List2D(
+        words = UIList2D(
 
-            List2D(
+            UIList2D(
 
                 UIObject2D.from_surface(
 
@@ -539,9 +539,9 @@ class DialogueManagement:
 
         words.rect.topleft = TEXTBOX.topleft
 
-        word_lines = List2D(
+        word_lines = UIList2D(
 
-            List2D(words_with_same_top)
+            UIList2D(words_with_same_top)
 
             for _, words_with_same_top
             in groupby(words, key=lambda word: word.rect.top)
@@ -567,6 +567,7 @@ class DialogueManagement:
 
 
     def present_dialogue(self):
+        ...
 
     def dialogue_draw(self):
         """Draw level elements and dialogue elements on top."""
@@ -623,7 +624,7 @@ def get_line_attr_names(dialogue_name):
         try:
             getattr(t, line_attr_name)
 
-        except KeyError:
+        except AttributeError:
             break
 
         line_attr_names.append(line_attr_name)
