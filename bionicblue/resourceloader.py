@@ -151,6 +151,8 @@ class ResourceLoader:
             for attr_name, anim_data_name, anim_name in (
                 ('blue_boy', 'blue_shooter_man', 'walk_right'),
                 ('middle_shot', 'middle_charged_shot', 'idle_right'),
+                ('giovanni', 'giovanni_npc', 'portrait_idle_right'),
+                ('kane', 'chief_sec_bot', 'idle_right'),
             ):
 
                 obj = UIObject2D()

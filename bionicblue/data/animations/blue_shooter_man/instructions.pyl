@@ -6,12 +6,19 @@
             "art_size" : (16, 16),
             "art_anchorage" : ('midbottom', 'midbottom'),
         },
+        "portrait" : {
+            "size" : (32, 32),
+            "art_size" : (32, 32),
+            "art_anchorage" : ('center', 'center'),
+        },
     },
     "objects" : {
         "body" : {"geometry": "body"},
+        "portrait" : {"geometry": "portrait"},
     },
     "existing_structures" : {
         "standing" : {"tree" : {"name": "body"}},
+        "portrait" : {"tree" : {"name": "portrait"}},
     },
     "animations" :{
 
@@ -47,6 +54,11 @@
         "grabbed": {"structure": "standing"},
         "hurled_right": {"structure": "standing"},
         "hurled_left": {"structure": "standing"},
+
+        "portrait_idle_right": {"structure": "portrait"},
+        "portrait_idle_left": {"structure": "portrait"},
+        "portrait_speaking_right": {"structure": "portrait"},
+        "portrait_speaking_left": {"structure": "portrait"},
 
     },
     "blending": {
@@ -192,6 +204,22 @@
                 "surfaces": "shooter_man.grabbed",
             },
         },
+
+        "speaking_right": {
+            "body": {
+                "surfaces": "shooter_man.speaking_right",
+            },
+        },
+        "portrait_idle_right": {
+            "portrait": {
+                "surfaces": "shooter_man.portrait_idle_right",
+            },
+        },
+        "portrait_speaking_right": {
+            "portrait": {
+                "surfaces": "shooter_man.portrait_speaking_right",
+            },
+        },
     },
     "timing": {
         "teleporting": {
@@ -267,6 +295,21 @@
         "grabbed": {
             "body": {
                 "surface_indices": "shooter_man.grabbed",
+            },
+        },
+        "speaking_right": {
+            "body": {
+                "surface_indices": "shooter_man.speaking_right",
+            },
+        },
+        "portrait_idle_right": {
+            "portrait": {
+                "surface_indices": "shooter_man.portrait_idle_right",
+            },
+        },
+        "portrait_speaking_right": {
+            "portrait": {
+                "surface_indices": "shooter_man.portrait_speaking_right",
             },
         },
     },
@@ -354,6 +397,18 @@
         "hurled_left": {
             "operation_name": "flip_x",
             "target": "hurled_right",
+        },
+        "portrait_idle_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_idle_right",
+        },
+        "portrait_speaking_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_speaking_right",
+        },
+        "speaking_left": {
+            "operation_name": "flip_x",
+            "target": "speaking_right",
         },
     },
 }

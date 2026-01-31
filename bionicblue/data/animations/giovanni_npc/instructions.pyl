@@ -1,17 +1,24 @@
 {
-    "name": "mark_npc",
+    "name": "giovanni_npc",
     "geometry": {
         "body" : {
             "size" : (16, 24),
             "art_size" : (32, 32),
             "art_anchorage" : ('midbottom', 'midbottom'),
         },
+        "portrait" : {
+            "size" : (32, 32),
+            "art_size" : (32, 32),
+            "art_anchorage" : ('center', 'center'),
+        },
     },
     "objects" : {
         "body" : {"geometry": "body"},
+        "portrait" : {"geometry": "portrait"},
     },
     "existing_structures" : {
         "standing" : {"tree" : {"name": "body"}},
+        "portrait": {"tree": {"name": "portrait"}},
     },
     "animations" :{
         "idle_right": {"structure": "standing"},
@@ -22,48 +29,72 @@
         "listening_left": {"structure": "standing"},
         "walking_right": {"structure": "standing"},
         "walking_left": {"structure": "standing"},
+        "portrait_speaking_right": {"structure": "portrait"},
+        "portrait_speaking_left": {"structure": "portrait"},
+        "portrait_idle_right": {"structure": "portrait"},
+        "portrait_idle_left": {"structure": "portrait"},
     },
     "values": {
         "idle_right": {
             "body": {
-                "surfaces": "mark_npc.idle_right",
+                "surfaces": "giovanni_npc.idle_right",
             },
         },
         "speaking_right": {
             "body": {
-                "surfaces": "mark_npc.speaking_right",
+                "surfaces": "giovanni_npc.speaking_right",
             },
         },
         "listening_right": {
             "body": {
-                "surfaces": "mark_npc.listening_right",
+                "surfaces": "giovanni_npc.listening_right",
             },
         },
         "walking_right": {
             "body": {
-                "surfaces": "mark_npc.walking_right",
+                "surfaces": "giovanni_npc.walking_right",
+            },
+        },
+        "portrait_idle_right": {
+            "portrait": {
+                "surfaces": "giovanni_npc.portrait_idle_right",
+            },
+        },
+        "portrait_speaking_right": {
+            "portrait": {
+                "surfaces": "giovanni_npc.portrait_speaking_right",
             },
         },
     },
     "timing": {
         "idle_right": {
             "body": {
-                "surface_indices": "mark_npc.idle_right",
+                "surface_indices": "giovanni_npc.idle_right",
             },
         },
         "speaking_right": {
             "body": {
-                "surface_indices": "mark_npc.speaking_right",
+                "surface_indices": "giovanni_npc.speaking_right",
             },
         },
         "listening_right": {
             "body": {
-                "surface_indices": "mark_npc.listening_right",
+                "surface_indices": "giovanni_npc.listening_right",
             },
         },
         "walking_right": {
             "body": {
-                "surface_indices": "mark_npc.walking_right",
+                "surface_indices": "giovanni_npc.walking_right",
+            },
+        },
+        "portrait_idle_right": {
+            "portrait": {
+                "surface_indices": "giovanni_npc.portrait_idle_right",
+            },
+        },
+        "portrait_speaking_right": {
+            "portrait": {
+                "surface_indices": "giovanni_npc.portrait_speaking_right",
             },
         },
     },
@@ -83,6 +114,14 @@
         "walking_left": {
             "operation_name": "flip_x",
             "target": "walking_right",
+        },
+        "portrait_idle_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_idle_right",
+        },
+        "portrait_speaking_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_speaking_right",
         },
     },
 }

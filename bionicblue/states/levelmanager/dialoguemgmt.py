@@ -20,6 +20,8 @@ except ImportError:
 
 ### third-party imports
 
+from pygame import Rect
+
 from pygame.locals import (
 
     QUIT,
@@ -58,6 +60,7 @@ from ...pygamesetup import SERVICES_NS
 
 from ...pygamesetup.constants import (
     SCREEN,
+    SCREEN_RECT,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
     msecs_to_frames,
 )
@@ -108,13 +111,16 @@ TEXT_SETTINGS = {
     'foreground_color': 'cyan',
 }
 
-CHARACTER_PORTRAIT_BOX = (
-    ...
-)
+_PADDING = 5
 
-TEXTBOX = (
-    ...
-)
+PORTRAIT_BOX = Rect(0, 0, 32, 32)
+PORTRAIT_BOX.bottomleft = SCREEN_RECT.move(_PADDING, -_PADDING).bottomleft
+
+TEXT_BOX = SCREEN_RECT.copy()
+TEXT_BOX.height *= .25
+TEXT_BOX.width -= (PORTRAIT_BOX.width + (3 * _PADDING)) 
+
+TEXT_BOX.bottomright = SCREEN_RECT.move(-_PADDING, -_PADDING).bottomright
 
 
 class DialogueManagement:
@@ -139,13 +145,15 @@ class DialogueManagement:
 
                 else:
 
-                    line_attr_names = get_line_attr_names(path.stem)
+                    line_character_pairs = (
+                        get_line_character_pairs(path.stem)
+                    )
 
                     action_map = defaultdict(list)
 
                     dm[path.stem] = {
 
-                        'line_attr_names': line_attr_names,
+                        'line_character_pairs': line_character_pairs,
                         'characters': data['characters'],
 
                         'action_map': action_map,
@@ -159,7 +167,7 @@ class DialogueManagement:
                         line_index = action_data.pop('line_index')
 
                         try:
-                            line_attr_name = line_attr_names[line_index]
+                            line_attr_name, _ = line_character_pairs[line_index]
 
                         except IndexError as err:
 
@@ -179,8 +187,29 @@ class DialogueManagement:
 
         self.remaining_lines_deque = deque()
         self.current_line = ''
+        self.current_character = ''
 
         self.action_steps_deque = deque()
+
+        self.character_portrait_map = {
+            'Blue': REFS.blue_boy,
+            'Giovanni': REFS.giovanni,
+            'Kane': REFS.kane,
+        }
+
+        self.character_portrait_map = {
+            'Blue': REFS.blue_boy,
+            'Giovanni': REFS.giovanni,
+            'Kane': REFS.kane,
+        }
+
+        self.character_retrival_map = {
+            'Blue': (REFS, ('level_manager', 'player')),
+            'Giovanni': (REFS, ('level_manager', 'npc')),
+            'Kane': (REFS, ('level_boss',)), 
+        }
+
+        self.character_map = {}
 
     def enter_dialogue(self, dialogue_name):
 
@@ -195,13 +224,25 @@ class DialogueManagement:
 
         data = self.dialogues_map[dialogue_name]
 
-        self.characters = data['characters']
-        self.remaining_lines_deque.extend(data['line_attr_names'])
+        self.remaining_lines_deque.extend(data['line_character_pairs'])
         self.action_map = data['action_map']
 
         self.current_line = ''
+        self.current_character = ''
 
         self.get_next_line()
+
+        self.character_map.update(
+
+            character_name: (
+                get_character_reference(
+                    *self.character_retrieval_map[next_character]
+                )
+            )
+
+            for character_name in data['characters']
+
+        )
 
     def exit_dialogue(self):
 
@@ -352,9 +393,35 @@ class DialogueManagement:
 
         if self.remaining_lines_deque:
 
-            current_line = self.current_line = (
+            next_line, next_character = self.current_line = (
                 self.remaining_lines_deque.popleft()
             )
+
+            self.current_line = next_line
+
+            leftmost, rightmost = sorted((TEXT_BOX, PORTRAIT_BOX))
+            self.leftmost = leftmost
+
+            if (
+                self.current_charater
+                and self.current_charater != next_character
+            ):
+
+                leftmost.topright, rightmost.topleft = (
+                    rightmost.topright, leftmost.topleft
+                )
+
+            ###
+
+            self.current_character = next_character
+
+            self.character_portrait = (
+                self.character_portrait_map[next_character]
+            )
+
+            self.in_game_character = self.character_map[next_character]
+
+            ###
 
             actions_before = self.action_map.get((current_line, 'before'))
 
@@ -525,7 +592,7 @@ class DialogueManagement:
 
             dimension_name='width',
             dimension_unit='pixels',
-            max_dimension_value=TEXTBOX.width,
+            max_dimension_value=TEXT_BOX.width,
 
             retrieve_pos_from='topright',
             assign_pos_to='topleft',
@@ -537,7 +604,7 @@ class DialogueManagement:
 
         )
 
-        words.rect.topleft = TEXTBOX.topleft
+        words.rect.topleft = TEXT_BOX.topleft
 
         word_lines = UIList2D(
 
@@ -606,13 +673,13 @@ class DialogueManagement:
         """
 
 
-def get_line_attr_names(dialogue_name):
+def get_line_character_pairs(dialogue_name):
 
     t = getattr(TRANSLATIONS, f'{dialogue_name}_dialogue')
 
     next_index = count().__next__
 
-    line_attr_names = []
+    line_character_pairs = []
 
     while True:
 
@@ -622,11 +689,18 @@ def get_line_attr_names(dialogue_name):
         )
 
         try:
-            getattr(t, line_attr_name)
+            translation_node = getattr(t, line_attr_name)
 
         except AttributeError:
             break
 
-        line_attr_names.append(line_attr_name)
+        line_character_pairs.append(line_attr_name)
 
-    return line_attr_names
+    return line_character_pairs
+
+def get_character_reference(obj, attr_names):
+
+    for attr_name in attr_names:
+        obj = getattr(obj, attr_name)
+
+    return obj
