@@ -38,6 +38,8 @@ from pygame.locals import (
 
 from pygame.display import update as update_screen
 
+from pygame.draw import rect as draw_rect
+
 from pygame.math import Vector2
 
 ### third-party imports with local import replacements
@@ -113,14 +115,29 @@ TEXT_SETTINGS = {
 
 _PADDING = 5
 
+BOTTOMLEFT_ANCHOR = SCREEN_RECT.move(_PADDING, -_PADDING).bottomleft
+BOTTOMRIGHT_ANCHOR = SCREEN_RECT.move(-_PADDING, -_PADDING).bottomright
+
 PORTRAIT_BOX = Rect(0, 0, 32, 32)
-PORTRAIT_BOX.bottomleft = SCREEN_RECT.move(_PADDING, -_PADDING).bottomleft
+
 
 TEXT_BOX = SCREEN_RECT.copy()
-TEXT_BOX.height *= .25
+
+TEXT_BOX.height = PORTRAIT_BOX.height
 TEXT_BOX.width -= (PORTRAIT_BOX.width + (3 * _PADDING)) 
 
-TEXT_BOX.bottomright = SCREEN_RECT.move(-_PADDING, -_PADDING).bottomright
+
+DIALOGUE_BOX = (
+    Rect(
+        0,
+        0,
+        SCREEN_RECT.width,
+        PORTRAIT_BOX.height + (_PADDING*2),
+    )
+)
+
+DIALOGUE_BOX.bottom = SCREEN_RECT.bottom
+
 
 
 class DialogueManagement:
@@ -398,22 +415,9 @@ class DialogueManagement:
             )
 
             self.current_line = next_line
-
-            leftmost, rightmost = sorted((TEXT_BOX, PORTRAIT_BOX))
-            self.leftmost = leftmost
-
-            if (
-                self.current_charater
-                and self.current_charater != next_character
-            ):
-
-                leftmost.topright, rightmost.topleft = (
-                    rightmost.topright, leftmost.topleft
-                )
+            self.current_character = next_character
 
             ###
-
-            self.current_character = next_character
 
             self.character_portrait = (
                 self.character_portrait_map[next_character]
@@ -432,10 +436,12 @@ class DialogueManagement:
                 self.drive_dialogue_state = self.carry_actions
 
                 self.advance_actions = (
+
                     zip_longest(
                         *self.action_call_groups,
                         fillvalue=do_nothing,
                     ).__next__
+
                 )
 
                 self.after_actions = self.prepare_dialogue_line
@@ -560,6 +566,26 @@ class DialogueManagement:
 
     def prepare_dialogue_line(self):
 
+        ## positioning for dialogue elements depends on direction the
+        ## character is facing
+
+        is_portrait_facing_right = self.is_portrait_facing_right = (
+            'right' in self.in_game_character.aniplayer.anim_name
+        )
+
+        if is_portrait_facing_right:
+
+            PORTRAIT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
+            TEXT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
+
+        else:
+
+            TEXT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
+            PORTRAIT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
+
+        ###
+        ###
+
         words = UIList2D(
 
             UIList2D(
@@ -608,15 +634,14 @@ class DialogueManagement:
 
         word_lines = UIList2D(
 
-            UIList2D(words_with_same_top)
+            UIList2D(words_in_same_line)
 
-            for _, words_with_same_top
+            for _, words_in_same_line
             in groupby(words, key=lambda word: word.rect.top)
 
         )
 
         ###
-
         self.drive_dialogue_state = self.present_dialogue
 
     def carry_actions(self):
@@ -661,7 +686,8 @@ class DialogueManagement:
         for prop in FRONT_PROPS:
             prop.draw()
 
-        self.draw_dialogue_elements()
+        if self.drive_dialogue_state == self.present_dialogue:
+            self.draw_dialogue_elements()
 
         update_screen()
 
@@ -671,6 +697,11 @@ class DialogueManagement:
         "As needed" means that dialogue may have intervals where nothing is
         said, so no dialogue element is drawn during that interval.
         """
+        draw_rect(SCREEN, 'black', DIALOGUE_BOX)
+        draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1)
+
+        self.character_portrait.aniplay.draw()
+
 
 
 def get_line_character_pairs(dialogue_name):

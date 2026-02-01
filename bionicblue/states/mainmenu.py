@@ -224,7 +224,7 @@ class MainMenu:
         if self.current_index >= self.item_count:
             self.current_index = self.item_count - 1
 
-        REFS.blue_boy.ap.switch_animation('idle_right')
+        REFS.blue_boy.aniplayer.switch_animation('idle_right')
 
         self.highlight_selected()
 
@@ -395,8 +395,8 @@ class MainMenu:
         self.control = self.control_wait_shot_animation
         self.update  = self.update_shot_appearing
 
-        REFS.blue_boy.ap.blend('+shooting')
-        REFS.middle_shot.ap.switch_animation('appearing_right')
+        REFS.blue_boy.aniplayer.blend('+shooting')
+        REFS.middle_shot.aniplayer.switch_animation('appearing_right')
 
         shot_center = REFS.blue_boy.rect.move(7, -2).midright
         REFS.middle_shot.rect.center = shot_center
@@ -429,7 +429,7 @@ class MainMenu:
 
             self.control = self.control_item_selection
             self.update = do_nothing
-            REFS.blue_boy.ap.switch_animation('idle_right')
+            REFS.blue_boy.aniplayer.switch_animation('idle_right')
 
             shot_rect.right = SCREEN_RECT.left
 
@@ -443,8 +443,8 @@ class MainMenu:
 
         self.items.draw()
 
-        REFS.blue_boy.ap.draw()
+        REFS.blue_boy.aniplayer.draw()
 
-        REFS.middle_shot.ap.draw()
+        REFS.middle_shot.aniplayer.draw()
 
         update()

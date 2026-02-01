@@ -157,7 +157,9 @@ class ResourceLoader:
 
                 obj = UIObject2D()
                 setattr(REFS, attr_name, obj)
-                obj.ap = AnimationPlayer2D(obj, anim_data_name, anim_name)
+                obj.aniplayer = (
+                    AnimationPlayer2D(obj, anim_data_name, anim_name)
+                )
 
                 obj.rect.right = SCREEN_RECT.left # place out of screen for now
 
