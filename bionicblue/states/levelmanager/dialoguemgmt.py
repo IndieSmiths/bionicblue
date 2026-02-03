@@ -58,7 +58,7 @@ except ImportError:
 
 from ...config import DIALOGUE_ACTIONS_DIR
 
-from ...pygamesetup import SERVICES_NS
+from ...pygamesetup import SERVICES_NS, FPS
 
 from ...pygamesetup.constants import (
     SCREEN,
@@ -74,6 +74,8 @@ from ...classes2d.single import UIObject2D
 from ...classes2d.collections import UIList2D
 
 from ...textman import render_text
+
+from ...ourstdlibs.wdeque.main import WalkingDeque
 
 from ...ourstdlibs.pyl import load_pyl
 
@@ -138,6 +140,33 @@ DIALOGUE_BOX = (
 
 DIALOGUE_BOX.bottom = SCREEN_RECT.bottom
 
+# speeds in text characters per second
+
+_DIALOGUE_NORMAL_SPEED = 4
+_DIALOGUE_FULL_SPEED = 10
+
+def _get_custom_deque_for_next_char(chars_per_second):
+
+    frames_in_a_second = FPS
+
+    frames_till_next_char = frames_in_a_second / chars_per_second
+
+    return WalkingDeque(
+
+        (
+
+            *(True,),
+            *( (False,) * frames_till_next_char)
+
+        )
+
+    )
+
+NEXT_CHAR_NORMAL_SPEED_WDEQUE = (
+    _get_wdeque_for_next_char(_DIALOGUE_NORMAL_SPEED)
+)
+
+NEXT_CHAR_FULL_SPEED_WDEQUE = _get_wdeque_for_next_char(_DIALOGUE_FULL_SPEED)
 
 
 class DialogueManagement:
@@ -247,8 +276,6 @@ class DialogueManagement:
         self.current_line = ''
         self.current_character = ''
 
-        self.get_next_line()
-
         self.character_map.update(
 
             character_name: (
@@ -260,6 +287,8 @@ class DialogueManagement:
             for character_name in data['characters']
 
         )
+
+        self.get_next_line()
 
     def exit_dialogue(self):
 
@@ -367,7 +396,10 @@ class DialogueManagement:
             or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['jump']]
 
         ):
-            self.dialogue_full_speed = True
+            self.next_char_wdeque = NEXT_CHAR_FULL_SPEED_WDEQUE
+
+        else:
+            self.next_char_wdeque = NEXT_CHAR_NORMAL_SPEED_WDEQUE
 
     def process_non_dialogue_input(self):
 
@@ -607,13 +639,6 @@ class DialogueManagement:
 
         )
 
-        for word in words:
-
-            word.rect.snap_rects_ip(
-                retrieve_pos_from='topright',
-                assign_pos_to='topleft',
-            )
-
         words.rect.snap_rects_intermittently_ip(
 
             dimension_name='width',
@@ -632,14 +657,28 @@ class DialogueManagement:
 
         words.rect.topleft = TEXT_BOX.topleft
 
-        word_lines = UIList2D(
+        word_lines = [
 
             UIList2D(words_in_same_line)
 
             for _, words_in_same_line
             in groupby(words, key=lambda word: word.rect.top)
 
-        )
+        ]
+
+        ###
+
+        self.all_chars_2d = UIList2D()
+
+        self.current_line2d, *remaining_lines_2d = word_lines
+        self.remaining_lines2d_deque = deque(remaining_lines2d)
+
+        ###
+
+        NEXT_CHAR_NORMAL_SPEED_WDEQUE.restore_walking()
+        NEXT_CHAR_FULL_SPEED_WDEQUE.restore_walking()
+
+        self.next_char_wdeque = NEXT_CHAR_NORMAL_SPEED_WDEQUE
 
         ###
         self.drive_dialogue_state = self.present_dialogue
@@ -657,9 +696,12 @@ class DialogueManagement:
             for call in next_calls:
                 call()
 
-
     def present_dialogue(self):
-        ...
+
+        if self.next_char_wdeque[0]:
+
+        self.next_char_wdeque.walk(1)
+
 
     def dialogue_draw(self):
         """Draw level elements and dialogue elements on top."""
@@ -701,7 +743,6 @@ class DialogueManagement:
         draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1)
 
         self.character_portrait.aniplay.draw()
-
 
 
 def get_line_character_pairs(dialogue_name):
