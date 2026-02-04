@@ -71,7 +71,7 @@ from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
 from ...classes2d.single import UIObject2D
 
-from ...classes2d.collections import UIList2D
+from ...classes2d.collections import UIList2D, UIDeque2D
 
 from ...textman import render_text
 
@@ -145,28 +145,42 @@ DIALOGUE_BOX.bottom = SCREEN_RECT.bottom
 _DIALOGUE_NORMAL_SPEED = 4
 _DIALOGUE_FULL_SPEED = 10
 
-def _get_custom_deque_for_next_char(chars_per_second):
+# speeds in pixels per second
+
+_LINE_ROLL_NORMAL_SPEED = 15
+_LINE_ROLL_FULL_SPEED = 30
+
+
+def _get_wdeque_for_next_action(speed):
 
     frames_in_a_second = FPS
 
-    frames_till_next_char = frames_in_a_second / chars_per_second
+    frames_till_next_action = round(frames_in_a_second / speed)
 
     return WalkingDeque(
 
         (
 
             *(True,),
-            *( (False,) * frames_till_next_char)
+            *( (False,) * frames_till_next_action)
 
         )
 
     )
 
 NEXT_CHAR_NORMAL_SPEED_WDEQUE = (
-    _get_wdeque_for_next_char(_DIALOGUE_NORMAL_SPEED)
+    _get_wdeque_for_next_action(_DIALOGUE_NORMAL_SPEED)
 )
 
-NEXT_CHAR_FULL_SPEED_WDEQUE = _get_wdeque_for_next_char(_DIALOGUE_FULL_SPEED)
+NEXT_CHAR_FULL_SPEED_WDEQUE = _get_wdeque_for_next_action(_DIALOGUE_FULL_SPEED)
+
+NEXT_PIXEL_NORMAL_SPEED_WDEQUE = (
+    _get_wdeque_for_next_action(_LINE_ROLL_NORMAL_SPEED)
+)
+
+NEXT_PIXEL_FULL_SPEED_WDEQUE = (
+    _get_wdeque_for_next_action(_LINE_ROLL_FULL_SPEED)
+)
 
 
 class DialogueManagement:
@@ -341,7 +355,7 @@ class DialogueManagement:
                     KEYBOARD_CONTROLS['jump'],
                     K_RETURN,
                 ):
-                    self.go_to_next_line_if_possible()
+                    self.advance_dialogue_if_possible()
 
             elif event.type == JOYBUTTONDOWN:
 
@@ -350,12 +364,12 @@ class DialogueManagement:
                     GAMEPAD_CONTROLS['shoot'],
                     GAMEPAD_CONTROLS['jump'],
                 ):
-                    self.go_to_next_line_if_possible()
+                    self.advance_dialogue_if_possible()
 
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 
                 if event.direction in ('down', 'right'):
-                    self.go_to_next_line_if_possible()
+                    self.advance_dialogue_if_possible()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
@@ -397,9 +411,11 @@ class DialogueManagement:
 
         ):
             self.next_char_wdeque = NEXT_CHAR_FULL_SPEED_WDEQUE
+            self.next_pixel_wdeque = NEXT_PIXEL_FULL_SPEED_WDEQUE
 
         else:
             self.next_char_wdeque = NEXT_CHAR_NORMAL_SPEED_WDEQUE
+            self.next_pixel_wdeque = NEXT_PIXEL_NORMAL_SPEED_WDEQUE
 
     def process_non_dialogue_input(self):
 
@@ -459,7 +475,7 @@ class DialogueManagement:
 
             ###
 
-            actions_before = self.action_map.get((current_line, 'before'))
+            actions_before = self.action_map.get((current_line, 'before'), ())
 
             self.process_actions(actions_before)
 
@@ -482,7 +498,7 @@ class DialogueManagement:
                 self.prepare_dialogue_line()
 
         else:
-            ... # exit dialogue
+            self.exit_dialogue()
 
     def process_actions(self, action_data):
 
@@ -659,7 +675,7 @@ class DialogueManagement:
 
         word_lines = [
 
-            UIList2D(words_in_same_line)
+            UIDeque2D(words_in_same_line)
 
             for _, words_in_same_line
             in groupby(words, key=lambda word: word.rect.top)
@@ -669,16 +685,20 @@ class DialogueManagement:
         ###
 
         self.all_chars_2d = UIList2D()
-
-        self.current_line2d, *remaining_lines_2d = word_lines
-        self.remaining_lines2d_deque = deque(remaining_lines2d)
+        self.current_line_2d_deque, *remaining_lines = word_lines
+        self.remaining_lines_2d_deque = UIDeque2D(remaining_lines)
+        self.pixels_to_move = 0
+        self.waiting_for_user_to_advance = True
 
         ###
 
         NEXT_CHAR_NORMAL_SPEED_WDEQUE.restore_walking()
         NEXT_CHAR_FULL_SPEED_WDEQUE.restore_walking()
+        NEXT_PIXEL_NORMAL_SPEED_WDEQUE.restore_walking()
+        NEXT_PIXEL_FULL_SPEED_WDEQUE.restore_walking()
 
         self.next_char_wdeque = NEXT_CHAR_NORMAL_SPEED_WDEQUE
+        self.next_pixel_wdeque = NEXT_PIXEL_NORMAL_SPEED_WDEQUE
 
         ###
         self.drive_dialogue_state = self.present_dialogue
@@ -698,10 +718,77 @@ class DialogueManagement:
 
     def present_dialogue(self):
 
+        if self.waiting_for_user_to_advance: return
+
+        ###
+
         if self.next_char_wdeque[0]:
+            
+            if self.current_line_2d_deque:
+                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+
+            elif self.remaining_lines_2d_deque:
+
+                self.current_line_2d_deque = (
+                    self.remaining_lines_2d_deque.popleft()
+                )
+
+                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+
+                self.pixels_to_move += self.current_line_2d_deque.rect.height
+
 
         self.next_char_wdeque.walk(1)
 
+        if self.next_pixel_wdeque[0]:
+
+            if self.pixels_to_move:
+
+                self.pixels_to_move -= 1
+
+                for collection in (
+                    self.all_chars_2d,
+                    self.current_line_2d_deque,
+                    self.remaining_lines_2d_deque,
+                ):
+                    if collection:
+                        collection.rect.move_ip(0, -1)
+
+        self.next_pixel_wdeque.walk(1)
+
+        if (
+            not self.remaining_lines_2d_deque
+            and not self.current_line_2d_deque
+            and not self.pixels_to_move
+        ):
+            self.waiting_for_user_to_advance = True
+
+    def advance_dialogue_if_possible(self):
+
+        if not self.waiting_for_user_to_advance: return
+
+        self.waiting_for_user_to_advance = False
+
+        actions_after = self.action_map.get((self.current_line, 'after'), ())
+        self.process_actions(actions_after)
+
+        if self.action_call_groups:
+
+            self.drive_dialogue_state = self.carry_actions
+
+            self.advance_actions = (
+
+                zip_longest(
+                    *self.action_call_groups,
+                    fillvalue=do_nothing,
+                ).__next__
+
+            )
+
+            self.after_actions = self.get_next_line
+
+        else:
+            self.get_next_line()
 
     def dialogue_draw(self):
         """Draw level elements and dialogue elements on top."""
