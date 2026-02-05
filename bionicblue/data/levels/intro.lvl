@@ -1041,7 +1041,7 @@
                                 {'name': 'label',
                                  'pos': (3480, -976),
                                  'pos_name': 'midbottom',
-                                 'text': 'mark'},
+                                 'text': 'npc'},
                                 {'name': 'label',
                                  'pos': (3384, -928),
                                  'pos_name': 'midbottom',

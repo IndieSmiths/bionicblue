@@ -1,7 +1,8 @@
 """Facility for level manager class."""
 
-### standard library import
-from functools import partialmethod
+### standard library imports
+from functools import partial, partialmethod
+
 
 ### third-party imports
 
@@ -58,7 +59,7 @@ from .actors.gruntbot import GruntBot
 from .actors.watcherbot import WatcherBot
 from .actors.rabbiterror import Rabbiterror
 from .actors.chiefsecbot import ChiefSecurityBot
-from .actors.mark import Mark
+from .actors.giovanni import Giovanni
 
 from .prototypemessage import message
 
@@ -214,12 +215,14 @@ class LevelManager(DialogueManagement):
         npc_midbottom = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'mark'
+            if label_data['text'] == 'npc'
         )['pos']
 
-        npc = Mark(npc_midbottom)
+        npc = Giovanni(npc_midbottom)
         npc.layer_name = 'actors'
         add_obj(npc)
+
+        self.npc = npc
 
         ### add boss
 
@@ -269,7 +272,31 @@ class LevelManager(DialogueManagement):
 
         self.boss_gate1 = boss_gate1
 
-        ### add colliding triggers for gates
+        ### add colliding trigger for npc encounter
+
+        dialogue_trg_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'dialogue_trg'
+        )['pos']
+
+        dialogue_trigger = (
+
+            InvisibleCollidingTrigger(
+
+                on_collision=partial(self.enter_dialogue, 'giovanni_npc'),
+                width=16,
+                height=64,
+                coordinates_name='midbottom',
+                coordinates_value=dialogue_trg_pos,
+
+            )
+
+        )
+
+        add_obj(dialogue_trigger)
+
+        ### add colliding triggers for boss gates
 
         for (
 
@@ -348,7 +375,7 @@ class LevelManager(DialogueManagement):
         #
         # for now, while we are still adding content to the first level,
         # we'll hardcode this value to specific areas of interest
-        label_name = 'landing'
+        label_name = 'midpoint'
 
         landing_pos = next(
             label_data

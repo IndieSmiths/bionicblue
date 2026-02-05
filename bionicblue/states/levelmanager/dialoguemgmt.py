@@ -2,9 +2,11 @@
 
 ### standard library imports
 
-from itertools import count, groupby
+from itertools import count, groupby, zip_longest
 
 from collections import defaultdict, deque
+
+from functools import partial
 
 ### standard library import with local import replacement
 ### in case imported function is not available from
@@ -28,8 +30,11 @@ from pygame.locals import (
 
     KEYDOWN,
     KEYUP,
+
     K_ESCAPE,
     K_RETURN,
+    K_DOWN,
+    K_RIGHT,
 
     JOYBUTTONDOWN,
     JOYBUTTONUP,
@@ -56,14 +61,16 @@ except ImportError:
 
 ### local imports
 
-from ...config import DIALOGUE_ACTIONS_DIR
+from ...config import DIALOGUE_ACTIONS_DIR, REFS
 
-from ...pygamesetup import SERVICES_NS, FPS
+from ...pygamesetup import SERVICES_NS
 
 from ...pygamesetup.constants import (
     SCREEN,
     SCREEN_RECT,
+    FPS,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
+    GAMEPADDIRECTIONALPRESSED,
     msecs_to_frames,
 )
 
@@ -80,6 +87,8 @@ from ...ourstdlibs.wdeque.main import WalkingDeque
 from ...ourstdlibs.pyl import load_pyl
 
 from ...ourstdlibs.behaviour import do_nothing
+
+from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ...translatedtext import TRANSLATIONS
 
@@ -206,7 +215,7 @@ class DialogueManagement:
                 else:
 
                     line_character_pairs = (
-                        get_line_character_pairs(path.stem)
+                        get_line_character_pairs(path.stem, data['characters'])
                     )
 
                     action_map = defaultdict(list)
@@ -263,9 +272,9 @@ class DialogueManagement:
             'Kane': REFS.kane,
         }
 
-        self.character_retrival_map = {
-            'Blue': (REFS, ('level_manager', 'player')),
-            'Giovanni': (REFS, ('level_manager', 'npc')),
+        self.character_retrieval_map = {
+            'Blue': (REFS, ('states', 'level_manager', 'player')),
+            'Giovanni': (REFS, ('states', 'level_manager', 'npc')),
             'Kane': (REFS, ('level_boss',)), 
         }
 
@@ -292,9 +301,10 @@ class DialogueManagement:
 
         self.character_map.update(
 
-            character_name: (
+            (
+                character_name,
                 get_character_reference(
-                    *self.character_retrieval_map[next_character]
+                    *self.character_retrieval_map[character_name]
                 )
             )
 
@@ -405,9 +415,9 @@ class DialogueManagement:
 
             ## gamepad action buttons
 
-            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['start_button']]
-            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['shoot']]
-            or GAMEPAD_NS.get_button[GAMEPAD_CONTROLS['jump']]
+            or GAMEPAD_NS.get_button(GAMEPAD_CONTROLS['start_button'])
+            or GAMEPAD_NS.get_button(GAMEPAD_CONTROLS['shoot'])
+            or GAMEPAD_NS.get_button(GAMEPAD_CONTROLS['jump'])
 
         ):
             self.next_char_wdeque = NEXT_CHAR_FULL_SPEED_WDEQUE
@@ -458,20 +468,20 @@ class DialogueManagement:
 
         if self.remaining_lines_deque:
 
-            next_line, next_character = self.current_line = (
+            current_line, current_character = (
                 self.remaining_lines_deque.popleft()
             )
 
-            self.current_line = next_line
-            self.current_character = next_character
+            self.current_line = current_line
+            self.current_character = current_character
 
             ###
 
             self.character_portrait = (
-                self.character_portrait_map[next_character]
+                self.character_portrait_map[current_character]
             )
 
-            self.in_game_character = self.character_map[next_character]
+            self.in_game_character = self.character_map[current_character]
 
             ###
 
@@ -500,11 +510,11 @@ class DialogueManagement:
         else:
             self.exit_dialogue()
 
-    def process_actions(self, action_data):
+    def process_actions(self, actions_data):
 
         self.action_call_groups = []
 
-        for action_data in actions:
+        for action_data in actions_data:
 
             action_type = action_data['type']
             kwargs = action_data['keyword_arguments']
@@ -610,6 +620,17 @@ class DialogueManagement:
                     )
 
                 self.action_call_groups.append(all_calls)
+
+            elif action_type == 'record_encounter':
+                print("Recorded encounter")
+
+
+            else:
+
+                raise ValueError(
+                    "'action_type' value must be one used"
+                    " in either of the previous if-elif blocks"
+                )
 
 
     def prepare_dialogue_line(self):
@@ -829,10 +850,10 @@ class DialogueManagement:
         draw_rect(SCREEN, 'black', DIALOGUE_BOX)
         draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1)
 
-        self.character_portrait.aniplay.draw()
+        self.character_portrait.aniplayer.draw()
 
 
-def get_line_character_pairs(dialogue_name):
+def get_line_character_pairs(dialogue_name, character_names):
 
     t = getattr(TRANSLATIONS, f'{dialogue_name}_dialogue')
 
@@ -853,7 +874,18 @@ def get_line_character_pairs(dialogue_name):
         except AttributeError:
             break
 
-        line_character_pairs.append(line_attr_name)
+        for character_name in character_names:
+            if hasattr(translation_node, character_name):
+                break
+
+        line_character_pairs.append(
+
+            (
+                line_attr_name,
+                character_name,
+            )
+
+        )
 
     return line_character_pairs
 

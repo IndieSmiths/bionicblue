@@ -223,7 +223,18 @@ def load_image_from_filepath(filepath):
     return load_image(str(filepath)).convert()
 
 def load_anim_from_dir(dirpath):
-    return process_animation_data(dirpath)
+
+    try:
+        processed_anim_data = process_animation_data(dirpath)
+
+    except Exception as err:
+
+        dirname = dirpath.name
+        print(f"Error while trying to load {dirname}")
+        raise
+
+    else:
+        return processed_anim_data
 
 def load_sound_from_filepath(filepath):
     sound = Sound(str(filepath))

@@ -1,4 +1,4 @@
-"""Facility for Mark NPC."""
+"""Facility for Giovanni NPC."""
 
 ### standard library import
 from functools import partial
@@ -28,13 +28,13 @@ from ..common import (
 WALK_SPEED = 1
 
 
-class Mark:
+class Giovanni:
 
     def __init__(self, pos):
 
         self.player = REFS.states.level_manager.player
 
-        self.name = 'mark'
+        self.name = 'giovanni'
 
         self.x_speed = 0
 
@@ -42,7 +42,7 @@ class Mark:
 
         self.aniplayer = (
             AnimationPlayer2D(
-                self, 'mark_npc', animation_name, 'midbottom', pos
+                self, 'giovanni_npc', animation_name, 'midbottom', pos
             )
         )
 

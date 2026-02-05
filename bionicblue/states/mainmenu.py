@@ -410,11 +410,11 @@ class MainMenu:
 
     def update_shot_appearing(self):
 
-        ap = REFS.middle_shot.ap
+        aniplayer = REFS.middle_shot.aniplayer
 
-        if ap.main_timing.peek_loops_no(1) == 1:
+        if aniplayer.main_timing.peek_loops_no(1) == 1:
 
-            ap.switch_animation('idle_right')
+            aniplayer.switch_animation('idle_right')
             SOUND_MAP['middle_charged_shot_shot.wav'].play()
 
             self.update = self.update_shot_leaving_screen
