@@ -2,7 +2,7 @@
 
 ### standard library imports
 
-from itertools import count, groupby, zip_longest
+from itertools import chain, count, groupby, zip_longest
 
 from collections import defaultdict, deque
 
@@ -22,7 +22,7 @@ except ImportError:
 
 ### third-party imports
 
-from pygame import Rect
+from pygame import Rect, Surface
 
 from pygame.locals import (
 
@@ -82,8 +82,6 @@ from ...classes2d.collections import UIList2D, UIDeque2D
 
 from ...textman import render_text
 
-from ...ourstdlibs.wdeque.main import WalkingDeque
-
 from ...ourstdlibs.pyl import load_pyl
 
 from ...ourstdlibs.behaviour import do_nothing
@@ -129,13 +127,14 @@ _PADDING = 5
 BOTTOMLEFT_ANCHOR = SCREEN_RECT.move(_PADDING, -_PADDING).bottomleft
 BOTTOMRIGHT_ANCHOR = SCREEN_RECT.move(-_PADDING, -_PADDING).bottomright
 
-PORTRAIT_BOX = Rect(0, 0, 32, 32)
+PORTRAIT_BOX = Rect(0, 0, 54, 54)
 
 
 TEXT_BOX = SCREEN_RECT.copy()
 
 TEXT_BOX.height = PORTRAIT_BOX.height
 TEXT_BOX.width -= (PORTRAIT_BOX.width + (3 * _PADDING)) 
+text_box_colliderect = TEXT_BOX.colliderect
 
 
 DIALOGUE_BOX = (
@@ -149,47 +148,6 @@ DIALOGUE_BOX = (
 
 DIALOGUE_BOX.bottom = SCREEN_RECT.bottom
 
-# speeds in text characters per second
-
-_DIALOGUE_NORMAL_SPEED = 4
-_DIALOGUE_FULL_SPEED = 10
-
-# speeds in pixels per second
-
-_LINE_ROLL_NORMAL_SPEED = 15
-_LINE_ROLL_FULL_SPEED = 30
-
-
-def _get_wdeque_for_next_action(speed):
-
-    frames_in_a_second = FPS
-
-    frames_till_next_action = round(frames_in_a_second / speed)
-
-    return WalkingDeque(
-
-        (
-
-            *(True,),
-            *( (False,) * frames_till_next_action)
-
-        )
-
-    )
-
-NEXT_CHAR_NORMAL_SPEED_WDEQUE = (
-    _get_wdeque_for_next_action(_DIALOGUE_NORMAL_SPEED)
-)
-
-NEXT_CHAR_FULL_SPEED_WDEQUE = _get_wdeque_for_next_action(_DIALOGUE_FULL_SPEED)
-
-NEXT_PIXEL_NORMAL_SPEED_WDEQUE = (
-    _get_wdeque_for_next_action(_LINE_ROLL_NORMAL_SPEED)
-)
-
-NEXT_PIXEL_FULL_SPEED_WDEQUE = (
-    _get_wdeque_for_next_action(_LINE_ROLL_FULL_SPEED)
-)
 
 
 class DialogueManagement:
@@ -279,6 +237,15 @@ class DialogueManagement:
         }
 
         self.character_map = {}
+
+        self.text_box_obj = (
+            UIObject2D.from_surface(Surface(TEXT_BOX.size).convert())
+        )
+        self.text_box_obj.rect = TEXT_BOX
+
+        text_canvas = self.text_canvas = self.text_box_obj.image
+        text_canvas.fill('black')
+        self.blit_on_text_canvas = text_canvas.blit
 
     def enter_dialogue(self, dialogue_name):
 
@@ -443,12 +410,10 @@ class DialogueManagement:
             or GAMEPAD_NS.get_button(GAMEPAD_CONTROLS['jump'])
 
         ):
-            self.next_char_wdeque = NEXT_CHAR_FULL_SPEED_WDEQUE
-            self.next_pixel_wdeque = NEXT_PIXEL_FULL_SPEED_WDEQUE
+            ...
 
         else:
-            self.next_char_wdeque = NEXT_CHAR_NORMAL_SPEED_WDEQUE
-            self.next_pixel_wdeque = NEXT_PIXEL_NORMAL_SPEED_WDEQUE
+            ...
 
     def process_non_dialogue_input(self):
 
@@ -494,8 +459,6 @@ class DialogueManagement:
             current_line, line_contents, current_character = (
                 self.remaining_lines_deque.popleft()
             )
-
-            print(f"Getting line {current_line}")
 
             self.current_line = current_line
             self.line_contents = line_contents
@@ -679,7 +642,6 @@ class DialogueManagement:
             PORTRAIT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
 
         ###
-        ###
 
         words = UIList2D(
 
@@ -702,6 +664,14 @@ class DialogueManagement:
 
         )
 
+        for word in words:
+
+            word.rect.snap_rects_ip(
+                retrieve_pos_from='topright',
+                assign_pos_to='topleft',
+                offset_pos_by=(-2, 0),
+            )
+
         words.rect.snap_rects_intermittently_ip(
 
             dimension_name='width',
@@ -710,11 +680,11 @@ class DialogueManagement:
 
             retrieve_pos_from='topright',
             assign_pos_to='topleft',
-            offset_pos_by=(2, 0),
+            offset_pos_by=(4, 0),
 
             intermittent_pos_from='bottomleft',
             intermittent_pos_to='topleft',
-            intermittent_offset_by=(0, 2),
+            intermittent_offset_by=(0, -2),
 
         )
 
@@ -722,7 +692,9 @@ class DialogueManagement:
 
         word_lines = [
 
-            UIDeque2D(words_in_same_line)
+            UIDeque2D(
+                chain(*words_in_same_line)
+            )
 
             for _, words_in_same_line
             in groupby(words, key=lambda word: word.rect.top)
@@ -732,20 +704,11 @@ class DialogueManagement:
         ###
 
         self.all_chars_2d = UIList2D()
+
         self.current_line_2d_deque, *remaining_lines = word_lines
         self.remaining_lines_2d_deque = UIDeque2D(remaining_lines)
-        self.pixels_to_move = 0
+
         self.waiting_for_user_to_advance = False
-
-        ###
-
-        NEXT_CHAR_NORMAL_SPEED_WDEQUE.restore_walking()
-        NEXT_CHAR_FULL_SPEED_WDEQUE.restore_walking()
-        NEXT_PIXEL_NORMAL_SPEED_WDEQUE.restore_walking()
-        NEXT_PIXEL_FULL_SPEED_WDEQUE.restore_walking()
-
-        self.next_char_wdeque = NEXT_CHAR_NORMAL_SPEED_WDEQUE
-        self.next_pixel_wdeque = NEXT_PIXEL_NORMAL_SPEED_WDEQUE
 
         ###
         self.drive_dialogue_state = self.present_dialogue
@@ -767,48 +730,35 @@ class DialogueManagement:
 
         if self.waiting_for_user_to_advance: return
 
-        ###
-
-        if self.next_char_wdeque[0]:
-            
-            if self.current_line_2d_deque:
-                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
-
-            elif self.remaining_lines_2d_deque:
-
-                self.current_line_2d_deque = (
-                    self.remaining_lines_2d_deque.popleft()
-                )
-
-                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
-
-                self.pixels_to_move += self.current_line_2d_deque.rect.height
-
-        self.next_char_wdeque.walk(1)
-
-
-        if self.next_pixel_wdeque[0]:
-
-            if self.pixels_to_move:
-
-                self.pixels_to_move -= 1
-
-                for collection in (
-                    self.all_chars_2d,
-                    self.current_line_2d_deque,
-                    self.remaining_lines_2d_deque,
-                ):
-                    if collection:
-                        collection.rect.move_ip(0, -1)
-
-        self.next_pixel_wdeque.walk(1)
-
 
         if (
-            not self.remaining_lines_2d_deque
-            and not self.current_line_2d_deque
-            and not self.pixels_to_move
+            self.all_chars_2d
+            and self.all_chars_2d.rect.bottom >= TEXT_BOX.bottom
         ):
+
+            for collection in (
+                self.all_chars_2d,
+                self.current_line_2d_deque,
+                self.remaining_lines_2d_deque,
+            ):
+                if collection:
+                    collection.rect.move_ip(0, -1)
+
+        ###
+
+        elif self.current_line_2d_deque:
+            self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+
+        elif self.remaining_lines_2d_deque:
+
+            self.current_line_2d_deque = (
+                self.remaining_lines_2d_deque.popleft()
+            )
+
+            self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+
+
+        else:
             self.waiting_for_user_to_advance = True
 
     def advance_dialogue_if_possible(self):
@@ -877,8 +827,16 @@ class DialogueManagement:
         draw_rect(SCREEN, 'black', DIALOGUE_BOX)
         draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1)
 
+        text_canvas = self.text_canvas
+        text_canvas.fill('black')
+        offset = -Vector2(TEXT_BOX.topleft)
+        blit_on_text_canvas = self.blit_on_text_canvas
+
         for obj in self.all_chars_2d:
-            obj.draw()
+            if text_box_colliderect(obj.rect):
+                blit_on_text_canvas(obj.image, obj.rect.move(offset))
+
+        self.text_box_obj.draw()
 
         self.character_portrait.aniplayer.draw()
 
