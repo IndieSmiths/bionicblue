@@ -13,6 +13,7 @@ from ....config import REFS, SOUND_MAP
 
 from ....constants import (
     GRAVITY_ACCEL,
+    X_SPEED,
     MAX_Y_SPEED,
     DAMAGE_REBOUND_FRAMES,
     MIDDLE_CHARGE_FRAMES,
@@ -53,6 +54,8 @@ from .dead import Dead
 from .grabbed import Grabbed
 from .hurled import Hurled
 
+from .autowalk import AutoWalk
+
 ## function
 from .chargingparticles import draw_charging_particles
 
@@ -71,6 +74,7 @@ class Player(
     Dead,
     Grabbed,
     Hurled,
+    AutoWalk,
 ):
 
     def __init__(self):
@@ -475,3 +479,18 @@ class Player(
         )
 
         self.set_state('hurled')
+
+    def move_on_dialogue(self, data):
+        """Enter state where Blue moves, return frame count duration."""
+
+        self.aniplayer.switch_animation(data['animation_name'])
+
+        delta_x = data['delta_x']
+
+        self.x_speed = -X_SPEED if delta_x < 0 else X_SPEED
+        self.y_speed = 0
+
+        frames_walking = self.frames_walking = round(abs(delta_x) / X_SPEED)
+        self.set_state('autowalk')
+
+        return frames_walking

@@ -61,7 +61,7 @@ except ImportError:
 
 ### local imports
 
-from ...config import DIALOGUE_ACTIONS_DIR, REFS
+from ...config import DIALOGUE_ACTIONS_DIR, REFS, quit_game
 
 from ...pygamesetup import SERVICES_NS
 
@@ -214,15 +214,15 @@ class DialogueManagement:
 
                 else:
 
-                    line_character_pairs = (
-                        get_line_character_pairs(path.stem, data['characters'])
+                    lines_data = (
+                        get_lines_data(path.stem, data['characters'])
                     )
 
                     action_map = defaultdict(list)
 
                     dm[path.stem] = {
 
-                        'line_character_pairs': line_character_pairs,
+                        'lines_data': lines_data,
                         'characters': data['characters'],
 
                         'action_map': action_map,
@@ -236,7 +236,7 @@ class DialogueManagement:
                         line_index = action_data.pop('line_index')
 
                         try:
-                            line_attr_name, _ = line_character_pairs[line_index]
+                            line_attr_name, _, _ = lines_data[line_index]
 
                         except IndexError as err:
 
@@ -293,7 +293,7 @@ class DialogueManagement:
 
         data = self.dialogues_map[dialogue_name]
 
-        self.remaining_lines_deque.extend(data['line_character_pairs'])
+        self.remaining_lines_deque.extend(data['lines_data'])
         self.action_map = data['action_map']
 
         self.current_line = ''
@@ -312,9 +312,32 @@ class DialogueManagement:
 
         )
 
+        ###
+
+        player = REFS.states.level_manager.player
+
+        player.x_speed = 0
+
+        state_name = anim_name = (
+            'idle_right'
+            if 'right' in player.aniplayer.anim_name
+            else 'idle_left'
+        )
+
+        player.set_state(state_name)
+        player.aniplayer.switch_animation(anim_name)
+
+        ###
+
         self.get_next_line()
 
+        ### must return True so trigger knows
+        ### entering dialogue succeeded
+        return True
+
     def exit_dialogue(self):
+
+        print("Exiting the dialogue")
 
         self.control = self.control_player
         self.update = self.normal_update
@@ -468,11 +491,14 @@ class DialogueManagement:
 
         if self.remaining_lines_deque:
 
-            current_line, current_character = (
+            current_line, line_contents, current_character = (
                 self.remaining_lines_deque.popleft()
             )
 
+            print(f"Getting line {current_line}")
+
             self.current_line = current_line
+            self.line_contents = line_contents
             self.current_character = current_character
 
             ###
@@ -672,7 +698,7 @@ class DialogueManagement:
 
             )
 
-            for word in self.current_line.split()
+            for word in self.line_contents.split()
 
         )
 
@@ -709,7 +735,7 @@ class DialogueManagement:
         self.current_line_2d_deque, *remaining_lines = word_lines
         self.remaining_lines_2d_deque = UIDeque2D(remaining_lines)
         self.pixels_to_move = 0
-        self.waiting_for_user_to_advance = True
+        self.waiting_for_user_to_advance = False
 
         ###
 
@@ -758,8 +784,8 @@ class DialogueManagement:
 
                 self.pixels_to_move += self.current_line_2d_deque.rect.height
 
-
         self.next_char_wdeque.walk(1)
+
 
         if self.next_pixel_wdeque[0]:
 
@@ -776,6 +802,7 @@ class DialogueManagement:
                         collection.rect.move_ip(0, -1)
 
         self.next_pixel_wdeque.walk(1)
+
 
         if (
             not self.remaining_lines_2d_deque
@@ -850,16 +877,19 @@ class DialogueManagement:
         draw_rect(SCREEN, 'black', DIALOGUE_BOX)
         draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1)
 
+        for obj in self.all_chars_2d:
+            obj.draw()
+
         self.character_portrait.aniplayer.draw()
 
 
-def get_line_character_pairs(dialogue_name, character_names):
+def get_lines_data(dialogue_name, character_names):
 
     t = getattr(TRANSLATIONS, f'{dialogue_name}_dialogue')
 
     next_index = count().__next__
 
-    line_character_pairs = []
+    lines_data = []
 
     while True:
 
@@ -875,19 +905,23 @@ def get_line_character_pairs(dialogue_name, character_names):
             break
 
         for character_name in character_names:
-            if hasattr(translation_node, character_name):
-                break
 
-        line_character_pairs.append(
+            try:
+                line_contents = getattr(translation_node, character_name)
+            except AttributeError:
+                pass
+
+        lines_data.append(
 
             (
                 line_attr_name,
+                line_contents,
                 character_name,
             )
 
         )
 
-    return line_character_pairs
+    return lines_data
 
 def get_character_reference(obj, attr_names):
 
