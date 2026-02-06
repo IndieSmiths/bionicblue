@@ -26,13 +26,20 @@
 
         'blue_walks_away': {
 
-            'type': 'move',
+            'type': 'scripted_acting',
 
             'keyword_arguments': {
+
                 'character': 'Blue',
-                'animation_name': 'walk_left',
-                'delta_x': -150,
-                'linear_or_smooth': 'linear',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'walk',
+                        'delta_x': -150,
+                    },
+
+                ],
             },
 
         },

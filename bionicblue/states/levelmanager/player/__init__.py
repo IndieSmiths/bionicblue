@@ -6,6 +6,8 @@ from itertools import chain
 
 from math import inf as INFINITY
 
+from collections import deque
+
 
 ### local imports
 
@@ -25,6 +27,7 @@ from ....pygamesetup.constants import (
     SCREEN_RECT,
     SCREEN,
     blit_on_screen,
+    msecs_to_frames,
 )
 
 from ....ourstdlibs.behaviour import do_nothing
@@ -54,7 +57,7 @@ from .dead import Dead
 from .grabbed import Grabbed
 from .hurled import Hurled
 
-from .autowalk import AutoWalk
+from .scriptedacting import ScriptedActing
 
 ## function
 from .chargingparticles import draw_charging_particles
@@ -74,7 +77,7 @@ class Player(
     Dead,
     Grabbed,
     Hurled,
-    AutoWalk,
+    ScriptedActing,
 ):
 
     def __init__(self):
@@ -108,6 +111,9 @@ class Player(
         self.y_accel = 10
 
         self.jump_dy = -15
+
+        ###
+        self.scripted_actions_deque = deque()
 
     def prepare(self):
 
@@ -480,17 +486,82 @@ class Player(
 
         self.set_state('hurled')
 
-    def move_on_dialogue(self, data):
+    def act_on_given_script(self, scripted_actions_data):
         """Enter state where Blue moves, return frame count duration."""
 
-        self.aniplayer.switch_animation(data['animation_name'])
+        total_scripted_frames = 0
+        actions_deque = self.scripted_actions_deque
 
-        delta_x = data['delta_x']
+        for data in scripted_actions_data:
 
-        self.x_speed = -X_SPEED if delta_x < 0 else X_SPEED
-        self.y_speed = 0
+            type_ = data['type']
 
-        frames_walking = self.frames_walking = round(abs(delta_x) / X_SPEED)
-        self.set_state('autowalk')
+            if type_ == 'walk':
 
-        return frames_walking
+                delta_x = data['delta_x']
+
+                x_speed = -X_SPEED if delta_x < 0 else X_SPEED
+                y_speed = 0
+
+                anim_name = 'walk_left' if delta_x < 0 else 'walk_right'
+
+                scripted_frames_count = round(abs(delta_x) / X_SPEED)
+
+                total_scripted_frames += scripted_frames_count
+
+                actions_deque.append(
+                    {
+                        'x_speed': x_speed,
+                        'y_speed': y_speed,
+                        'anim_name': anim_name,
+                        'scripted_frames_count': scripted_frames_count
+                    }
+                )
+
+            elif type_ == 'wait':
+
+                x_speed = 0
+                y_speed = 0
+
+                anim_name = (
+
+                    'idle_left'
+                    if 'left' in self.aniplayer.anim_name
+
+                    else 'idle_right'
+
+                )
+
+                scripted_frames_count = msecs_to_frames(data['secs'] * 1000)
+
+                total_scripted_frames += scripted_frames_count
+
+                actions_deque.append(
+
+                    {
+                        'x_speed': x_speed,
+                        'y_speed': y_speed,
+                        'anim_name': anim_name,
+                        'scripted_frames_count': scripted_frames_count
+                    }
+
+                )
+
+            else:
+
+                ValueError(
+                    "'type_' must be one used in previous if/elif clauses."
+                )
+
+        self.set_state('scripted_acting')
+
+        self._set_next_scripted_action(actions_deque.popleft())
+
+        return total_scripted_frames
+
+    def _set_next_scripted_action(self, action_data):
+
+        self.aniplayer.switch_animation(action_data['anim_name'])
+        self.scripted_frames_count = action_data['scripted_frames_count']
+        self.x_speed = action_data['x_speed']
+        self.y_speed = action_data['y_speed']

@@ -649,15 +649,19 @@ class DialogueManagement:
                     if _gap_count > frames_between_steps:
                         _gap_count = 0
 
-            elif action_type == 'move':
+            elif action_type == 'scripted_acting':
 
                 kwargs = action_data['keyword_arguments']
 
                 character = kwargs['character']
+                scripted_actions = kwargs['scripted_actions']
 
                 if character == 'Blue':
 
-                    no_of_frames = self.player.move_on_dialogue(kwargs)
+                    no_of_frames = (
+                        self.player.act_on_given_script(scripted_actions)
+                    )
+
                     all_calls = [do_nothing,] * no_of_frames
 
                 else:

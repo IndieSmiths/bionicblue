@@ -30,8 +30,6 @@ from ...pygamesetup.constants import (
     SCREEN_RECT,
 )
 
-from ...pygamesetup.inputgen import generate_input_data
-
 from ...ourstdlibs.behaviour import do_nothing
 
 from ...ourstdlibs.pyl import load_pyl, save_pyl
@@ -650,24 +648,23 @@ class LevelManager(DialogueManagement):
         self.player.stop_charging()
         self.player.reset_time_tracking_attributes()
 
-        # TODO probaby use time in milliseconds, converting to
-        # frames before feeding to function
+        self.player.act_on_given_script(
 
-        input_data = (
+            [
+                {
+                    'type':'walk',
+                    'delta_x': 150,
+                },
 
-            generate_input_data(
-                key_range_pairs = (
-                    (KEYBOARD_CONTROLS['right'], (33,)),
-                ),
-                no_of_frames=30*3,
-            )
+                {
+                    'type': 'wait',
+                    'secs': 1.7,
+                },
+            ]
 
         )
 
-        raise LoopException(
-            next_input_mode_name='play',
-            input_data=input_data,
-        )
+        return True
 
     def save_progress(self, progress_collection_name, progress_value):
 
