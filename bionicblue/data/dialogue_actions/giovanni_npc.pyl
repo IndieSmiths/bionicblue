@@ -2,14 +2,13 @@
 
     'characters': ['Blue', 'Giovanni'],
 
-    'actions': [
+    'action_map': {
 
         # camera pans a bit to the right, so Blue and Giovanni
         # are well framed on the screen
 
-        {
-            'line_index': 0,
-            'before_or_after': 'before',
+        'frame_blue_and_giovanni': {
+
             'type': 'pan_camera',
 
             'keyword_arguments' : {
@@ -24,10 +23,8 @@
 
         # Blue walks out of the screen
 
-        {
+        'blue_walks_away': {
 
-            'line_index': -1,
-            'before_or_after': 'before',
             'type': 'move',
 
             'keyword_arguments': {
@@ -41,9 +38,8 @@
 
         # camera pans to Blue at end of dialogue
 
-        {
-            'line_index': -1,
-            'before_or_after': 'after',
+        'camera_pans_to_Blue': {
+
             'type': 'pan_camera',
 
             'keyword_arguments': {
@@ -58,9 +54,8 @@
 
         # encounter with Giovanni is recorded in slot data
 
-        {
-            'line_index': -1,
-            'before_or_after': 'after',
+        'record_encounter': {
+
             'type': 'record_encounter',
 
             'keyword_arguments': {
@@ -69,6 +64,6 @@
 
         },
 
-    ],
+    },
 
 }

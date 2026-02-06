@@ -2,7 +2,7 @@
 
 ### standard library imports
 
-from itertools import chain, count, groupby, zip_longest
+from itertools import chain, count, groupby, zip_longest, cycle, repeat
 
 from collections import defaultdict, deque
 
@@ -127,7 +127,7 @@ _PADDING = 5
 BOTTOMLEFT_ANCHOR = SCREEN_RECT.move(_PADDING, -_PADDING).bottomleft
 BOTTOMRIGHT_ANCHOR = SCREEN_RECT.move(-_PADDING, -_PADDING).bottomright
 
-PORTRAIT_BOX = Rect(0, 0, 54, 54)
+PORTRAIT_BOX = Rect(0, 0, 32, 48)
 
 
 TEXT_BOX = SCREEN_RECT.copy()
@@ -148,6 +148,9 @@ DIALOGUE_BOX = (
 
 DIALOGUE_BOX.bottom = SCREEN_RECT.bottom
 
+
+NEXT_CHAR_NORMAL_SPEED = cycle((True, False)).__next__
+NEXT_CHAR_FULL_SPEED = repeat(True).__next__
 
 
 class DialogueManagement:
@@ -189,23 +192,14 @@ class DialogueManagement:
 
                     ### populate action map
 
-                    for action_data in data['actions']:
+                    cueing_data = (
+                        REFS.dialogue_action_cueing_data[path.stem]
+                    )
 
-                        line_index = action_data.pop('line_index')
+                    for action_id, action_data in data['action_map'].items():
 
-                        try:
-                            line_attr_name, _, _ = lines_data[line_index]
-
-                        except IndexError as err:
-
-                            raise IndexError(
-                                "Used nonexistent line index"
-                            ) from err
-
-                        action_map[(
-                          line_attr_name,
-                          action_data.pop('before_or_after'),
-                        )].append(action_data)
+                        cue = cueing_data[action_id]
+                        action_map[cue].append(action_data)
 
         ###
 
@@ -410,10 +404,12 @@ class DialogueManagement:
             or GAMEPAD_NS.get_button(GAMEPAD_CONTROLS['jump'])
 
         ):
-            ...
+            self.next_char = NEXT_CHAR_FULL_SPEED
+
 
         else:
-            ...
+            self.next_char = NEXT_CHAR_NORMAL_SPEED
+
 
     def process_non_dialogue_input(self):
 
@@ -711,6 +707,9 @@ class DialogueManagement:
         self.waiting_for_user_to_advance = False
 
         ###
+        self.next_char = NEXT_CHAR_NORMAL_SPEED
+
+        ###
         self.drive_dialogue_state = self.present_dialogue
 
     def carry_actions(self):
@@ -747,7 +746,9 @@ class DialogueManagement:
         ###
 
         elif self.current_line_2d_deque:
-            self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+
+            if self.next_char():
+                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
 
         elif self.remaining_lines_2d_deque:
 
@@ -755,7 +756,8 @@ class DialogueManagement:
                 self.remaining_lines_2d_deque.popleft()
             )
 
-            self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+            if self.next_char():
+                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
 
 
         else:

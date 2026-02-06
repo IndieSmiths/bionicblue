@@ -11,7 +11,7 @@ from textwrap import indent
 
 ### local imports
 
-from .config import TRANSLATIONS_DIR
+from .config import REFS, TRANSLATIONS_DIR
 
 from .ourstdlibs.behaviour import CallList
 
@@ -66,7 +66,11 @@ def get_translations_namespace():
         ### preprocess lines in case we have a dialogue
 
         if sheet_name.endswith('dialogue'):
-            enumerate_dialogue_lines(lines)
+
+            enumerate_lines_and_extract_action_cueing_data(
+                lines,
+                sheet_name,
+            )
 
         ### store lines in a deque
 
@@ -234,15 +238,19 @@ class TranslationNode():
             .get(self._user_prefs['LOCALE'], 'en_us')
         )
 
+
 ### helper function
 
-def enumerate_dialogue_lines(lines):
+def enumerate_lines_and_extract_action_cueing_data(lines, file_stem):
 
     _TEMP_LINES.extend(lines)
 
     lines.clear()
 
     line_number = 0
+    line_number_attr = ''
+
+    action_cueing_data = {}
 
     for line in _TEMP_LINES:
 
@@ -250,11 +258,30 @@ def enumerate_dialogue_lines(lines):
 
         if line:
 
-            ## if first char is not '#' or space, it means this line
-            ## contains the name of a character, marking the start of
+            ## if line starts with this substring, it is a directive
+            ## to indicate an action should be executed at that time
+            ## (or near that time)
+
+            if line.startswith('# action:'):
+
+                action_id = line.replace('# action:', '').strip()
+
+                cue = (
+
+                    (line_number_attr, 'after')
+                    if line_number_attr
+
+                    else ('line_000', 'before')
+
+                )
+
+                action_cueing_data[action_id] = cue
+
+            ## otherwise, if first char is not '#' or space, it means this
+            ## line contains the name of a character, marking the start of
             ## a dialogue line, so we add the line number attribute
 
-            if line[0] not in '# ':
+            elif line[0] not in '# ':
 
                 ## add line number
 
@@ -273,6 +300,10 @@ def enumerate_dialogue_lines(lines):
 
     ### at the end, we clear the temp list
     _TEMP_LINES.clear()
+
+    ###
+    dialogue_name = file_stem.replace('_dialogue', '')
+    REFS.dialogue_action_cueing_data[dialogue_name] = action_cueing_data
 
 
 ### translation namespace

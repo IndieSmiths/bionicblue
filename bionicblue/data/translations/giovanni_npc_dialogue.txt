@@ -1,4 +1,7 @@
 
+# camera pans a bit to the right, so Blue and Giovanni are well framed on the screen
+# action: frame_blue_and_giovanni
+
 Giovanni
     en-us Oh! Who goes there? Are you one of those nasty robots?
 
@@ -60,7 +63,7 @@ Giovanni
     en-us Oh! So the container and cutlery are for that as well, right?
 
 Blue
-    en-us Yes. I'll use them to eat, them I'll absorb them through my forearm compartment.
+    en-us Yes. I'll use them to eat, then I'll absorb them through my forearm compartment.
 
 Blue
     en-us If you don't mind, I'll eat over there. If any of the robots find us chatting or discover you helped me, they'll punish you.
@@ -72,6 +75,11 @@ Blue
     en-us Thank you, sir, it is all very kind of you.
 
 # after the line above, Blue leaves the screen, and Giovanni talks to himself
+# action: blue_walks_away
 
 Giovanni
     en-us Oh, God! People's greed brought these nasty robots upon this world and look what it did to us. To think a little boy has to go through all that on his own...
+
+# camera pans to Blue and encounter with Giovanni is recorded
+# action: camera_pans_to_Blue
+# action: record_encounter
