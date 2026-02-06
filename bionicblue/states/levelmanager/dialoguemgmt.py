@@ -43,7 +43,7 @@ from pygame.locals import (
 
 from pygame.display import update as update_screen
 
-from pygame.draw import rect as draw_rect
+from pygame.draw import rect as draw_rect, polygon as draw_polygon
 
 from pygame.math import Vector2
 
@@ -152,6 +152,34 @@ DIALOGUE_BOX.bottom = SCREEN_RECT.bottom
 NEXT_CHAR_NORMAL_SPEED = cycle((True, False)).__next__
 NEXT_CHAR_FULL_SPEED = repeat(True).__next__
 
+NEXT_DRAW_TRIANGLE = cycle(
+
+    (
+        *((True,) * 10),
+        *((False,)* 20)
+    )
+
+).__next__
+
+_SMALL_SQUARE = Rect(0, 0, 5, 5)
+
+
+def draw_triangle(last_char):
+
+    _SMALL_SQUARE.bottomleft = last_char.rect.bottomright
+
+    draw_polygon(
+
+        SCREEN,
+        'white',
+
+        (
+            _SMALL_SQUARE.topleft,
+            _SMALL_SQUARE.topright,
+            _SMALL_SQUARE.midbottom,
+        ),
+
+    )
 
 class DialogueManagement:
     """Methods to help drive dialogue encounters."""
@@ -623,11 +651,11 @@ class DialogueManagement:
         ## positioning for dialogue elements depends on direction the
         ## character is facing
 
-        is_portrait_facing_right = self.is_portrait_facing_right = (
+        is_character_facing_right = self.is_character_facing_right = (
             'right' in self.in_game_character.aniplayer.anim_name
         )
 
-        if is_portrait_facing_right:
+        if is_character_facing_right:
 
             PORTRAIT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
             TEXT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
@@ -636,6 +664,18 @@ class DialogueManagement:
 
             TEXT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
             PORTRAIT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
+
+        ###
+
+        portrait = self.character_portrait
+
+        portrait.aniplayer.switch_animation(
+            'portrait_speaking_right'
+            if is_character_facing_right
+            else 'portrait_speaking_left'
+        )
+
+        portrait.rect.center = PORTRAIT_BOX.center
 
         ###
 
@@ -761,6 +801,13 @@ class DialogueManagement:
 
 
         else:
+
+            self.character_portrait.aniplayer.switch_animation(
+                'portrait_idle_right'
+                if 'right' in self.in_game_character.aniplayer.anim_name
+                else 'portrait_idle_left'
+            )
+
             self.waiting_for_user_to_advance = True
 
     def advance_dialogue_if_possible(self):
@@ -839,8 +886,10 @@ class DialogueManagement:
                 blit_on_text_canvas(obj.image, obj.rect.move(offset))
 
         self.text_box_obj.draw()
-
         self.character_portrait.aniplayer.draw()
+
+        if self.waiting_for_user_to_advance and NEXT_DRAW_TRIANGLE():
+            draw_triangle(self.all_chars_2d[-1])
 
 
 def get_lines_data(dialogue_name, character_names):
@@ -870,6 +919,8 @@ def get_lines_data(dialogue_name, character_names):
                 line_contents = getattr(translation_node, character_name)
             except AttributeError:
                 pass
+            else:
+                break
 
         lines_data.append(
 

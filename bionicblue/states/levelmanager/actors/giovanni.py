@@ -38,7 +38,7 @@ class Giovanni:
 
         self.x_speed = 0
 
-        animation_name = 'idle_right'
+        animation_name = 'idle_left'
 
         self.aniplayer = (
             AnimationPlayer2D(

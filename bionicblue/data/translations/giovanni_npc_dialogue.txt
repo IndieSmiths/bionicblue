@@ -9,10 +9,16 @@ Blue
     en-us No, don't worry. I'm just a boy. It is just that I have bionic parts. You can call me Blue.
 
 Blue
-    en-us So this is where this path led me! No wonder it was filled with robots down there. I assume you are being kept hostage. They should be treating you fine, right? What is your name?
+    en-us So this is where this path led me! No wonder it was filled with robots down there.
+
+Blue
+    en-us I assume you are being kept hostage. They should be treating you fine, though, right? What is your name?
 
 Giovanni
-    en-us I'm Giovanni. And yes, you are well informed, Blue. We are hostages. They treat us well since they need our brains in top condition. However, this isn't...
+    en-us I'm Giovanni. And yes, you are well informed, Blue.
+
+Giovanni
+    en-us We are hostages. They treat us well since they need our brains in top condition. However, this isn't...
 
 Blue
     en-us Freedom, right?
@@ -54,10 +60,16 @@ Blue
     en-us Thank you! Also, is that chain lube?
 
 Giovanni
-    en-us Yes, I was just using some on my grandson's bike. We can't leave our homes, but there's some space indoors. Should I wrap it up for you?
+    en-us Yes, I was just using some on my grandson's bike. We can't leave our homes, but there's some space indoors.
+
+Giovanni
+    en-us Should I wrap it up for you?
 
 Blue
-    en-us Thank you, sir! I'm so happy! There's a small compartment in my forearm where nanomachines can break down and absorb non-edibles.
+    en-us Thank you, sir! I'm so happy!
+
+Blue
+    en-us There's a small compartment in my forearm where nanomachines can break down and absorb non-edibles.
 
 Giovanni
     en-us Oh! So the container and cutlery are for that as well, right?
@@ -69,7 +81,13 @@ Blue
     en-us If you don't mind, I'll eat over there. If any of the robots find us chatting or discover you helped me, they'll punish you.
 
 Giovanni
-    en-us You are probably right, kid. Thank you for trying to help us. I'll be praying for everything to go well on your mission. I'll close the gate once you leave my property, so no one suspects you came here. If I ever hear you are in the area, I'll leave a packaged meal like that outside the gate for you.
+    en-us You are probably right, kid. Thank you for trying to help us. I'll be praying for everything to go well on your mission.
+
+Giovanni
+    en-us I'll close the gate once you leave my property, so no one suspects you came here.
+
+Giovanni
+    en-us If I ever hear you are in the area, I'll leave a packaged meal like that outside the gate for you.
 
 Blue
     en-us Thank you, sir, it is all very kind of you.
@@ -78,7 +96,10 @@ Blue
 # action: blue_walks_away
 
 Giovanni
-    en-us Oh, God! People's greed brought these nasty robots upon this world and look what it did to us. To think a little boy has to go through all that on his own...
+    en-us Oh, God! People's greed brought these nasty robots upon this world and look what it did to us.
+
+Giovanni
+    en-us To think a little boy has to go through all that on his own...
 
 # camera pans to Blue and encounter with Giovanni is recorded
 # action: camera_pans_to_Blue

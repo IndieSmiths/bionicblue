@@ -371,11 +371,12 @@ class LevelManager(DialogueManagement):
         ### scroll level so player ends up positioned above given label
 
         # can be be 'landing', 'midpoint' or 'endpoint' depending on which
-        # checkpoint the player reached
+        # checkpoint the player reached (sometimes other temporary spots
+        # can be used)
         #
         # for now, while we are still adding content to the first level,
         # we'll hardcode this value to specific areas of interest
-        label_name = 'midpoint'
+        label_name = 'npc_area_warp'
 
         landing_pos = next(
             label_data

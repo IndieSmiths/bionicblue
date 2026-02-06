@@ -12,7 +12,7 @@
             'type': 'pan_camera',
 
             'keyword_arguments' : {
-                'delta_x': 20,
+                'delta_x': 50,
                 'linear_or_smooth': 'smooth',
                 'duration_type': 'seconds',
                 'duration_value': 2,
@@ -30,7 +30,7 @@
             'keyword_arguments': {
                 'character': 'Blue',
                 'animation_name': 'walk_left',
-                'delta_x': -30,
+                'delta_x': -120,
                 'linear_or_smooth': 'linear',
             },
 
@@ -43,7 +43,7 @@
             'type': 'pan_camera',
 
             'keyword_arguments': {
-                'delta_x': -50,
+                'delta_x': -90,
                 'linear_or_smooth': 'smooth',
                 'duration_type': 'seconds',
                 'duration_value': 4,
