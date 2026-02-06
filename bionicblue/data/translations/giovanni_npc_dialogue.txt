@@ -38,47 +38,16 @@ Blue
 Giovanni
     en-us At least take this, then!
 
+# big lasagna animation is shown
+
 Blue
-    en-us Whoa! That smells nice!
+    en-us Whoa! That smells nice! Thank you!
 
 Giovanni
     en-us Thank you! It's a recipe from my late Grandma: Lasagna.
 
-Giovanni
-    en-us I'll lower it to you with a rope.
-
 Blue
-    en-us Oh! Thank you, that'd be awesome!
-
-Blue
-    en-us Is it okay if I keep the container as well? Oh, and also the cutlery?
-
-Giovanni
-    en-us Oh, of course, we have plenty. Be my guest.
-
-Blue
-    en-us Thank you! Also, is that chain lube?
-
-Giovanni
-    en-us Yes, I was just using some on my grandson's bike. We can't leave our homes, but there's some space indoors.
-
-Giovanni
-    en-us Should I wrap it up for you?
-
-Blue
-    en-us Thank you, sir! I'm so happy!
-
-Blue
-    en-us There's a small compartment in my forearm where nanomachines can break down and absorb non-edibles.
-
-Giovanni
-    en-us Oh! So the container and cutlery are for that as well, right?
-
-Blue
-    en-us Yes. I'll use them to eat, then I'll absorb them through my forearm compartment.
-
-Blue
-    en-us If you don't mind, I'll eat over there. If any of the robots find us chatting or discover you helped me, they'll punish you.
+    en-us If you don't mind, I'll eat over there. Until I've freed this section, it is better not to contact civilians.
 
 Giovanni
     en-us You are probably right, kid. Thank you for trying to help us. I'll be praying for everything to go well on your mission.
@@ -101,6 +70,10 @@ Giovanni
 Giovanni
     en-us To think a little boy has to go through all that on his own...
 
+# npc gate is closed
+# action: npc_gate_closes
+
 # camera pans to Blue and encounter with Giovanni is recorded
+#
 # action: camera_pans_to_Blue
 # action: record_encounter

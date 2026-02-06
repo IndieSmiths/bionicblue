@@ -55,6 +55,9 @@
         "hurled_right": {"structure": "standing"},
         "hurled_left": {"structure": "standing"},
 
+        "speaking_idle_right": {"structure": "standing"},
+        "speaking_idle_left": {"structure": "standing"},
+
         "portrait_idle_right": {"structure": "portrait"},
         "portrait_idle_left": {"structure": "portrait"},
         "portrait_speaking_right": {"structure": "portrait"},

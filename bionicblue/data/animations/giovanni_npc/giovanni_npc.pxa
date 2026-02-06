@@ -2564,7 +2564,7 @@
                                                                                  (26, 13),
                                                                                  (27, 7),
                                                                                  (27, 8)}}]},
-                  'speaking_left': { 'number_of_frames': 13,
+                  'speaking_idle_left': { 'number_of_frames': 13,
                                       'size': 32,
                                       'sprite_placement': {0: 0, 6: 1},
                                       'sprites': [ { (0, 153, 219): { (12, 16),

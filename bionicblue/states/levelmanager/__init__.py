@@ -262,7 +262,10 @@ class LevelManager(DialogueManagement):
             else False
         )
 
-        npc_gate = Gate(midbottom=npc_gate_pos, closed=npc_gate_closed)
+        npc_gate = self.npc_gate = (
+            Gate(midbottom=npc_gate_pos, closed=npc_gate_closed)
+        )
+
         boss_gate0 = Gate(midbottom=bgate0_pos, closed=True)
         boss_gate1 = Gate(midbottom=bgate1_pos, closed=True)
 

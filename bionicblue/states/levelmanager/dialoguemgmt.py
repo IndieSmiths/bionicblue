@@ -8,6 +8,8 @@ from collections import defaultdict, deque
 
 from functools import partial
 
+from math import floor
+
 ### standard library import with local import replacement
 ### in case imported function is not available from
 ### standard library (since it might not be available in
@@ -84,7 +86,7 @@ from ...textman import render_text
 
 from ...ourstdlibs.pyl import load_pyl
 
-from ...ourstdlibs.behaviour import do_nothing
+from ...ourstdlibs.behaviour import CallList, do_nothing
 
 from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
@@ -108,7 +110,6 @@ from .common import (
     scrolling,
     scrolling_backup,
 
-    execute_tasks,
     update_chunks_and_layers,
 
 )
@@ -155,13 +156,14 @@ NEXT_CHAR_FULL_SPEED = repeat(True).__next__
 NEXT_DRAW_TRIANGLE = cycle(
 
     (
-        *((True,) * 10),
+        *((True,) * 20),
         *((False,)* 20)
     )
 
 ).__next__
 
-_SMALL_SQUARE = Rect(0, 0, 5, 5)
+
+_SMALL_SQUARE = Rect(0, 0, 8, 5)
 
 
 def draw_triangle(last_char):
@@ -530,9 +532,10 @@ class DialogueManagement:
         for action_data in actions_data:
 
             action_type = action_data['type']
-            kwargs = action_data['keyword_arguments']
 
             if action_type == 'pan_camera':
+
+                kwargs = action_data['keyword_arguments']
 
                 current_x, current_y = scrolling
 
@@ -584,10 +587,25 @@ class DialogueManagement:
 
                 )
 
-                deltas = deque(
+                deltas = [
                     b - a
                     for a, b in pairwise(points)
-                )
+                ]
+
+                step_deltas = deque()
+
+                v = Vector2()
+
+                for delta in deltas:
+
+                    next_step = v + delta
+
+                    x_diff = floor(next_step.x) - floor(v.x)
+                    y_diff = floor(next_step.y) - floor(v.y)
+
+                    step_deltas.append((x_diff, y_diff))
+
+                    v = next_step
 
                 ### create a deque with a call for each frame
 
@@ -602,7 +620,22 @@ class DialogueManagement:
 
                     call = (
 
-                        partial(move_level_method, deltas.popleft())
+                        (
+
+                            CallList(
+
+                                [
+                                    partial(move_level_method, step_deltas.popleft()),
+                                    update_chunks_and_layers,
+                                ]
+
+                            )
+
+                            if step_deltas[0][0] or step_deltas[0][1]
+                            else partial(move_level_method, step_deltas.popleft())
+
+                        )
+
                         if _gap_count == 0
 
                         else do_nothing
@@ -617,6 +650,8 @@ class DialogueManagement:
                         _gap_count = 0
 
             elif action_type == 'move':
+
+                kwargs = action_data['keyword_arguments']
 
                 character = kwargs['character']
 
@@ -635,8 +670,12 @@ class DialogueManagement:
                 self.action_call_groups.append(all_calls)
 
             elif action_type == 'record_encounter':
+                ...
                 print("Recorded encounter")
 
+
+            elif action_type == 'npc_gate_closes':
+                self.npc_gate.trigger_closing()
 
             else:
 
@@ -648,11 +687,14 @@ class DialogueManagement:
 
     def prepare_dialogue_line(self):
 
+        in_game_character = self.in_game_character
+        portrait = self.character_portrait
+
         ## positioning for dialogue elements depends on direction the
         ## character is facing
 
         is_character_facing_right = self.is_character_facing_right = (
-            'right' in self.in_game_character.aniplayer.anim_name
+            'right' in in_game_character.aniplayer.anim_name
         )
 
         if is_character_facing_right:
@@ -660,21 +702,18 @@ class DialogueManagement:
             PORTRAIT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
             TEXT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
 
+            portrait.aniplayer.switch_animation('portrait_speaking_right')
+            in_game_character.aniplayer.switch_animation('speaking_idle_right')
+
         else:
 
             TEXT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
             PORTRAIT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
 
+            portrait.aniplayer.switch_animation('portrait_speaking_left')
+            in_game_character.aniplayer.switch_animation('speaking_idle_left')
+
         ###
-
-        portrait = self.character_portrait
-
-        portrait.aniplayer.switch_animation(
-            'portrait_speaking_right'
-            if is_character_facing_right
-            else 'portrait_speaking_left'
-        )
-
         portrait.rect.center = PORTRAIT_BOX.center
 
         ###
@@ -802,11 +841,21 @@ class DialogueManagement:
 
         else:
 
-            self.character_portrait.aniplayer.switch_animation(
-                'portrait_idle_right'
-                if 'right' in self.in_game_character.aniplayer.anim_name
-                else 'portrait_idle_left'
-            )
+            if 'right' in self.in_game_character.aniplayer.anim_name:
+
+                self.character_portrait.aniplayer.switch_animation(
+                    'portrait_idle_right'
+                )
+
+                self.in_game_character.aniplayer.switch_animation('idle_right')
+
+            else:
+
+                self.character_portrait.aniplayer.switch_animation(
+                    'portrait_idle_left'
+                )
+
+                self.in_game_character.aniplayer.switch_animation('idle_left')
 
             self.waiting_for_user_to_advance = True
 
