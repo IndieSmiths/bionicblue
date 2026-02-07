@@ -73,7 +73,9 @@ Giovanni
 # npc gate is closed
 # action: npc_gate_closes
 
-# camera pans to Blue and encounter with Giovanni is recorded
+# we place a food box on the level, the camera pans to
+# Blue and encounter with Giovanni is recorded
 #
+# action: place_food_box
 # action: camera_pans_to_Blue
 # action: record_encounter

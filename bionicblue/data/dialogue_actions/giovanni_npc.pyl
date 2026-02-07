@@ -67,6 +67,12 @@
 
         },
 
+        # place food box
+
+        'place_food_box': {
+            'type': 'place_food_box',
+        },
+
         # encounter with Giovanni is recorded in slot data
 
         'record_encounter': {

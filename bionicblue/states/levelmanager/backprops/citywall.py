@@ -32,7 +32,6 @@ class CityWall:
 
         self.rect = self.image.get_rect()
         setattr(self.rect, 'bottomleft', pos)
-        self.colliderect = self.rect.colliderect
 
     def update(self): pass
 

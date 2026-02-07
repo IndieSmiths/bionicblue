@@ -2,7 +2,14 @@
 
 ### standard library imports
 
-from itertools import chain, count, groupby, zip_longest, cycle, repeat
+from itertools import (
+    chain,
+    count,
+    cycle,
+    groupby,
+    repeat,
+    zip_longest,
+)
 
 from collections import defaultdict, deque
 
@@ -92,6 +99,8 @@ from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ...translatedtext import TRANSLATIONS
 
+from .middleprops.foodbox import FoodBox
+
 from .common import (
 
     BACK_PROPS_NEAR_SCREEN,
@@ -110,6 +119,7 @@ from .common import (
     scrolling,
     scrolling_backup,
 
+    add_obj,
     update_chunks_and_layers,
 
 )
@@ -699,6 +709,14 @@ class DialogueManagement:
 
             elif action_type == 'npc_gate_closes':
                 self.npc_gate.trigger_closing()
+
+            elif action_type == 'place_food_box':
+
+                food_box_pos = self.food_box_pos + scrolling
+
+                food_box = FoodBox('food_box', midbottom=food_box_pos)
+                food_box.layer_name = 'middleprops'
+                add_obj(food_box)
 
             else:
 

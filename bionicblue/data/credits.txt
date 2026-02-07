@@ -38,6 +38,7 @@
     [titobari](https://freesound.org/people/titobari/sounds/577057/)
     [unfa](https://freesound.org/people/unfa/sounds/187119/)
     [celestialghost8](https://opengameart.org/content/victory)
+    [Juhani Junkala](https://opengameart.org/content/512-sound-effects-8-bit-style)
 
 {assets_sil_fonts}
     [takwolf](https://ark-pixel-font.takwolf.com/)

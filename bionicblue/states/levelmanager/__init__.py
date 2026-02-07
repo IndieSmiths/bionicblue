@@ -46,6 +46,7 @@ from .middleprops.ladder import Ladder
 from .middleprops.chains import Chains
 from .middleprops.chaincratehanger import ChainCrateHanger
 from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
+from .middleprops.foodbox import FoodBox
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
@@ -234,13 +235,44 @@ class LevelManager(DialogueManagement):
         boss.layer_name = 'actors'
         add_obj(boss)
 
-        ### add gates
+        ### add gates and related objs
 
+        ## npc gate
+
+        # whether npc was visited previously or not
+        was_npc_visited = 'giovanni' in REFS.slot_data.get('encounters', ())
+
+        # pos
         npc_gate_pos = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
             if label_data['text'] == 'ngate'
         )['pos']
+
+        # whether gate must be closed
+        npc_gate_closed = True if was_npc_visited else False
+
+        npc_gate = self.npc_gate = (
+            Gate(midbottom=npc_gate_pos, closed=npc_gate_closed)
+        )
+
+        add_obj(npc_gate)
+
+        # food box
+
+        food_box_pos = self.food_box_pos = next(
+            label_data
+            for label_data in level_data['layered_objects']['labels']
+            if label_data['text'] == 'food_box'
+        )['pos']
+
+        if npc_gate_closed:
+
+            food_box = FoodBox('food_box', midbottom=food_box_pos)
+            food_box.layer_name = 'middleprops'
+            add_obj(food_box)
+
+        ## boss gates
 
         bgate0_pos = next(
             label_data
@@ -254,20 +286,9 @@ class LevelManager(DialogueManagement):
             if label_data['text'] == 'bgate1'
         )['pos']
 
-        npc_gate_closed = (
-            True
-            if 'giovanni' in REFS.slot_data.get('encounters', ())
-            else False
-        )
-
-        npc_gate = self.npc_gate = (
-            Gate(midbottom=npc_gate_pos, closed=npc_gate_closed)
-        )
-
         boss_gate0 = Gate(midbottom=bgate0_pos, closed=True)
         boss_gate1 = Gate(midbottom=bgate1_pos, closed=True)
 
-        add_obj(npc_gate)
         add_obj(boss_gate0)
         add_obj(boss_gate1)
 
