@@ -378,7 +378,7 @@ class LevelManager(DialogueManagement):
         #
         # for now, while we are still adding content to the first level,
         # we'll hardcode this value to specific areas of interest
-        label_name = 'endpoint'
+        label_name = 'npc_area_warp'
 
         landing_pos = next(
             label_data

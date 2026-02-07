@@ -177,7 +177,7 @@
         },
         "portrait_speaking_left": {
             "portrait": {
-                "surface_indices": "chief_sec_bot.portrait_idle_left",
+                "surface_indices": "chief_sec_bot.portrait_speaking_left",
             },
         },
     },

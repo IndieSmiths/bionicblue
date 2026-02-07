@@ -694,6 +694,7 @@ class DialogueManagement:
 
             elif action_type == 'record_talk_with_boss':
                 ...
+                # TODO use same call that records boss defeat
                 print("Talked with boss")
 
             elif action_type == 'npc_gate_closes':
@@ -943,8 +944,8 @@ class DialogueManagement:
         "As needed" means that dialogue may have intervals where nothing is
         said, so no dialogue element is drawn during that interval.
         """
-        draw_rect(SCREEN, 'black', DIALOGUE_BOX)
-        draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1)
+        draw_rect(SCREEN, 'black', DIALOGUE_BOX, border_radius=8)
+        draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1, border_radius=8)
 
         text_canvas = self.text_canvas
         text_canvas.fill('black')
