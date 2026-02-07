@@ -30,7 +30,7 @@ from ...pygamesetup.constants import (
     SCREEN_RECT,
 )
 
-from ...ourstdlibs.behaviour import do_nothing
+from ...ourstdlibs.behaviour import CallList, do_nothing
 
 from ...ourstdlibs.pyl import load_pyl, save_pyl
 
@@ -373,11 +373,12 @@ class LevelManager(DialogueManagement):
 
         # can be be 'landing', 'midpoint' or 'endpoint' depending on which
         # checkpoint the player reached (sometimes other temporary spots
-        # can be used)
+        # can be used, like 'npc_area_warp', so we can go straight to
+        # an npc's area)
         #
         # for now, while we are still adding content to the first level,
         # we'll hardcode this value to specific areas of interest
-        label_name = 'npc_area_warp'
+        label_name = 'endpoint'
 
         landing_pos = next(
             label_data
@@ -469,18 +470,17 @@ class LevelManager(DialogueManagement):
 
         current_cam_cx = self.cam_cx_pos + scrolling
 
-        if abs(SCREEN_RECT.centerx - current_cam_cx[0]) > 2:
+        cam_away_from_screen_center = (
+            abs(SCREEN_RECT.centerx - current_cam_cx[0]) > 2
+        )
+
+        if cam_away_from_screen_center:
             self.move_level((-3, 0))
 
         else:
 
             diff = SCREEN_RECT.centerx - current_cam_cx[0]
             self.move_level((diff, 0))
-
-            self.update = self.normal_update
-            REFS.level_boss.begin_fighting()
-            music.load(str(MUSIC_DIR / 'boss_fight_by_juhani_junkala.ogg'))
-            music.play(-1)
 
         ### if the level scrolled (moved), update chunks and layers
 
@@ -509,6 +509,33 @@ class LevelManager(DialogueManagement):
 
         ### execute scheduled tasks
         execute_tasks()
+
+        ###
+
+        if not cam_away_from_screen_center:
+
+            music.load(str(MUSIC_DIR / 'creep_by_tokyogeisha.ogg'))
+            music.play(-1)
+
+            on_exit = CallList(
+
+                [
+
+                    partial(
+                        music.load,
+                        str(MUSIC_DIR / 'boss_fight_by_juhani_junkala.ogg'),
+                    ),
+                    partial(music.play, -1),
+                    REFS.level_boss.begin_fighting,
+                ]
+
+            )
+
+            self.enter_dialogue(
+                'kane_boss',
+                on_exit=on_exit,
+                restore_camera=False,
+            )
 
     def move_level_to_keep_pc_within_area(self):
         """Move the level so playable character (pc) is always inside area.

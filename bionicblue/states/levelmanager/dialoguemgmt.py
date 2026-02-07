@@ -271,7 +271,12 @@ class DialogueManagement:
         text_canvas.fill('black')
         self.blit_on_text_canvas = text_canvas.blit
 
-    def enter_dialogue(self, dialogue_name):
+    def enter_dialogue(
+        self,
+        dialogue_name,
+        on_exit=do_nothing,
+        restore_camera=True,
+    ):
 
         self.disable_overall_tracking_for_camera()
         self.disable_feet_tracking_for_camera()
@@ -279,6 +284,9 @@ class DialogueManagement:
         self.control = self.dialogue_control
         self.update = self.dialogue_update
         self.draw = self.dialogue_draw
+
+        self.on_exit = on_exit
+        self.restore_camera = restore_camera
 
         ###
 
@@ -319,7 +327,6 @@ class DialogueManagement:
         player.aniplayer.switch_animation(anim_name)
 
         ###
-
         self.get_next_line()
 
         ### must return True so trigger knows
@@ -334,8 +341,15 @@ class DialogueManagement:
         self.update = self.normal_update
         self.draw = self.draw_level
 
-        self.enable_overall_tracking_for_camera()
-        self.enable_feet_tracking_for_camera()
+        ###
+
+        if self.restore_camera:
+
+            self.enable_overall_tracking_for_camera()
+            self.enable_feet_tracking_for_camera()
+
+        ### execute on exit action
+        self.on_exit()
 
     def dialogue_control(self):
         
@@ -675,8 +689,12 @@ class DialogueManagement:
 
             elif action_type == 'record_encounter':
                 ...
+                # TODO use same call that records boss defeat
                 print("Recorded encounter")
 
+            elif action_type == 'record_talk_with_boss':
+                ...
+                print("Talked with boss")
 
             elif action_type == 'npc_gate_closes':
                 self.npc_gate.trigger_closing()
@@ -687,7 +705,6 @@ class DialogueManagement:
                     "'action_type' value must be one used"
                     " in either of the previous if-elif blocks"
                 )
-
 
     def prepare_dialogue_line(self):
 

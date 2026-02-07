@@ -57,7 +57,7 @@
             'type': 'pan_camera',
 
             'keyword_arguments': {
-                'delta_x': 160,
+                'delta_x': 180,
                 'delta_y': 10,
                 'linear_or_smooth': 'smooth',
                 'duration_type': 'seconds',

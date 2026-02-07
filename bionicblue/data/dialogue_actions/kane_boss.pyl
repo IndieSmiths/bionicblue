@@ -1,0 +1,50 @@
+{
+
+    'characters': ['Blue', 'Kane'],
+
+    'action_map': {
+
+        # camera pans a bit (just vertically), so Blue and Kane
+        # are well framed on the screen
+
+        'camera_pans_up': {
+
+            'type': 'pan_camera',
+
+            'keyword_arguments' : {
+                'delta_x': 0,
+                'delta_y': -10,
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 2,
+                'frames_between_steps': 2,
+            },
+
+        },
+
+        # camera pans back to original position
+
+        'camera_pans_down': {
+
+            'type': 'pan_camera',
+
+            'keyword_arguments': {
+                'delta_x': 0,
+                'delta_y': 10,
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 2,
+                'frames_between_steps': 2,
+            },
+
+        },
+
+        # talk with boss is recorded in slot data
+
+        'record_talk_with_boss': {
+            'type': 'record_talk_with_boss',
+        },
+
+    },
+
+}

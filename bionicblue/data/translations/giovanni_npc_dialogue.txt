@@ -65,10 +65,10 @@ Blue
 # action: blue_walks_away
 
 Giovanni
-    en-us Oh, God! People's greed brought these nasty robots upon this world and look what it did to us.
+    en-us Oh, God. To think a little boy has to go through all that on his own...
 
 Giovanni
-    en-us To think a little boy has to go through all that on his own...
+    en-us People's greed brought these nasty robots upon this world and look what it did to us.
 
 # npc gate is closed
 # action: npc_gate_closes
