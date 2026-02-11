@@ -87,7 +87,7 @@ from .common import (
 
 )
 
-from .dialoguemgmt import DialogueManagement
+from .scriptedscenemgmt import ScriptedSceneManagement
 
 
 
@@ -100,7 +100,7 @@ CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
 
 
 
-class LevelManager(DialogueManagement):
+class LevelManager(ScriptedSceneManagement):
 
     def __init__(self):
 
@@ -120,7 +120,7 @@ class LevelManager(DialogueManagement):
 #        self.controls_panels.reverse()
 
         ###
-        self.load_dialogues()
+        self.load_scripted_scenes()
 
         self.control = self.control_player
 
@@ -296,27 +296,29 @@ class LevelManager(DialogueManagement):
 
         ### add colliding trigger for npc encounter
 
-        dialogue_trg_pos = next(
+        npc_scene_trg_pos = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'dialogue_trg'
+            if label_data['text'] == 'npc_scene_trg'
         )['pos']
 
-        dialogue_trigger = (
+        npc_scene_trigger = (
 
             InvisibleCollidingTrigger(
 
-                on_collision=partial(self.enter_dialogue, 'giovanni_npc'),
+                on_collision=(
+                    partial(self.enter_scripted_scene, 'giovanni_npc')
+                ),
                 width=16,
                 height=64,
                 coordinates_name='midbottom',
-                coordinates_value=dialogue_trg_pos,
+                coordinates_value=npc_scene_trg_pos,
 
             )
 
         )
 
-        add_obj(dialogue_trigger)
+        add_obj(npc_scene_trigger)
 
         ### add colliding triggers for boss gates
 
@@ -552,7 +554,7 @@ class LevelManager(DialogueManagement):
 
             )
 
-            self.enter_dialogue(
+            self.enter_scripted_scene(
                 'kane_boss',
                 on_exit=on_exit,
                 restore_camera=False,

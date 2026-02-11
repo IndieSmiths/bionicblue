@@ -1,17 +1,16 @@
-"""Facility with class extension for managing dialogues."""
+"""Facility w/ class extension for managing the loop during scripted scenes."""
 
 ### standard library imports
 
 from itertools import (
     chain,
-    count,
     cycle,
     groupby,
     repeat,
     zip_longest,
 )
 
-from collections import defaultdict, deque
+from collections import deque
 
 from functools import partial
 
@@ -31,14 +30,13 @@ except ImportError:
 
 ### third-party imports
 
-from pygame import Rect, Surface
+from pygame import Rect
 
 from pygame.locals import (
 
     QUIT,
 
     KEYDOWN,
-    KEYUP,
 
     K_ESCAPE,
     K_RETURN,
@@ -46,7 +44,6 @@ from pygame.locals import (
     K_RIGHT,
 
     JOYBUTTONDOWN,
-    JOYBUTTONUP,
 
 )
 
@@ -70,38 +67,32 @@ except ImportError:
 
 ### local imports
 
-from ...config import DIALOGUE_ACTIONS_DIR, REFS, quit_game
+from ....config import REFS, quit_game
 
-from ...pygamesetup import SERVICES_NS
+from ....pygamesetup import SERVICES_NS
 
-from ...pygamesetup.constants import (
+from ....pygamesetup.constants import (
     SCREEN,
-    SCREEN_RECT,
-    FPS,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
     GAMEPADDIRECTIONALPRESSED,
     msecs_to_frames,
 )
 
-from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
+from ....pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
-from ...classes2d.single import UIObject2D
+from ....classes2d.single import UIObject2D
 
-from ...classes2d.collections import UIList2D, UIDeque2D
+from ....classes2d.collections import UIList2D, UIDeque2D
 
-from ...textman import render_text
+from ....textman import render_text
 
-from ...ourstdlibs.pyl import load_pyl
+from ....ourstdlibs.behaviour import CallList, do_nothing
 
-from ...ourstdlibs.behaviour import CallList, do_nothing
+from ....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
-from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
+from ..middleprops.foodbox import FoodBox
 
-from ...translatedtext import TRANSLATIONS
-
-from .middleprops.foodbox import FoodBox
-
-from .common import (
+from ..common import (
 
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
@@ -110,17 +101,26 @@ from .common import (
 
     PROJECTILES,
     FRONT_PROPS,
-    HEALTH_COLUMNS,
-
-    CHUNKS,
-
-    VICINITY_RECT,
 
     scrolling,
     scrolling_backup,
 
+    execute_tasks,
     add_obj,
     update_chunks_and_layers,
+
+)
+
+from .constants import (
+
+    DIALOGUE_BOX,
+    PORTRAIT_BOX,
+    TEXT_BOX,
+
+    BOTTOMLEFT_ANCHOR,
+    BOTTOMRIGHT_ANCHOR,
+
+    text_box_colliderect,
 
 )
 
@@ -133,31 +133,6 @@ TEXT_SETTINGS = {
     'foreground_color': 'cyan',
 }
 
-_PADDING = 5
-
-BOTTOMLEFT_ANCHOR = SCREEN_RECT.move(_PADDING, -_PADDING).bottomleft
-BOTTOMRIGHT_ANCHOR = SCREEN_RECT.move(-_PADDING, -_PADDING).bottomright
-
-PORTRAIT_BOX = Rect(0, 0, 32, 48)
-
-
-TEXT_BOX = SCREEN_RECT.copy()
-
-TEXT_BOX.height = PORTRAIT_BOX.height
-TEXT_BOX.width -= (PORTRAIT_BOX.width + (3 * _PADDING)) 
-text_box_colliderect = TEXT_BOX.colliderect
-
-
-DIALOGUE_BOX = (
-    Rect(
-        0,
-        0,
-        SCREEN_RECT.width,
-        PORTRAIT_BOX.height + (_PADDING*2),
-    )
-)
-
-DIALOGUE_BOX.bottom = SCREEN_RECT.bottom
 
 
 NEXT_CHAR_NORMAL_SPEED = cycle((True, False)).__next__
@@ -193,97 +168,13 @@ def draw_triangle(last_char):
 
     )
 
-class DialogueManagement:
-    """Methods to help drive dialogue encounters."""
 
-    def load_dialogues(self):
+class ScriptedSceneLoopManagement:
+    """Methods to manage the loop during scripted scenes."""
 
-        self.dialogues_map = dm = {}
-
-        for path in DIALOGUE_ACTIONS_DIR.iterdir():
-
-            if path.suffix.lower() == '.pyl':
-
-                try:
-                    data = load_pyl(path)
-
-                except Exception as err:
-
-                    print("Error while trying to load dialogue data")
-                    print()
-                    raise
-
-                else:
-
-                    lines_data = (
-                        get_lines_data(path.stem, data['characters'])
-                    )
-
-                    action_map = defaultdict(list)
-
-                    dm[path.stem] = {
-
-                        'lines_data': lines_data,
-                        'characters': data['characters'],
-
-                        'action_map': action_map,
-
-                    }
-
-                    ### populate action map
-
-                    cueing_data = (
-                        REFS.dialogue_action_cueing_data[path.stem]
-                    )
-
-                    for action_id, action_data in data['action_map'].items():
-
-                        cue = cueing_data[action_id]
-                        action_map[cue].append(action_data)
-
-        ###
-
-        self.mid_dialogue = False
-        self.mid_action = False
-
-        self.remaining_lines_deque = deque()
-        self.current_line = ''
-        self.current_character = ''
-
-        self.action_steps_deque = deque()
-
-        self.character_portrait_map = {
-            'Blue': REFS.blue_boy,
-            'Giovanni': REFS.giovanni,
-            'Kane': REFS.kane,
-        }
-
-        self.character_portrait_map = {
-            'Blue': REFS.blue_boy,
-            'Giovanni': REFS.giovanni,
-            'Kane': REFS.kane,
-        }
-
-        self.character_retrieval_map = {
-            'Blue': (REFS, ('states', 'level_manager', 'player')),
-            'Giovanni': (REFS, ('states', 'level_manager', 'npc')),
-            'Kane': (REFS, ('level_boss',)), 
-        }
-
-        self.character_map = {}
-
-        self.text_box_obj = (
-            UIObject2D.from_surface(Surface(TEXT_BOX.size).convert())
-        )
-        self.text_box_obj.rect = TEXT_BOX
-
-        text_canvas = self.text_canvas = self.text_box_obj.image
-        text_canvas.fill('black')
-        self.blit_on_text_canvas = text_canvas.blit
-
-    def enter_dialogue(
+    def enter_scripted_scene(
         self,
-        dialogue_name,
+        scripted_scene_name,
         on_exit=do_nothing,
         restore_camera=True,
     ):
@@ -291,16 +182,20 @@ class DialogueManagement:
         self.disable_overall_tracking_for_camera()
         self.disable_feet_tracking_for_camera()
 
-        self.control = self.dialogue_control
-        self.update = self.dialogue_update
-        self.draw = self.dialogue_draw
+        self.control = self.scene_control
+        self.update = self.scene_update
+        self.draw = self.scene_draw
 
         self.on_exit = on_exit
         self.restore_camera = restore_camera
 
         ###
+        self.player.stop_charging()
+        self.player.reset_time_tracking_attributes()
 
-        data = self.dialogues_map[dialogue_name]
+        ###
+
+        data = self.scripted_scene_map[scripted_scene_name]
 
         self.remaining_lines_deque.extend(data['lines_data'])
         self.action_map = data['action_map']
@@ -340,12 +235,12 @@ class DialogueManagement:
         self.get_next_line()
 
         ### must return True so trigger knows
-        ### entering dialogue succeeded
+        ### entering scripted scene succeeded
         return True
 
-    def exit_dialogue(self):
+    def exit_scripted_scene(self):
 
-        print("Exiting the dialogue")
+        print("Exiting scripted scene")
 
         self.control = self.control_player
         self.update = self.normal_update
@@ -361,13 +256,13 @@ class DialogueManagement:
         ### execute on exit action
         self.on_exit()
 
-    def dialogue_control(self):
+    def scene_control(self):
         
-        if self.drive_dialogue_state == self.present_dialogue:
+        if self.drive_scene_state == self.present_dialogue:
             self.process_mid_dialogue_input()
 
         else:
-            self.process_non_dialogue_input()
+            self.process_mid_action_input()
 
     def process_mid_dialogue_input(self):
 
@@ -465,7 +360,7 @@ class DialogueManagement:
             self.next_char = NEXT_CHAR_NORMAL_SPEED
 
 
-    def process_non_dialogue_input(self):
+    def process_mid_action_input(self):
 
         for event in SERVICES_NS.get_events():
 
@@ -475,12 +370,12 @@ class DialogueManagement:
             elif event.type == QUIT:
                 quit_game()
 
-    def dialogue_update(self):
+    def scene_update(self):
 
         ### backup scrolling
         scrolling_backup.update(scrolling)
 
-        self.drive_dialogue_state()
+        self.drive_scene_state()
 
         self.player.update()
 
@@ -501,6 +396,9 @@ class DialogueManagement:
 
         for prop in FRONT_PROPS:
             prop.update()
+
+        ### execute scheduled tasks
+        execute_tasks()
 
     def get_next_line(self):
 
@@ -530,7 +428,7 @@ class DialogueManagement:
 
             if self.action_call_groups:
 
-                self.drive_dialogue_state = self.carry_actions
+                self.drive_scene_state = self.carry_actions
 
                 self.advance_actions = (
 
@@ -547,7 +445,7 @@ class DialogueManagement:
                 self.prepare_dialogue_line()
 
         else:
-            self.exit_dialogue()
+            self.exit_scripted_scene()
 
     def process_actions(self, actions_data):
 
@@ -829,7 +727,7 @@ class DialogueManagement:
         self.next_char = NEXT_CHAR_NORMAL_SPEED
 
         ###
-        self.drive_dialogue_state = self.present_dialogue
+        self.drive_scene_state = self.present_dialogue
 
     def carry_actions(self):
 
@@ -910,7 +808,7 @@ class DialogueManagement:
 
         if self.action_call_groups:
 
-            self.drive_dialogue_state = self.carry_actions
+            self.drive_scene_state = self.carry_actions
 
             self.advance_actions = (
 
@@ -926,8 +824,8 @@ class DialogueManagement:
         else:
             self.get_next_line()
 
-    def dialogue_draw(self):
-        """Draw level elements and dialogue elements on top."""
+    def scene_draw(self):
+        """Draw level elements (and dialogue elements when applicable)."""
 
         SCREEN.fill(self.bg_color)
 
@@ -951,17 +849,14 @@ class DialogueManagement:
         for prop in FRONT_PROPS:
             prop.draw()
 
-        if self.drive_dialogue_state == self.present_dialogue:
+        if self.drive_scene_state == self.present_dialogue:
             self.draw_dialogue_elements()
 
         update_screen()
 
     def draw_dialogue_elements(self):
-        """Draw dialogue elements (as needed).
+        """Draw dialogue elements."""
 
-        "As needed" means that dialogue may have intervals where nothing is
-        said, so no dialogue element is drawn during that interval.
-        """
         draw_rect(SCREEN, 'black', DIALOGUE_BOX, border_radius=8)
         draw_rect(SCREEN, 'orange', DIALOGUE_BOX, 1, border_radius=8)
 
@@ -981,47 +876,6 @@ class DialogueManagement:
             draw_triangle(self.all_chars_2d[-1])
 
 
-def get_lines_data(dialogue_name, character_names):
-
-    t = getattr(TRANSLATIONS, f'{dialogue_name}_dialogue')
-
-    next_index = count().__next__
-
-    lines_data = []
-
-    while True:
-
-        line_attr_name = (
-            'line_'
-            + str(next_index()).rjust(3, '0')
-        )
-
-        try:
-            translation_node = getattr(t, line_attr_name)
-
-        except AttributeError:
-            break
-
-        for character_name in character_names:
-
-            try:
-                line_contents = getattr(translation_node, character_name)
-            except AttributeError:
-                pass
-            else:
-                break
-
-        lines_data.append(
-
-            (
-                line_attr_name,
-                line_contents,
-                character_name,
-            )
-
-        )
-
-    return lines_data
 
 def get_character_reference(obj, attr_names):
 

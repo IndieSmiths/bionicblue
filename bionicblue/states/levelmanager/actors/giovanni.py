@@ -1,7 +1,10 @@
 """Facility for Giovanni NPC."""
 
-### standard library import
+### standard library imports
+
 from functools import partial
+
+from math import inf as INFINITY
 
 
 ### local imports
@@ -47,6 +50,8 @@ class Giovanni:
         )
 
         self.update = self.idle_update
+
+        self.health = INFINITY
 
     def idle_update(self):
         """Do nothing."""

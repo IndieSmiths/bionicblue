@@ -1048,7 +1048,7 @@
                                 {'name': 'label',
                                  'pos': (3384, -928),
                                  'pos_name': 'midbottom',
-                                 'text': 'dialogue_trg'},
+                                 'text': 'npc_scene_trg'},
                                 {'name': 'label',
                                  'pos': (2920, -816),
                                  'pos_name': 'midbottom',

@@ -47,7 +47,7 @@ Giovanni
     en-us Thank you! It's a recipe from my late Grandma: Lasagna.
 
 Blue
-    en-us If you don't mind, I'll eat over there. Until I've freed this section, it is better not to contact civilians.
+    en-us If you don't mind, I'll eat over there. Until I've freed this sector, it is better not to contact civilians.
 
 Giovanni
     en-us You are probably right, kid. Thank you for trying to help us. I'll be praying for everything to go well on your mission.
