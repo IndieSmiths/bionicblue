@@ -74,7 +74,6 @@ from ....pygamesetup import SERVICES_NS
 
 from ....pygamesetup.constants import (
     SCREEN,
-    SCREEN_RECT,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
     GAMEPADDIRECTIONALPRESSED,
     msecs_to_frames,
@@ -91,8 +90,6 @@ from ....textman import render_text
 from ....ourstdlibs.behaviour import CallList, do_nothing
 
 from ....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
-
-from ..middleprops.foodbox import FoodBox
 
 from ..middleprops.largedish import LargeDish
 
@@ -625,7 +622,12 @@ class ScriptedSceneLoopManagement:
             elif action_type == 'place_food_box':
 
                 food_box_pos = self.food_box_pos + scrolling
-                add_obj(FoodBox('food_box', midbottom=food_box_pos))
+                food_box = self.food_box
+                food_box.rect.midbottom = food_box_pos
+
+                add_obj(food_box)
+
+                ### TODO also add trigger to eat it
 
             elif action_type == 'display_dish':
 
@@ -633,20 +635,45 @@ class ScriptedSceneLoopManagement:
 
                 animation_name = kwargs['animation_name']
 
-                center = SCREEN_RECT.center
+                ## add objs
 
-                ## add obj
+                # positions
 
-                dish = LargeDish(animation_name, center)
+                food_box_midbottom = self.player.rect.move(20, 0).bottomright
+
+                dish_center = (
+                    food_box_midbottom[0],
+                    food_box_midbottom[1] - 60,
+                )
+
+                # food box
+
+                food_box = self.food_box
+                food_box.rect.midbottom = food_box_midbottom
+
+                add_obj(food_box)
+
+                # dish
+
+                dish = LargeDish(animation_name, dish_center)
                 add_obj(dish)
+
+                ## append task we'll use to remove them
 
                 awaited_line = self.line_index + kwargs['lines_to_wait']
 
-                ## append task we'll use to remove it
+                condition_checker = (
+                    partial(self.check_line_index, awaited_line)
+                )
 
                 append_conditional_task(
                     partial(remove_obj, dish),
-                    partial(self.check_line_index, awaited_line),
+                    condition_checker,
+                )
+
+                append_conditional_task(
+                    partial(remove_obj, food_box),
+                    condition_checker,
                 )
 
             else:

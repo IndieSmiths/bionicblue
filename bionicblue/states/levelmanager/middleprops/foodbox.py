@@ -6,14 +6,12 @@ from ....ani2d.player import AnimationPlayer2D
 
 class FoodBox:
 
-    def __init__(self, name, midbottom):
+    def __init__(self):
 
-        self.name = name
+        self.name = 'food_box'
         self.layer_name = 'middleprops'
 
         self.aniplayer = AnimationPlayer2D(self, 'food_box', 'idle')
-
-        setattr(self.rect, 'midbottom', midbottom)
 
     def update(self): pass
 

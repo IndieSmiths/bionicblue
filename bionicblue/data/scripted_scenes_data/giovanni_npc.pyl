@@ -28,7 +28,7 @@
 
             'keyword_arguments': {
                 'animation_name': 'lasagna',
-                'lines_to_wait': 2,
+                'lines_to_wait': 3,
             }
 
         },

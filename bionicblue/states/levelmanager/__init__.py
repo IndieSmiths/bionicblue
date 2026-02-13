@@ -265,6 +265,8 @@ class LevelManager(ScriptedSceneManagement):
         # we must still extract it, since we store it as an attribute
         # for later use);
 
+        food_box = self.food_box = FoodBox()
+
         food_box_pos = self.food_box_pos = next(
             label_data
             for label_data in level_data['layered_objects']['labels']
@@ -272,7 +274,9 @@ class LevelManager(ScriptedSceneManagement):
         )['pos']
 
         if npc_gate_closed:
-            add_obj(FoodBox('food_box', midbottom=food_box_pos))
+
+            food_box.rect.midbottom = food_box_pos
+            add_obj(food_box)
 
         ## boss gates
 
