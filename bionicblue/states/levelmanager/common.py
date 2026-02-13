@@ -127,20 +127,6 @@ PROJECTILES = set()
 FRONT_PROPS = set()
 HEALTH_COLUMNS = set()
 
-## tasks
-
-TASKS = []
-append_task = TASKS.append
-clear_tasks = TASKS.clear
-
-def execute_tasks():
-
-    if TASKS:
-
-        for task in TASKS:
-            task()
-
-        clear_tasks()
 
 ### chunks
 

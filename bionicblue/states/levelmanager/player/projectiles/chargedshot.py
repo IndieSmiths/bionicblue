@@ -21,8 +21,9 @@ from ...common import (
     PROJECTILES,
     ACTORS_NEAR_SCREEN,
     BLOCKS_NEAR_SCREEN,
-    append_task,
 )
+
+from ...taskmgmt import append_ready_task
 
 
 
@@ -66,7 +67,7 @@ class ChargedShot:
         self.update = self.appearing_update
 
     def trigger_kill(self):
-        append_task(partial(PROJECTILES.remove, self))
+        append_ready_task(partial(PROJECTILES.remove, self))
 
     def appearing_update(self):
 

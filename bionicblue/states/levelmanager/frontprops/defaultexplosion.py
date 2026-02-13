@@ -9,7 +9,9 @@ from ....config import SOUND_MAP
 
 from ....ani2d.player import AnimationPlayer2D
 
-from ..common import append_task, FRONT_PROPS
+from ..common import FRONT_PROPS
+
+from ..taskmgmt import append_ready_task
 
 
 
@@ -36,7 +38,7 @@ class DefaultExplosion:
     def update(self):
 
         if self.aniplayer.main_timing.peek_loops_no(1) == 1:
-            append_task(partial(FRONT_PROPS.remove, self))
+            append_ready_task(partial(FRONT_PROPS.remove, self))
 
     def draw(self):
         self.aniplayer.draw()

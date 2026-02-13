@@ -21,10 +21,11 @@ from ...frontprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
     remove_obj,
-    append_task,
     PROJECTILES,
     FRONT_PROPS,
 )
+
+from ...taskmgmt import append_ready_task
 
 from .shot import WatcherShot
 
@@ -132,7 +133,7 @@ class WatcherBot:
             center = self.rect.center
 
             FRONT_PROPS.add(DefaultExplosion('center', center))
-            append_task(partial(remove_obj, self))
+            append_ready_task(partial(remove_obj, self))
 
         else:
             self.aniplayer.set_custom_surface_cycling(('whitened', 'default'))

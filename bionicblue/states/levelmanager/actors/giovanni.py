@@ -1,9 +1,6 @@
 """Facility for Giovanni NPC."""
 
-### standard library imports
-
-from functools import partial
-
+### standard library import
 from math import inf as INFINITY
 
 
@@ -20,11 +17,6 @@ from ....ani2d.player import AnimationPlayer2D
 from ....ourstdlibs.behaviour import do_nothing
 
 from ..frontprops.defaultexplosion import DefaultExplosion
-
-from ..common import (
-    remove_obj,
-    append_task,
-)
 
 
 
@@ -50,8 +42,6 @@ class Giovanni:
         )
 
         self.update = self.idle_update
-
-        self.health = INFINITY
 
     def idle_update(self):
         """Do nothing."""

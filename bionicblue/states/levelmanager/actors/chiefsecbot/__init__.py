@@ -33,8 +33,9 @@ from ...common import (
     FRONT_PROPS,
     PROJECTILES,
     BLOCKS_NEAR_SCREEN,
-    append_task,
 )
+
+from ...taskmgmt import append_ready_task
 
 from .healthcolumn import HealthColumn
 
@@ -637,7 +638,7 @@ class ChiefSecurityBot:
                 center = self.rect.center
 
                 FRONT_PROPS.add(DefaultExplosion('center', center))
-                append_task(partial(remove_obj, self))
+                append_ready_task(partial(remove_obj, self))
 
                 REFS.states.level_manager.save_beaten_boss('chief_sec_bot')
 

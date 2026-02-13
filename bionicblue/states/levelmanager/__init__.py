@@ -26,8 +26,8 @@ from ...config import (
 )
 
 from ...pygamesetup.constants import (
-    blit_on_screen,
     SCREEN_RECT,
+    blit_on_screen,
 )
 
 from ...ourstdlibs.behaviour import CallList, do_nothing
@@ -80,7 +80,6 @@ from .common import (
     scrolling,
     scrolling_backup,
 
-    execute_tasks,
     group_objects,
     add_obj,
     update_chunks_and_layers,
@@ -88,6 +87,8 @@ from .common import (
 )
 
 from .scriptedscenemgmt import ScriptedSceneManagement
+
+from .taskmgmt import update_task_manager
 
 
 
@@ -259,6 +260,10 @@ class LevelManager(ScriptedSceneManagement):
         add_obj(npc_gate)
 
         # food box
+        #
+        # (note that although we might not use food_box_pos here,
+        # we must still extract it, since we store it as an attribute
+        # for later use);
 
         food_box_pos = self.food_box_pos = next(
             label_data
@@ -267,10 +272,7 @@ class LevelManager(ScriptedSceneManagement):
         )['pos']
 
         if npc_gate_closed:
-
-            food_box = FoodBox('food_box', midbottom=food_box_pos)
-            food_box.layer_name = 'middleprops'
-            add_obj(food_box)
+            add_obj(FoodBox('food_box', midbottom=food_box_pos))
 
         ## boss gates
 
@@ -471,7 +473,7 @@ class LevelManager(ScriptedSceneManagement):
             prop.update()
 
         ### execute scheduled tasks
-        execute_tasks()
+        update_task_manager()
 
     def moving_update(self):
 
@@ -531,7 +533,7 @@ class LevelManager(ScriptedSceneManagement):
             prop.update()
 
         ### execute scheduled tasks
-        execute_tasks()
+        update_task_manager()
 
         ###
 

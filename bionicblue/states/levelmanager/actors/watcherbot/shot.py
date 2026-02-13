@@ -14,7 +14,7 @@ from pygame.math import Vector2
 
 ### local imports
 
-from .....config import REFS, COLORKEY#, SOUND_MAP
+from .....config import REFS, COLORKEY
 
 from .....pygamesetup.constants import (
     SCREEN_RECT,
@@ -24,11 +24,9 @@ from .....pygamesetup.constants import (
 
 from .....ourstdlibs.mathutils import get_rect_from_points
 
-from ...common import (
-    PROJECTILES,
-    BLOCKS_NEAR_SCREEN,
-    append_task,
-)
+from ...common import PROJECTILES, BLOCKS_NEAR_SCREEN
+
+from ...taskmgmt import append_ready_task
 
 
 
@@ -71,7 +69,7 @@ class WatcherShot:
         self.life_countdown = FRAMES_BEFORE_VANISHING
 
     def trigger_kill(self):
-        append_task(partial(PROJECTILES.remove, self))
+        append_ready_task(partial(PROJECTILES.remove, self))
 
     def update(self):
 

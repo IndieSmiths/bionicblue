@@ -6,7 +6,6 @@ from itertools import (
     chain,
     cycle,
     groupby,
-    repeat,
     zip_longest,
 )
 
@@ -15,6 +14,8 @@ from collections import deque
 from functools import partial
 
 from math import floor
+
+from contextlib import suppress
 
 ### standard library import with local import replacement
 ### in case imported function is not available from
@@ -73,6 +74,7 @@ from ....pygamesetup import SERVICES_NS
 
 from ....pygamesetup.constants import (
     SCREEN,
+    SCREEN_RECT,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
     GAMEPADDIRECTIONALPRESSED,
     msecs_to_frames,
@@ -92,6 +94,8 @@ from ....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ..middleprops.foodbox import FoodBox
 
+from ..middleprops.largedish import LargeDish
+
 from ..common import (
 
     BACK_PROPS_NEAR_SCREEN,
@@ -105,11 +109,13 @@ from ..common import (
     scrolling,
     scrolling_backup,
 
-    execute_tasks,
     add_obj,
+    remove_obj,
     update_chunks_and_layers,
 
 )
+
+from ..taskmgmt import append_conditional_task, update_task_manager
 
 from .constants import (
 
@@ -133,10 +139,16 @@ TEXT_SETTINGS = {
     'foreground_color': 'cyan',
 }
 
+_WAIT_BEFORE_LINE_ADVANCE_MSECS = 600
 
+_WAIT_BEFORE_LINE_ADVANCE_FRAMES = (
+    msecs_to_frames(_WAIT_BEFORE_LINE_ADVANCE_MSECS)
+)
 
-NEXT_CHAR_NORMAL_SPEED = cycle((True, False)).__next__
-NEXT_CHAR_FULL_SPEED = repeat(True).__next__
+NEXT_CHARS = cycle((True, False)).__next__
+
+ONE_ITEM_RANGE = range(1)
+THREE_ITEMS_RANGE = range(3)
 
 NEXT_DRAW_TRIANGLE = cycle(
 
@@ -202,6 +214,7 @@ class ScriptedSceneLoopManagement:
 
         self.current_line = ''
         self.current_character = ''
+        self.line_index = -1
 
         self.character_map.update(
 
@@ -353,11 +366,11 @@ class ScriptedSceneLoopManagement:
             or GAMEPAD_NS.get_button(GAMEPAD_CONTROLS['jump'])
 
         ):
-            self.next_char = NEXT_CHAR_FULL_SPEED
+            self.char_quantity_range = THREE_ITEMS_RANGE
 
 
         else:
-            self.next_char = NEXT_CHAR_NORMAL_SPEED
+            self.char_quantity_range = ONE_ITEM_RANGE
 
 
     def process_mid_action_input(self):
@@ -398,19 +411,20 @@ class ScriptedSceneLoopManagement:
             prop.update()
 
         ### execute scheduled tasks
-        execute_tasks()
+        update_task_manager()
 
     def get_next_line(self):
 
         if self.remaining_lines_deque:
 
-            current_line, line_contents, current_character = (
+            current_line, line_contents, current_character, line_index = (
                 self.remaining_lines_deque.popleft()
             )
 
             self.current_line = current_line
             self.line_contents = line_contents
             self.current_character = current_character
+            self.line_index = line_index
 
             ###
 
@@ -611,10 +625,29 @@ class ScriptedSceneLoopManagement:
             elif action_type == 'place_food_box':
 
                 food_box_pos = self.food_box_pos + scrolling
+                add_obj(FoodBox('food_box', midbottom=food_box_pos))
 
-                food_box = FoodBox('food_box', midbottom=food_box_pos)
-                food_box.layer_name = 'middleprops'
-                add_obj(food_box)
+            elif action_type == 'display_dish':
+
+                kwargs = action_data['keyword_arguments']
+
+                animation_name = kwargs['animation_name']
+
+                center = SCREEN_RECT.center
+
+                ## add obj
+
+                dish = LargeDish(animation_name, center)
+                add_obj(dish)
+
+                awaited_line = self.line_index + kwargs['lines_to_wait']
+
+                ## append task we'll use to remove it
+
+                append_conditional_task(
+                    partial(remove_obj, dish),
+                    partial(self.check_line_index, awaited_line),
+                )
 
             else:
 
@@ -622,6 +655,9 @@ class ScriptedSceneLoopManagement:
                     "'action_type' value must be one used"
                     " in either of the previous if-elif blocks"
                 )
+
+    def check_line_index(self, line_index):
+        return self.line_index == line_index
 
     def prepare_dialogue_line(self):
 
@@ -656,6 +692,15 @@ class ScriptedSceneLoopManagement:
 
         ###
 
+        ### XXX instead of rendering individual characters, could
+        ### render whole word and divided it, even roughly, into
+        ### surfaces; don't know if this would look pleasing, but
+        ### rendering the word whole will likely provide the best
+        ### end result (since in some cases characters merged together
+        ### when rendered beside each other); the result for each
+        ### word could be cached as well; this sort of thing could even be
+        ### a requirement in specific languages/scripts; ponder;
+
         words = UIList2D(
 
             UIList2D(
@@ -682,7 +727,7 @@ class ScriptedSceneLoopManagement:
             word.rect.snap_rects_ip(
                 retrieve_pos_from='topright',
                 assign_pos_to='topleft',
-                offset_pos_by=(-2, 0),
+                offset_pos_by=(-3, 0),
             )
 
         words.rect.snap_rects_intermittently_ip(
@@ -721,10 +766,15 @@ class ScriptedSceneLoopManagement:
         self.current_line_2d_deque, *remaining_lines = word_lines
         self.remaining_lines_2d_deque = UIDeque2D(remaining_lines)
 
+        self.append_2d_char = self.all_chars_2d.append
+        self.popleft_2d_char = self.current_line_2d_deque.popleft
+
         self.waiting_for_user_to_advance = False
 
+        self.frames_since_start_of_line = 0
+
         ###
-        self.next_char = NEXT_CHAR_NORMAL_SPEED
+        self.char_quantity_range = ONE_ITEM_RANGE
 
         ###
         self.drive_scene_state = self.present_dialogue
@@ -743,6 +793,8 @@ class ScriptedSceneLoopManagement:
                 call()
 
     def present_dialogue(self):
+
+        self.frames_since_start_of_line += 1
 
         if self.waiting_for_user_to_advance: return
 
@@ -764,17 +816,31 @@ class ScriptedSceneLoopManagement:
 
         elif self.current_line_2d_deque:
 
-            if self.next_char():
-                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+            if NEXT_CHARS():
+
+                append = self.append_2d_char
+                popleft = self.popleft_2d_char
+
+                with suppress(IndexError):
+
+                    for _ in self.char_quantity_range:
+                        append(popleft())
 
         elif self.remaining_lines_2d_deque:
 
-            self.current_line_2d_deque = (
+            self.current_line_2d_deque.extend(
                 self.remaining_lines_2d_deque.popleft()
             )
 
-            if self.next_char():
-                self.all_chars_2d.append(self.current_line_2d_deque.popleft())
+            if NEXT_CHARS():
+
+                append = self.append_2d_char
+                popleft = self.popleft_2d_char
+
+                with suppress(IndexError):
+
+                    for _ in self.char_quantity_range:
+                        append(popleft())
 
 
         else:
@@ -800,6 +866,9 @@ class ScriptedSceneLoopManagement:
     def advance_dialogue_if_possible(self):
 
         if not self.waiting_for_user_to_advance: return
+
+        if self.frames_since_start_of_line < _WAIT_BEFORE_LINE_ADVANCE_FRAMES:
+            return
 
         self.waiting_for_user_to_advance = False
 

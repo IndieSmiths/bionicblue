@@ -1,8 +1,4 @@
 
-### third-party import
-from pygame import Surface
-
-
 ### local import
 from ....ani2d.player import AnimationPlayer2D
 
@@ -13,6 +9,7 @@ class FoodBox:
     def __init__(self, name, midbottom):
 
         self.name = name
+        self.layer_name = 'middleprops'
 
         self.aniplayer = AnimationPlayer2D(self, 'food_box', 'idle')
 

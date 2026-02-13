@@ -120,15 +120,13 @@ def get_lines_data(dialogue_name, character_names):
 
     t = getattr(TRANSLATIONS, f'{dialogue_name}_dialogue')
 
-    next_index = count().__next__
-
     lines_data = []
 
-    while True:
+    for line_index in count():
 
         line_attr_name = (
             'line_'
-            + str(next_index()).rjust(3, '0')
+            + str(line_index).rjust(3, '0')
         )
 
         try:
@@ -152,6 +150,7 @@ def get_lines_data(dialogue_name, character_names):
                 line_attr_name,
                 line_contents,
                 character_name,
+                line_index,
             )
 
         )

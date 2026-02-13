@@ -39,6 +39,7 @@ Giovanni
     en-us At least take this, then!
 
 # big lasagna animation is shown
+# action: display_dish
 
 Blue
     en-us Whoa! That smells nice! Thank you!

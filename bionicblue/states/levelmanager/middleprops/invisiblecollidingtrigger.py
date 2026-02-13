@@ -14,7 +14,9 @@ from ....config import REFS
 
 from ....surfsman import EMPTY_SURF
 
-from ..common import remove_obj, append_task
+from ..common import remove_obj
+
+from ..taskmgmt import append_ready_task
 
 
 
@@ -59,7 +61,7 @@ class InvisibleCollidingTrigger:
     def update(self):
 
         if self.colliderect(self.player.rect) and self.on_collision():
-            append_task(partial(remove_obj, self))
+            append_ready_task(partial(remove_obj, self))
 
     def draw(self):
         """Do nothing."""
