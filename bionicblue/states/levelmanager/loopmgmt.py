@@ -449,13 +449,8 @@ class LevelManagerLoopManagement:
 #
 #            partial(
 #
-#                self.show_info_popup,
-#
-#                (
-#                    "Acquired nutrients and reduced stress from a"
-#                    " delicious meal increase your systems's efficiency."
-#                    " Your health slowly recovers over time."
-#                ),
+#                self.show_popup_info,
+#                'after_meal_power_up',
 #
 #            ),
 #
