@@ -1,5 +1,7 @@
 
-# camera pans vertically so Blue and Kane are better framed
+# creepy theme plays and camera pans vertically so Blue and Kane are better framed
+#
+# action: play_creepy_theme
 # action: camera_pans_up
 
 Kane

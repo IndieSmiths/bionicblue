@@ -541,10 +541,10 @@ class LevelManager(ScriptedSceneManagement):
 
         ###
 
-        if not cam_away_from_screen_center:
+        ### TODO must enter dialogue only if we didn't play it
+        ### already, otherwise set the music and enter the fight
 
-            music.load(str(MUSIC_DIR / 'creep_by_tokyogeisha.ogg'))
-            music.play(-1)
+        if not cam_away_from_screen_center:
 
             on_exit = CallList(
 
