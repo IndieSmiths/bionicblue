@@ -9,7 +9,16 @@ Giovanni
     en-us Oh! Who goes there? Are you one of those nasty robots?
 
 Blue
-    en-us No, don't worry. I'm just a boy. It is just that I have bionic parts. You can call me Blue.
+    en-us No, I'm not. I'm just a boy. It is just that I have bionic parts.
+
+Blue
+    en-us You can call me Blue. What is your name, sir?
+
+Giovanni
+    en-us I'm Giovanni.
+
+Blue
+    en-us Nice to meet you, Giovanni.
 
 Blue
     en-us So this is where this path led me! No wonder it was filled with robots down there.
@@ -18,10 +27,10 @@ Blue
     en-us I assume you are being kept hostage. They should be treating you fine, though, right? What is your name?
 
 Giovanni
-    en-us I'm Giovanni. And yes, you are well informed, Blue.
+    en-us Yes, you are well informed, Blue. We are hostages.
 
 Giovanni
-    en-us We are hostages. They treat us well since they need our brains in top condition. However, this isn't...
+    en-us They treat us well since they need our brains in top condition. However, this isn't...
 
 Blue
     en-us Freedom, right?
@@ -72,7 +81,7 @@ Giovanni
     en-us Oh, God. To think a little boy has to go through all that on his own...
 
 Giovanni
-    en-us It was greed greed that brought all of this upon this world.
+    en-us It was greed that brought all of this upon this world.
 
 # npc gate is closed
 # action: npc_gate_closes

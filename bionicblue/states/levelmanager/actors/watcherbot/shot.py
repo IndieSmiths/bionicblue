@@ -26,7 +26,7 @@ from .....ourstdlibs.mathutils import get_rect_from_points
 
 from ...common import PROJECTILES, BLOCKS_NEAR_SCREEN
 
-from ...taskmgmt import append_ready_task
+from ...taskmanager import append_ready_task
 
 
 

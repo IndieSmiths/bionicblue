@@ -24,7 +24,7 @@ from ..common import (
     remove_obj,
 )
 
-from ..taskmgmt import append_ready_task
+from ..taskmanager import append_ready_task
 
 
 

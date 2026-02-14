@@ -17,7 +17,10 @@ Blue
     en-us All advanced robots claim intelligence, but all you've shown us was savagery.
 
 Kane
-    en-us You know, for a kid, you speak almost like a grown up. Don't you realize your enhanced body is affecting your brain's development as well?
+    en-us You know, for a kid, you speak almost like a grown up.
+
+Kane
+    en-us Don't you realize your enhanced body is affecting your brain's development as well?
 
 Kane
     en-us Is a human even fit for processing so much data?

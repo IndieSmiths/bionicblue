@@ -25,7 +25,7 @@ from .......pygamesetup.constants import blit_on_screen, msecs_to_frames
 
 from .....common import PROJECTILES
 
-from .....taskmgmt import append_ready_task
+from .....taskmanager import append_ready_task
 
 from .assist import (
     RADII,

@@ -25,7 +25,7 @@ from ...common import (
     FRONT_PROPS,
 )
 
-from ...taskmgmt import append_ready_task
+from ...taskmanager import append_ready_task
 
 from .shot import WatcherShot
 

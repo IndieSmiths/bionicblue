@@ -23,7 +23,7 @@ from ...common import (
     BLOCKS_NEAR_SCREEN,
 )
 
-from ...taskmgmt import append_ready_task
+from ...taskmanager import append_ready_task
 
 
 
