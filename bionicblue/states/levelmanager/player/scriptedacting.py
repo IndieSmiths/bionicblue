@@ -61,6 +61,11 @@ class ScriptedActing:
         self.avoid_blocks_horizontally()
         self.react_to_gravity()
 
+        if self.anim_blend:
+
+            anim_blend = self.anim_blend
+            self.aniplayer.blend(f'+{anim_blend}')
+
         self.scripted_frames_count -= 1
 
         if not self.scripted_frames_count:

@@ -685,7 +685,8 @@ class ScriptedSceneLoopManagement:
 
                 add_obj(food_box)
 
-                ### TODO also add trigger to eat it
+                # also add trigger for consuming food box
+                self.add_food_box_trigger()
 
             else:
 

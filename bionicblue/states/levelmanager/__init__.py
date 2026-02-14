@@ -241,6 +241,7 @@ class LevelManager(
 
             food_box.rect.midbottom = food_box_pos
             add_obj(food_box)
+            self.add_food_box_trigger()
 
         ## boss gates
 
@@ -387,7 +388,6 @@ class LevelManager(
         self.player.rect.bottom = SCREEN_RECT.top
 
         ### update chunks and list objects on screen
-
         update_chunks_and_layers()
 
 

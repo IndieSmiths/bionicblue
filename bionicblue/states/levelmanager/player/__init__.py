@@ -542,6 +542,7 @@ class Player(
                         'x_speed': x_speed,
                         'y_speed': y_speed,
                         'anim_name': anim_name,
+                        'anim_blend': data.get('animation_blend', ''),
                         'scripted_frames_count': scripted_frames_count
                     }
 
@@ -562,6 +563,11 @@ class Player(
     def _set_next_scripted_action(self, action_data):
 
         self.aniplayer.switch_animation(action_data['anim_name'])
+        anim_blend = self.anim_blend = action_data.get('anim_blend', '')
+
+        if anim_blend:
+            self.aniplayer.blend(f'+{anim_blend}')
+
         self.scripted_frames_count = action_data['scripted_frames_count']
         self.x_speed = action_data['x_speed']
         self.y_speed = action_data['y_speed']

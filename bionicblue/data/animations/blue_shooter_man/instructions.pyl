@@ -58,6 +58,9 @@
         "speaking_idle_right": {"structure": "standing"},
         "speaking_idle_left": {"structure": "standing"},
 
+        "muscle_flex_right": {"structure": "standing"},
+        "muscle_flex_left": {"structure": "standing"},
+
         "portrait_idle_right": {"structure": "portrait"},
         "portrait_idle_left": {"structure": "portrait"},
         "portrait_speaking_right": {"structure": "portrait"},
@@ -72,6 +75,8 @@
             "+shooting": "shooting_idle_right",
             "-shooting": "idle_right",
             "+grounded": "idle_right",
+            "+muscle_flex": "muscle_flex_right",
+            "-muscle_flex": "idle_right",
         },
         "shooting_idle_right": {
             "+grounded": "shooting_idle_right",
@@ -81,6 +86,8 @@
             "+shooting": "shooting_idle_left",
             "-shooting": "idle_left",
             "+grounded": "idle_left",
+            "+muscle_flex": "muscle_flex_left",
+            "-muscle_flex": "idle_left",
         },
         "shooting_idle_left": {
             "+grounded": "shooting_idle_left",
@@ -213,6 +220,11 @@
                 "surfaces": "shooter_man.speaking_idle_right",
             },
         },
+        "muscle_flex_right": {
+            "body": {
+                "surfaces": "shooter_man.muscle_flex_right",
+            },
+        },
         "portrait_idle_right": {
             "portrait": {
                 "surfaces": "shooter_man.portrait_idle_right",
@@ -303,6 +315,11 @@
         "speaking_idle_right": {
             "body": {
                 "surface_indices": "shooter_man.speaking_idle_right",
+            },
+        },
+        "muscle_flex_right": {
+            "body": {
+                "surface_indices": "shooter_man.muscle_flex_right",
             },
         },
         "portrait_idle_right": {
@@ -412,6 +429,10 @@
         "speaking_idle_left": {
             "operation_name": "flip_x",
             "target": "speaking_idle_right",
+        },
+        "muscle_flex_left": {
+            "operation_name": "flip_x",
+            "target": "muscle_flex_right",
         },
     },
 }

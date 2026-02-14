@@ -13,13 +13,15 @@ from pygame.mixer import music
 
 ### local imports
 
-from ...config import REFS, MUSIC_DIR
+from ...config import REFS, SOUND_MAP, MUSIC_DIR
 
 from ...pygamesetup.constants import SCREEN_RECT, blit_on_screen
 
 from ...ourstdlibs.behaviour import CallList, do_nothing
 
 from ...ourstdlibs.pyl import save_pyl
+
+from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 
 from .common import (
 
@@ -37,11 +39,17 @@ from .common import (
     scrolling,
     scrolling_backup,
 
+    add_obj,
+    remove_obj,
     update_chunks_and_layers,
 
 )
 
-from .taskmanager import update_task_manager
+from .taskmanager import (
+    append_ready_task,
+    append_timed_task,
+    update_task_manager,
+)
 
 from .constants import FLOOR_LEVEL
 
@@ -380,3 +388,81 @@ class LevelManagerLoopManagement:
 
     save_beaten_boss = partialmethod(save_progress, 'beaten_bosses')
     save_encounter = partialmethod(save_progress, 'encounters')
+
+    def add_food_box_trigger(self):
+        """Add trigger to consume food box."""
+
+        food_box_trigger = (
+
+            InvisibleCollidingTrigger(
+                on_collision=self.consume_food_box,
+                width=8,
+                height=8,
+                coordinates_name='midbottom',
+                coordinates_value=self.food_box.rect.midbottom,
+            )
+
+        )
+
+        add_obj(food_box_trigger)
+
+    def consume_food_box(self):
+        """"""
+
+        ### remove food box immediately and trigger sound
+
+        append_ready_task(
+
+            CallList(
+
+                (
+                    partial(remove_obj, self.food_box),
+                    SOUND_MAP['triumph_on_getting_food_box.wav'].play,
+                )
+
+            )
+
+        )
+
+        ### trigger muscle flexing animation measuring time the
+        ### animation will take
+
+        frame_duration = self.player.act_on_given_script(
+
+            [
+
+                {
+                    'type': 'wait',
+                    'animation_blend': 'muscle_flex',
+                    'secs': 3,
+                },
+
+            ]
+
+        )
+
+        ### TODO
+        ### with that duration information, time the display of a popup
+        ### explaining the power up
+
+#        append_timed_task(
+#
+#            partial(
+#
+#                self.show_info_popup,
+#
+#                (
+#                    "Acquired nutrients and reduced stress from a"
+#                    " delicious meal increase your systems's efficiency."
+#                    " Your health slowly recovers over time."
+#                ),
+#
+#            ),
+#
+#            delta_t=frame_duration,
+#            unit='frames',
+#
+#        )
+
+        ### must return True so trigger nows all succeeded
+        return True
