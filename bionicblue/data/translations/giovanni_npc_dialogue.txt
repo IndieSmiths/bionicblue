@@ -1,6 +1,9 @@
 
-# camera pans a bit to the right, so Blue and Giovanni are well framed on the screen
+# camera pans a bit to the right, so Blue and Giovanni are well framed on the screen;
+# npc theme plays
+#
 # action: frame_blue_and_giovanni
+# action: play_npc_theme
 
 Giovanni
     en-us Oh! Who goes there? Are you one of those nasty robots?
@@ -27,7 +30,7 @@ Giovanni
     en-us Yes.
 
 Blue
-    en-us I'm here to destroy the overseer of this sector. If I manage to do that, the entire sector will be free.
+    en-us I'm here to stop the overseer of this sector. If I manage to do that, the entire sector will be free.
 
 Giovanni
     en-us You shouldn't put yourself in danger like that, son.
@@ -45,10 +48,10 @@ Blue
     en-us Whoa! That smells nice! Thank you!
 
 Giovanni
-    en-us Thank you! It's a recipe from my late Grandma: Lasagna.
+    en-us I'm sure you'll like it, kid! It's a recipe from my late Grandma: Lasagna.
 
 Blue
-    en-us If you don't mind, I'll eat over there. Until I've freed this sector, it is better not to contact civilians.
+    en-us If you don't mind, I'll eat over there. I don't want to attract danger here. This is still a hostile sector.
 
 Giovanni
     en-us You are probably right, kid. Thank you for trying to help us. I'll be praying for everything to go well on your mission.
@@ -69,14 +72,16 @@ Giovanni
     en-us Oh, God. To think a little boy has to go through all that on his own...
 
 Giovanni
-    en-us People's greed brought these nasty robots upon this world and look what it did to us.
+    en-us It was greed greed that brought all of this upon this world.
 
 # npc gate is closed
 # action: npc_gate_closes
 
 # we place a food box on the level, the camera pans to
-# Blue and encounter with Giovanni is recorded
+# Blue, encounter with Giovanni is recorded, and level theme
+# starts playing
 #
 # action: place_food_box
 # action: camera_pans_to_Blue
 # action: record_encounter
+# action: restore_level_theme

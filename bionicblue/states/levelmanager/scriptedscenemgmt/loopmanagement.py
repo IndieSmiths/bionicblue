@@ -54,6 +54,8 @@ from pygame.draw import rect as draw_rect, polygon as draw_polygon
 
 from pygame.math import Vector2
 
+from pygame.mixer import music
+
 ### third-party imports with local import replacements
 ### in case imported functions are not available from
 ### third-party lib (since it might not be available in
@@ -68,7 +70,7 @@ except ImportError:
 
 ### local imports
 
-from ....config import REFS, quit_game
+from ....config import REFS, MUSIC_DIR, quit_game
 
 from ....pygamesetup import SERVICES_NS
 
@@ -606,28 +608,14 @@ class ScriptedSceneLoopManagement:
 
                 self.action_call_groups.append(all_calls)
 
-            elif action_type == 'record_encounter':
-                ...
-                # TODO use same call that records boss defeat
-                print("Recorded encounter")
+            elif action_type == 'play_music':
 
-            elif action_type == 'record_talk_with_boss':
-                ...
-                # TODO use same call that records boss defeat
-                print("Talked with boss")
+                music_filename = (
+                    action_data['keyword_arguments']['music_filename']
+                )
 
-            elif action_type == 'npc_gate_closes':
-                self.npc_gate.trigger_closing()
-
-            elif action_type == 'place_food_box':
-
-                food_box_pos = self.food_box_pos + scrolling
-                food_box = self.food_box
-                food_box.rect.midbottom = food_box_pos
-
-                add_obj(food_box)
-
-                ### TODO also add trigger to eat it
+                music.load(str(MUSIC_DIR / music_filename))
+                music.play(-1)
 
             elif action_type == 'display_dish':
 
@@ -643,7 +631,7 @@ class ScriptedSceneLoopManagement:
 
                 dish_center = (
                     food_box_midbottom[0],
-                    food_box_midbottom[1] - 60,
+                    food_box_midbottom[1] - 56,
                 )
 
                 # food box
@@ -675,6 +663,29 @@ class ScriptedSceneLoopManagement:
                     partial(remove_obj, food_box),
                     condition_checker,
                 )
+
+            elif action_type == 'record_encounter':
+                ...
+                # TODO use same call that records boss defeat
+                print("Recorded encounter")
+
+            elif action_type == 'record_talk_with_boss':
+                ...
+                # TODO use same call that records boss defeat
+                print("Talked with boss")
+
+            elif action_type == 'npc_gate_closes':
+                self.npc_gate.trigger_closing()
+
+            elif action_type == 'place_food_box':
+
+                food_box_pos = self.food_box_pos + scrolling
+                food_box = self.food_box
+                food_box.rect.midbottom = food_box_pos
+
+                add_obj(food_box)
+
+                ### TODO also add trigger to eat it
 
             else:
 

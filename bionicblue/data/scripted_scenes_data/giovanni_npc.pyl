@@ -22,6 +22,18 @@
 
         },
 
+        # play npc dialogue music
+
+        'play_npc_theme': {
+
+            'type': 'play_music',
+
+            'keyword_arguments': {
+                'music_filename': 'chiptune_adv_stage1_by_juhani_junkala.ogg',
+            },
+
+        },
+
         'display_dish' : {
 
             'type': 'display_dish',
@@ -59,6 +71,18 @@
 
         'npc_gate_closes': {
             'type': 'npc_gate_closes',
+        },
+
+        # restore level music
+
+        'restore_level_theme': {
+
+            'type': 'play_music',
+
+            'keyword_arguments': {
+                'music_filename': 'level_1_by_juhani_junkala.ogg',
+            },
+
         },
 
         # camera pans to Blue at end of dialogue

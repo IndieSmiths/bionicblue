@@ -4,6 +4,7 @@
 from pygame.draw import (
     rect as draw_rect,
     polygon as draw_polygon,
+    lines as draw_lines,
 )
 
 ### local import
@@ -13,6 +14,9 @@ from ....ani2d.player import AnimationPlayer2D
 from ....pygamesetup.constants import SCREEN
 
 
+
+FILL_COLOR = 'indianred'
+OUTLINE_COLOR = 'yellow'
 
 class LargeDish:
 
@@ -31,17 +35,26 @@ class LargeDish:
 
     def draw(self):
 
-        ### TODO refactor and also add outlines
-
         inflated_rect = self.inflated_rect
         inflated_rect.center = self.rect.center
 
-        draw_rect(SCREEN, 'blue', inflated_rect, border_radius=12)
+        draw_rect(SCREEN, FILL_COLOR, inflated_rect, border_radius=16)
+        draw_rect(SCREEN, OUTLINE_COLOR, inflated_rect, 2, border_radius=16)
 
-        a = inflated_rect.move(-8, 0).midbottom
-        b = inflated_rect.move(8, 0).midbottom
-        c = inflated_rect.move(0, 8).midbottom
+        triangle_points = tuple(
 
-        draw_polygon(SCREEN, 'blue', (a, b, c))
+            inflated_rect.move(offset).midbottom
+
+            for offset in (
+                (-8, -2),
+                (0, 6),
+                (8, -2),
+            )
+
+        )
+
+        draw_polygon(SCREEN, FILL_COLOR, triangle_points)
+
+        draw_lines(SCREEN, OUTLINE_COLOR, False, triangle_points, 2)
 
         self.aniplayer.draw()
