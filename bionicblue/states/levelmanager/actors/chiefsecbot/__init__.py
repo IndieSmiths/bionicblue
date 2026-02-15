@@ -6,6 +6,10 @@ from functools import partial
 
 from math import inf as INFINITY
 
+from random import choice
+
+from collections import deque
+
 
 ### third-party import
 
@@ -26,16 +30,17 @@ from .....ani2d.player import AnimationPlayer2D
 
 from .....ourstdlibs.behaviour import do_nothing
 
+from .....pointsman2d.create import yield_circle_points
+
 from ...frontprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
-    remove_obj,
     FRONT_PROPS,
     PROJECTILES,
     BLOCKS_NEAR_SCREEN,
 )
 
-from ...taskmanager import append_ready_task
+from ...taskmanager import append_timed_task
 
 from .healthcolumn import HealthColumn
 
@@ -76,6 +81,23 @@ HOLD_FRAMES = msecs_to_frames(_HOLD_MSECS)
 
 _IDLE_MSECS = 400
 IDLE_FRAMES = msecs_to_frames(_IDLE_MSECS)
+
+###
+
+_NO_OF_EXPLOSION_ROUNDS = 4
+NO_OF_EXPLOSIONS = _NO_OF_EXPLOSION_ROUNDS * 3
+
+explosion_points_deque = deque(
+
+    yield_circle_points(
+        quantity=9,
+        radius=16,
+        center=(0, 0),
+    )
+
+)
+
+INITIAL_STEPS_RANGE = range(3)
 
 
 class ChiefSecurityBot:
@@ -129,14 +151,6 @@ class ChiefSecurityBot:
         self.update = self.punch_wall
 
     def idle_update(self):
-
-        ap = self.aniplayer
-
-        ###
-
-        if self.rect.colliderect(self.player.rect):
-            self.player.damage(3)
-
         self.routine_check()
 
     def punch_wall(self):
@@ -634,14 +648,69 @@ class ChiefSecurityBot:
             self.last_damage = GENERAL_NS.frame_index
 
             if self.health_column.is_depleted():
-
-                center = self.rect.center
-
-                FRONT_PROPS.add(DefaultExplosion('center', center))
-                append_ready_task(partial(remove_obj, self))
-
-                REFS.states.level_manager.save_beaten_boss('chief_sec_bot')
+                self.get_defeated()
 
             else:
+
                 self.aniplayer.set_custom_surface_cycling(WHITENING_CYCLE)
                 self.routine_check = self.check_damage_whitening
+
+    def get_defeated(self):
+
+        ###
+
+        move = self.rect.move
+
+        explosion_points_deque.rotate(choice(INITIAL_STEPS_RANGE))
+
+        time_unit = 'milliseconds'
+
+        for i in range(NO_OF_EXPLOSIONS):
+
+            i += 1
+
+            offset = explosion_points_deque[0]
+            explosion_points_deque.rotate(3)
+
+            center = move(offset).center
+
+            delta_t = i * 300
+
+            append_timed_task(
+
+                partial(
+                    FRONT_PROPS.add,
+                    DefaultExplosion(
+                        'center',
+                        center,
+                        delta_t=delta_t,
+                        unit=time_unit,
+                    ),
+                ),
+                delta_t=delta_t,
+                unit=time_unit,
+
+            )
+
+            if not i % 3:
+                explosion_points_deque.rotate(choice(INITIAL_STEPS_RANGE))
+
+        ###
+
+        ap = self.aniplayer
+        player = self.player
+
+        centerx = self.rect.centerx
+        player_centerx = self.player.rect.centerx
+
+        if centerx < player_centerx:
+            ap.switch_animation('defeated_right')
+
+        else:
+            ap.switch_animation('defeated_left')
+
+        self.routine_check = do_nothing
+        self.update = self.idle_update
+
+        # TODO uncomment
+        #REFS.states.level_manager.save_beaten_boss('chief_sec_bot')
