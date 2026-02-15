@@ -9,6 +9,8 @@ from itertools import cycle
 
 ### third-party imports
 
+from pygame import Surface
+
 from pygame.locals import (
 
     QUIT,
@@ -25,68 +27,86 @@ from pygame.locals import (
 
 from pygame.display import update as update_screen
 
-from pygame.draw import rect as draw_rect
+from pygame.draw import (
+    rect as draw_rect,
+    lines as draw_lines,
+    polygon as draw_polygon,
+)
+
+from pygame.math import Vector2
 
 
 ### local imports
 
-from .config import quit_game
+from ...config import quit_game
 
-from .pygamesetup import SERVICES_NS
+from ...pygamesetup import SERVICES_NS
 
-from .pygamesetup.constants import (
+from ...pygamesetup.constants import (
     SCREEN,
     SCREEN_RECT,
-    BLACK_BG,
     GAMEPADDIRECTIONALPRESSED,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
     blit_on_screen,
 )
 
-from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ...pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
-from .textman import render_text
+from ...textman import render_text
 
-from .classes2d.single import UIObject2D
+from ...classes2d.single import UIObject2D
 
-from .classes2d.collections import UIList2D
+from ...classes2d.collections import UIList2D
 
-from .userprefsman.main import GAMEPAD_CONTROLS, KEYBOARD_CONTROLS
+from ...userprefsman.main import GAMEPAD_CONTROLS, KEYBOARD_CONTROLS
 
-from .translatedtext import TRANSLATIONS
+from ...translatedtext import TRANSLATIONS
 
 
+
+CAPTION_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 0,
+    'foreground_color': 'yellow',
+    'background_color': 'blue4',
+}
 
 TEXT_SETTINGS = {
     'style': 'regular',
     'size': 12,
     'padding': 0,
     'foreground_color': 'white',
-    'background_color': 'black',
-}
-
-BUTTON_TEXT_SETTINGS = {
-    'style': 'regular',
-    'size': 12,
-    'padding': 4,
-    'foreground_color': 'white',
-    'background_color': 'black',
+    'background_color': 'blue4',
 }
 
 
 POPUP_BOX = SCREEN_RECT.copy()
 
-POPUP_BOX.width *= .7
-POPUP_BOX.height *= .8
+POPUP_BOX.width *= .6
+POPUP_BOX.height *= .6
+
+POPUP_BOX.center = SCREEN_RECT.center
+
+###
 
 TEXT_BOX = POPUP_BOX.copy()
-TEXT_BOX.height -= 25
-TEXT_BOX.bottom = POPUP_BOX.bottom - 5
+TEXT_BOX.height -= 35
+TEXT_BOX.width -= 10
+TEXT_BOX.midbottom = POPUP_BOX.move(0, -17).midbottom
+
+TEXT_BOX_OFFSET = -Vector2(TEXT_BOX.topleft)
+text_box_colliderect = TEXT_BOX.colliderect
+
+TEXT_BOX_CANVAS = Surface(TEXT_BOX.size).convert()
+
+blit_on_text_box = TEXT_BOX_CANVAS.blit
+fill_text_box = TEXT_BOX_CANVAS.fill
 
 
 ###
 
-NEXT_DRAW_TRIANGLE = cycle(
+MUST_DRAW_INDICATOR = cycle(
 
     (
         *((True,) * 20),
@@ -98,12 +118,28 @@ NEXT_DRAW_TRIANGLE = cycle(
 
 TRIANGLE_POINTS = tuple(
 
-    POPUP_BOX.move(offset).midbottom
+    TEXT_BOX.move(offset).midbottom
 
     for offset in (
-        (-5, -5),
-        (0, 0),
-        (5, -5),
+
+        (-3, 2),
+        (0, 7),
+        (3, 2),
+
+    )
+
+)
+
+CHECKMARK_POINTS = tuple(
+
+    TEXT_BOX.move(offset).midbottom
+
+    for offset in (
+
+        (-3, 4),
+        (0, 7),
+        (3, 1),
+
     )
 
 )
@@ -115,7 +151,7 @@ CAPTION_CACHE = {}
 BODY_CACHE = {}
 
 
-class PopupManagement:
+class LevelManagerPopupManagement:
     """Interface to display in-game popups."""
 
     def show_popup_info(
@@ -132,6 +168,9 @@ class PopupManagement:
         self.player.reset_time_tracking_attributes()
 
         ###
+        self.indicator_must_be_triangle = False
+
+        ###
 
         translation_node = getattr(TRANSLATIONS.ingame_popups, popup_key)
 
@@ -146,7 +185,7 @@ class PopupManagement:
                 UIObject2D.from_surface(
                     render_text(
                         caption_text,
-                        **TEXT_SETTINGS,
+                        **CAPTION_SETTINGS,
                     )
                 )
             )
@@ -191,9 +230,7 @@ class PopupManagement:
             )
 
         message = self.message = BODY_CACHE[body_text]
-
-        message.rect.top = caption.rect.bottom + 3
-        message.rect.left = POPUP_BOX.left + 5
+        message.rect.topleft = TEXT_BOX.topleft
 
     def exit_popup(self):
 
@@ -217,13 +254,13 @@ class PopupManagement:
                     event.key == K_UP
                     or event.key == KEYBOARD_CONTROLS['up']
                 ):
-                    self.move_message_up()
+                    self.scroll_message_up()
 
                 elif (
                     event.key == K_DOWN
                     or event.key == KEYBOARD_CONTROLS['down']
                 ):
-                    self.move_message_down()
+                    self.scroll_message_down()
 
             elif event.type == JOYBUTTONDOWN:
 
@@ -233,10 +270,10 @@ class PopupManagement:
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 
                 if event.direction == 'up':
-                    self.move_message_up()
+                    self.scroll_message_up()
 
                 elif event.direction == 'down':
-                    self.move_message_down()
+                    self.scroll_message_down()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
@@ -244,37 +281,59 @@ class PopupManagement:
             elif event.type == QUIT:
                 quit_game()
 
-    def move_message_vertically(self, move_up):
+    def scroll_message(self, scroll_down):
 
-        rect = self.message.rect
+        message_rect = self.message.rect
 
-        if rect.height <= TEXT_BOX.height: return
+        if message_rect.height <= TEXT_BOX.height: return
 
-        if move_up:
+        if scroll_down:
 
-            if rect.bottom > TEXT_BOX.bottom:
-                rect.move_ip(0, -20)
+            if message_rect.bottom > TEXT_BOX.bottom:
+                message_rect.move_ip(0, -15)
 
         else:
 
-            if rect.top < TEXT_BOX.top:
-                rect.move_ip(0, 20)
+            if message_rect.top < TEXT_BOX.top:
+                message_rect.move_ip(0, 15)
 
-    move_message_up = partialmethod(move_message_vertically, True)
-    move_message_down = partialmethod(move_message_vertically, True)
+    scroll_message_down = partialmethod(scroll_message, True)
+    scroll_message_up = partialmethod(scroll_message, False)
 
     def popup_update(self):
-        self.must_draw_triangle = self.message.rect.bottom > TEXT_BOX.bottom
+
+        self.indicator_must_be_triangle = (
+            self.message.rect.bottom > TEXT_BOX.bottom
+        )
 
     def popup_draw(self):
 
-        blit_on_screen(BLACK_BG, (0, 0))
+        draw_rect(SCREEN, 'blue4', POPUP_BOX, border_radius=10)
 
         self.caption.draw()
-        self.message.draw()
 
-        if self.must_draw_triangle and NEXT_DRAW_TRIANGLE():
-            draw_polygon(SCREEN, 'white', TRIANGLE_POINTS)
+        fill_text_box('blue4')
+
+        for word in self.message:
+
+            if text_box_colliderect(word.rect):
+
+                blit_on_text_box(
+                    word.image,
+                    word.rect.move(TEXT_BOX_OFFSET),
+                )
+
+        blit_on_screen(TEXT_BOX_CANVAS, TEXT_BOX)
+
+        if MUST_DRAW_INDICATOR():
+
+            if self.indicator_must_be_triangle:
+                draw_polygon(SCREEN, 'white', TRIANGLE_POINTS)
+
+            else:
+                draw_lines(SCREEN, 'green', False, CHECKMARK_POINTS, 2)
+
+        draw_rect(SCREEN, 'yellow', POPUP_BOX, 2, border_radius=10)
 
         update_screen()
 

@@ -66,6 +66,8 @@ from .common import (
 
 from .loopmgmt import LevelManagerLoopManagement
 
+from .popupmgmt import LevelManagerPopupManagement
+
 from .scriptedscenemgmt import ScriptedSceneManagement
 
 from .constants import FLOOR_LEVEL
@@ -74,6 +76,7 @@ from .constants import FLOOR_LEVEL
 
 class LevelManager(
     LevelManagerLoopManagement,
+    LevelManagerPopupManagement,
     ScriptedSceneManagement,
 ):
 

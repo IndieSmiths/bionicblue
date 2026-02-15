@@ -434,30 +434,26 @@ class LevelManagerLoopManagement:
                 {
                     'type': 'wait',
                     'animation_blend': 'muscle_flex',
-                    'secs': 3,
+                    'secs': 2,
                 },
 
             ]
 
         )
 
-        ### TODO
-        ### with that duration information, time the display of a popup
-        ### explaining the power up
+        append_timed_task(
 
-#        append_timed_task(
-#
-#            partial(
-#
-#                self.show_popup_info,
-#                'after_meal_power_up',
-#
-#            ),
-#
-#            delta_t=frame_duration,
-#            unit='frames',
-#
-#        )
+            partial(
+
+                self.show_popup_info,
+                'after_meal_power_up',
+
+            ),
+
+            delta_t=frame_duration,
+            unit='frames',
+
+        )
 
         ### must return True so trigger nows all succeeded
         return True
