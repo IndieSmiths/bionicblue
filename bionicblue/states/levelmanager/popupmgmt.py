@@ -38,7 +38,7 @@ from pygame.math import Vector2
 
 ### local imports
 
-from ...config import quit_game
+from ...config import SOUND_MAP, quit_game
 
 from ...pygamesetup import SERVICES_NS
 
@@ -237,6 +237,8 @@ class LevelManagerPopupManagement:
         self.control = self.control_player
         self.update = self.normal_update
         self.draw = self.draw_level
+
+        SOUND_MAP['ui_success_popup.wav'].play()
 
     def popup_control(self):
 
