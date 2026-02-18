@@ -664,15 +664,23 @@ class ScriptedSceneLoopManagement:
                     condition_checker,
                 )
 
+            ### TODO probably reduce all these record options into
+            ### a single record instructions;
+            ###
+            ### also, for all the recording use same call that records
+            ### boss defeat
+
             elif action_type == 'record_encounter':
                 ...
-                # TODO use same call that records boss defeat
                 print("Recorded encounter")
 
-            elif action_type == 'record_talk_with_boss':
+            elif action_type == 'record_intro_talk_with_boss':
                 ...
-                # TODO use same call that records boss defeat
-                print("Talked with boss")
+                print("Talked with boss when arrived")
+
+            elif action_type == 'record_parting_talk_with_boss':
+                ...
+                print("Talked with boss before leaving")
 
             elif action_type == 'npc_gate_closes':
                 self.npc_gate.trigger_closing()

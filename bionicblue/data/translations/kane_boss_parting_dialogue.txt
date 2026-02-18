@@ -1,0 +1,79 @@
+
+# creepy theme plays and camera pans vertically so Blue and Kane are better framed
+#
+# action: play_creepy_theme
+# action: camera_pans_up
+
+Kane
+    en-us How could you best me?
+
+Blue
+    en-us You may be tough, but you are not perfect, Kane.
+
+Blue
+    en-us Winning requires more than fighting ability and firepower.
+
+Kane
+    en-us You are talking about strategy. It can't be that, I can understand strategy as well.
+
+Blue
+    en-us I'm sure you can, but how will you devise an effective one without understanding the human mind?
+
+Kane
+    en-us ... ... ...
+
+Blue
+    en-us Goodbye, Kane.
+
+# at this point, kane deactivates
+# deactivation sound is played
+#
+# action: deactivate_kane
+
+
+# Blue hops with joy
+# action: blue_hops
+
+##################
+
+
+# then, Blue receives a call from Newton
+#
+# action: place_smartphone
+# action: smartphone_rings
+# action: blue_picks_smartphone
+
+
+Blue
+    en-us Newton, You got all the data I recorded, right?
+
+Newton
+    en-us Yes, Blue! I'm just glad you made it out alive.
+
+Newton
+    en-us Please, get back so we can examine all your vitals, Blue.
+
+Newton
+    en-us I'll send a team shortly to restore and manage the systems.
+
+Newton
+    en-us And congrats on freeing all the people!
+
+Blue
+    en-us Thank you. I took it upon myself, so I'm glad I was able to deliver.
+
+Newton
+    en-us Absolutely!
+
+Blue
+    en-us See you in a sec!
+
+Newton
+    en-us Okay, I'm waiting! Bye!
+
+
+# smartphone call ends
+
+# Blue strikes a victory pose, a corresponding sound plays
+# a "Boss defeated" text appears on the screen, then Blue
+# teleports out of the level

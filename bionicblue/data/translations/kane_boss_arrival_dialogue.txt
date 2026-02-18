@@ -34,4 +34,4 @@ Kane
 # camera pans back to original position
 # action: camera_pans_down
 
-# action: record_talk_with_boss
+# action: record_intro_talk_with_boss

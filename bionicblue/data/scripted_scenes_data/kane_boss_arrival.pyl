@@ -53,8 +53,8 @@
 
         # talk with boss is recorded in slot data
 
-        'record_talk_with_boss': {
-            'type': 'record_talk_with_boss',
+        'record_intro_talk_with_boss': {
+            'type': 'record_intro_talk_with_boss',
         },
 
     },
