@@ -210,7 +210,7 @@ class LevelManagerLoopManagement:
             )
 
             self.enter_scripted_scene(
-                'kane_boss',
+                'kane_boss_arrival',
                 on_exit=on_exit,
                 restore_camera=False,
             )
