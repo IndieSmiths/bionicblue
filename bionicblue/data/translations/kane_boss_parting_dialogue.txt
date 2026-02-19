@@ -1,8 +1,15 @@
 
-# creepy theme plays and camera pans vertically so Blue and Kane are better framed
+# theme plays and camera pans vertically so Blue and Kane are better framed
 #
-# action: play_creepy_theme
+# action: play_theme
 # action: camera_pans_up
+
+# also, if Blue is too close to Kane, move Blue a bit away from Kane,
+# so he's better frame on the screen
+# action: move_blue_away
+
+# set blend to Kane's speaking animation, so the defeated variant plays instead
+# action: set_speaking_blend
 
 Kane
     en-us How could you best me?
@@ -24,6 +31,7 @@ Kane
 
 Blue
     en-us Goodbye, Kane.
+
 
 # at this point, kane deactivates
 # deactivation sound is played
@@ -69,10 +77,12 @@ Blue
     en-us See you in a sec!
 
 Newton
-    en-us Okay, I'm waiting! Bye!
+    en-us Okay, I'll be waiting! Bye!
 
 
 # smartphone call ends
+
+# action: record_parting_talk_with_boss
 
 # Blue strikes a victory pose, a corresponding sound plays
 # a "Boss defeated" text appears on the screen, then Blue
