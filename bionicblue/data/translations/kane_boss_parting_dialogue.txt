@@ -9,7 +9,7 @@
 # action: move_blue_away
 
 # set blend to Kane's speaking animation, so the defeated variant plays instead
-# action: set_speaking_blend
+# action: set_defeated_animation_for_kane
 
 Kane
     en-us How could you best me?
@@ -36,7 +36,8 @@ Blue
 # at this point, kane deactivates
 # deactivation sound is played
 #
-# action: deactivate_kane
+# action: play_deactivation_sound
+# action: set_deactivated_animation_for_kane
 
 
 # Blue hops with joy
@@ -47,9 +48,8 @@ Blue
 
 # then, Blue receives a call from Newton
 #
-# action: place_smartphone
 # action: smartphone_rings
-# action: blue_picks_smartphone
+# action: place_smartphone
 
 
 Blue
@@ -81,9 +81,15 @@ Newton
 
 
 # smartphone call ends
-
-# action: record_parting_talk_with_boss
+# action: remove_smartphone
 
 # Blue strikes a victory pose, a corresponding sound plays
-# a "Boss defeated" text appears on the screen, then Blue
+# a "Mission Complete" text appears on the screen, then Blue
 # teleports out of the level
+#
+# action: blue_victory_pose
+# action: play_triumphant_sound
+# action: display_mission_complete_text
+# action: teleport_blue_away
+# action: record_boss_defeat
+

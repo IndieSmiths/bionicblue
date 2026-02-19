@@ -35,14 +35,165 @@
 
         },
 
-        #######################
+        'move_blue_away': {
 
-        #######################
+            'type': 'scripted_acting',
 
-        # talk with boss is recorded in slot data
+            'keyword_arguments': {
 
-        'record_parting_talk_with_boss': {
-            'type': 'record_parting_talk_with_boss',
+                'character': 'Blue',
+
+                'directive': [
+
+                    {
+                        'type': 'walk_away',
+                        'target': 'kane',
+                        'delta_x': 64,
+                    },
+
+                ],
+            },
+        },
+
+        'set_defeated_animation_for_kane': {
+
+            'type': 'set_animation_blend',
+
+            'keyword_arguments': {
+                'animation_blend': 'defeated',
+            },
+
+        },
+
+        'play_deactivation_sound': {
+
+            'type': 'play_sound',
+
+            'keyword_arguments': {
+                # TODO use right filename
+                'sound_filename': 'creep_by_tokyogeisha.ogg',
+            },
+
+        },
+
+        'set_deactivated_animation_for_kane': {
+
+            'type': 'set_animation_blend',
+
+            'keyword_arguments': {
+                'animation_blend': 'deactivated',
+                'once': True,
+            },
+
+        },
+
+        'blue_hops': {
+
+            'type': 'scripted_acting',
+
+            'keyword_arguments': {
+
+                'character': 'Blue',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'wait',
+                        'animation_blend': 'hop',
+                        'secs': 4,
+                    },
+
+                ],
+            },
+
+        },
+
+        'smartphone_rings': {
+
+            'type': 'smartphone_rings',
+
+            'keyword_arguments': {
+            },
+
+        }
+
+        'place_smartphone': {
+
+            'type': 'place_smartphone',
+
+            'keyword_arguments': {
+            },
+
+        },
+
+        'remove_smartphone': {
+
+            'type': 'remove_smartphone',
+
+            'keyword_arguments': {
+            },
+
+        },
+
+        'blue_victory_pose': {
+
+            'type': 'scripted_acting',
+
+            'keyword_arguments': {
+
+                'character': 'Blue',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'wait',
+                        'animation_blend': 'triumph',
+                        'secs': 10,
+                    },
+
+                ],
+            },
+
+        },
+
+        'play_triumphant_sound': {
+
+            'type': 'play_sound',
+
+            'keyword_arguments': {
+                # TODO use right filename
+                'sound_filename': 'creep_by_tokyogeisha.ogg',
+            },
+
+        },
+
+        'display_mission_complete_text': {
+            'type': 'display_mission_complete_text',
+        },
+
+        'teleport_blue_away': {
+
+            'type': 'scripted_acting',
+
+            'keyword_arguments': {
+
+                'character': 'Blue',
+
+                'scripted_actions': [
+
+                    {
+                        'type': 'teleport_away',
+                    },
+
+                ],
+            },
+            
+        },
+
+        # boss defeat is recorded in slot data
+
+        'record_boss_defeat': {
+            'type': 'record_boss_defeat',
         },
 
     },
