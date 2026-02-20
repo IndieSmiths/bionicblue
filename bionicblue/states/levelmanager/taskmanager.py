@@ -5,11 +5,8 @@ from math import inf as INFINITY
 
 
 ### local import
-from ...pygamesetup.constants import FPS
+from ...pygamesetup.constants import msecs_to_frames
 
-
-
-MILLISECS_PER_FRAME = 1000 / FPS
 
 
 class TaskManager:
@@ -174,7 +171,7 @@ class ReadyTask:
         self.finished = True
 
     def get_remaining(self):
-        """Get remaining time.
+        """Get remaining time in frames.
 
         Since this tasks is always ready to execute. Remaining time is always zero.
         """
@@ -232,7 +229,7 @@ class ConditionalTask:
         self.finished = True
 
     def get_remaining(self):
-        """Get remaining time.
+        """Get remaining time in frames.
 
         Since there's no way to know, we decided to return infinity to indicate
         maximum waiting time.
@@ -271,19 +268,14 @@ class TimedTask:
         """
         self.finished = False
 
-        self.delta_t = delta_t
         self.invoke = callable_task
 
         self.start = 0
 
-        self.increment = (
+        if unit == 'milliseconds':
+            delta_t = msecs_to_frames(delta_t)
 
-            MILLISECS_PER_FRAME
-            if unit == 'milliseconds'
-
-            else 1
-
-        )
+        self.delta_t = delta_t
 
         self.execute = (
 
@@ -299,7 +291,7 @@ class TimedTask:
         if self.start >= self.delta_t:
             self.execute()
 
-        self.start += self.increment
+        self.start += 1
 
     def execute_once(self):
         """Execute and finish task."""
@@ -312,9 +304,9 @@ class TimedTask:
         self.start = 0
 
     def get_remaining(self):
-        """Get remaining time."""
+        """Get remaining time in frames."""
         if not self.finished:
-            return self.delta_t - round(self.start)
+            return self.delta_t - self.start
 
         else:
             return 0
