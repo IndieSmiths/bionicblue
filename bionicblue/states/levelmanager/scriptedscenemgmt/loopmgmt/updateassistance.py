@@ -255,14 +255,22 @@ class UpdateAssistance:
                             CallList(
 
                                 [
-                                    partial(move_level_method, step_deltas.popleft()),
+                                    partial(
+                                        move_level_method,
+                                        step_deltas.popleft(),
+                                    ),
                                     update_chunks_and_layers,
                                 ]
 
                             )
-
                             if step_deltas[0][0] or step_deltas[0][1]
-                            else partial(move_level_method, step_deltas.popleft())
+
+                            else (
+                                partial(
+                                    move_level_method,
+                                    step_deltas.popleft(),
+                                )
+                            )
 
                         )
 
