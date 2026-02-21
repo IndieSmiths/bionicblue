@@ -68,11 +68,14 @@
 
         'play_deactivation_sound': {
 
-            'type': 'play_sound',
+            'type': 'play_sounds',
 
             'keyword_arguments': {
                 # TODO use right filename
-                'sound_filename': 'creep_by_tokyogeisha.ogg',
+                'sound_seconds_pairs': (
+                    ('creep_by_tokyogeisha.ogg', 0),
+                )
+
             },
 
         },
@@ -112,9 +115,13 @@
 
         'smartphone_rings': {
 
-            'type': 'smartphone_rings',
+            'type': 'play_sounds',
 
             'keyword_arguments': {
+                ### TODO use right filename
+                'sound_seconds_pairs': (
+                    ('creep_by_tokyogeisha.ogg', 0),
+                )
             },
 
         }
@@ -160,11 +167,13 @@
 
         'play_triumphant_sound': {
 
-            'type': 'play_sound',
+            'type': 'play_sounds',
 
             'keyword_arguments': {
                 # TODO use right filename
-                'sound_filename': 'creep_by_tokyogeisha.ogg',
+                'sound_seconds_pairs': (
+                    ('creep_by_tokyogeisha.ogg', 0),
+                )
             },
 
         },

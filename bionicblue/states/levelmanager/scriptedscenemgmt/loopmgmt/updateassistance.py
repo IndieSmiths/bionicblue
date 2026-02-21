@@ -332,13 +332,39 @@ class UpdateAssistance:
                 music.load(str(MUSIC_DIR / music_filename))
                 music.play(-1)
 
-            elif action_type == 'play_sound':
-
-                sound_filename = (
-                    action_data['keyword_arguments']['sound_filename']
+            elif action_type == 'play_sounds':
+                
+                sound_seconds_pairs = (
+                    action_data['keyword_arguments']['sound_second_pairs']
                 )
 
-                SOUND_MAP[sound_filename].play()
+                max_delay = max(item[1] for item in sound_seconds_pairs)
+
+                if max_delay == 0:
+
+                    for sound_filename, _ in sound_seconds_pairs:
+                        SOUND_MAP[sound_filename].play()
+
+                else:
+
+                    no_of_frames = msecs_to_frames(max_delay * 1000)
+
+                    call_map = dict.fromkeys(range(no_of_frames), do_nothing)
+
+                    for sound_filename, seconds in sound_seconds_pairs:
+
+                        frames_till_play = msecs_to_frames(seconds * 1000)
+
+                        call_map[frames_till_play] = (
+                            SOUND_MAP[sound_filename].play
+                        )
+
+                    all_calls [
+                        call_map[i]
+                        for i in range(no_of_frames)
+                    ]
+
+                    self.action_call_groups.append(all_calls)
 
             elif action_type == 'display_dish':
 
