@@ -90,17 +90,13 @@ class ScriptedScenePreprocessing:
             'Kane': REFS.kane,
         }
 
-        self.character_portrait_map = {
-            'Blue': REFS.blue_boy,
-            'Giovanni': REFS.giovanni,
-            'Kane': REFS.kane,
-        }
-
         self.character_retrieval_map = {
             'Blue': (REFS, ('states', 'level_manager', 'player')),
             'Giovanni': (REFS, ('states', 'level_manager', 'npc')),
             'Kane': (REFS, ('level_boss',)), 
         }
+
+        self.animation_blend_map = {}
 
         self.character_map = {}
 

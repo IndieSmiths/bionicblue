@@ -49,7 +49,7 @@ except ImportError:
 
 ### local imports
 
-from .....config import MUSIC_DIR
+from .....config import MUSIC_DIR, SOUND_MAP
 
 from .....pygamesetup.constants import msecs_to_frames
 
@@ -311,6 +311,18 @@ class UpdateAssistance:
 
                 self.action_call_groups.append(all_calls)
 
+            elif action_type == 'set_animation_blend':
+
+                kwargs = action_data['keyword_arguments']
+
+                anim_blend = kwargs['animation_blend']
+                target = kwargs['target']
+
+                self.character_map[target].aniplayer.blend(f'+{anim_blend}')
+
+                if not kwargs.get('once', False):
+                    self.animation_blend_map[target] = anim_blend
+
             elif action_type == 'play_music':
 
                 music_filename = (
@@ -319,6 +331,14 @@ class UpdateAssistance:
 
                 music.load(str(MUSIC_DIR / music_filename))
                 music.play(-1)
+
+            elif action_type == 'play_sound':
+
+                sound_filename = (
+                    action_data['keyword_arguments']['sound_filename']
+                )
+
+                SOUND_MAP[sound_filename].play()
 
             elif action_type == 'display_dish':
 
@@ -411,14 +431,14 @@ class UpdateAssistance:
 
     def prepare_dialogue_line(self):
 
-        in_game_character = self.in_game_character
-        portrait = self.character_portrait
+        in_game_aniplayer = self.in_game_character.aniplayer
+        portrait_aniplayer = self.character_portrait.aniplayer
 
         ## positioning for dialogue elements depends on direction the
         ## character is facing
 
         is_character_facing_right = self.is_character_facing_right = (
-            'right' in in_game_character.aniplayer.anim_name
+            'right' in in_game_aniplayer.aniplayer.anim_name
         )
 
         if is_character_facing_right:
@@ -426,19 +446,26 @@ class UpdateAssistance:
             PORTRAIT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
             TEXT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
 
-            portrait.aniplayer.switch_animation('portrait_speaking_right')
-            in_game_character.aniplayer.switch_animation('speaking_idle_right')
+            portrait_aniplayer.switch_animation('portrait_speaking_right')
+            in_game_aniplayer.aniplayer.switch_animation('speaking_idle_right')
 
         else:
 
             TEXT_BOX.bottomleft = BOTTOMLEFT_ANCHOR
             PORTRAIT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
 
-            portrait.aniplayer.switch_animation('portrait_speaking_left')
-            in_game_character.aniplayer.switch_animation('speaking_idle_left')
+            portrait_aniplayer.switch_animation('portrait_speaking_left')
+            in_game_aniplayer.aniplayer.switch_animation('speaking_idle_left')
+
+        if self.current_character in self.animation_blend_map:
+
+            anim_blend = self.animation_blend_map[self.current_character]
+
+            portrait_aniplayer.blend(f'+{anim_blend}')
+            in_game_aniplayer.aniplayer.blend(f'+{anim_blend}')
 
         ###
-        portrait.rect.center = PORTRAIT_BOX.center
+        self.character_portrait.rect.center = PORTRAIT_BOX.center
 
         ###
 
@@ -595,21 +622,31 @@ class UpdateAssistance:
 
         else:
 
+            portrait_aniplayer = self.character_portrait.aniplayer
+            in_game_aniplayer = self.in_game_character.aniplayer
+
             if 'right' in self.in_game_character.aniplayer.anim_name:
 
-                self.character_portrait.aniplayer.switch_animation(
+                portrait_aniplayer.switch_animation(
                     'portrait_idle_right'
                 )
 
-                self.in_game_character.aniplayer.switch_animation('idle_right')
+                in_game_aniplayer.switch_animation('idle_right')
 
             else:
 
-                self.character_portrait.aniplayer.switch_animation(
+                portrait_aniplayer.switch_animation(
                     'portrait_idle_left'
                 )
 
-                self.in_game_character.aniplayer.switch_animation('idle_left')
+                in_game_aniplayer.switch_animation('idle_left')
+
+            if self.current_character in self.animation_blend_map:
+
+                anim_blend = self.animation_blend_map[self.current_character]
+
+                portrait_aniplayer.blend(f'+{anim_blend}')
+                in_game_aniplayer.blend(f'+{anim_blend}')
 
             self.waiting_for_user_to_advance = True
 

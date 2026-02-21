@@ -548,9 +548,55 @@ class Player(
 
                 )
 
+            elif type_ == 'walk_away_and_face':
+
+                if data.get('target', '') == 'boss':
+
+                    boss_rect = REFS.level_boss.rect
+                    abs_delta_x = data['abs_delta_x']
+
+                    centerx = boss_rect.rect.centerx + (
+                        abs_delta_x
+                        if boss_rect.centerx < SCREEN_RECT.centerx
+                        else -abs_delta_x
+                    )
+
+                    delta_x = self.rect.centerx - centerx
+
+                else:
+                    raise ValueError("'target' must be 'boss'")
+
+                x_speed = -X_SPEED if delta_x < 0 else X_SPEED
+                y_speed = 0
+
+                anim_name = 'walk_left' if delta_x < 0 else 'walk_right'
+
+                scripted_frames_count = round(abs(delta_x) / X_SPEED)
+
+                total_scripted_frames += scripted_frames_count
+
+                actions_deque.append(
+
+                    {
+                        'x_speed': x_speed,
+                        'y_speed': y_speed,
+                        'anim_name': anim_name,
+                        'scripted_frames_count': scripted_frames_count,
+                        'orientation_to_face': (
+
+                            'left'
+                            if delta_x > 0
+
+                            else 'right'
+
+                        )
+                    }
+
+                )
+
             else:
 
-                ValueError(
+                raise ValueError(
                     "'type_' must be one used in previous if/elif clauses."
                 )
 
@@ -567,6 +613,10 @@ class Player(
 
         if anim_blend:
             self.aniplayer.blend(f'+{anim_blend}')
+
+        orientation_to_face = self.orientation_to_face = (
+            action_data.get('orientation_to_face', '')
+        )
 
         self.scripted_frames_count = action_data['scripted_frames_count']
         self.x_speed = action_data['x_speed']

@@ -196,6 +196,8 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         self.update = self.normal_update
         self.draw = self.draw_level
 
+        ### clean up
+        self.animation_blend_map.clear()
         ###
 
         if self.restore_camera:

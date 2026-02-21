@@ -43,12 +43,12 @@
 
                 'character': 'Blue',
 
-                'directive': [
+                'scripted_actions': [
 
                     {
-                        'type': 'walk_away',
-                        'target': 'kane',
-                        'delta_x': 64,
+                        'type': 'walk_away_and_face',
+                        'target': 'boss',
+                        'abs_delta_x': 64,
                     },
 
                 ],
@@ -60,6 +60,7 @@
             'type': 'set_animation_blend',
 
             'keyword_arguments': {
+                'target': 'Kane',
                 'animation_blend': 'defeated',
             },
 
@@ -81,6 +82,7 @@
             'type': 'set_animation_blend',
 
             'keyword_arguments': {
+                'target': 'Kane',
                 'animation_blend': 'deactivated',
                 'once': True,
             },

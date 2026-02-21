@@ -78,11 +78,21 @@ class ScriptedActing:
 
             else:
 
-                state_name = anim_name = (
-                    'idle_left'
-                    if 'left' in self.aniplayer.anim_name
-                    else 'idle_right'
-                )
+                if self.orientation_to_face:
+
+                    state_name = anim_name = (
+                        'idle_left'
+                        if self.orientation_to_face == 'left'
+                        else 'idle_right'
+                    )
+
+                else:
+
+                    state_name = anim_name = (
+                        'idle_left'
+                        if 'left' in self.aniplayer.anim_name
+                        else 'idle_right'
+                    )
 
                 self.x_speed = 0
                 self.set_state(state_name)
