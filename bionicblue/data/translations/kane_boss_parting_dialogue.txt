@@ -41,6 +41,8 @@ Blue
 
 
 # Blue hops with joy
+#
+# action: play_boss_defeat_triumph_sound
 # action: blue_hops
 
 ##################
@@ -81,6 +83,7 @@ Newton
 
 
 # smartphone call ends
+# action: play_end_call_sound
 # action: remove_smartphone
 
 # Blue strikes a victory pose, a corresponding sound plays
@@ -88,7 +91,7 @@ Newton
 # teleports out of the level
 #
 # action: blue_victory_pose
-# action: play_triumphant_sound
+# action: play_stage_clear_triumph_sound
 # action: display_mission_complete_text
 # action: teleport_blue_away
 # action: record_boss_defeat

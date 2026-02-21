@@ -11,8 +11,8 @@
             'type': 'play_music',
 
             'keyword_arguments': {
-                # TODO replace with normal theme (or perhaps pick a triumphant one?)
-                'music_filename': 'creep_by_tokyogeisha.ogg',
+                # XXX perhaps pick a triumphant or calm theme?
+                'music_filename': 'level_1_by_juhani_junkala.ogg',
             },
 
         },
@@ -71,9 +71,9 @@
             'type': 'play_sounds',
 
             'keyword_arguments': {
-                # TODO use right filename
+
                 'sound_seconds_pairs': (
-                    ('creep_by_tokyogeisha.ogg', 0),
+                    ('boss_deactivating.wav', 0),
                 )
 
             },
@@ -88,6 +88,20 @@
                 'target': 'Kane',
                 'animation_blend': 'deactivated',
                 'once': True,
+            },
+
+        },
+
+        'play_boss_defeat_triumph_sound': {
+
+            'type': 'play_sounds',
+
+            'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('triumph_on_defeating_boss.wav', 0),
+                )
+
             },
 
         },
@@ -118,10 +132,13 @@
             'type': 'play_sounds',
 
             'keyword_arguments': {
-                ### TODO use right filename
+
                 'sound_seconds_pairs': (
-                    ('creep_by_tokyogeisha.ogg', 0),
+                    ('smphone_ringing.wav', 0),
+                    ('smphone_ringing.wav', 1),
+                    ('smphone_ringing.wav', 2),
                 )
+
             },
 
         }
@@ -134,6 +151,20 @@
             },
 
         },
+
+        'play_end_call_sound': {
+
+            'type': 'play_sounds',
+
+            'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('smphone_ending_call.ogg', 0),
+                )
+            },
+
+        },
+
 
         'remove_smartphone': {
 
@@ -165,12 +196,12 @@
 
         },
 
-        'play_triumphant_sound': {
+        'play_stage_clear_triumph_sound': {
 
             'type': 'play_sounds',
 
             'keyword_arguments': {
-                # TODO use right filename
+
                 'sound_seconds_pairs': (
                     ('creep_by_tokyogeisha.ogg', 0),
                 )
