@@ -712,5 +712,11 @@ class ChiefSecurityBot:
         self.routine_check = do_nothing
         self.update = self.idle_update
 
+        append_timed_task(
+            REFS.states.level_manager.enter_boss_parting_scene,
+            delta_t=((i+1)*300),
+            unit=time_unit,
+        )
+
         # TODO uncomment
         #REFS.states.level_manager.save_beaten_boss('chief_sec_bot')

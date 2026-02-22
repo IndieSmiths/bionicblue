@@ -457,3 +457,10 @@ class LevelManagerLoopManagement:
 
         ### must return True so trigger nows all succeeded
         return True
+
+    def enter_boss_parting_scene(self):
+
+        self.enter_scripted_scene(
+            'kane_boss_parting',
+            restore_camera=False,
+        )

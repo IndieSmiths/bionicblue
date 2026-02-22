@@ -153,6 +153,8 @@ class ResourceLoader:
                 ('middle_shot', 'middle_charged_shot', 'idle_right'),
                 ('giovanni', 'giovanni_npc', 'portrait_idle_right'),
                 ('kane', 'chief_sec_bot', 'idle_right'),
+                ('newton', 'newton', 'idle_right'),
+                ('newton_portrait', 'newton', 'portrait_idle_right'),
             ):
 
                 obj = UIObject2D()

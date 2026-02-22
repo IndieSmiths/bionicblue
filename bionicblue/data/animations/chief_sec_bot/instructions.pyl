@@ -81,11 +81,6 @@
                 "surfaces": "chief_sec_bot.speaking_idle_left",
             },
         },
-        "speaking_defeated_left": {
-            "body": {
-                "surfaces": "chief_sec_bot.speaking_defeated_left",
-            },
-        },
         "jump_left": {
             "body": {
                 "surfaces": "chief_sec_bot.jump_left",
@@ -131,6 +126,11 @@
                 "surfaces": "chief_sec_bot.defeated_left",
             },
         },
+        "speaking_defeated_left": {
+            "knelt_body": {
+                "surfaces": "chief_sec_bot.speaking_defeated_left",
+            },
+        },
         "deactivated_left": {
             "knelt_body": {
                 "surfaces": "chief_sec_bot.deactivated_left",
@@ -168,11 +168,6 @@
                 "surface_indices": "chief_sec_bot.speaking_idle_left",
             },
         },
-        "speaking_defeated_left": {
-            "body": {
-                "surface_indices": "chief_sec_bot.speaking_defeated_left",
-            },
-        },
         "jump_left": {
             "body": {
                 "surface_indices": "chief_sec_bot.jump_left",
@@ -191,6 +186,11 @@
         "shoot_left": {
             "knelt_body": {
                 "surface_indices": "chief_sec_bot.shoot_left",
+            },
+        },
+        "speaking_defeated_left": {
+            "knelt_body": {
+                "surface_indices": "chief_sec_bot.speaking_defeated_left",
             },
         },
         "defeated_left": {

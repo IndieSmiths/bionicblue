@@ -141,7 +141,7 @@
 
             },
 
-        }
+        },
 
         'place_smartphone': {
             'type': 'place_smartphone',
@@ -182,7 +182,7 @@
                     {
                         'type': 'wait',
                         'animation_blend': 'triumph',
-                        'secs': 10,
+                        'secs': 5,
                     },
 
                 ],
@@ -197,15 +197,15 @@
             'keyword_arguments': {
 
                 'sound_seconds_pairs': (
-                    ('creep_by_tokyogeisha.ogg', 0),
+                    ('triumph_on_clearing_stage.wav', 0),
                 )
             },
 
         },
 
-        'display_mission_complete_text': {
-            'type': 'display_mission_complete_text',
-        },
+        #'display_mission_complete_text': {
+        #    'type': 'display_mission_complete_text',
+        #},
 
         'teleport_blue_away': {
             'type': 'teleport_blue_away',

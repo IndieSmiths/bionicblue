@@ -557,7 +557,7 @@ class Player(
                     boss_rect = REFS.level_boss.rect
                     abs_delta_x = data['abs_delta_x']
 
-                    centerx = boss_rect.rect.centerx + (
+                    centerx = boss_rect.centerx + (
                         abs_delta_x
                         if boss_rect.centerx < SCREEN_RECT.centerx
                         else -abs_delta_x
@@ -626,5 +626,5 @@ class Player(
 
     def teleport_away(self):
 
-        self.set_state('teleport_out')
         self.aniplayer.switch_animation('dematerializing')
+        self.set_state('teleporting_out')

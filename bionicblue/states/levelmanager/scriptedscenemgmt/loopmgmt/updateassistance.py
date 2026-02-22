@@ -163,6 +163,8 @@ class UpdateAssistance:
 
             action_type = action_data['type']
 
+            print(action_type)
+
             all_calls = []
 
             delay_secs = action_data.get('delay_secs', 0)
@@ -319,7 +321,7 @@ class UpdateAssistance:
                         " in either of the previous if-elif blocks"
                     )
 
-            elif action_tpe == 'teleport_blue_away':
+            elif action_type == 'teleport_blue_away':
                 self.player.teleport_away()
 
             elif action_type == 'set_animation_blend':
@@ -346,7 +348,7 @@ class UpdateAssistance:
             elif action_type == 'play_sounds':
                 
                 sound_seconds_pairs = (
-                    action_data['keyword_arguments']['sound_second_pairs']
+                    action_data['keyword_arguments']['sound_seconds_pairs']
                 )
 
                 max_delay = max(item[1] for item in sound_seconds_pairs)
@@ -463,7 +465,7 @@ class UpdateAssistance:
                 player_pos_name = (
 
                     'topright'
-                    if 'left' in self.player.rect.aniplayer
+                    if 'left' in self.player.aniplayer.anim_name
 
                     else 'topleft'
 
@@ -511,7 +513,7 @@ class UpdateAssistance:
         ## character is facing
 
         is_character_facing_right = self.is_character_facing_right = (
-            'right' in in_game_aniplayer.aniplayer.anim_name
+            'right' in in_game_aniplayer.anim_name
         )
 
         if is_character_facing_right:
@@ -520,7 +522,7 @@ class UpdateAssistance:
             TEXT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
 
             portrait_aniplayer.switch_animation('portrait_speaking_right')
-            in_game_aniplayer.aniplayer.switch_animation('speaking_idle_right')
+            in_game_aniplayer.switch_animation('speaking_idle_right')
 
         else:
 
@@ -528,14 +530,14 @@ class UpdateAssistance:
             PORTRAIT_BOX.bottomright = BOTTOMRIGHT_ANCHOR
 
             portrait_aniplayer.switch_animation('portrait_speaking_left')
-            in_game_aniplayer.aniplayer.switch_animation('speaking_idle_left')
+            in_game_aniplayer.switch_animation('speaking_idle_left')
 
         if self.current_character in self.animation_blend_map:
 
             anim_blend = self.animation_blend_map[self.current_character]
 
             portrait_aniplayer.blend(f'+{anim_blend}')
-            in_game_aniplayer.aniplayer.blend(f'+{anim_blend}')
+            in_game_aniplayer.blend(f'+{anim_blend}')
 
         ###
         self.character_portrait.rect.center = PORTRAIT_BOX.center
@@ -700,9 +702,7 @@ class UpdateAssistance:
 
             if 'right' in self.in_game_character.aniplayer.anim_name:
 
-                portrait_aniplayer.switch_animation(
-                    'portrait_idle_right'
-                )
+                portrait_aniplayer.switch_animation('portrait_idle_right')
 
                 in_game_aniplayer.switch_animation('idle_right')
 

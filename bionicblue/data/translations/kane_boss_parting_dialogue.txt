@@ -92,7 +92,10 @@ Newton
 #
 # action: blue_victory_pose
 # action: play_stage_clear_triumph_sound
-# action: display_mission_complete_text
-# action: teleport_blue_away
+#
 # action: record_boss_defeat
+# action: teleport_blue_away
+
+# TODO add action to display "mission complete" text
+#### action: display_mission_complete_text
 

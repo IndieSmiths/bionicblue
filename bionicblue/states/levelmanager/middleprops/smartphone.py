@@ -9,13 +9,11 @@ from ....pygamesetup.constants import SCREEN
 
 class Smartphone:
     
-    def __init__(self, pos_name, pos_value):
+    def __init__(self):
         
         self.name = 'smartphone'
         self.layer_name = 'middleprops'
         self.aniplayer = AnimationPlayer2D(self, 'smartphone', 'ringing')
-
-        setattr(self.rect, pos_name, pos_value)
 
     def update(self): pass
 

@@ -34,6 +34,7 @@ from .middleprops.chains import Chains
 from .middleprops.chaincratehanger import ChainCrateHanger
 from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 from .middleprops.foodbox import FoodBox
+from .middleprops.smartphone import Smartphone
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
@@ -365,6 +366,9 @@ class LevelManager(
             for label_data in level_data['layered_objects']['labels']
             if label_data['text'] == 'cam_cx'
         )['pos']
+
+        ### store smartphone instance
+        self.smartphone = Smartphone()
 
         ### scroll level so player ends up positioned above given label
 
