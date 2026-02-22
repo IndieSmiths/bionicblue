@@ -1,0 +1,77 @@
+{
+    "name": "smartphone",
+    "geometry": {
+        "body" : {
+            "size" : (16, 16),
+            "art_size" : (16, 16),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "static" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "idle": {"structure": "static"},
+        "ringing": {"structure": "static"},
+        "ending_call": {"structure": "static"},
+        "ended_call": {"structure": "static"},
+        "deactivated": {"structure": "static"},
+    },
+    "values": {
+        "idle": {
+            "body": {
+                "surfaces": "smartphone.idle",
+            },
+        },
+        "ringing": {
+            "body": {
+                "surfaces": "smartphone.ringing",
+            },
+        },
+        "ending_call": {
+            "body": {
+                "surfaces": "smartphone.ending_call",
+            },
+        },
+        "ended_call": {
+            "body": {
+                "surfaces": "smartphone.ended_call",
+            },
+        },
+        "deactivated": {
+            "body": {
+                "surfaces": "smartphone.deactivated",
+            },
+        },
+    },
+    "timing": {
+        "idle": {
+            "body": {
+                "surface_indices": "smartphone.idle",
+            },
+        },
+        "ringing": {
+            "body": {
+                "surface_indices": "smartphone.ringing",
+            },
+        },
+        "ending_call": {
+            "body": {
+                "surface_indices": "smartphone.ending_call",
+            },
+        },
+        "ended_call": {
+            "body": {
+                "surface_indices": "smartphone.ended_call",
+            },
+        },
+        "deactivated": {
+            "body": {
+                "surface_indices": "smartphone.deactivated",
+            },
+        },
+    },
+}

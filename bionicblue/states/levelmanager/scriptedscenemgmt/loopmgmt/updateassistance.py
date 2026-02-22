@@ -163,6 +163,19 @@ class UpdateAssistance:
 
             action_type = action_data['type']
 
+            all_calls = []
+
+            delay_secs = action_data.get('delay_secs', 0)
+
+            if delay_secs:
+
+                delay_frames = msecs_to_frames(delay_secs * 1000)
+
+                all_calls.extend(
+                    do_nothing
+                    for _ in range(delay_frames)
+                )
+
             if action_type == 'pan_camera':
 
                 kwargs = action_data['keyword_arguments']
@@ -239,9 +252,6 @@ class UpdateAssistance:
 
                 ### create a deque with a call for each frame
 
-                all_calls = deque()
-                self.action_call_groups.append(all_calls)
-
                 move_level_method = self.move_level
 
                 _gap_count = 0
@@ -300,7 +310,7 @@ class UpdateAssistance:
                         self.player.act_on_given_script(scripted_actions)
                     )
 
-                    all_calls = [do_nothing,] * no_of_frames
+                    all_calls.extend(do_nothing for _ in range(no_of_frames))
 
                 else:
 
@@ -309,7 +319,8 @@ class UpdateAssistance:
                         " in either of the previous if-elif blocks"
                     )
 
-                self.action_call_groups.append(all_calls)
+            elif action_tpe == 'teleport_blue_away':
+                self.player.teleport_away()
 
             elif action_type == 'set_animation_blend':
 
@@ -359,12 +370,12 @@ class UpdateAssistance:
                             SOUND_MAP[sound_filename].play
                         )
 
-                    all_calls [
+                    all_calls.extend(
                         call_map[i]
                         for i in range(no_of_frames)
-                    ]
+                    )
 
-                    self.action_call_groups.append(all_calls)
+                    call_map.clear()
 
             elif action_type == 'display_dish':
 
@@ -445,12 +456,48 @@ class UpdateAssistance:
                 # also add trigger for consuming food box
                 self.add_food_box_trigger()
 
+            elif action_type == 'place_smartphone':
+                
+                smartphone = self.smartphone
+
+                player_pos_name = (
+
+                    'topright'
+                    if 'left' in self.player.rect.aniplayer
+
+                    else 'topleft'
+
+                )
+
+                pos_to_assign = getattr(
+                    self.player.rect,
+                    player_pos_name
+                )
+
+                smartphone_pos_name = (
+
+                    'bottomleft'
+                    if player_pos_name == 'topright'
+
+                    else 'bottomright'
+                )
+
+                setattr(smartphone.rect, smartphone_pos_name, pos_to_assign)
+
+                add_obj(smartphone)
+
+            elif action_type == 'remove_smartphone':
+                remove_obj(self.smartphone)
+
             else:
 
                 raise ValueError(
                     "'action_type' value must be one used"
-                    " in either of the previous if-elif blocks"
+                    " in either of the previous if/elif blocks"
                 )
+
+            if all_calls:
+                self.action_call_groups.append(all_calls)
 
     def check_line_index(self, line_index):
         return self.line_index == line_index

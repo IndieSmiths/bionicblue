@@ -144,12 +144,7 @@
         }
 
         'place_smartphone': {
-
             'type': 'place_smartphone',
-
-            'keyword_arguments': {
-            },
-
         },
 
         'play_end_call_sound': {
@@ -159,12 +154,11 @@
             'keyword_arguments': {
 
                 'sound_seconds_pairs': (
-                    ('smphone_ending_call.ogg', 0),
+                    ('smphone_ending_call.wav', 0),
                 )
             },
 
         },
-
 
         'remove_smartphone': {
 
@@ -214,22 +208,7 @@
         },
 
         'teleport_blue_away': {
-
-            'type': 'scripted_acting',
-
-            'keyword_arguments': {
-
-                'character': 'Blue',
-
-                'scripted_actions': [
-
-                    {
-                        'type': 'teleport_away',
-                    },
-
-                ],
-            },
-            
+            'type': 'teleport_blue_away',
         },
 
         # boss defeat is recorded in slot data

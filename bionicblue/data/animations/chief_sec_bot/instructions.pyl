@@ -55,6 +55,12 @@
         "defeated_right": {"structure": "knelt"},
         "defeated_left": {"structure": "knelt"},
 
+        "speaking_defeated_right": {"structure": "knelt"},
+        "speaking_defeated_left": {"structure": "knelt"},
+
+        "deactivated_right": {"structure": "knelt"},
+        "deactivated_left": {"structure": "knelt"},
+
         "portrait_idle_right": {"structure": "portrait"},
         "portrait_idle_left": {"structure": "portrait"},
         "portrait_speaking_right": {"structure": "portrait"},
@@ -73,6 +79,11 @@
         "speaking_idle_left": {
             "body": {
                 "surfaces": "chief_sec_bot.speaking_idle_left",
+            },
+        },
+        "speaking_defeated_left": {
+            "body": {
+                "surfaces": "chief_sec_bot.speaking_defeated_left",
             },
         },
         "jump_left": {
@@ -120,6 +131,11 @@
                 "surfaces": "chief_sec_bot.defeated_left",
             },
         },
+        "deactivated_left": {
+            "knelt_body": {
+                "surfaces": "chief_sec_bot.deactivated_left",
+            },
+        },
         "portrait_speaking_left": {
             "portrait": {
                 "surfaces": "chief_sec_bot.portrait_speaking_left",
@@ -152,6 +168,11 @@
                 "surface_indices": "chief_sec_bot.speaking_idle_left",
             },
         },
+        "speaking_defeated_left": {
+            "body": {
+                "surface_indices": "chief_sec_bot.speaking_defeated_left",
+            },
+        },
         "jump_left": {
             "body": {
                 "surface_indices": "chief_sec_bot.jump_left",
@@ -175,6 +196,11 @@
         "defeated_left": {
             "knelt_body": {
                 "surface_indices": "chief_sec_bot.defeated_left",
+            },
+        },
+        "deactivated_left": {
+            "knelt_body": {
+                "surface_indices": "chief_sec_bot.deactivated_left",
             },
         },
         "grab_left": {
@@ -237,6 +263,40 @@
         },
 
     },
+    "blending": {
+        "idle_left": {
+            "+defeated": "defeated_left",
+            "+deactivated": "deactivated_left",
+        },
+        "idle_right": {
+            "+defeated": "defeated_right",
+            "+deactivated": "deactivated_right",
+        },
+        "defeated_left": {
+            "+deactivated": "deactivated_left"
+        },
+        "defeated_right": {
+            "+deactivated": "deactivated_right"
+        },
+        "speaking_idle_left": {
+            "+defeated": "speaking_defeated_left",
+        },
+        "speaking_idle_right": {
+            "+defeated": "speaking_defeated_right",
+        },
+        "portrait_idle_left": {
+            "+defeated": "portrait_defeated_left",
+        },
+        "portrait_idle_right": {
+            "+defeated": "portrait_defeated_right",
+        },
+        "portrait_speaking_left": {
+            "+defeated": "portrait_speaking_defeated_left",
+        },
+        "portrait_speaking_right": {
+            "+defeated": "portrait_speaking_defeated_right",
+        },
+    },
     "derived_animations": {
         "idle_right": {
             "operation_name": "flip_x",
@@ -245,6 +305,10 @@
         "speaking_idle_right": {
             "operation_name": "flip_x",
             "target": "speaking_idle_left",
+        },
+        "speaking_defeated_right": {
+            "operation_name": "flip_x",
+            "target": "speaking_defeated_left",
         },
         "jump_right": {
             "operation_name": "flip_x",
@@ -265,6 +329,10 @@
         "defeated_right": {
             "operation_name": "flip_x",
             "target": "defeated_left",
+        },
+        "deactivated_right": {
+            "operation_name": "flip_x",
+            "target": "deactivated_left",
         },
         "grab_right": {
             "operation_name": "flip_x",

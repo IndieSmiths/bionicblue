@@ -7,7 +7,7 @@ from pygame.draw import (
     lines as draw_lines,
 )
 
-### local import
+### local imports
 
 from ....ani2d.player import AnimationPlayer2D
 

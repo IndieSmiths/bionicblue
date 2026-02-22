@@ -6,6 +6,11 @@
             "art_size" : (16, 16),
             "art_anchorage" : ('midbottom', 'midbottom'),
         },
+        "hopping_body" : {
+            "size" : (8, 14),
+            "art_size" : (22, 22),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
         "portrait" : {
             "size" : (32, 32),
             "art_size" : (32, 32),
@@ -15,15 +20,18 @@
     "objects" : {
         "body" : {"geometry": "body"},
         "portrait" : {"geometry": "portrait"},
+        "hopping_body": {"geometry": "hopping_body"},
     },
     "existing_structures" : {
         "standing" : {"tree" : {"name": "body"}},
         "portrait" : {"tree" : {"name": "portrait"}},
+        "hopping_body" : {"tree": {"name": "hopping_body"}},
     },
     "animations" :{
 
         "teleporting": {"structure": "standing"},
         "materializing": {"structure": "standing"},
+        "dematerializing": {"structure": "standing"},
 
         "idle_right": {"structure": "standing"},
         "idle_left": {"structure": "standing"},
@@ -61,10 +69,15 @@
         "muscle_flex_right": {"structure": "standing"},
         "muscle_flex_left": {"structure": "standing"},
 
+        "triumph_left": {"structure": "standing"},
+        "triumph_right": {"structure": "standing"},
+
         "portrait_idle_right": {"structure": "portrait"},
         "portrait_idle_left": {"structure": "portrait"},
         "portrait_speaking_right": {"structure": "portrait"},
         "portrait_speaking_left": {"structure": "portrait"},
+
+        "hopping_with_joy": {"structure": "hopping_body"},
 
     },
     "blending": {
@@ -77,6 +90,8 @@
             "+grounded": "idle_right",
             "+muscle_flex": "muscle_flex_right",
             "-muscle_flex": "idle_right",
+            "+hop": "hopping_with_joy",
+            "+triumph": "triumph_right",
         },
         "shooting_idle_right": {
             "+grounded": "shooting_idle_right",
@@ -88,6 +103,8 @@
             "+grounded": "idle_left",
             "+muscle_flex": "muscle_flex_left",
             "-muscle_flex": "idle_left",
+            "+hop": "hopping_with_joy",
+            "+triumph": "triumph_left",
         },
         "shooting_idle_left": {
             "+grounded": "shooting_idle_left",
@@ -214,6 +231,11 @@
                 "surfaces": "shooter_man.grabbed",
             },
         },
+        "triumph_right": {
+            "body": {
+                "surfaces": "shooter_man.triumph_right",
+            },
+        },
 
         "speaking_idle_right": {
             "body": {
@@ -233,6 +255,12 @@
         "portrait_speaking_right": {
             "portrait": {
                 "surfaces": "shooter_man.portrait_speaking_right",
+            },
+        },
+
+        "hopping_with_joy": {
+            "hopping_body": {
+                "surfaces": "shooter_man.hopping_with_joy",
             },
         },
     },
@@ -312,6 +340,11 @@
                 "surface_indices": "shooter_man.grabbed",
             },
         },
+        "triumph_right": {
+            "body": {
+                "surface_indices": "shooter_man.triumph_right",
+            },
+        },
         "speaking_idle_right": {
             "body": {
                 "surface_indices": "shooter_man.speaking_idle_right",
@@ -330,6 +363,12 @@
         "portrait_speaking_right": {
             "portrait": {
                 "surface_indices": "shooter_man.portrait_speaking_right",
+            },
+        },
+
+        "hopping_with_joy": {
+            "hopping_body": {
+                "surface_indices": "shooter_man.hopping_with_joy",
             },
         },
     },
@@ -418,6 +457,10 @@
             "operation_name": "flip_x",
             "target": "hurled_right",
         },
+        "triumph_left": {
+            "operation_name": "flip_x",
+            "target": "triumph_right",
+        },
         "portrait_idle_left": {
             "operation_name": "flip_x",
             "target": "portrait_idle_right",
@@ -433,6 +476,10 @@
         "muscle_flex_left": {
             "operation_name": "flip_x",
             "target": "muscle_flex_right",
+        },
+        "dematerializing": {
+            "operation_name": "backwards",
+            "target": "materializing",
         },
     },
 }

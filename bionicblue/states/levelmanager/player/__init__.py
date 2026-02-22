@@ -44,6 +44,7 @@ from .healthcolumn import HealthColumn
 ## states
 
 from .teleportingin import TeleportingIn
+from .teleportingout import TeleportingOut
 
 from .idleright import IdleRight
 from .idleleft import IdleLeft
@@ -69,6 +70,7 @@ UNHURLEABLE_STATES = frozenset(('dead', 'hurled'))
 
 class Player(
     TeleportingIn,
+    TeleportingOut,
     IdleRight,
     IdleLeft,
     WalkRight,
@@ -621,3 +623,8 @@ class Player(
         self.scripted_frames_count = action_data['scripted_frames_count']
         self.x_speed = action_data['x_speed']
         self.y_speed = action_data['y_speed']
+
+    def teleport_away(self):
+
+        self.set_state('teleport_out')
+        self.aniplayer.switch_animation('dematerializing')
