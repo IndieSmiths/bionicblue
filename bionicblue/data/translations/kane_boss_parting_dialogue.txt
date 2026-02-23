@@ -36,6 +36,7 @@ Blue
 # at this point, kane deactivates
 # deactivation sound is played
 #
+# action: pause_music
 # action: play_deactivation_sound
 # action: set_deactivated_animation_for_kane
 

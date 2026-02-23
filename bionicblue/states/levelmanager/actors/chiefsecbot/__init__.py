@@ -151,9 +151,26 @@ class ChiefSecurityBot:
         self.update = self.punch_wall
 
     def idle_update(self):
+
+        self.center = self.rect.center
+
         self.routine_check()
 
+        self.track_movement()
+
+    def track_movement(self):
+
+        if self.rect.center != self.center:
+
+            self.delta += tuple(
+                a - b
+                for a, b
+                in zip(self.rect.center, self.center)
+            )
+
     def punch_wall(self):
+
+        self.center = self.rect.center
 
         ap = self.aniplayer
         player = self.player
@@ -169,6 +186,7 @@ class ChiefSecurityBot:
                 ap.switch_animation('grab_left')
 
                 self.routine_check()
+                self.track_movement()
                 return
 
         elif (
@@ -180,6 +198,7 @@ class ChiefSecurityBot:
             ap.switch_animation('grab_right')
 
             self.routine_check()
+            self.track_movement()
             return
 
         if ap.peek_loops_no(6) == 1:
@@ -314,8 +333,11 @@ class ChiefSecurityBot:
             self.player.damage(3)
 
         self.routine_check()
+        self.track_movement()
 
     def punch_crate_update(self):
+
+        self.center = self.rect.center
 
         ap = self.aniplayer
         player = self.player
@@ -332,6 +354,7 @@ class ChiefSecurityBot:
 
                 self.routine_check()
                 #self.no_of_punched_crates = 0
+                self.track_movement()
                 return
 
         elif (
@@ -344,6 +367,7 @@ class ChiefSecurityBot:
 
             self.routine_check()
             #self.no_of_punched_crates = 0
+            self.track_movement()
             return
 
         if ap.anim_name in CRATE_PUNCH_ANIM_NAMES:
@@ -436,8 +460,10 @@ class ChiefSecurityBot:
             self.player.damage(3)
 
         self.routine_check()
+        self.track_movement()
 
     def jump_to_opposite_side(self):
+        self.center = self.rect.center
 
         y_speed = self.y_speed
         y_speed = min(y_speed + GRAVITY_ACCEL, BOSS_MAX_Y_SPEED)
@@ -469,8 +495,10 @@ class ChiefSecurityBot:
             self.player.damage(3)
 
         self.routine_check()
+        self.track_movement()
 
     def shoot(self):
+        self.center = self.rect.center
 
         if self.shoot_countdown == 0:
 
@@ -497,8 +525,10 @@ class ChiefSecurityBot:
             self.player.damage(3)
 
         self.routine_check()
+        self.track_movement()
 
     def run(self):
+        self.center = self.rect.center
 
         rect = self.rect
 
@@ -538,11 +568,13 @@ class ChiefSecurityBot:
             self.did_run_into_player = True
 
         self.routine_check()
+        self.track_movement()
 
         if self.update == self.punch_wall:
             self.did_run_into_player = False
 
     def grab(self):
+        self.center = self.rect.center
 
         ap = self.aniplayer
 
@@ -623,6 +655,7 @@ class ChiefSecurityBot:
                 self.update = self.punch_wall
 
         self.routine_check()
+        self.track_movement()
 
     def check_damage_whitening(self):
 
@@ -696,6 +729,7 @@ class ChiefSecurityBot:
                 explosion_points_deque.rotate(choice(INITIAL_STEPS_RANGE))
 
         ###
+        self.center = self.rect.center
 
         ap = self.aniplayer
         player = self.player
@@ -711,6 +745,8 @@ class ChiefSecurityBot:
 
         self.routine_check = do_nothing
         self.update = self.idle_update
+
+        self.track_movement()
 
         append_timed_task(
             REFS.states.level_manager.enter_boss_parting_scene,

@@ -1,6 +1,6 @@
 {
 
-    'characters': ['Blue', 'Kane'],
+    'characters': ['Blue', 'Kane', 'Newton'],
 
     'action_map': {
 
@@ -64,6 +64,10 @@
                 'animation_blend': 'defeated',
             },
 
+        },
+
+        'pause_music': {
+            'type': 'pause_music',
         },
 
         'play_deactivation_sound': {

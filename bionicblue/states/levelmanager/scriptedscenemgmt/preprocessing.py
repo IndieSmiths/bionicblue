@@ -133,6 +133,10 @@ def get_lines_data(dialogue_name, character_names):
         except AttributeError:
             break
 
+        ###
+
+        found_character_name = False
+
         for character_name in character_names:
 
             try:
@@ -140,7 +144,21 @@ def get_lines_data(dialogue_name, character_names):
             except AttributeError:
                 pass
             else:
+                found_character_name = True
                 break
+
+        if not found_character_name:
+
+            ### TODO make it so characters don't need to be mentioned in the
+            ### scene data to begin with (after all, we can retrieve the names
+            ### from the dialogue itself)
+
+            raise ValueError(
+                "A character used in the dialogue wasn't mentioned"
+                " on the scene data."
+            )
+
+        ###
 
         lines_data.append(
 

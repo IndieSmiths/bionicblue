@@ -345,6 +345,9 @@ class UpdateAssistance:
                 music.load(str(MUSIC_DIR / music_filename))
                 music.play(-1)
 
+            elif action_type == 'pause_music':
+                music.pause()
+
             elif action_type == 'play_sounds':
                 
                 sound_seconds_pairs = (
@@ -443,6 +446,10 @@ class UpdateAssistance:
             elif action_type == 'record_parting_talk_with_boss':
                 ...
                 print("Talked with boss before leaving")
+
+            elif action_type == 'record_boss_defeat':
+                ...
+                print("defeated boss")
 
             elif action_type == 'npc_gate_closes':
                 self.npc_gate.trigger_closing()
