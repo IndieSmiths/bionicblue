@@ -1,0 +1,3 @@
+- increase volume of smartphone ringing, triumph on defeating boss and triumph on clearing stage
+- draw baloon around smartphone
+- use blue's specific animations when speaking with the smartphone (need to create the idle one, which should be super quick, since just need to copy a frame from the one where he is speaking with the smartphone).
