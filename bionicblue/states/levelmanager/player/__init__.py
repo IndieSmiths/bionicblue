@@ -488,8 +488,12 @@ class Player(
 
         self.set_state('hurled')
 
-    def act_on_given_script(self, scripted_actions_data):
-        """Enter state where Blue moves, return frame count duration."""
+    def act_on_given_script(self, scripted_actions_data, dry_run=False):
+        """Enter state where Blue moves, return frame count duration.
+
+        If dry_run is True, we only calculate the frame count duration, never
+        entering the scripted acting state.
+        """
 
         total_scripted_frames = 0
         actions_deque = self.scripted_actions_deque
@@ -563,7 +567,11 @@ class Player(
                         else -abs_delta_x
                     )
 
-                    delta_x = self.rect.centerx - centerx
+                    delta_x = centerx - self.rect.centerx
+
+                    orientation_to_face = (
+                        'right' if centerx < boss_rect.centerx else 'left'
+                    )
 
                 else:
                     raise ValueError("'target' must be 'boss'")
@@ -584,14 +592,7 @@ class Player(
                         'y_speed': y_speed,
                         'anim_name': anim_name,
                         'scripted_frames_count': scripted_frames_count,
-                        'orientation_to_face': (
-
-                            'left'
-                            if delta_x > 0
-
-                            else 'right'
-
-                        )
+                        'orientation_to_face': orientation_to_face,
                     }
 
                 )
@@ -602,9 +603,10 @@ class Player(
                     "'type_' must be one used in previous if/elif clauses."
                 )
 
-        self.set_state('scripted_acting')
+        if not dry_run:
 
-        self._set_next_scripted_action(actions_deque.popleft())
+            self.set_state('scripted_acting')
+            self._set_next_scripted_action(actions_deque.popleft())
 
         return total_scripted_frames
 

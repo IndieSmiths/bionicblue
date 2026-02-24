@@ -53,6 +53,7 @@ Blue
 #
 # action: smartphone_rings
 # action: place_smartphone
+# action: put_smartphone_on_call
 
 
 Blue
@@ -84,15 +85,17 @@ Newton
 
 
 # smartphone call ends
+#
 # action: play_end_call_sound
+# action: end_smartphone_call
 # action: remove_smartphone
 
 # Blue strikes a victory pose, a corresponding sound plays
 # a "Mission Complete" text appears on the screen, then Blue
 # teleports out of the level
 #
-# action: blue_victory_pose
 # action: play_stage_clear_triumph_sound
+# action: blue_victory_pose
 #
 # action: record_boss_defeat
 # action: teleport_blue_away

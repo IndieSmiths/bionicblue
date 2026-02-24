@@ -55,6 +55,10 @@
             },
         },
 
+        'pause_music': {
+            'type': 'pause_music',
+        },
+
         'set_defeated_animation_for_kane': {
 
             'type': 'set_animation_blend',
@@ -64,10 +68,6 @@
                 'animation_blend': 'defeated',
             },
 
-        },
-
-        'pause_music': {
-            'type': 'pause_music',
         },
 
         'play_deactivation_sound': {
@@ -103,7 +103,7 @@
             'keyword_arguments': {
 
                 'sound_seconds_pairs': (
-                    ('triumph_on_defeating_boss.wav', 0),
+                    ('triumph_on_defeating_boss.wav', 1),
                 )
 
             },
@@ -119,6 +119,11 @@
                 'character': 'Blue',
 
                 'scripted_actions': [
+
+                    {
+                        'type': 'wait',
+                        'secs': 1,
+                    },
 
                     {
                         'type': 'wait',
@@ -138,9 +143,10 @@
             'keyword_arguments': {
 
                 'sound_seconds_pairs': (
-                    ('smphone_ringing.wav', 0),
-                    ('smphone_ringing.wav', 1),
-                    ('smphone_ringing.wav', 2),
+                    ('smphone_ringing.wav', 5),
+                    ('smphone_ringing.wav', 6),
+                    ('smphone_ringing.wav', 7),
+                    ('smphone_picking_up_call.wav', 7.8),
                 )
 
             },
@@ -149,7 +155,15 @@
 
         'place_smartphone': {
             'type': 'place_smartphone',
+            'delay_secs': 5,
         },
+
+        'put_smartphone_on_call': {
+            'type': 'put_smartphone_on_call',
+            'delay_secs': 7.8,
+        },
+
+        ######################
 
         'play_end_call_sound': {
 
@@ -164,11 +178,24 @@
 
         },
 
-        'remove_smartphone': {
+        'end_smartphone_call': {
+            'type': 'end_smartphone_call',
+        },
 
+        'remove_smartphone': {
             'type': 'remove_smartphone',
+            'delay_secs': 2.4,
+        },
+
+        'play_stage_clear_triumph_sound': {
+
+            'type': 'play_sounds',
 
             'keyword_arguments': {
+
+                'sound_seconds_pairs': (
+                    ('triumph_on_clearing_stage.wav', 2.4),
+                )
             },
 
         },
@@ -176,6 +203,8 @@
         'blue_victory_pose': {
 
             'type': 'scripted_acting',
+
+            'delay_secs': 2.4,
 
             'keyword_arguments': {
 
@@ -194,25 +223,13 @@
 
         },
 
-        'play_stage_clear_triumph_sound': {
-
-            'type': 'play_sounds',
-
-            'keyword_arguments': {
-
-                'sound_seconds_pairs': (
-                    ('triumph_on_clearing_stage.wav', 0),
-                )
-            },
-
-        },
-
         #'display_mission_complete_text': {
         #    'type': 'display_mission_complete_text',
         #},
 
         'teleport_blue_away': {
             'type': 'teleport_blue_away',
+            'delay_secs': 7.4,
         },
 
         # boss defeat is recorded in slot data

@@ -308,11 +308,36 @@ class UpdateAssistance:
 
                 if character == 'Blue':
 
-                    no_of_frames = (
-                        self.player.act_on_given_script(scripted_actions)
-                    )
+                    if all_calls:
+
+                        no_of_frames = (
+
+                            self.player.act_on_given_script(
+
+                                scripted_actions,
+                                dry_run=True,
+
+                            )
+
+                        )
+
+                        all_calls.append(
+
+                            partial(
+                                self.player.act_on_given_script,
+                                scripted_actions,
+                            )
+
+                        )
+
+                    else:
+
+                        no_of_frames = (
+                            self.player.act_on_given_script(scripted_actions)
+                        )
 
                     all_calls.extend(do_nothing for _ in range(no_of_frames))
+
 
                 else:
 
@@ -322,7 +347,12 @@ class UpdateAssistance:
                     )
 
             elif action_type == 'teleport_blue_away':
-                self.player.teleport_away()
+
+                if all_calls:
+                    all_calls.append(self.player.teleport_away)
+
+                else:
+                    self.player.teleport_away()
 
             elif action_type == 'set_animation_blend':
 
@@ -358,14 +388,27 @@ class UpdateAssistance:
 
                 if max_delay == 0:
 
-                    for sound_filename, _ in sound_seconds_pairs:
-                        SOUND_MAP[sound_filename].play()
+                    if all_calls:
+
+                        all_calls.append(
+
+                            CallList(
+                                SOUND_MAP[sound_filename].play
+                                for sound_filename, _ in sound_seconds_pairs
+                            )
+
+                        )
+
+                    else:
+
+                        for sound_filename, _ in sound_seconds_pairs:
+                            SOUND_MAP[sound_filename].play()
 
                 else:
 
                     no_of_frames = msecs_to_frames(max_delay * 1000)
 
-                    call_map = dict.fromkeys(range(no_of_frames), do_nothing)
+                    call_map = dict.fromkeys(range(no_of_frames+1), do_nothing)
 
                     for sound_filename, seconds in sound_seconds_pairs:
 
@@ -377,7 +420,7 @@ class UpdateAssistance:
 
                     all_calls.extend(
                         call_map[i]
-                        for i in range(no_of_frames)
+                        for i in range(no_of_frames+1)
                     )
 
                     call_map.clear()
@@ -493,10 +536,55 @@ class UpdateAssistance:
 
                 setattr(smartphone.rect, smartphone_pos_name, pos_to_assign)
 
-                add_obj(smartphone)
+                if all_calls:
+                    all_calls.append(partial(add_obj, smartphone))
+
+                else:
+                    add_obj(smartphone)
+
+            elif action_type == 'put_smartphone_on_call':
+
+                smartphone = self.smartphone
+
+                if all_calls:
+
+                    all_calls.append(
+
+                        partial(
+                            smartphone.aniplayer.switch_animation,
+                            'idle',
+                        )
+
+                    )
+
+                else:
+                    smartphone.aniplayer.switch_animation('idle')
+
+            elif action_type == 'end_smartphone_call':
+
+                smap = self.smartphone.aniplayer
+
+                all_calls.append(partial(smap.switch_animation, 'ending_call'))
+
+                smap.switch_animation('ending_call')
+                ending_frames = smap.get_animation_length()
+                smap.switch_animation('idle')
+
+                all_calls.extend(do_nothing for _ in range(ending_frames-1))
+
+                all_calls.append(partial(smap.switch_animation, 'ended_call'))
+
+                ended_frames = msecs_to_frames(400)
+                all_calls.extend(do_nothing for _ in range(ended_frames))
+
 
             elif action_type == 'remove_smartphone':
-                remove_obj(self.smartphone)
+
+                if all_calls:
+                    all_calls.append(partial(remove_obj, self.smartphone))
+
+                else:
+                    remove_obj(self.smartphone)
 
             else:
 
