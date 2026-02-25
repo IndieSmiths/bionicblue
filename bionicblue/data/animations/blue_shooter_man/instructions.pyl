@@ -66,6 +66,12 @@
         "speaking_idle_right": {"structure": "standing"},
         "speaking_idle_left": {"structure": "standing"},
 
+        "smartphone_idle_right": {"structure": "standing"},
+        "smartphone_idle_left": {"structure": "standing"},
+
+        "speaking_smartphone_right": {"structure": "standing"},
+        "speaking_smartphone_left": {"structure": "standing"},
+
         "muscle_flex_right": {"structure": "standing"},
         "muscle_flex_left": {"structure": "standing"},
 
@@ -76,6 +82,11 @@
         "portrait_idle_left": {"structure": "portrait"},
         "portrait_speaking_right": {"structure": "portrait"},
         "portrait_speaking_left": {"structure": "portrait"},
+
+        "portrait_smartphone_idle_right": {"structure": "portrait"},
+        "portrait_smartphone_idle_left": {"structure": "portrait"},
+        "portrait_speaking_smartphone_right": {"structure": "portrait"},
+        "portrait_speaking_smartphone_left": {"structure": "portrait"},
 
         "hopping_with_joy": {"structure": "hopping_body"},
 
@@ -92,6 +103,7 @@
             "-muscle_flex": "idle_right",
             "+hop": "hopping_with_joy",
             "+triumph": "triumph_right",
+            "+smartphone": "smartphone_idle_right",
         },
         "shooting_idle_right": {
             "+grounded": "shooting_idle_right",
@@ -105,6 +117,7 @@
             "-muscle_flex": "idle_left",
             "+hop": "hopping_with_joy",
             "+triumph": "triumph_left",
+            "+smartphone": "smartphone_idle_left",
         },
         "shooting_idle_left": {
             "+grounded": "shooting_idle_left",
@@ -152,6 +165,24 @@
         },
         "shooting_climbing_left" : {
             "-shooting" : "idle_climbing_left",
+        },
+        "speaking_idle_right": {
+            "+smartphone": "speaking_smartphone_right",
+        },
+        "speaking_idle_left": {
+            "+smartphone": "speaking_smartphone_left",
+        },
+        "portrait_idle_right": {
+            "+smartphone": "portrait_smartphone_idle_right",
+        },
+        "portrait_idle_left": {
+            "+smartphone": "portrait_smartphone_idle_left",
+        },
+        "portrait_speaking_right": {
+            "+smartphone": "portrait_speaking_smartphone_right",
+        },
+        "portrait_speaking_left": {
+            "+smartphone": "portrait_speaking_smartphone_left",
         },
 
     },
@@ -237,9 +268,20 @@
             },
         },
 
+        "smartphone_idle_right": {
+            "body": {
+                "surfaces": "shooter_man.smartphone_idle_right",
+            },
+        },
+
         "speaking_idle_right": {
             "body": {
                 "surfaces": "shooter_man.speaking_idle_right",
+            },
+        },
+        "speaking_smartphone_right": {
+            "body": {
+                "surfaces": "shooter_man.speaking_smartphone_right",
             },
         },
         "muscle_flex_right": {
@@ -255,6 +297,16 @@
         "portrait_speaking_right": {
             "portrait": {
                 "surfaces": "shooter_man.portrait_speaking_right",
+            },
+        },
+        "portrait_smartphone_idle_right": {
+            "portrait": {
+                "surfaces": "shooter_man.portrait_smartphone_idle_right",
+            },
+        },
+        "portrait_speaking_smartphone_right": {
+            "portrait": {
+                "surfaces": "shooter_man.portrait_speaking_smartphone_right",
             },
         },
 
@@ -345,9 +397,19 @@
                 "surface_indices": "shooter_man.triumph_right",
             },
         },
+        "smartphone_idle_right": {
+            "body": {
+                "surface_indices": "shooter_man.smartphone_idle_right",
+            },
+        },
         "speaking_idle_right": {
             "body": {
                 "surface_indices": "shooter_man.speaking_idle_right",
+            },
+        },
+        "speaking_smartphone_right": {
+            "body": {
+                "surface_indices": "shooter_man.speaking_smartphone_right",
             },
         },
         "muscle_flex_right": {
@@ -363,6 +425,16 @@
         "portrait_speaking_right": {
             "portrait": {
                 "surface_indices": "shooter_man.portrait_speaking_right",
+            },
+        },
+        "portrait_smartphone_idle_right": {
+            "portrait": {
+                "surface_indices": "shooter_man.portrait_smartphone_idle_right",
+            },
+        },
+        "portrait_speaking_smartphone_right": {
+            "portrait": {
+                "surface_indices": "shooter_man.portrait_speaking_smartphone_right",
             },
         },
 
@@ -469,9 +541,25 @@
             "operation_name": "flip_x",
             "target": "portrait_speaking_right",
         },
+        "portrait_smartphone_idle_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_smartphone_idle_right",
+        },
+        "portrait_speaking_smartphone_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_speaking_smartphone_right",
+        },
+        "smartphone_idle_left": {
+            "operation_name": "flip_x",
+            "target": "smartphone_idle_right",
+        },
         "speaking_idle_left": {
             "operation_name": "flip_x",
             "target": "speaking_idle_right",
+        },
+        "speaking_smartphone_left": {
+            "operation_name": "flip_x",
+            "target": "speaking_smartphone_right",
         },
         "muscle_flex_left": {
             "operation_name": "flip_x",

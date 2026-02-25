@@ -25,13 +25,24 @@
         "idle_right": {"structure": "standing"},
         "idle_left": {"structure": "standing"},
 
+        "smartphone_idle_right": {"structure": "standing"},
+        "smartphone_idle_left": {"structure": "standing"},
+
         "speaking_idle_right": {"structure": "standing"},
         "speaking_idle_left": {"structure": "standing"},
+
+        "speaking_smartphone_right": {"structure": "standing"},
+        "speaking_smartphone_left": {"structure": "standing"},
 
         "portrait_idle_right": {"structure": "portrait"},
         "portrait_idle_left": {"structure": "portrait"},
         "portrait_speaking_right": {"structure": "portrait"},
         "portrait_speaking_left": {"structure": "portrait"},
+
+        "portrait_smartphone_idle_right": {"structure": "portrait"},
+        "portrait_smartphone_idle_left": {"structure": "portrait"},
+        "portrait_speaking_smartphone_right": {"structure": "portrait"},
+        "portrait_speaking_smartphone_left": {"structure": "portrait"},
 
     },
     "values": {
@@ -46,6 +57,16 @@
                 "surfaces": "newton.speaking_idle_right",
             },
         },
+        "smartphone_idle_right": {
+            "body": {
+                "surfaces": "newton.smartphone_idle_right",
+            },
+        },
+        "speaking_smartphone_right": {
+            "body": {
+                "surfaces": "newton.speaking_smartphone_right",
+            },
+        },
 
         "portrait_idle_right": {
             "portrait": {
@@ -55,6 +76,16 @@
         "portrait_speaking_right": {
             "portrait": {
                 "surfaces": "newton.portrait_speaking_right",
+            },
+        },
+        "portrait_smartphone_idle_right": {
+            "portrait": {
+                "surfaces": "newton.portrait_smartphone_idle_right",
+            },
+        },
+        "portrait_speaking_smartphone_right": {
+            "portrait": {
+                "surfaces": "newton.portrait_speaking_smartphone_right",
             },
         },
 
@@ -70,6 +101,16 @@
                 "surface_indices": "newton.speaking_idle_right",
             },
         },
+        "smartphone_idle_right": {
+            "body": {
+                "surface_indices": "newton.smartphone_idle_right",
+            },
+        },
+        "speaking_smartphone_right": {
+            "body": {
+                "surface_indices": "newton.speaking_smartphone_right",
+            },
+        },
         "portrait_idle_right": {
             "portrait": {
                 "surface_indices": "newton.portrait_idle_right",
@@ -78,6 +119,16 @@
         "portrait_speaking_right": {
             "portrait": {
                 "surface_indices": "newton.portrait_speaking_right",
+            },
+        },
+        "portrait_smartphone_idle_right": {
+            "portrait": {
+                "surface_indices": "newton.portrait_smartphone_idle_right",
+            },
+        },
+        "portrait_speaking_smartphone_right": {
+            "portrait": {
+                "surface_indices": "newton.portrait_speaking_smartphone_right",
             },
         },
     },
@@ -90,6 +141,14 @@
             "operation_name": "flip_x",
             "target": "speaking_idle_right",
         },
+        "smartphone_idle_left": {
+            "operation_name": "flip_x",
+            "target": "smartphone_idle_right",
+        },
+        "speaking_smartphone_left": {
+            "operation_name": "flip_x",
+            "target": "speaking_smartphone_right",
+        },
         "portrait_idle_left": {
             "operation_name": "flip_x",
             "target": "portrait_idle_right",
@@ -97,6 +156,40 @@
         "portrait_speaking_left": {
             "operation_name": "flip_x",
             "target": "portrait_speaking_right",
+        },
+        "portrait_smartphone_idle_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_smartphone_idle_right",
+        },
+        "portrait_speaking_smartphone_left": {
+            "operation_name": "flip_x",
+            "target": "portrait_speaking_smartphone_right",
+        },
+    },
+    "blending": {
+        "idle_right": {
+            "+smartphone": "smartphone_idle_right",
+        },
+        "idle_left": {
+            "+smartphone": "smartphone_idle_left",
+        },
+        "speaking_idle_right": {
+            "+smartphone": "speaking_smartphone_right",
+        },
+        "speaking_idle_left": {
+            "+smartphone": "speaking_smartphone_left",
+        },
+        "portrait_idle_right": {
+            "+smartphone": "portrait_smartphone_idle_right",
+        },
+        "portrait_idle_left": {
+            "+smartphone": "portrait_smartphone_idle_left",
+        },
+        "portrait_speaking_right": {
+            "+smartphone": "portrait_speaking_smartphone_right",
+        },
+        "portrait_speaking_left": {
+            "+smartphone": "portrait_speaking_smartphone_left",
         },
     },
 }
