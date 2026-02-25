@@ -1,14 +1,14 @@
-(A) create new section of intro level for encounter with civilian
-(A) create art for civilian and dish he'll gift
 (A) implement dialog manager for in-game dialogs, using civilian encounter to test
-(B) add dialog between Blue and Chief Sec Bot
-(C) make it so effect of "Reset to defaults" in options screen is seen in the widgets
-(C) add mouse support where missing (i.e.: prompt screen)
-(D) implemement speech bubbles (for boss and playable character)
-(E) improve input recording: rename to input logging, include gamepad support, take
-(F) playtest with few close acquaintances
-(G) release
-(Z) make web version (won't be included in first release; perhaps will need new task for a password screen)
+(A) add small props to level layout to make it more detailed
+(B) make it so effect of "Reset to defaults" in options screen is seen in the widgets
+(B) add mouse support where missing (i.e.: prompt screen)
+(C) improve input recording: rename to input logging, include gamepad support, take
+(D) playtest with few close acquaintances
+(E) release
+(F) make web version (won't be included in first release; will likely need new task for a password screen)
+x create new section of intro level for encounter with civilian
+x create art for civilian and dish he'll gift
+x add dialog between Blue and Chief Sec Bot
 x create art needed for screen to present game's plot (at least 02 bosses included)
 x create screen to present game's plot
 x create screen to type name for new slot
