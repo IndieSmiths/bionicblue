@@ -521,20 +521,12 @@ class UpdateAssistance:
 
                 )
 
-                pos_to_assign = getattr(
+                pos_value = getattr(
                     self.player.rect,
                     player_pos_name
                 )
 
-                smartphone_pos_name = (
-
-                    'bottomleft'
-                    if player_pos_name == 'topright'
-
-                    else 'bottomright'
-                )
-
-                setattr(smartphone.rect, smartphone_pos_name, pos_to_assign)
+                smartphone.position_relative_to_player(player_pos_name, pos_value)
 
                 if all_calls:
                     all_calls.append(partial(add_obj, smartphone))
