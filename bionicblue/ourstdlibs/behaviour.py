@@ -47,13 +47,26 @@ class CallList(list):
     def extend(self, iterable):
         """Extend call list if all in iterable are callable.
 
-        Extends list.extend.
+        Overrides list.extend.
         """
-        if not all(map(callable, iterable)):
-            raise ValueError("All items must be callable")
-        else:
-            super().extend(iterable)
 
+        ## we cannot use the "all(map(callable..." check from the
+        ## __init__ method here because this method also accept
+        ## iterators, and in such case, this means "all(map(callable..."
+        ## would consume the iterator, not leaving any items to be
+        ## added in a posterior super().extend call;
+        ##
+        ## this means we need to check and append one by one
+        ## instead
+
+        super_append = super().append
+
+        for item in iterable:
+
+            if not callable(item):
+                raise ValueError("All items must be callable")
+
+            super_append(item)
 
 class NestedPartial(partial):
     """A partial which retrieves return values from args.
