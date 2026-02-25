@@ -64,7 +64,7 @@
             'type': 'set_animation_blend',
 
             'keyword_arguments': {
-                'target': 'Kane',
+                'targets': ['Kane'],
                 'animation_blend': 'defeated',
             },
 
@@ -89,7 +89,7 @@
             'type': 'set_animation_blend',
 
             'keyword_arguments': {
-                'target': 'Kane',
+                'targets': ['Kane'],
                 'animation_blend': 'deactivated',
                 'once': True,
             },
@@ -163,7 +163,30 @@
             'delay_secs': 7.8,
         },
 
+        'set_smartphone_animation_for_blue_and_newton': {
+
+            'type': 'set_animation_blend',
+
+            'delay_secs': 7.8,
+
+            'keyword_arguments': {
+                'targets': ['Blue', 'Newton'],
+                'animation_blend': 'smartphone',
+            },
+
+        },
+
         ######################
+
+        'remove_smartphone_animation_for_blue_and_newton': {
+
+            'type': 'remove_animation_blend',
+
+            'keyword_arguments': {
+                'targets': ['Blue', 'Newton'],
+            },
+
+        },
 
         'play_end_call_sound': {
 

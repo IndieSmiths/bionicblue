@@ -359,12 +359,84 @@ class UpdateAssistance:
                 kwargs = action_data['keyword_arguments']
 
                 anim_blend = kwargs['animation_blend']
-                target = kwargs['target']
 
-                self.character_map[target].aniplayer.blend(f'+{anim_blend}')
+                targets = kwargs['targets']
 
-                if not kwargs.get('once', False):
-                    self.animation_blend_map[target] = anim_blend
+                if all_calls:
+
+                    calls = (
+
+                        CallList(
+
+                            [
+
+                                partial(
+                                    self.character_map[target].aniplayer.blend,
+                                    f'+{anim_blend}',
+                                )
+
+                                for target in targets
+
+                            ]
+
+                        )
+                    )
+
+                    all_calls.append(calls)
+
+                    if not kwargs.get('once', False):
+
+                        op = self.animation_blend_map.__setitem__
+
+                        calls.extend(
+
+                            partial(op, target, anim_blend)
+                            for target in targets
+
+                        )
+
+                else:
+
+                    for target in targets:
+
+                        (
+                            self.character_map[target]
+                            .aniplayer.blend(f'+{anim_blend}')
+                        )
+
+                    if not kwargs.get('once', False):
+
+                        for target in targets:
+                            self.animation_blend_map[target] = anim_blend
+
+            elif action_type == 'remove_animation_blend':
+
+                kwargs = action_data['keyword_arguments']
+
+                targets = kwargs['targets']
+
+                op = self.animation_blend_map.__delitem__
+
+                if all_calls:
+
+                    all_calls.append(
+
+                        CallList(
+
+                            [
+                               partial(op, target) 
+                               for target in targets
+                            ]
+
+                        )
+
+                    )
+
+                else:
+
+                    for target in targets:
+                        op(target)
+                    
 
             elif action_type == 'play_music':
 

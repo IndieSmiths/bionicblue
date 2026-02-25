@@ -54,6 +54,7 @@ Blue
 # action: smartphone_rings
 # action: place_smartphone
 # action: put_smartphone_on_call
+# action: set_smartphone_animation_for_blue_and_newton
 
 
 Blue
@@ -83,6 +84,7 @@ Blue
 Newton
     en-us Okay, I'll be waiting! Bye!
 
+# action: remove_smartphone_animation_for_blue_and_newton
 
 # smartphone call ends
 #
