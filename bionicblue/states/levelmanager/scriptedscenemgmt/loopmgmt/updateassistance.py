@@ -544,27 +544,28 @@ class UpdateAssistance:
                     condition_checker,
                 )
 
-            ### TODO probably reduce all these record options into
-            ### a single record instructions;
-            ###
-            ### also, for all the recording use same call that records
-            ### boss defeat
+            elif action_type == 'save_progress':
 
-            elif action_type == 'record_encounter':
-                ...
-                print("Recorded encounter")
+                kwargs = action_data['keyword_arguments']
 
-            elif action_type == 'record_intro_talk_with_boss':
-                ...
-                print("Talked with boss when arrived")
+                if all_calls:
 
-            elif action_type == 'record_parting_talk_with_boss':
-                ...
-                print("Talked with boss before leaving")
+                    all_calls.append(
 
-            elif action_type == 'record_boss_defeat':
-                ...
-                print("defeated boss")
+                        partial(
+                            self.save_progress,
+                            kwargs['progress_collection_name'],
+                            kwargs['progress_value'],
+                        )
+
+                    )
+
+                else:
+
+                    self.save_progress(
+                        kwargs['progress_collection_name'],
+                        kwargs['progress_value'],
+                    )
 
             elif action_type == 'npc_gate_closes':
                 self.npc_gate.trigger_closing()

@@ -258,7 +258,12 @@
         # boss defeat is recorded in slot data
 
         'record_boss_defeat': {
-            'type': 'record_boss_defeat',
+            'type': 'save_progress',
+
+            'keyword_arguments': {
+                'progress_collection_name': 'beaten_bosses',
+                'progress_value': 'kane',
+            },
         },
 
     },

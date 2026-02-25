@@ -89,7 +89,14 @@ class Smartphone:
 
             ),
 
-            Vector2(-6, 0),
+            Vector2(
+
+                (
+                    (6 if player_pos_name == 'topright' else -6),
+                    0
+                )
+
+            ),
 
         )
 

@@ -753,6 +753,3 @@ class ChiefSecurityBot:
             delta_t=((i+1)*300),
             unit=time_unit,
         )
-
-        # TODO uncomment
-        #REFS.states.level_manager.save_beaten_boss('chief_sec_bot')

@@ -54,7 +54,14 @@
         # talk with boss is recorded in slot data
 
         'record_intro_talk_with_boss': {
-            'type': 'record_intro_talk_with_boss',
+
+            'type': 'save_progress',
+
+            'keyword_arguments': {
+                'progress_collection_name': 'bosses_you_talked_with',
+                'progress_value': 'kane',
+            },
+
         },
 
     },

@@ -111,7 +111,14 @@
         # encounter with Giovanni is recorded in slot data
 
         'record_encounter': {
-            'type': 'record_encounter',
+
+            'type': 'save_progress',
+
+            'keyword_arguments': {
+                'progress_collection_name': 'encounters',
+                'progress_value': 'giovanni',
+            },
+
         },
 
     },

@@ -1,7 +1,7 @@
 """Facility for level manager class."""
 
 ### standard library imports
-from functools import partial, partialmethod
+from functools import partial
 
 
 ### third-party imports
@@ -190,12 +190,9 @@ class LevelManagerLoopManagement:
 
         ###
 
-        ### TODO must enter dialogue only if we didn't play it
-        ### already, otherwise set the music and enter the fight
-
         if not cam_away_from_screen_center:
 
-            on_exit = CallList(
+            on_scripted_scene_exit = CallList(
 
                 [
 
@@ -208,12 +205,22 @@ class LevelManagerLoopManagement:
                 ]
 
             )
+            
+            if 'kane' in REFS.slot_data.get('bosses_you_talked_with', ()):
 
-            self.enter_scripted_scene(
-                'kane_boss_arrival',
-                on_exit=on_exit,
-                restore_camera=False,
-            )
+                self.control = self.control_player
+                self.update = self.normal_update
+                self.draw = self.draw_level
+
+                on_scripted_scene_exit()
+
+            else:
+
+                self.enter_scripted_scene(
+                    'kane_boss_arrival',
+                    on_exit=on_scripted_scene_exit,
+                    restore_camera=False,
+                )
 
     def move_level_to_keep_pc_within_area(self):
         """Move the level so playable character (pc) is always inside area.
@@ -327,14 +334,6 @@ class LevelManagerLoopManagement:
 
     def getting_to_boss_area(self):
 
-        # TODO this method, which is used by an invisible colliding trigger,
-        # actually raises and exception instead of returning a bool (a bool would
-        # be the return value the colliding trigger expects);
-        #
-        # for now it is fine cause it all works, but we must do some about it;
-        # perhaps we should change the invisible colliding trigger's API so that
-        # it watches for exceptions as well if requested
-
         ###
         self.boss_gate1.trigger_opening()
 
@@ -385,9 +384,6 @@ class LevelManagerLoopManagement:
         ### TODO must move this call into a try/except clause (after
         ### pondering what to do)
         save_pyl(REFS.slot_data, REFS.slot_path)
-
-    save_beaten_boss = partialmethod(save_progress, 'beaten_bosses')
-    save_encounter = partialmethod(save_progress, 'encounters')
 
     def add_food_box_trigger(self):
         """Add trigger to consume food box."""
@@ -460,7 +456,17 @@ class LevelManagerLoopManagement:
 
     def enter_boss_parting_scene(self):
 
-        self.enter_scripted_scene(
-            'kane_boss_parting',
-            restore_camera=False,
-        )
+        if 'kane' in REFS.slot_data.get('beaten_bosses', ()):
+
+            ### TODO should probably also:
+            ###
+            ### - deactivate kane and play the deactivation sound before
+            ### leaving
+            self.player.teleport_away()
+
+        else:
+
+            self.enter_scripted_scene(
+                'kane_boss_parting',
+                restore_camera=False,
+            )
