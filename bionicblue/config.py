@@ -62,6 +62,7 @@ REFS.__dict__.update(dict(
     states = Object(),
 
     dialogue_action_cueing_data = {},
+    dialogue_character_names_set_map = {},
 
     enable_overall_tracking_for_camera = (
         lambda: REFS.states.level_manager.enable_overall_tracking_for_camera()

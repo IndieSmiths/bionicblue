@@ -24,7 +24,7 @@ Blue
     en-us So this is where this path led me! No wonder it was filled with robots down there.
 
 Blue
-    en-us I assume you are being kept hostage. They should be treating you fine, though, right? What is your name?
+    en-us I assume you are being kept hostage, Mr. Giovanni. They should be treating you fine, though, right?
 
 Giovanni
     en-us Yes, you are well informed, Blue. We are hostages.

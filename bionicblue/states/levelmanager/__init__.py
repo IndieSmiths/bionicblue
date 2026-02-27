@@ -277,12 +277,21 @@ class LevelManager(
             if label_data['text'] == 'npc_scene_trg'
         )['pos']
 
+        npc_dialogue_name = (
+
+            'giovanni_post_boss'
+            if 'kane' in REFS.slot_data.get('beaten_bosses', ())
+
+            else 'giovanni_pre_boss'
+
+        )
+
         npc_scene_trigger = (
 
             InvisibleCollidingTrigger(
 
                 on_collision=(
-                    partial(self.enter_scripted_scene, 'giovanni_npc')
+                    partial(self.enter_scripted_scene, npc_dialogue_name)
                 ),
                 width=16,
                 height=64,
@@ -379,7 +388,7 @@ class LevelManager(
         #
         # for now, while we are still adding content to the first level,
         # we'll hardcode this value to specific areas of interest
-        label_name = 'endpoint'
+        label_name = 'npc_area_warp'
 
         landing_pos = next(
             label_data

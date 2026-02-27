@@ -1,6 +1,12 @@
 {
 
-    'characters': ['Blue', 'Giovanni'],
+    ## this data describes the same set of actions that take place
+    ## during 02 different dialogues
+
+    'dialogue_names': [
+        'giovanni_pre_boss',
+        'giovanni_post_boss',
+    ],
 
     'action_map': {
 

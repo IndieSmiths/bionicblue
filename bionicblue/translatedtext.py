@@ -251,6 +251,7 @@ def enumerate_lines_and_extract_action_cueing_data(lines, file_stem):
     line_number_attr = ''
 
     action_cueing_data = {}
+    character_names = set() 
 
     for line in _TEMP_LINES:
 
@@ -279,7 +280,8 @@ def enumerate_lines_and_extract_action_cueing_data(lines, file_stem):
 
             ## otherwise, if first char is not '#' or space, it means this
             ## line contains the name of a character, marking the start of
-            ## a dialogue line, so we add the line number attribute
+            ## a dialogue line, so we add the line number attribute and
+            ## make sure the name is in the character_names set
 
             elif line[0] not in '# ':
 
@@ -287,6 +289,9 @@ def enumerate_lines_and_extract_action_cueing_data(lines, file_stem):
 
                 line_number_attr = f'line_{line_number:>03}'
                 lines.append(line_number_attr)
+
+                ## store character name (stripping it just in case)
+                character_names.add(line.strip())
 
                 ## increment count
                 line_number += 1
@@ -302,8 +307,11 @@ def enumerate_lines_and_extract_action_cueing_data(lines, file_stem):
     _TEMP_LINES.clear()
 
     ###
+
     dialogue_name = file_stem.replace('_dialogue', '')
+
     REFS.dialogue_action_cueing_data[dialogue_name] = action_cueing_data
+    REFS.dialogue_character_names_set_map[dialogue_name] = character_names
 
 
 ### translation namespace

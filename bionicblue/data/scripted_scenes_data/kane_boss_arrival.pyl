@@ -1,7 +1,5 @@
 {
 
-    'characters': ['Blue', 'Kane'],
-
     'action_map': {
 
         # creepy theme plays

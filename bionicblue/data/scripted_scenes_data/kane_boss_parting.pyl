@@ -1,7 +1,5 @@
 {
 
-    'characters': ['Blue', 'Kane', 'Newton'],
-
     'action_map': {
 
         # theme to play

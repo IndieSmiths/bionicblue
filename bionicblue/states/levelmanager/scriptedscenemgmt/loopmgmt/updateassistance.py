@@ -163,8 +163,6 @@ class UpdateAssistance:
 
             action_type = action_data['type']
 
-            print(action_type)
-
             all_calls = []
 
             delay_secs = action_data.get('delay_secs', 0)

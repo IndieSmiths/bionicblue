@@ -47,31 +47,43 @@ class ScriptedScenePreprocessing:
 
                 else:
 
-                    lines_data = (
-                        get_lines_data(path.stem, data['characters'])
-                    )
+                    dialogue_names = data.get('dialogue_names', [path.stem])
 
-                    action_map = defaultdict(list)
+                    for dialogue_name in dialogue_names:
 
-                    ssm[path.stem] = {
+                        character_names = (
+                            REFS
+                            .dialogue_character_names_set_map[dialogue_name]
+                        )
 
-                        'lines_data': lines_data,
-                        'characters': data['characters'],
+                        lines_data = (
+                            get_lines_data(dialogue_name, character_names)
+                        )
 
-                        'action_map': action_map,
+                        ### create and populate action map
 
-                    }
+                        action_map = defaultdict(list)
 
-                    ### populate action map
+                        cueing_data = (
+                            REFS.dialogue_action_cueing_data[dialogue_name]
+                        )
 
-                    cueing_data = (
-                        REFS.dialogue_action_cueing_data[path.stem]
-                    )
+                        for action_id, action_data in (
+                            data['action_map'].items()
+                        ):
 
-                    for action_id, action_data in data['action_map'].items():
+                            cue = cueing_data[action_id]
+                            action_map[cue].append(action_data)
 
-                        cue = cueing_data[action_id]
-                        action_map[cue].append(action_data)
+                        ### store everything
+
+                        ssm[dialogue_name] = {
+
+                            'characters': character_names,
+                            'lines_data': lines_data,
+                            'action_map': action_map,
+
+                        }
 
         ###
 
@@ -135,28 +147,16 @@ def get_lines_data(dialogue_name, character_names):
 
         ###
 
-        found_character_name = False
-
         for character_name in character_names:
 
             try:
                 line_contents = getattr(translation_node, character_name)
+
             except AttributeError:
                 pass
+
             else:
-                found_character_name = True
                 break
-
-        if not found_character_name:
-
-            ### TODO make it so characters don't need to be mentioned in the
-            ### scene data to begin with (after all, we can retrieve the names
-            ### from the dialogue itself)
-
-            raise ValueError(
-                "A character used in the dialogue wasn't mentioned"
-                " on the scene data."
-            )
 
         ###
 
