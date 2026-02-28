@@ -125,6 +125,9 @@ class LevelManagerLoopManagement:
         for prop in FRONT_PROPS:
             prop.update()
 
+        for column in HEALTH_COLUMNS:
+            column.update()
+
         ### execute scheduled tasks
         update_task_manager()
 
@@ -184,6 +187,9 @@ class LevelManagerLoopManagement:
 
         for prop in FRONT_PROPS:
             prop.update()
+
+        for column in HEALTH_COLUMNS:
+            column.update()
 
         ### execute scheduled tasks
         update_task_manager()
@@ -443,6 +449,7 @@ class LevelManagerLoopManagement:
 
                 self.show_popup_info,
                 'after_meal_power_up',
+                on_exit=self.player.health_column.trigger_health_recovery,
 
             ),
 

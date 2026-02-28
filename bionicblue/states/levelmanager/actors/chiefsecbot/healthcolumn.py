@@ -7,7 +7,10 @@ from pygame.draw import rect as draw_rect
 
 
 ### local imports
+
 from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
+
+from .....ourstdlibs.behaviour import do_nothing
 
 
 
@@ -35,6 +38,8 @@ class HealthColumn:
         image.fill('grey80')
         draw_rect(image, 'brown', hbg)
         draw_rect(image, 'red', hfg)
+
+        self.update = do_nothing
 
     def damage(self, amount):
 

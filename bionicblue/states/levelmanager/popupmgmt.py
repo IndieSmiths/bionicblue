@@ -52,6 +52,8 @@ from ...pygamesetup.constants import (
 
 from ...pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
+from ...ourstdlibs.behaviour import do_nothing
+
 from ...textman import render_text
 
 from ...classes2d.single import UIObject2D
@@ -157,6 +159,7 @@ class LevelManagerPopupManagement:
     def show_popup_info(
         self,
         popup_key,
+        on_exit=do_nothing,
     ):
         """Display popup caption and message."""
 
@@ -166,6 +169,8 @@ class LevelManagerPopupManagement:
 
         self.player.stop_charging()
         self.player.reset_time_tracking_attributes()
+
+        self.on_exit = on_exit
 
         ###
         self.indicator_must_be_triangle = False
@@ -237,6 +242,8 @@ class LevelManagerPopupManagement:
         self.control = self.control_player
         self.update = self.normal_update
         self.draw = self.draw_level
+
+        self.on_exit()
 
         SOUND_MAP['ui_success_popup.wav'].play()
 
