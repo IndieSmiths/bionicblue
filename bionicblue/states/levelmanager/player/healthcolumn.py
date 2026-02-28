@@ -17,14 +17,18 @@ from pygame.draw import (
     rect as draw_rect,
 )
 
+from pygame.math import Vector2
+
 
 ### local imports
 
-from ....config import SURF_MAP, COLORKEY
+from ....config import SURF_MAP, COLORKEY, MOTION_PATHS_DIR
 
-from ....pygamesetup.constants import blit_on_screen, msecs_to_frames
+from ....pygamesetup.constants import SCREEN, blit_on_screen, msecs_to_frames
 
 from ....ourstdlibs.behaviour import do_nothing
+
+from ....ourstdlibs.pyl import load_pyl
 
 
 
@@ -39,6 +43,19 @@ NEXT_INCREASE_TWINKLING_COLOR = cycle(
     (('red',) * 15)
     + (('brown',) * 15)
 ).__next__
+
+
+### TODO
+### - use a star as the shape that moves on the spiral
+### - make that start rotate (with a dense set of points
+### representing a circle whose quantity is a multiple of
+### 5; this way you can put it in a deque and rotate it
+### to collect the equidistant subset of 5 points)
+### - probably add a sound when star enters and another
+### when the start touches the head (or perhaps just add
+### this last one)
+### - make it so the green on the bar grows from below
+### rather than from above
 
 
 class HealthColumn:
@@ -96,6 +113,7 @@ class HealthColumn:
         self.rect.topleft = (3, 28)
 
         self.update = do_nothing
+        self.draw = self.normal_draw
 
         ### store an inflated head rect for later use
         self.inflated_head_rect = head_rect.inflate(8, 8)
@@ -104,6 +122,18 @@ class HealthColumn:
 
         self.hbg_height_one = hbg.copy()
         self.hbg_height_one.height = 1
+
+        ### load and offset spiral points representing a motion path
+        ### so the spiral ends on the head
+
+        offset = Vector2(head_rect.center) + self.rect.topleft
+
+        self.spiral_points = tuple(
+
+            point + offset
+            for point in load_pyl(MOTION_PATHS_DIR / 'star_spiral.pos')
+
+        )
 
     def damage(self, amount):
 
@@ -124,14 +154,26 @@ class HealthColumn:
 
     def trigger_health_recovery(self):
 
-        self.image.fill(COLORKEY)
+        self.update = self.advance_spiral_animation
+        self.draw = self.spiral_draw
+        self.next_point = iter(self.spiral_points).__next__
 
-        self.draw_health_indicator_bar()
-        self.image.blit(self.head_surf, self.head_rect)
+    def advance_spiral_animation(self):
 
-        self.bar_bg_percentage = 0
+        try: 
+            self.point = self.next_point()
 
-        self.update = self.advance_recovery_animation
+        except StopIteration:
+
+            self.image.fill(COLORKEY)
+
+            self.draw_health_indicator_bar()
+            self.image.blit(self.head_surf, self.head_rect)
+
+            self.bar_bg_percentage = 0
+
+            self.update = self.advance_recovery_animation
+            self.draw = self.normal_draw
 
     def advance_recovery_animation(self):
 
@@ -204,5 +246,10 @@ class HealthColumn:
                     1,
                 )
 
-    def draw(self):
+    def normal_draw(self):
         blit_on_screen(self.image, self.rect)
+
+    def spiral_draw(self):
+
+        blit_on_screen(self.image, self.rect)
+        draw_circle(SCREEN, 'yellow', self.point, 5)
