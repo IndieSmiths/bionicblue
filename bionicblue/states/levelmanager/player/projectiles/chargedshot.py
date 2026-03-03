@@ -107,18 +107,18 @@ class ChargedShot:
                         method(self.damage_to_inflict)
 
                     if actor.health > 0:
-                        self.trigger_disappearing(actor)
+                        self.trigger_disappearing(actor.rect)
                         return
 
         for block in BLOCKS_NEAR_SCREEN:
 
             if colliderect(block.rect):
-                self.trigger_disappearing(block)
+                self.trigger_disappearing(block.rect)
                 return
 
         self.rect.x += self.x_speed
 
-    def trigger_disappearing(self, colliding_obj):
+    def trigger_disappearing(self, colliding_rect):
 
         self.update = self.disappearing_update
         SOUND_MAP[self.disappearing_sound_name].play()
@@ -137,7 +137,7 @@ class ChargedShot:
 
         opposite_end_name = 'left' if oriented_right else 'right'
 
-        block_opposite_end = getattr(colliding_obj.rect, opposite_end_name)
+        block_opposite_end = getattr(colliding_rect, opposite_end_name)
         shot_opposite_end = getattr(rect, opposite_end_name)
 
         ### if difference between opposite ends of block and shot is not

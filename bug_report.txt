@@ -1,0 +1,22 @@
+Bug: app crashes when shooting charged shot through more than one enemy (sometimes); it is not that easy, but also not that hard to reproduce; I usually take a few minutes; last attempt I shot throught a rabbiterror and a gruntbot after descending some ladder and jumping over them;
+
+This bug seems to have been introduced by the same commit that introduced this bug report file (which is why this report file is being committed along with the other changes)
+
+####
+
+Traceback:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/kennedy/repos/bionicblue/bionicblue/__main__.py", line 126, in <module>
+    run_game(parsed_args.debug_directive)
+  File "/home/kennedy/repos/bionicblue/bionicblue/__main__.py", line 89, in run_game
+    state.update()
+  File "/home/kennedy/repos/bionicblue/bionicblue/states/levelmanager/loopmgmt.py", line 123, in normal_update
+    projectile.update()
+  File "/home/kennedy/repos/bionicblue/bionicblue/states/levelmanager/player/projectiles/chargedshot.py", line 96, in moving_update
+    for actor in ACTORS_NEAR_SCREEN:
+RuntimeError: Set changed size during iteration

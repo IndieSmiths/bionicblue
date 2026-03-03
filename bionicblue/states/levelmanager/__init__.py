@@ -28,6 +28,7 @@ from ...userprefsman.main import USER_PREFS
 from .player import Player
 
 from .backprops.citywall import CityWall
+from .backprops.lightpolefront import LightPoleFront
 
 from .middleprops.ladder import Ladder
 from .middleprops.chains import Chains
@@ -47,6 +48,8 @@ from .actors.watcherbot import WatcherBot
 from .actors.rabbiterror import Rabbiterror
 from .actors.chiefsecbot import ChiefSecurityBot
 from .actors.giovanni import Giovanni
+
+from .frontprops.lightpoleback import LightPoleBack
 
 from .prototypemessage import message
 
@@ -388,7 +391,7 @@ class LevelManager(
         #
         # for now, while we are still adding content to the first level,
         # we'll hardcode this value to specific areas of interest
-        label_name = 'npc_area_warp'
+        label_name = 'landing'
 
         landing_pos = next(
             label_data
@@ -413,6 +416,9 @@ def instantiate(obj_data, layer_name):
 
     if name == 'city_wall':
         obj = CityWall(**obj_data)
+
+    elif name == 'light_pole_front':
+        obj = LightPoleFront(**obj_data)
 
     elif name == 'city_block':
         obj = CityBlock(**obj_data)
@@ -446,6 +452,9 @@ def instantiate(obj_data, layer_name):
 
     elif name == 'chain_crate_hanger':
         obj = ChainCrateHanger(**obj_data)
+
+    elif name == 'light_pole_back':
+        obj = LightPoleBack(**obj_data)
 
     else:
         raise RuntimeError("This block should never be reached.")

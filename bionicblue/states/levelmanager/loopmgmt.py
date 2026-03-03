@@ -29,9 +29,9 @@ from .common import (
     MIDDLE_PROPS_NEAR_SCREEN,
     BLOCKS_NEAR_SCREEN,
     ACTORS_NEAR_SCREEN,
+    FRONT_PROPS_NEAR_SCREEN,
 
     PROJECTILES,
-    FRONT_PROPS,
     HEALTH_COLUMNS,
 
     CHUNKS,
@@ -122,7 +122,7 @@ class LevelManagerLoopManagement:
         for projectile in PROJECTILES:
             projectile.update()
 
-        for prop in FRONT_PROPS:
+        for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.update()
 
         for column in HEALTH_COLUMNS:
@@ -185,7 +185,7 @@ class LevelManagerLoopManagement:
         for projectile in PROJECTILES:
             projectile.update()
 
-        for prop in FRONT_PROPS:
+        for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.update()
 
         for column in HEALTH_COLUMNS:
@@ -281,9 +281,6 @@ class LevelManagerLoopManagement:
         for projectile in PROJECTILES:
             projectile.rect.move_ip(diff)
 
-        for prop in FRONT_PROPS:
-            prop.rect.move_ip(diff)
-
     def draw_level(self):
 
         blit_on_screen(self.bg, (0, 0))
@@ -305,7 +302,7 @@ class LevelManagerLoopManagement:
         for actor in ACTORS_NEAR_SCREEN:
             actor.draw()
 
-        for prop in FRONT_PROPS:
+        for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.draw()
 
         ############################

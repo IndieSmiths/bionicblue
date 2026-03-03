@@ -19,8 +19,8 @@ from ....ourstdlibs.behaviour import do_nothing
 from ..frontprops.defaultexplosion import DefaultExplosion
 
 from ..common import (
-    FRONT_PROPS,
     BLOCKS_NEAR_SCREEN,
+    add_obj,
     remove_obj,
 )
 
@@ -182,7 +182,7 @@ class Rabbiterror:
 
             center = self.rect.center
 
-            FRONT_PROPS.add(DefaultExplosion('center', center))
+            add_obj(DefaultExplosion('center', center))
             append_ready_task(partial(remove_obj, self))
 
         else:

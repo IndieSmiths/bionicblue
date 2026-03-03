@@ -83,6 +83,7 @@ LAYER_NAMES = (
     'middleprops',
     'blocks',
     'actors',
+    'frontprops',
 )
 
 get_layer_from_name = {
@@ -104,6 +105,7 @@ BACK_PROPS,
 MIDDLE_PROPS,
 BLOCKS,
 ACTORS,
+FRONT_PROPS,
 ) = LAYERS
 
 (
@@ -111,6 +113,7 @@ BACK_PROPS_NEAR_SCREEN,
 MIDDLE_PROPS_NEAR_SCREEN,
 BLOCKS_NEAR_SCREEN,
 ACTORS_NEAR_SCREEN,
+FRONT_PROPS_NEAR_SCREEN,
 ) = NEAR_SCREEN_LAYERS
 
 COLLIDER_FUNCS = (
@@ -118,13 +121,13 @@ COLLIDER_FUNCS = (
     screen_colliderect,
     vicinity_colliderect,
     half_vicinity_colliderect,
+    screen_colliderect,
 )
 
 LAYER_DATA_TRIPLETS = list(zip(LAYERS, NEAR_SCREEN_LAYERS, COLLIDER_FUNCS))
 
 
 PROJECTILES = set()
-FRONT_PROPS = set()
 HEALTH_COLUMNS = set()
 
 
@@ -350,8 +353,7 @@ class LevelChunk:
 
         self.objs.add(obj)
 
-        layer = getattr(self, obj.layer_name)
-        layer.add(obj)
+        getattr(self, obj.layer_name).add(obj)
 
         self.center_map[obj] = tuple(
             chunk_pos - obj_center_pos

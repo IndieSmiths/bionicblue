@@ -60,9 +60,9 @@ from ...common import (
     MIDDLE_PROPS_NEAR_SCREEN,
     BLOCKS_NEAR_SCREEN,
     ACTORS_NEAR_SCREEN,
+    FRONT_PROPS_NEAR_SCREEN,
 
     PROJECTILES,
-    FRONT_PROPS,
 
     scrolling,
     scrolling_backup,
@@ -346,7 +346,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         for projectile in PROJECTILES:
             projectile.update()
 
-        for prop in FRONT_PROPS:
+        for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.update()
 
         ### execute scheduled tasks
@@ -374,7 +374,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         for actor in ACTORS_NEAR_SCREEN:
             actor.draw()
 
-        for prop in FRONT_PROPS:
+        for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.draw()
 
         if self.drive_scene_state == self.present_dialogue:

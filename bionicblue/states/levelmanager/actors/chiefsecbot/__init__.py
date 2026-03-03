@@ -35,9 +35,9 @@ from .....pointsman2d.create import yield_circle_points
 from ...frontprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
-    FRONT_PROPS,
     PROJECTILES,
     BLOCKS_NEAR_SCREEN,
+    add_obj,
 )
 
 from ...taskmanager import append_timed_task
@@ -712,7 +712,7 @@ class ChiefSecurityBot:
             append_timed_task(
 
                 partial(
-                    FRONT_PROPS.add,
+                    add_obj,
                     DefaultExplosion(
                         'center',
                         center,

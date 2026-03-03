@@ -20,9 +20,9 @@ from .....ourstdlibs.mathutils import get_straight_distance
 from ...frontprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
-    remove_obj,
     PROJECTILES,
-    FRONT_PROPS,
+    add_obj,
+    remove_obj,
 )
 
 from ...taskmanager import append_ready_task
@@ -132,7 +132,7 @@ class WatcherBot:
 
             center = self.rect.center
 
-            FRONT_PROPS.add(DefaultExplosion('center', center))
+            add_obj(DefaultExplosion('center', center))
             append_ready_task(partial(remove_obj, self))
 
         else:
