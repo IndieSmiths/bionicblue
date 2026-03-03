@@ -78,12 +78,25 @@ half_vicinity_colliderect = HALF_VICINITY_RECT.colliderect
 
 ##
 
-LAYER_NAMES = (
-    'backprops',
-    'middleprops',
-    'blocks',
-    'actors',
-    'frontprops',
+# layer names and the collider functions used to check which
+# elements belong in a "near screen" version of that layer
+
+_LAYER_COLLIDER_FUNC_PAIRS = (
+    ('backprops', screen_colliderect),
+    ('middleprops', screen_colliderect),
+    ('blocks', vicinity_colliderect),
+    ('actors', half_vicinity_colliderect),
+    ('frontprops', screen_colliderect),
+)
+
+LAYER_NAMES = tuple(
+    layer_name
+    for layer_name, _ in _LAYER_COLLIDER_FUNC_PAIRS
+)
+
+COLLIDER_FUNCS = (
+    collider_func
+    for _, collider_func in _LAYER_COLLIDER_FUNC_PAIRS
 )
 
 get_layer_from_name = {
@@ -116,18 +129,13 @@ ACTORS_NEAR_SCREEN,
 FRONT_PROPS_NEAR_SCREEN,
 ) = NEAR_SCREEN_LAYERS
 
-COLLIDER_FUNCS = (
-    screen_colliderect,
-    screen_colliderect,
-    vicinity_colliderect,
-    half_vicinity_colliderect,
-    screen_colliderect,
+LAYER_DATA_TRIPLETS = list(
+    zip(LAYERS, NEAR_SCREEN_LAYERS, COLLIDER_FUNCS)
 )
-
-LAYER_DATA_TRIPLETS = list(zip(LAYERS, NEAR_SCREEN_LAYERS, COLLIDER_FUNCS))
 
 
 PROJECTILES = set()
+VFX_ELEMENTS = set()
 HEALTH_COLUMNS = set()
 
 

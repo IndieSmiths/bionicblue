@@ -9,7 +9,7 @@ from ....config import SOUND_MAP
 
 from ....ani2d.player import AnimationPlayer2D
 
-from ..common import remove_obj
+from ..common import VFX_ELEMENTS
 
 from ..taskmanager import append_ready_task, append_timed_task
 
@@ -20,8 +20,6 @@ class DefaultExplosion:
     def __init__(self, pos_name, pos_value, delta_t=0, unit='milliseconds'):
 
         self.name = 'explosion'
-
-        self.layer_name = 'frontprops'
 
         self.aniplayer = (
 
@@ -51,7 +49,7 @@ class DefaultExplosion:
     def update(self):
 
         if self.aniplayer.main_timing.peek_loops_no(1) == 1:
-            append_ready_task(partial(remove_obj, self))
+            append_ready_task(partial(VFX_ELEMENTS.remove, self))
 
     def draw(self):
         self.aniplayer.draw()

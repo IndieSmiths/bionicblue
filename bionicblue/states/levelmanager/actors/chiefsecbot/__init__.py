@@ -36,8 +36,8 @@ from ...frontprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
     PROJECTILES,
+    VFX_ELEMENTS,
     BLOCKS_NEAR_SCREEN,
-    add_obj,
 )
 
 from ...taskmanager import append_timed_task
@@ -712,7 +712,7 @@ class ChiefSecurityBot:
             append_timed_task(
 
                 partial(
-                    add_obj,
+                    VFX_ELEMENTS.add,
                     DefaultExplosion(
                         'center',
                         center,

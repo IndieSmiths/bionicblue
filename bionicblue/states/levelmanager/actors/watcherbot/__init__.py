@@ -21,7 +21,7 @@ from ...frontprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
     PROJECTILES,
-    add_obj,
+    VFX_ELEMENTS,
     remove_obj,
 )
 
@@ -132,7 +132,7 @@ class WatcherBot:
 
             center = self.rect.center
 
-            add_obj(DefaultExplosion('center', center))
+            VFX_ELEMENTS.add(DefaultExplosion('center', center))
             append_ready_task(partial(remove_obj, self))
 
         else:

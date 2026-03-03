@@ -20,7 +20,7 @@ from ..frontprops.defaultexplosion import DefaultExplosion
 
 from ..common import (
     BLOCKS_NEAR_SCREEN,
-    add_obj,
+    VFX_ELEMENTS,
     remove_obj,
 )
 
@@ -182,7 +182,7 @@ class Rabbiterror:
 
             center = self.rect.center
 
-            add_obj(DefaultExplosion('center', center))
+            VFX_ELEMENTS.add(DefaultExplosion('center', center))
             append_ready_task(partial(remove_obj, self))
 
         else:

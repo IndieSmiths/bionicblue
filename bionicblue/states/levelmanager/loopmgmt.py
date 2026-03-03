@@ -32,6 +32,7 @@ from .common import (
     FRONT_PROPS_NEAR_SCREEN,
 
     PROJECTILES,
+    VFX_ELEMENTS,
     HEALTH_COLUMNS,
 
     CHUNKS,
@@ -122,6 +123,9 @@ class LevelManagerLoopManagement:
         for projectile in PROJECTILES:
             projectile.update()
 
+        for element in VFX_ELEMENTS:
+            element.update()
+
         for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.update()
 
@@ -184,6 +188,9 @@ class LevelManagerLoopManagement:
 
         for projectile in PROJECTILES:
             projectile.update()
+
+        for element in VFX_ELEMENTS:
+            element.update()
 
         for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.update()
@@ -281,6 +288,9 @@ class LevelManagerLoopManagement:
         for projectile in PROJECTILES:
             projectile.rect.move_ip(diff)
 
+        for element in VFX_ELEMENTS:
+            element.rect.move_ip(diff)
+
     def draw_level(self):
 
         blit_on_screen(self.bg, (0, 0))
@@ -301,6 +311,9 @@ class LevelManagerLoopManagement:
 
         for actor in ACTORS_NEAR_SCREEN:
             actor.draw()
+
+        for element in VFX_ELEMENTS:
+            element.draw()
 
         for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.draw()

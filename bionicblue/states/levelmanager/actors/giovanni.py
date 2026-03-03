@@ -1,26 +1,11 @@
 """Facility for Giovanni NPC."""
 
-### standard library import
-from math import inf as INFINITY
-
-
 ### local imports
 
 from ....config import REFS
 
-from ....pygamesetup.constants import GENERAL_NS
-
-from ....constants import DAMAGE_WHITENING_FRAMES
-
 from ....ani2d.player import AnimationPlayer2D
 
-from ....ourstdlibs.behaviour import do_nothing
-
-from ..frontprops.defaultexplosion import DefaultExplosion
-
-
-
-WALK_SPEED = 1
 
 
 class Giovanni:

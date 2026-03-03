@@ -63,6 +63,7 @@ from ...common import (
     FRONT_PROPS_NEAR_SCREEN,
 
     PROJECTILES,
+    VFX_ELEMENTS,
 
     scrolling,
     scrolling_backup,
@@ -346,6 +347,9 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         for projectile in PROJECTILES:
             projectile.update()
 
+        for element in VFX_ELEMENTS:
+            element.update()
+
         for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.update()
 
@@ -373,6 +377,9 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         for actor in ACTORS_NEAR_SCREEN:
             actor.draw()
+
+        for element in VFX_ELEMENTS:
+            element.draw()
 
         for prop in FRONT_PROPS_NEAR_SCREEN:
             prop.draw()
