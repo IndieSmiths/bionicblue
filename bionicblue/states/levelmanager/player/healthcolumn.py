@@ -25,7 +25,7 @@ from pygame.math import Vector2
 
 ### local imports
 
-from ....config import SURF_MAP, COLORKEY, MOTION_PATHS_DIR
+from ....config import SURF_MAP, SOUND_MAP, COLORKEY, MOTION_PATHS_DIR
 
 from ....pygamesetup.constants import SCREEN, blit_on_screen, msecs_to_frames
 
@@ -110,15 +110,10 @@ def _get_all_possible_rotated_star_points():
 
 POINTS_OF_EACH_ROTATED_STAR = _get_all_possible_rotated_star_points()
 
-###
+### offset just so the green outline covering the head's icon doesn't starts
+### to be drawing from 0, but rather from the angle that starts more or less
+### at the topleft corner of the head
 ARC_OFFSET = tau * .35
-
-
-
-### TODO
-### - probably add a sound when star enters and another
-### when the start touches the head (or perhaps just add
-### this last one)
 
 
 class HealthColumn:
@@ -232,6 +227,8 @@ class HealthColumn:
             self.point = self.next_point()
 
         except StopIteration:
+
+            SOUND_MAP['star_landing_on_healthbar.wav'].play()
 
             self.image.fill(COLORKEY)
 
