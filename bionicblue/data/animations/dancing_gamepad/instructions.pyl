@@ -1,0 +1,33 @@
+{
+    "name": "dancing_gamepad",
+    "geometry": {
+        "body" : {
+            "size" : (64, 64),
+            "art_size" : (64, 64),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "static" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "dancing": {"structure": "static"},
+    },
+    "values": {
+        "dancing": {
+            "body": {
+                "surfaces": "dancing_gamepad.dancing",
+            },
+        },
+    },
+    "timing": {
+        "dancing": {
+            "body": {
+                "surface_indices": "dancing_gamepad.dancing",
+            },
+        },
+    },
+}

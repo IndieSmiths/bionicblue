@@ -1,0 +1,40 @@
+{
+    "name": "party_popper_purple",
+    "geometry": {
+        "body" : {
+            "size" : (64, 64),
+            "art_size" : (64, 64),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "static" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "popping_right": {"structure": "static"},
+        "popping_left": {"structure": "static"},
+    },
+    "values": {
+        "popping_right": {
+            "body": {
+                "surfaces": "party_popper_purple.popping_right",
+            },
+        },
+    },
+    "timing": {
+        "popping_right": {
+            "body": {
+                "surface_indices": "party_popper_purple.popping_right",
+            },
+        },
+    },
+    "derived_animations": {
+        "popping_left": {
+            "operation_name": "flip_x",
+            "target": "popping_right",
+        },
+    },
+}

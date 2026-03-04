@@ -1,0 +1,40 @@
+{
+    "name": "party_popper_yellow",
+    "geometry": {
+        "body" : {
+            "size" : (64, 64),
+            "art_size" : (64, 64),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "static" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "popping_left": {"structure": "static"},
+        "popping_right": {"structure": "static"},
+    },
+    "values": {
+        "popping_left": {
+            "body": {
+                "surfaces": "party_popper_yellow.popping_left",
+            },
+        },
+    },
+    "timing": {
+        "popping_left": {
+            "body": {
+                "surface_indices": "party_popper_yellow.popping_left",
+            },
+        },
+    },
+    "derived_animations": {
+        "popping_right": {
+            "operation_name": "flip_x",
+            "target": "popping_left",
+        },
+    },
+}

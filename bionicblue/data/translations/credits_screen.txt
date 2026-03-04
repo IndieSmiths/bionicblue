@@ -38,3 +38,8 @@ open_link
 
     en-us Open {netloc} link
     pt-br Abrir link de {netloc}
+
+other_assets_social_icons
+
+    en-us Other assets - Social media/website icons
+    pt-br Outros assets - ícones de sites/redes sociais

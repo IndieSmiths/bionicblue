@@ -1,0 +1,48 @@
+
+report_description
+
+    en-us State of Python gaming
+    pt-br Estado dos jogos em Python
+
+
+paragraph_00
+
+    # balloons and party poppers
+
+    en-us Thank you for helping Blue in his first mission! We plan to release new missions soon!
+    pt-br Obrigado por ajudar Blue em sua primeira missão! Planejamos lançar novas missões em breve!
+
+paragraph_01
+
+    # python logo static at center and gamepads dancing beside it
+
+    en-us As you probably know, there are many libraries and frameworks that rely primarily on Python to make games
+    pt-br Como você deve saber, há muitas bibliotecas e frameworks que usam principalmente Python para fazer jogos
+
+paragraph_02
+
+    # red chart decreasing
+
+    en-us However, when it comes to complete game projects released, we don't have many of those.
+    pt-br No entanto, quando o assunto é número de jogos completos publicados, não temos muitos.
+
+paragraph_03
+    
+    # Blue hopping with joy + green chart increasing
+
+    en-us I'm Kennedy, and one of my goals as an open-source maintainer is to change that reality, one new game at a time.
+    pt-br Sou o Kennedy, e um dos meus objetivos como mantenedor de projetos de código aberto é mudar essa realidade, um novo jogo de cada vez.
+
+paragraph_04
+
+    # lasagna animation
+
+    en-us For that end, please, consider supporting my development work on this and other relevant open-source projects
+    pt-br Para que isso aconteça, por favor, considere apoiar meu desenvolvimento neste e em outros relevantes projetos de código aberto
+
+paragraph_05
+    
+    # patreon and github logos
+
+    en-us You'll find all donation links in the "Links" screen that you can access from the main menu. Thank you very much!
+    pt-br Você vai encontrar todos os links para doações na tela "Links" que você acessa a partir do menu principal. Muito obrigado!

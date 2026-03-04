@@ -1,0 +1,237 @@
+{
+
+    'report_id': 'XXXX-XX-XX SOFTDEV 001',
+    'animated_sprites' : [
+
+        ### panel 0
+
+        {
+            'name': 'party_popper_purple',
+            'anim_name': 'popping_right',
+            'panel_index': 0,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-50, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-80, 0),
+            ],
+        },
+
+        {
+            'name': 'balloon_blue',
+            'anim_name': 'idle',
+            'panel_index': 0,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-25, 0),
+            ],
+        },
+
+        {
+            'name': 'balloon_orange',
+            'anim_name': 'idle',
+            'panel_index': 0,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (25, 0),
+            ],
+        },
+
+        {
+            'name': 'party_popper_yellow',
+            'anim_name': 'popping_left',
+            'panel_index': 0,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (80, 0),
+            ],
+        },
+
+        ### panel 1
+
+        {
+            'name': 'dancing_gamepad',
+            'id_str': 'left_gamepad',
+            'anim_name': 'dancing',
+            'panel_index': 1,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midright',
+                'center',
+                (-40, 12),
+            ],
+        },
+
+        {
+            'name': 'dancing_gamepad',
+            'id_str': 'right_gamepad',
+            'anim_name': 'dancing',
+            'panel_index': 1,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midleft',
+                'center',
+                (40, 12),
+            ],
+        },
+
+        ### panel 2
+
+        {
+            'name': 'chart',
+            'id_str': 'chart_decreasing',
+            'anim_name': 'chart_decreasing',
+            'panel_index': 2,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+        ### panel 3
+
+        {
+            'name': 'blue_shooter_man',
+            'anim_name': 'hopping_with_joy',
+            'panel_index': 3,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-20, 0),
+            ],
+        },
+
+        {
+            'name': 'chart',
+            'id_str': 'chart_increasing',
+            'anim_name': 'chart_increasing',
+            'panel_index': 3,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (20, 0),
+            ],
+        },
+
+        ### panel 4
+
+        {
+            'name': 'lasagna',
+            'anim_name': 'idle',
+            'panel_index': 4,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+    ],
+
+    'images' : [
+
+        ### panel 1
+
+        {
+            'name': 'python_logo.png',
+            'panel_index': 1,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 20),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 7),
+            ],
+        },
+
+        ### panel 5
+
+        {
+            'name': 'patreon_icon.png',
+            'panel_index': 5,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-12, 0),
+            ],
+        },
+
+        {
+            'name': 'github_icon.png',
+            'panel_index': 5,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (12, 0),
+            ],
+        },
+
+    ],
+
+    'music': 'level_1_by_juhani_junkala.ogg',
+
+}

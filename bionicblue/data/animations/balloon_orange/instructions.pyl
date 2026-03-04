@@ -1,0 +1,33 @@
+{
+    "name": "balloon_orange",
+    "geometry": {
+        "body" : {
+            "size" : (50, 50),
+            "art_size" : (50, 50),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "static" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "idle": {"structure": "static"},
+    },
+    "values": {
+        "idle": {
+            "body": {
+                "surfaces": "balloon_orange.idle",
+            },
+        },
+    },
+    "timing": {
+        "idle": {
+            "body": {
+                "surface_indices": "balloon_orange.idle",
+            },
+        },
+    },
+}
