@@ -1,0 +1,172 @@
+{
+
+    'report_id': 'XXXX-XX-XX SOFTDEV 001',
+    'animated_sprites' : [
+
+        ### panel 0
+
+        {
+            'name': 'party_popper',
+            'anim_name': 'party_popper_purple',
+            'panel_index': 0,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-50, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-80, 0),
+            ],
+        },
+
+        {
+            'name': 'balloon',
+            'anim_name': 'blue_balloon',
+            'panel_index': 0,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-30, 0),
+            ],
+        },
+
+        {
+            'name': 'balloon',
+            'anim_name': 'orangered_balloon',
+            'panel_index': 0,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (30, 0),
+            ],
+        },
+
+        {
+            'name': 'party_popper',
+            'anim_name': 'party_popper_yellow',
+            'panel_index': 0,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (80, 0),
+            ],
+        },
+
+        ### panel 1
+
+        {
+            'name': 'gamepad',
+            'anim_name': 'dancing_gamepad',
+            'panel_index': 1,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midright',
+                'center',
+                (-25, 0),
+            ],
+        },
+
+        {
+            'name': 'gamepad',
+            'anim_name': 'dancing_gamepad',
+            'panel_index': 1,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (-30, 0),
+            ],
+            'end_pos': [
+                'midleft',
+                'center',
+                (25, 0),
+            ],
+        },
+
+        ### panel 2
+
+        {
+            'name': 'chart',
+            'anim_name': 'decreasing_chart',
+            'panel_index': 2,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+        ### panel 3
+
+        {
+            'name': 'blue_shooter_man',
+            'anim_name': 'hopping_with_joy',
+            'panel_index': 3,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+        ...
+
+    ],
+
+    'images' : [
+
+        ### panel 1
+
+        {
+            'name': 'python_logo.png',
+            'panel_index': 1,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 20),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
+            ],
+        },
+
+        ###
+
+    ],
+
+    ### TODO change music
+    'music': 'creep_by_tokyogeisha.ogg',
+
+}
