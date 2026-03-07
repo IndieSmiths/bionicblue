@@ -46,6 +46,7 @@ class LogoScreen:
                 ('kennedy_logo.png', "A game by Kennedy R. S. Guerra"),
                 ('python_logo.png', "Powered by Python"),
                 ('pygame_logo.png', "Powered by pygame-ce"),
+                ('no_ai.png', "No GenAI/LLMs used"),
             )
 
         )
