@@ -1,0 +1,27 @@
+(A) make "thank you" screen for when clearing level with info about supporting project
+(A) make "links" screen with various links
+(A) make it so dying restarts level
+(A) make it so user can go from level to main menu then back
+(A) translate dialogue and popup message (and whatever else is missing)
+(B) improve input recording: rename to input logging, include gamepad support, think about playtesters screen
+(C) add small props to level layout in different layers to make it more detailed
+(C) make it so effect of "Reset to defaults" in options screen is seen in the widgets
+(C) add mouse support where missing (i.e.: prompt screen)
+(D) playtest with few close acquaintances
+(E) release
+(F) make web version (won't be included in first release; will likely need new task for a password screen)
+x implement scripted scene manager for in-game scenes/dialogues
+x create new section of intro level for encounter with civilian
+x create art for civilian and dish he'll gift
+x add dialog between Blue and Chief Sec Bot
+x create art needed for screen to present game's plot (at least 02 bosses included)
+x create screen to present game's plot
+x create screen to type name for new slot
+x create screen for loading game
+x implement "continue" item in main menu (to load last used slot)
+x add credit for font used
+x add "Open [website portion] link" text to bottom of credits screen;
+x make it so space key inputs '_' in slot creation screen
+x make it so last buttons in options menu (playtesters screen, reset and back) keep their order
+x add translation support (and translate to pt-BR)
+x make it so text align properly once language is changed (for instance, load game screen has problems in pt-br)
