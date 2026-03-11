@@ -6,14 +6,14 @@ Bionic Blue is an action platformer game featuring a bionic boy tasked with prot
 
 ![Screenshot](https://i.imgur.com/Pe9abBl.gif)
 
-> [!NOTE]
-> Bionic Blue is currently at an early stage of development and for now works like a demo to showcase gameplay.
+> [!CAUTION]
+> Given the complexity of this project, it has multiple elements/assets that are subject to different licenses. All of its code was made by me ([Kennedy R. S. Guerra][]) and is open-source software with the goal of allowing people to play it for free, forever, and learn from its code. However, people cannot copy, relicense and redistribute/sell this game, because all the writing and the vast majority of its art/visual assets are mine, these are not in the public domain. Check the "Licenses" section at the end of this README file for more info and details.
 
 This project is part of the [Indie Smiths](https://github.com/IndieSmiths) project (formerly know as Indie Python project) and has a [dedicated website](https://bionicblue.indiesmiths.com) where you can find more info about it.
 
 It is made in [Python](https://github.com/python/cpython)/[pygame-ce](https://github.com/pygame-community/pygame-ce) targeting desktop platforms where Python is available like Windows, Mac and Linux.
 
-This game was created by [Kennedy R. S. Guerra](https://kennedyrichard.com) (me), who also develops/maintains it.
+This game was created by [Kennedy R. S. Guerra][](me), who also develops/maintains it. I wrote all the code/systems, did all the writing and created the vast majority of the art (check the "Licenses" section for more info on that.
 
 
 ## Support the game
@@ -111,9 +111,23 @@ Contact me any time via [Bluesky](https://bsky.app/profile/kennedyrichard.com), 
 You are also welcome on the Indie Smiths's [discord server](https://indiesmiths.com/discord).
 
 
-## License
+## Licenses
 
-Bionic Blue is dedicated to the public domain with [The Unlicense](https://unlicense.org/).
+In summary, you **can** download, install and play this game for free, forever. You can also reuse the code or part of it in your own projects, commercial or not, but not the art and writing/story. In other words, you **cannot** make and distribute your own version using its art and story.
+
+Here's how the elements comprising the game are licensed:
+
+I ([Kennedy R. S. Guerra][]) made all the code/systems, all the writing, and the vast majority of the visual assets/art by myself.
+
+I released the code/systems to the public domain with [The Unlicense](https://unlicense.org/). This means you can reuse the systems/code totally or partially, and only them, but you cannot copy, relicense and redistribute/sell the game as your own.
+
+Why is that? Because only the code/systems are in the public domain. All the writing/story and the vast majority of the art/visual assets, elements that I made on my own **are not** in the public domain. I have all the rights to them and you don't have permission nor the right to use them in your projects nor redistribute/sell them.
+
+Put another way, you can copy the game, but you are free to use the underlying code as you see fit, because the underlying code is public domain. You can use the code with no fear or restrictions.
+
+All the remaining assets, that is, a very small portion of the visual assets and all sound effects and music were made by other people and used within the terms of their respective licenses, mostly the CC0 license. All those creators were also properly credited in the game.
+
+No genAI/LLMs were use to make this game. Also, when possible, I checked to make sure the external assets were not made with such tools as well. For instance, the vast majority of the external assets used are from before 2019/2022, when these tools became mainstream.
 
 
 ## Why the name on game's title
@@ -124,6 +138,7 @@ Making games is arduous and honest work. Musicians, illustrators and many other 
 
 <!-- More Links -->
 
+[Kennedy R. S. Guerra]: https://kennedyrichard.com
 [patreon]: https://patreon.com/KennedyRichard
 [github sponsors]: https://github.com/sponsors/KennedyRichard
 [liberapay]: https://liberapay.com/KennedyRichard
