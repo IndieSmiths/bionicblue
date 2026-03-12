@@ -1,0 +1,44 @@
+{
+    "name": "chart",
+    "geometry": {
+        "body" : {
+            "size" : (43, 43),
+            "art_size" : (43, 43),
+            "art_anchorage" : ('center', 'center'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "static" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "chart_decreasing": {"structure": "static"},
+        "chart_increasing": {"structure": "static"},
+    },
+    "values": {
+        "chart_decreasing": {
+            "body": {
+                "surfaces": "chart.chart_decreasing",
+            },
+        },
+        "chart_increasing": {
+            "body": {
+                "surfaces": "chart.chart_increasing",
+            },
+        },
+    },
+    "timing": {
+        "chart_decreasing": {
+            "body": {
+                "surface_indices": "chart.chart_decreasing",
+            },
+        },
+        "chart_increasing": {
+            "body": {
+                "surface_indices": "chart.chart_increasing",
+            },
+        },
+    },
+}
