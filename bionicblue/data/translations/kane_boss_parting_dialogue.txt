@@ -58,7 +58,7 @@ Blue
 
 
 Blue
-    en-us Newton, You got all the data I recorded, right?
+    en-us Newton, you saw everything through my sensors, right? I did it!
 
 Newton
     en-us Yes, Blue! I'm just glad you made it out alive.
