@@ -16,6 +16,9 @@ gp_controls
 options
     en-us Options
     pt-br Configurações
+links
+    en-us Links
+    pt-br Links
 credits
     en-us Credits
     pt-br Créditos

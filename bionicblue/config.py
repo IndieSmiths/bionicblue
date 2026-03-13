@@ -89,6 +89,7 @@ REFS.__dict__.update(dict(
 DATA_DIR = Path(__file__).parent / 'data'
 
 CREDITS_FILEPATH = DATA_DIR / 'credits.txt'
+LINKS_FILEPATH = DATA_DIR / 'links.txt'
 
 FONTS_DIR = DATA_DIR / 'fonts'
 IMAGES_DIR = DATA_DIR / 'images'
