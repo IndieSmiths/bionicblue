@@ -24,7 +24,7 @@
         },
     },
     "timing": {
-        "idle": {
+        "dancing": {
             "body": {
                 "surface_indices": "dancing_gamepad.dancing",
             },

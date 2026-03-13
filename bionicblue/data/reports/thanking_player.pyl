@@ -33,7 +33,7 @@
             'end_pos': [
                 'center',
                 'center',
-                (-30, 0),
+                (-25, 0),
             ],
         },
 
@@ -49,7 +49,7 @@
             'end_pos': [
                 'center',
                 'center',
-                (30, 0),
+                (25, 0),
             ],
         },
 
@@ -73,6 +73,7 @@
 
         {
             'name': 'dancing_gamepad',
+            'id_str': 'left_gamepad',
             'anim_name': 'dancing',
             'panel_index': 1,
             'start_pos': [
@@ -83,12 +84,13 @@
             'end_pos': [
                 'midright',
                 'center',
-                (-25, 0),
+                (-40, 12),
             ],
         },
 
         {
             'name': 'dancing_gamepad',
+            'id_str': 'right_gamepad',
             'anim_name': 'dancing',
             'panel_index': 1,
             'start_pos': [
@@ -99,7 +101,7 @@
             'end_pos': [
                 'midleft',
                 'center',
-                (25, 0),
+                (40, 12),
             ],
         },
 
@@ -107,6 +109,7 @@
 
         {
             'name': 'chart',
+            'id_str': 'chart_decreasing',
             'anim_name': 'chart_decreasing',
             'panel_index': 2,
             'start_pos': [
@@ -135,12 +138,13 @@
             'end_pos': [
                 'center',
                 'center',
-                (-30, 0),
+                (-20, 0),
             ],
         },
 
         {
             'name': 'chart',
+            'id_str': 'chart_increasing',
             'anim_name': 'chart_increasing',
             'panel_index': 3,
             'start_pos': [
@@ -151,7 +155,7 @@
             'end_pos': [
                 'center',
                 'center',
-                (30, 0),
+                (20, 0),
             ],
         },
 
@@ -190,7 +194,7 @@
             'end_pos': [
                 'center',
                 'center',
-                (0, 0),
+                (0, 7),
             ],
         },
 

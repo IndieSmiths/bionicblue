@@ -20,14 +20,14 @@
     "values": {
         "popping_left": {
             "body": {
-                "surfaces": "party_popper_purple.popping_left",
+                "surfaces": "party_popper_yellow.popping_left",
             },
         },
     },
     "timing": {
         "popping_left": {
             "body": {
-                "surface_indices": "party_popper_purple.popping_left",
+                "surface_indices": "party_popper_yellow.popping_left",
             },
         },
     },
