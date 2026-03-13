@@ -72,8 +72,8 @@
         ### panel 1
 
         {
-            'name': 'gamepad',
-            'anim_name': 'dancing_gamepad',
+            'name': 'dancing_gamepad',
+            'anim_name': 'dancing',
             'panel_index': 1,
             'start_pos': [
                 'midright',
@@ -88,8 +88,8 @@
         },
 
         {
-            'name': 'gamepad',
-            'anim_name': 'dancing_gamepad',
+            'name': 'dancing_gamepad',
+            'anim_name': 'dancing',
             'panel_index': 1,
             'start_pos': [
                 'midleft',
@@ -142,7 +142,7 @@
         {
             'name': 'chart',
             'anim_name': 'chart_increasing',
-            'panel_index': 2,
+            'panel_index': 3,
             'start_pos': [
                 'midleft',
                 'midright',
@@ -152,6 +152,24 @@
                 'center',
                 'center',
                 (30, 0),
+            ],
+        },
+
+        ### panel 4
+
+        {
+            'name': 'lasagna',
+            'anim_name': 'idle',
+            'panel_index': 4,
+            'start_pos': [
+                'midtop',
+                'midbottom',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (0, 0),
             ],
         },
 
@@ -176,11 +194,10 @@
             ],
         },
 
-        ###
+        ### TODO (add patreon and github logos for panel 5)
 
     ],
 
-    ### TODO change music
-    'music': 'creep_by_tokyogeisha.ogg',
+    'music': 'level_1_by_juhani_junkala.ogg',
 
 }

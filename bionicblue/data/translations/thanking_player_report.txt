@@ -45,4 +45,4 @@ paragraph_05
     # patreon and github logos
 
     en-us You'll find all donation links in the "Links" screen that you can access from the main menu. Thank you very much!
-    pt-br Todos os links para doações podem ser encontrados na tela "Links" que você acessa a partir do menu principal. Muito obrigado!
+    pt-br Você vai encontrar todos os links para doações na tela "Links" que você acessa a partir do menu principal. Muito obrigado!
