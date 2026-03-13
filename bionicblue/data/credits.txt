@@ -44,3 +44,6 @@
 
 {assets_sil_fonts}
     [takwolf](https://ark-pixel-font.takwolf.com/)
+
+{other_assets_social_icons}
+    [Boxpix Studios](https://boxpixstudios.com/)

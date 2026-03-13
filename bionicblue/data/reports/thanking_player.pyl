@@ -194,7 +194,37 @@
             ],
         },
 
-        ### TODO (add patreon and github logos for panel 5)
+        ### panel 5
+
+        {
+            'name': 'patreon_icon.png',
+            'panel_index': 5,
+            'start_pos': [
+                'midright',
+                'midleft',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (-12, 0),
+            ],
+        },
+
+        {
+            'name': 'github_icon.png',
+            'panel_index': 5,
+            'start_pos': [
+                'midleft',
+                'midright',
+                (0, 0),
+            ],
+            'end_pos': [
+                'center',
+                'center',
+                (12, 0),
+            ],
+        },
 
     ],
 
