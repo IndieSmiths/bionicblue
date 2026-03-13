@@ -1,0 +1,13 @@
+{follow_project_developer}
+    [Bionic Blue on GitHub](https://github.com/IndieSmiths/bionicblue)
+    [kennedyrichard.com](https://kennedyrichard.com)
+    [Bluesky/kennedyrichard.com](https://bsky.app/profile/kennedyrichard.com)
+    [x.com/KennedyRichard](https://x.com/KennedyRichard)
+    [Discord - IndieSmiths](https://discord.gg/exg3Thvpw6)
+    [Youtube - IndieSmiths](https://youtube.com/@IndieSmiths)
+
+{donate}
+    [patreon/KennedyRichard](https://patreon.com/KennedyRichard)
+    [GitHub Sponsors/KennedyRichard](https://github.com/sponsors/KennedyRichard)
+    [Ko-fi/KennedyRichard](https://ko-fi.com/KennedyRichard)
+    [{other_donation_options}](https://indiesmiths.com/donate)

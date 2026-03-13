@@ -1,0 +1,25 @@
+
+caption
+
+    en-us Links
+    pt-br Links
+
+follow_project_developer
+
+    en-us Follow project and its developer
+    pt-br Siga o projeto e seu desenvolvedor
+
+donate
+
+    en-us Donate
+    pt-br Doe 
+
+other_donation_options
+
+    en-us Other donation options
+    pt-br Outros meios de doar
+
+open_link
+
+    en-us Open {netloc} link
+    pt-br Abrir link de {netloc}

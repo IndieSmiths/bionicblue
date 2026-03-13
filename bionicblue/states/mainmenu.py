@@ -116,6 +116,7 @@ class MainMenu:
                 'kbd_controls',
                 'gp_controls',
                 'options',
+                'links',
                 'credits',
                 'exit',
             )
@@ -155,6 +156,7 @@ class MainMenu:
                     'kbd_controls',
                     'gp_controls',
                     'options',
+                    'links',
                     'credits',
                     'exit',
                 )
@@ -176,6 +178,7 @@ class MainMenu:
                     'kbd_controls',
                     'gp_controls',
                     'options',
+                    'links',
                     'credits',
                     'exit',
                 )
@@ -269,6 +272,7 @@ class MainMenu:
                 'kbd_controls',
                 'gp_controls',
                 'options',
+                'links',
                 'credits',
                 'exit',
             )
@@ -340,6 +344,13 @@ class MainMenu:
 
             raise LoopException(next_state=options_screen)
 
+        elif item_key == 'links':
+
+            links_screen = REFS.states.links_screen
+            links_screen.prepare()
+
+            raise LoopException(next_state=links_screen)
+
         elif item_key == 'credits':
 
             credits_screen = REFS.states.credits_screen
@@ -349,6 +360,13 @@ class MainMenu:
 
         elif item_key == 'exit':
             quit_game()
+
+        else:
+
+            raise ValueError(
+                "'item_key' must be listed in one"
+                " of the previous if/elif clauses."
+            )
 
     def control_item_selection(self):
 

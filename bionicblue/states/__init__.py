@@ -24,6 +24,8 @@ from .pausemenu import PauseMenu, pause
 
 from .creditsscreen import CreditsScreen
 
+from .linksscreen import LinksScreen
+
 from .slotcreationscreen import SlotCreationScreen
 
 from .loadgamescreen import LoadGameScreen
@@ -53,6 +55,7 @@ def setup_states():
     REFS.pause = pause
 
     states.credits_screen = CreditsScreen()
+    states.links_screen = LinksScreen()
 
     states.slot_creation_screen = SlotCreationScreen()
     states.load_game_screen = LoadGameScreen()
