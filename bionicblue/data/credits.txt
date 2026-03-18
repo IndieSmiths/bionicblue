@@ -22,6 +22,7 @@
 
 {assets_cc0_sounds}
     [CaptainYulef](https://freesound.org/people/CaptainYulef/sounds/640869/)
+    [CorneRoose](https://freesound.org/people/CorneRoose/sounds/654182/)
     [congusbongus](https://opengameart.org/content/new-thing-get)
     [Daftrio](https://freesound.org/people/Daftrio/sounds/816737/)
     [MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/515005/)
