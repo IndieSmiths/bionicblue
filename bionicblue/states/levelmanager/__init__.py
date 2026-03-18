@@ -54,8 +54,6 @@ from .actors.giovanni import Giovanni
 
 from .frontprops.lightpoleback import LightPoleBack
 
-from .prototypemessage import message
-
 from .common import (
 
     HEALTH_COLUMNS,
@@ -170,19 +168,6 @@ class LevelManager(
 
         ###
         VICINITY_RECT.center = SCREEN_RECT.center
-
-        ### add custom prototype message
-
-        message_pos = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'message'
-        )['pos']
-
-        message.layer_name = 'backprops'
-        message.rect.centerx = message_pos[0]
-        message.rect.bottom = message_pos[1] - 20
-        add_obj(message)
 
         ### add npc
 

@@ -8,20 +8,20 @@ from functools import partial
 
 ### local imports
 
-from ...pygamesetup.constants import msecs_to_frames, blit_on_screen
+from ....pygamesetup.constants import msecs_to_frames, blit_on_screen
 
-from ...ourstdlibs.behaviour import do_nothing
+from ....ourstdlibs.behaviour import do_nothing
 
-from ...textman import render_text_with_shadow
+from ....textman import render_text_with_shadow
 
-from .common import VFX_ELEMENTS
+from ..common import VFX_ELEMENTS
 
-from .taskmanager import append_ready_task
+from ..taskmanager import append_ready_task
 
 
 
 _LIFE_DURATION_MSECS = 2300
-LIFE_DURATION_FRAMES = msecs_to_frames(_LIFE_DURACTION_MSECS)
+LIFE_DURATION_FRAMES = msecs_to_frames(_LIFE_DURATION_MSECS)
 
 
 class HoveringText:

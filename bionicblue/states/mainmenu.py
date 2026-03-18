@@ -18,8 +18,6 @@ from pygame.locals import (
 
 from pygame.display import update
 
-from pygame.mixer import music
-
 
 ### local imports
 

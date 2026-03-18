@@ -22,7 +22,6 @@
 
 {assets_cc0_sounds}
     [CaptainYulef](https://freesound.org/people/CaptainYulef/sounds/640869/)
-    [CorneRoose](https://freesound.org/people/CorneRoose/sounds/654182/)
     [congusbongus](https://opengameart.org/content/new-thing-get)
     [Daftrio](https://freesound.org/people/Daftrio/sounds/816737/)
     [MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/515005/)
@@ -37,6 +36,7 @@
     [Kenney](https://kenney.nl/assets/interface-sounds)
     [kantouth](https://freesound.org/people/kantouth/sounds/104398/)
     [mediatheksuche](https://freesound.org/people/mediatheksuche/sounds/623709/)
+    [Ottomaani138](https://freesound.org/people/Ottomaani138/sounds/232906/)
     [sheepfilms](https://freesound.org/people/sheepfilms/sounds/154795/)
     [titobari](https://freesound.org/people/titobari/sounds/577057/)
     [unfa](https://freesound.org/people/unfa/sounds/187119/)

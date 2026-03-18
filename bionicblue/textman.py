@@ -148,18 +148,27 @@ def render_text_with_shadow(text, style, size):
             text,
             False,
             'black',
-            COLORKEY,
         )
 
-        .convert()
+        .convert_alpha()
 
     )
 
-    text_shadow_surf.set_colorkey(COLORKEY)
+    size = tuple(dimension + 1 for dimension in text_surf.get_size())
 
-    text_shadow_surf.blit(
+    canvas_surf = Surface(size).convert()
+
+    canvas_surf.fill(COLORKEY)
+    canvas_surf.set_colorkey(COLORKEY)
+
+    canvas_surf.blit(
+        text_shadow_surf,
+        (1, 1)
+    )
+
+    canvas_surf.blit(
         text_surf,
-        (-1, -1)
+        (0, 0)
     )
 
-    return text_shadow_surf
+    return canvas_surf

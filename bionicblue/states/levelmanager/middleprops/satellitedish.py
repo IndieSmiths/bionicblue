@@ -1,12 +1,18 @@
 """Facility for satellite dish checkpoint."""
 
+### standard library import
+from itertools import chain, cycle, repeat
+
+
 ### third-party import
 from pygame.draw import circle as draw_circle
 
 
 ### local imports
 
-from ....config import REFS, SCREEN, SOUND_MAP
+from ....config import REFS, SOUND_MAP
+
+from ....pygamesetup.constants import SCREEN
 
 from ....ani2d.player import AnimationPlayer2D
 
@@ -28,22 +34,52 @@ class SatelliteDish:
         self.checkpoint_name = checkpoint_name
 
         self.aniplayer = (
-            AnimationPlayer2D(
-                self, 'satellite_dish', animation_name, 'midbottom', pos
-            )
-        )
 
-        self.rect.midbottom = midbottom
+            AnimationPlayer2D(
+                self,
+                'satellite_dish',
+                animation_name,
+                'midbottom',
+                midbottom,
+            )
+
+        )
 
         self.update = do_nothing
         self.draw = self.normal_draw
 
+        self.next_radius = cycle(
+
+            chain(
+                range(4, 16),
+                repeat(0, 8),
+                range(4, 16),
+                repeat(0, 8),
+                range(4, 16),
+                repeat(0, 30),
+            )
+
+        ).__next__
+
     def trigger_activation(self):
 
         self.aniplayer.switch_animation('activating')
-        SOUND_MAP['satellite_dish_moving'].play()
+
+        SOUND_MAP['satellite_dish_moving.wav'].play()
 
         self.update = self.check_activation
+
+        VFX_ELEMENTS.add(
+
+            HoveringText(
+                'Checkpoint!',
+                pos_name='midbottom',
+                pos_value=self.rect.midtop,
+            )
+
+        )
+
+        REFS.last_checkpoint_name = self.checkpoint_name
 
         return True
 
@@ -52,18 +88,6 @@ class SatelliteDish:
         if self.aniplayer.main_timing.peek_loops_no(1) == 1:
 
             self.aniplayer.switch_animation('activated')
-
-            VFX_ELEMENTS.add(
-
-                HoveringText(
-                    'Checkpoint!',
-                    pos_name = 'midbottom'
-                    pos_value = self.rect.midtop
-                )
-
-            )
-
-            REFS.last_checkpoint_name = self.checkpoint_name
 
             self.signal_countdown = 200
             self.update = self.check_signal
@@ -85,12 +109,18 @@ class SatelliteDish:
 
         self.aniplayer.draw()
 
-        # TODO make pulse effect with circles
+        # pulse effect with expanding circle
 
-        draw_circle(
-            SCREEN,
-            'yellow',
-            self.rect.move(0, 10).midtop,
-            8,
-            1,
-        )
+        radius = self.next_radius()
+
+        if radius:
+
+            center = self.rect.move(-6, 13).midtop,
+
+            draw_circle(
+                SCREEN,
+                'yellow',
+                center,
+                radius,
+                1,
+            )
