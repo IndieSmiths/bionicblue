@@ -32,7 +32,7 @@ from .....ourstdlibs.behaviour import do_nothing
 
 from .....pointsman2d.create import yield_circle_points
 
-from ...frontprops.defaultexplosion import DefaultExplosion
+from ...otherprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
     PROJECTILES,

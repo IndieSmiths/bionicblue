@@ -10,6 +10,8 @@ from pygame import Surface
 
 from pygame.mixer import music
 
+from pygame.math import Vector2
+
 
 ### local imports
 
@@ -36,6 +38,7 @@ from .middleprops.chaincratehanger import ChainCrateHanger
 from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 from .middleprops.foodbox import FoodBox
 from .middleprops.smartphone import Smartphone
+from .middleprops.satellitedish import SatelliteDish
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
@@ -384,20 +387,93 @@ class LevelManager(
 
         ### scroll level so player ends up positioned above given label
 
-        # can be be 'landing', 'midpoint' or 'endpoint' depending on which
-        # checkpoint the player reached (sometimes other temporary spots
-        # can be used, like 'npc_area_warp', so we can go straight to
-        # an npc's area)
-        #
-        # normally this will be 'landing' or whichever checkpoint the player
-        # reached (which may actually be 'endpoint')
-        label_name = 'endpoint'
+        satellite_dish_offset = Vector2(48, 0)
 
-        landing_pos = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == label_name 
-        )['pos']
+        last_checkpoint_name = REFS.last_checkpoint_name
+
+        for label_name in ('landing', 'midpoint', 'endpoint'):
+
+            pos = next(
+                label_data
+                for label_data in level_data['layered_objects']['labels']
+                if label_data['text'] == label_name 
+            )['pos']
+
+            if label_name == 'landing':
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + satellite_dish_offset),
+                        animation_name='activated',
+                    )
+
+                )
+
+            elif last_checkpoint_name == 'landing':
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + satellite_dish_offset),
+                        animation_name='deactivated',
+                    )
+
+                )
+
+            elif label_name == 'midpoint':
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + satellite_dish_offset),
+                        animation_name='activated',
+                    )
+
+                )
+
+            else:
+
+                animation_name = (
+                    'deactivated'
+                    if last_check_point == 'midpoint'
+                    else 'activated'
+                )
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + satellite_dish_offset),
+                        animation_name=animation_name,
+                    )
+
+                )
+
+            add_obj(satdish)
+
+            if satdish.aniplayer.anim_name == 'deactivated':
+
+                satellite_trigger = (
+
+                    InvisibleCollidingTrigger(
+
+                        on_collision=satdish.trigger_activation,
+                        width=32,
+                        height=40,
+                        coordinates_name='midbottom',
+                        coordinates_value=satdish.rect.midbottom,
+                    )
+
+                )
+
+                add_obj(satellite_trigger)
+
+            if label_name == last_checkpoint_name:
+                landing_pos = pos
 
         dx = SCREEN_RECT.centerx - landing_pos[0]
         dy = FLOOR_LEVEL - landing_pos[1]

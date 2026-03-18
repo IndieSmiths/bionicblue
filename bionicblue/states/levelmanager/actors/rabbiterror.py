@@ -16,7 +16,7 @@ from ....ani2d.player import AnimationPlayer2D
 
 from ....ourstdlibs.behaviour import do_nothing
 
-from ..frontprops.defaultexplosion import DefaultExplosion
+from ..otherprops.defaultexplosion import DefaultExplosion
 
 from ..common import (
     BLOCKS_NEAR_SCREEN,

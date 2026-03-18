@@ -61,6 +61,8 @@ REFS.__dict__.update(dict(
 
     states = Object(),
 
+    last_checkpoint_name = 'landing',
+
     dialogue_action_cueing_data = {},
     dialogue_character_names_set_map = {},
 
