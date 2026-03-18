@@ -21,6 +21,8 @@ from pygame.display import update as update_screen
 
 from pygame.draw import rect as draw_rect
 
+from pygame.mixer import music
+
 
 ### local imports
 
@@ -37,13 +39,22 @@ from ..pygamesetup.constants import (
 
 from ..userprefsman.main import GAMEPAD_CONTROLS
 
-from ..config import REFS, COLORKEY, LoopException, quit_game
+from ..config import (
+    REFS,
+    COLORKEY,
+    SOUND_MAP,
+    MUSIC_DIR,
+    LoopException,
+    quit_game,
+)
 
 from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D
 
 from ..textman import render_text, update_text_surface
+
+from ..userprefsman.main import USER_PREFS
 
 from ..translatedtext import TRANSLATIONS, on_language_change
 
@@ -71,16 +82,53 @@ SELECTED_LABEL_TEXT_SETTINGS = {
     'foreground_color': 'orange',
 }
 
+ITEM_KEYS = (
+    'resume',
+    'main_menu',
+    'quit_game',
+)
+
+
+def resume():
+
+    SOUND_MAP['pause_out.wav'].play()
+    raise LoopException(next_state=REFS.states.level_manager)
 
 
 def pause():
+
+    SOUND_MAP['pause_in.wav'].play()
 
     pm = REFS.states.pause_menu
     pm.prepare()
     raise LoopException(next_state=pm)
 
-def resume():
-    raise LoopException(next_state=REFS.states.level_manager)
+def leave_to_main_menu():
+
+    REFS.states.level_manager.cleanup()
+
+    callable_to_use = go_to_main_menu
+
+    transition_screen = REFS.states.transition_screen
+    transition_screen.prepare(callable_to_use)
+
+    raise LoopException(next_state=transition_screen)
+
+def go_to_main_menu():
+
+    music_volume = (
+        (USER_PREFS['MASTER_VOLUME']/100)
+        * (USER_PREFS['MUSIC_VOLUME']/100)
+    )
+
+    music.set_volume(music_volume)
+    music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
+    music.play(-1)
+
+    main_menu = REFS.states.main_menu
+    main_menu.prepare()
+
+    raise LoopException(next_state=main_menu)
 
 
 class PauseMenu:
@@ -112,7 +160,7 @@ class PauseMenu:
 
             )
 
-            for key in ('resume', 'quit_game')
+            for key in ITEM_KEYS
 
         ]
 
@@ -146,10 +194,7 @@ class PauseMenu:
 
                 obj_map[key]
 
-                for key in (
-                    'resume',
-                    'quit_game',
-                )
+                for key in ITEM_KEYS
 
             )
 
@@ -310,8 +355,14 @@ class PauseMenu:
         if item_key == 'resume':
             resume()
 
+        elif item_key == 'main_menu':
+            leave_to_main_menu()
+
         elif item_key == 'quit_game':
             quit_game()
+
+        else:
+            raise ValueError("'item_key' must be among if/elif clauses above")
 
     def update(self): pass
 

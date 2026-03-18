@@ -28,6 +28,9 @@ class Giovanni:
 
         self.update = self.idle_update
 
+    def reset(self, pos):
+        setattr(self.rect, 'midbottom', pos)
+
     def idle_update(self):
         """Do nothing."""
 

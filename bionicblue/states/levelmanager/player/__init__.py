@@ -8,6 +8,8 @@ from math import inf as INFINITY
 
 from collections import deque
 
+from functools import partial
+
 
 ### local imports
 
@@ -30,13 +32,15 @@ from ....pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ....ourstdlibs.behaviour import do_nothing
+from ....ourstdlibs.behaviour import CallList, do_nothing
 
 ## classes for composition
 
 from ....ani2d.player import AnimationPlayer2D
 
 from ..common import MIDDLE_PROPS_NEAR_SCREEN, BLOCKS_NEAR_SCREEN
+
+from ..taskmanager import append_timed_task
 
 from .healthcolumn import HealthColumn
 
@@ -121,6 +125,9 @@ class Player(
 
         if not hasattr(self, 'health_column'):
             self.health_column = HealthColumn()
+
+        else:
+            self.health_column.reset()
 
         self.y_speed = MAX_Y_SPEED
 
@@ -449,13 +456,18 @@ class Player(
         self.set_state('dead')
         self.aniplayer = self.death_rings_aniplayer
 
+        self.death_rings_aniplayer.switch_animation('expanding')
+
         center = self.rect.center
         self.rect = self.aniplayer.root.rect
         self.rect.center = center
 
         REFS.disable_overall_tracking_for_camera()
         REFS.disable_feet_tracking_for_camera()
+
         SOUND_MAP['blue_shooter_man_death.wav'].play()
+
+        REFS.states.level_manager.schedule_level_restart()
 
     def be_grabbed(self):
 
@@ -628,5 +640,38 @@ class Player(
 
     def teleport_away(self):
 
-        self.aniplayer.switch_animation('dematerializing')
-        self.set_state('teleporting_out')
+        delta_x = (
+            (REFS.states.level_manager.endpoint_satdish.rect.left - 32)
+            - self.rect.centerx
+        )
+
+        frame_duration = self.act_on_given_script(
+
+            [
+
+                {
+                    'type': 'walk',
+                    'delta_x': delta_x,
+                },
+
+                {
+                    'type': 'wait',
+                    'secs': 1.2,
+                },
+
+            ],
+
+        )
+
+        ### schedule teleportation away
+
+        callable_obj = CallList([
+            partial(self.aniplayer.switch_animation, 'dematerializing'),
+            partial(self.set_state, 'teleporting_out'),
+        ])
+
+        append_timed_task(
+            callable_obj,
+            delta_t=frame_duration,
+            unit='frames',
+        )

@@ -1,0 +1,55 @@
+{
+    "name": "satellite_dish",
+    "geometry": {
+        "body" : {
+            "size" : (64, 64),
+            "art_size" : (64, 64),
+            "art_anchorage" : ('midbottom', 'midbottom'),
+        },
+    },
+    "objects" : {
+        "body" : {"geometry": "body"},
+    },
+    "existing_structures" : {
+        "static" : {"tree" : {"name": "body"}},
+    },
+    "animations" :{
+        "deactivated": {"structure": "static"},
+        "activated": {"structure": "static"},
+        "activating": {"structure": "static"},
+    },
+    "values": {
+        "deactivated": {
+            "body": {
+                "surfaces": "satellite_dish.deactivated",
+            },
+        },
+        "activated": {
+            "body": {
+                "surfaces": "satellite_dish.activated",
+            },
+        },
+        "activating": {
+            "body": {
+                "surfaces": "satellite_dish.activating",
+            },
+        },
+    },
+    "timing": {
+        "deactivated": {
+            "body": {
+                "surface_indices": "satellite_dish.deactivated",
+            },
+        },
+        "activated": {
+            "body": {
+                "surface_indices": "satellite_dish.activated",
+            },
+        },
+        "activating": {
+            "body": {
+                "surface_indices": "satellite_dish.activating",
+            },
+        },
+    },
+}

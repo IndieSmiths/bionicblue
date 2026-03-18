@@ -61,6 +61,8 @@ REFS.__dict__.update(dict(
 
     states = Object(),
 
+    last_checkpoint_name = 'landing',
+
     dialogue_action_cueing_data = {},
     dialogue_character_names_set_map = {},
 
@@ -100,6 +102,7 @@ LEVELS_DIR = DATA_DIR / 'levels'
 PARTICLES_DIR = DATA_DIR / 'particles'
 MOTION_PATHS_DIR = DATA_DIR / 'motion_paths'
 SCRIPTED_SCENES_DATA_DIR = DATA_DIR / 'scripted_scenes_data'
+PARALLAX_POSITIONING_DIR = DATA_DIR / 'parallax_positioning'
 
 TRANSLATIONS_DIR = DATA_DIR / 'translations'
 LANGUAGE_NAMES_FILEPATH = TRANSLATIONS_DIR / 'language_native_names.pyl'
@@ -122,6 +125,17 @@ SOUND_MAP = {}
 WRITEABLE_PATH = Path(get_pref_path(ORG_DIR_NAME, APP_DIR_NAME))
 
 SAVE_SLOTS_DIR = WRITEABLE_PATH / 'save_slots'
+
+def has_save_slots():
+
+    return any(
+
+        path
+
+        for path in SAVE_SLOTS_DIR.iterdir()
+        if path.suffix.lower() == '.pyl'
+
+    )
 
 def get_custom_formated_current_datetime_str():
 

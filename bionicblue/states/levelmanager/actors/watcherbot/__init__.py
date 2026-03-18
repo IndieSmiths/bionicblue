@@ -17,7 +17,7 @@ from .....ani2d.player import AnimationPlayer2D
 from .....ourstdlibs.behaviour import do_nothing
 from .....ourstdlibs.mathutils import get_straight_distance
 
-from ...frontprops.defaultexplosion import DefaultExplosion
+from ...otherprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
     PROJECTILES,

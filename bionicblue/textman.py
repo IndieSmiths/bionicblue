@@ -6,8 +6,9 @@ from pygame import Surface
 from pygame.font import Font
 
 
-### local import
-from .config import FONTS_DIR
+### local imports
+
+from .config import FONTS_DIR, COLORKEY
 
 
 
@@ -43,7 +44,9 @@ class FontMap(dict):
 
         return self.setdefault(key, Font(str(STYLE_TO_FONT[style]), size))
 
+
 FONT_MAP = FontMap()
+
 
 def render_text(
     text,
@@ -122,3 +125,50 @@ def update_text_surface(
     obj.image = new_surf
     obj.rect = new_rect
 
+
+def render_text_with_shadow(text, style, size):
+
+    font = FONT_MAP[(style, size)]
+
+    text_surf = (
+
+        font.render(
+            text,
+            False,
+            'white',
+        )
+
+        .convert_alpha()
+
+    )
+
+    text_shadow_surf = (
+
+        font.render(
+            text,
+            False,
+            'black',
+        )
+
+        .convert_alpha()
+
+    )
+
+    size = tuple(dimension + 1 for dimension in text_surf.get_size())
+
+    canvas_surf = Surface(size).convert()
+
+    canvas_surf.fill(COLORKEY)
+    canvas_surf.set_colorkey(COLORKEY)
+
+    canvas_surf.blit(
+        text_shadow_surf,
+        (1, 1)
+    )
+
+    canvas_surf.blit(
+        text_surf,
+        (0, 0)
+    )
+
+    return canvas_surf

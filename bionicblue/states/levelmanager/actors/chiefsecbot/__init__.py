@@ -32,7 +32,7 @@ from .....ourstdlibs.behaviour import do_nothing
 
 from .....pointsman2d.create import yield_circle_points
 
-from ...frontprops.defaultexplosion import DefaultExplosion
+from ...otherprops.defaultexplosion import DefaultExplosion
 
 from ...common import (
     PROJECTILES,
@@ -99,6 +99,8 @@ explosion_points_deque = deque(
 
 INITIAL_STEPS_RANGE = range(3)
 
+INITIAL_OFFSET = Vector2(-12, 0)
+
 
 class ChiefSecurityBot:
 
@@ -117,13 +119,19 @@ class ChiefSecurityBot:
         self.shoot_countdown = 0
         self.did_run_into_player = False
 
+        ###
+
+        self.initial_pos = pos + INITIAL_OFFSET
+        self.facing_right = facing_right
+
         animation_name = 'idle_right' if facing_right else 'idle_left'
 
         self.aniplayer = (
             AnimationPlayer2D(
-                self, name, animation_name, 'bottomright', pos+Vector2(-12, 0),
+                self, name, animation_name, 'bottomright', self.initial_pos,
             )
         )
+
 
         # last_damage is set to negative infinity so that the first damage is
         # always triggered (check self.damage() method to understand)
@@ -132,7 +140,29 @@ class ChiefSecurityBot:
         self.routine_check = do_nothing
         self.update = self.idle_update
 
-        REFS.level_boss = self
+    def reset(self, pos):
+
+        self.x_speed = self.y_speed = 0
+
+        self.punch_countdown = 0
+        self.no_of_punched_crates = 0
+        self.shoot_countdown = 0
+        self.did_run_into_player = False
+
+        animation_name = 'idle_right' if self.facing_right else 'idle_left'
+
+        self.aniplayer.switch_animation(animation_name)
+
+        # last_damage is set to negative infinity so that the first damage is
+        # always triggered (check self.damage() method to understand)
+        self.last_damage = -INFINITY
+
+        self.routine_check = do_nothing
+        self.update = self.idle_update
+
+        self.health_column.reset()
+
+        setattr(self.rect, 'bottomright', self.initial_pos)
 
     @property
     def health(self):

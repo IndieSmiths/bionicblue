@@ -10,13 +10,17 @@ from pygame import Surface
 
 from pygame.mixer import music
 
+from pygame.math import Vector2
+
 
 ### local imports
 
 from ...config import (
     REFS,
+    SURF_MAP,
     LEVELS_DIR,
     MUSIC_DIR,
+    PARALLAX_POSITIONING_DIR,
 )
 
 from ...pygamesetup.constants import SCREEN_RECT
@@ -24,6 +28,8 @@ from ...pygamesetup.constants import SCREEN_RECT
 from ...ourstdlibs.pyl import load_pyl
 
 from ...userprefsman.main import USER_PREFS
+
+from ...classes2d.single import UIObject2D
 
 from .player import Player
 
@@ -36,6 +42,7 @@ from .middleprops.chaincratehanger import ChainCrateHanger
 from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 from .middleprops.foodbox import FoodBox
 from .middleprops.smartphone import Smartphone
+from .middleprops.satellitedish import SatelliteDish
 
 from .blocks.cityblock import CityBlock
 from .blocks.spike import Spike
@@ -51,11 +58,10 @@ from .actors.giovanni import Giovanni
 
 from .frontprops.lightpoleback import LightPoleBack
 
-from .prototypemessage import message
-
 from .common import (
 
     HEALTH_COLUMNS,
+    CLOUDS,
 
     VICINITY_RECT,
 
@@ -65,6 +71,7 @@ from .common import (
     group_objects,
     add_obj,
     update_chunks_and_layers,
+    clear_chunks_and_layers,
 
 )
 
@@ -74,8 +81,11 @@ from .popupmgmt import LevelManagerPopupManagement
 
 from .scriptedscenemgmt import ScriptedSceneManagement
 
-from .constants import FLOOR_LEVEL
+from .constants import FLOOR_LEVEL, MOVE_CLOUDS_FRAMES, clouds_movement_delta
 
+
+
+SATELLITE_DISH_OFFSET = Vector2(48, 0)
 
 
 class LevelManager(
@@ -133,8 +143,41 @@ class LevelManager(
 
         self.player.prepare()
 
-        HEALTH_COLUMNS.clear()
         HEALTH_COLUMNS.add(self.player.health_column)
+
+        ###
+
+        if not CLOUDS:
+
+            cpm = self.cloud_positioning_map = (
+                load_pyl(PARALLAX_POSITIONING_DIR / 'clouds.pyl')
+            )
+
+            CLOUDS.extend(
+
+                UIObject2D.from_surface(
+
+                    surface=SURF_MAP[image_name],
+                    coordinates_name='center',
+                    coordinates_value=rect_center,
+                    image_name=image_name,
+
+                )
+
+                for image_name, rect_center in cpm.items()
+
+            )
+
+        else:
+
+            cpm = self.cloud_positioning_map
+
+            for obj in CLOUDS:
+                obj.rect.center = cpm[obj.image_name]
+
+        self.clouds_topleft = CLOUDS.rect.topleft
+        clouds_movement_delta.update(0, 0)
+        self.move_clouds_countdown = MOVE_CLOUDS_FRAMES
 
         ###
 
@@ -168,19 +211,6 @@ class LevelManager(
         ###
         VICINITY_RECT.center = SCREEN_RECT.center
 
-        ### add custom prototype message
-
-        message_pos = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == 'message'
-        )['pos']
-
-        message.layer_name = 'backprops'
-        message.rect.centerx = message_pos[0]
-        message.rect.bottom = message_pos[1] - 20
-        add_obj(message)
-
         ### add npc
 
         npc_midbottom = next(
@@ -189,11 +219,19 @@ class LevelManager(
             if label_data['text'] == 'npc'
         )['pos']
 
-        npc = Giovanni(npc_midbottom)
-        npc.layer_name = 'actors'
-        add_obj(npc)
+        if not hasattr(self, 'npc'):
 
-        self.npc = npc
+            npc = Giovanni(npc_midbottom)
+            npc.layer_name = 'actors'
+
+            self.npc = npc
+
+        else:
+
+            npc = self.npc
+            npc.reset(npc_midbottom)
+
+        add_obj(npc)
 
         ### add boss
 
@@ -203,9 +241,21 @@ class LevelManager(
             if label_data['text'] == 'boss_br'
         )['pos']
 
-        boss = ChiefSecurityBot('chief_sec_bot', boss_bottomright, facing_right=False)
-        boss.layer_name = 'actors'
+        if not hasattr(REFS, 'level_boss'):
+
+            boss = ChiefSecurityBot('chief_sec_bot', boss_bottomright, facing_right=False)
+            boss.layer_name = 'actors'
+
+            REFS.level_boss = boss
+
+        else:
+
+            boss = REFS.level_boss
+            boss.reset(boss_bottomright)
+
         add_obj(boss)
+
+        ### TODO keep adjusting for restart_level() from this point
 
         ### add gates and related objs
 
@@ -270,6 +320,7 @@ class LevelManager(
         add_obj(boss_gate0)
         add_obj(boss_gate1)
 
+        self.boss_gate0 = boss_gate0
         self.boss_gate1 = boss_gate1
 
         ### add colliding trigger for npc encounter
@@ -379,25 +430,102 @@ class LevelManager(
             if label_data['text'] == 'cam_cx'
         )['pos']
 
-        ### store smartphone instance
-        self.smartphone = Smartphone()
+        ### store smartphone instance if not created already
+
+        if not hasattr(self, 'smartphone'):
+            self.smartphone = Smartphone()
 
         ### scroll level so player ends up positioned above given label
 
-        # can be be 'landing', 'midpoint' or 'endpoint' depending on which
-        # checkpoint the player reached (sometimes other temporary spots
-        # can be used, like 'npc_area_warp', so we can go straight to
-        # an npc's area)
-        #
-        # normally this will be 'landing' or whichever checkpoint the player
-        # reached (which may actually be 'endpoint')
-        label_name = 'endpoint'
+        last_checkpoint_name = REFS.last_checkpoint_name
 
-        landing_pos = next(
-            label_data
-            for label_data in level_data['layered_objects']['labels']
-            if label_data['text'] == label_name 
-        )['pos']
+        for label_name in ('landing', 'midpoint', 'endpoint'):
+
+            pos = next(
+                label_data
+                for label_data in level_data['layered_objects']['labels']
+                if label_data['text'] == label_name 
+            )['pos']
+
+            if label_name == 'landing':
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
+                        animation_name='activated',
+                    )
+
+                )
+
+            elif last_checkpoint_name == 'landing':
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
+                        animation_name='deactivated',
+                    )
+
+                )
+
+            elif label_name == 'midpoint':
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
+                        animation_name='activated',
+                    )
+
+                )
+
+            else:
+
+                animation_name = (
+                    'deactivated'
+                    if last_checkpoint_name == 'midpoint'
+                    else 'activated'
+                )
+
+                satdish = (
+
+                    SatelliteDish(
+                        checkpoint_name=label_name,
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
+                        animation_name=animation_name,
+                    )
+
+                )
+
+            add_obj(satdish)
+
+            if satdish.aniplayer.anim_name == 'deactivated':
+
+                satellite_trigger = (
+
+                    InvisibleCollidingTrigger(
+
+                        on_collision=satdish.trigger_activation,
+                        width=32,
+                        height=40,
+                        coordinates_name='midbottom',
+                        coordinates_value=satdish.rect.midbottom,
+                    )
+
+                )
+
+                add_obj(satellite_trigger)
+
+            if label_name == last_checkpoint_name:
+                landing_pos = pos
+
+            if label_name == 'endpoint':
+                self.endpoint_satdish = satdish
+
 
         dx = SCREEN_RECT.centerx - landing_pos[0]
         dy = FLOOR_LEVEL - landing_pos[1]
@@ -408,6 +536,14 @@ class LevelManager(
 
         ### update chunks and list objects on screen
         update_chunks_and_layers()
+
+    def restart_level(self):
+
+        clear_chunks_and_layers()
+        self.prepare()
+
+    def cleanup(self):
+        clear_chunks_and_layers()
 
 
 def instantiate(obj_data, layer_name):

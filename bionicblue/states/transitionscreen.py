@@ -13,7 +13,7 @@ from pygame.display import update
 
 ### local imports
 
-from ..config import REFS, LoopException, quit_game
+from ..config import REFS, SOUND_MAP, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -46,6 +46,8 @@ class TransitionScreen:
 
     def prepare(self, to_call_on_exit):
         """Store given callable and make extra preparations."""
+
+        SOUND_MAP['ui_success.wav'].play()
 
         self.to_call_on_exit = to_call_on_exit
 

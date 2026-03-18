@@ -1,4 +1,8 @@
 
+### standard library import
+from math import inf as INFINITY
+
+
 ### third-party imports
 
 from pygame import Surface, Rect
@@ -9,8 +13,6 @@ from pygame.draw import rect as draw_rect
 ### local imports
 
 from .....pygamesetup.constants import SCREEN_RECT, blit_on_screen
-
-from .....ourstdlibs.behaviour import do_nothing
 
 
 
@@ -39,12 +41,15 @@ class HealthColumn:
         draw_rect(image, 'brown', hbg)
         draw_rect(image, 'red', hfg)
 
-        self.update = do_nothing
+    def reset(self):
+        self.damage(-INFINITY)
+
+    def update(self): pass
 
     def damage(self, amount):
 
         self.health += -amount
-        self.health = max(0, self.health)
+        self.health = min(max(0, self.health), FULL_HEALTH)
 
         self.health_fg.height = self.health
         self.health_fg.bottom = self.health_bg.bottom

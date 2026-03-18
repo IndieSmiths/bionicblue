@@ -10,20 +10,32 @@ from pygame.display import update as update_screen
 
 from pygame.mixer import music
 
+from pygame.math import Vector2
+
 
 ### local imports
 
 from ...config import REFS, SOUND_MAP, MUSIC_DIR
 
-from ...pygamesetup.constants import SCREEN_RECT, blit_on_screen
+from ...pygamesetup.constants import (
+    SCREEN_RECT,
+    blit_on_screen,
+    reset_fade_accumulator,
+    apply_fade,
+    msecs_to_frames,
+)
 
 from ...ourstdlibs.behaviour import CallList, do_nothing
 
 from ...ourstdlibs.pyl import save_pyl
 
+from ...userprefsman.main import USER_PREFS
+
 from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 
 from .common import (
+
+    CLOUDS,
 
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
@@ -52,7 +64,7 @@ from .taskmanager import (
     update_task_manager,
 )
 
-from .constants import FLOOR_LEVEL
+from .constants import FLOOR_LEVEL, MOVE_CLOUDS_FRAMES, clouds_movement_delta
 
 
 
@@ -60,6 +72,7 @@ CAMERA_TRACKING_AREA = SCREEN_RECT.copy()
 CAMERA_TRACKING_AREA.width //= 5
 CAMERA_TRACKING_AREA.height += -40
 CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
+
 
 
 class LevelManagerLoopManagement:
@@ -78,6 +91,42 @@ class LevelManagerLoopManagement:
 
     def control_player(self):
         self.player.control()
+
+    def update_clouds(self):
+
+        ### move clouds if it is time
+
+        self.move_clouds_countdown -= 1
+
+        if self.move_clouds_countdown <= 0:
+
+            CLOUDS.rect.move_ip(1, 0)
+            clouds_movement_delta.x += 1
+
+            self.move_clouds_countdown = MOVE_CLOUDS_FRAMES
+
+
+        ### also shift rightmost cloud to left of all clouds
+        ### so it enters the screen again over time
+
+        screen_right = SCREEN_RECT.right
+
+        clouds_left = CLOUDS.rect.left
+
+        moved_cloud = False
+
+        for cloud in CLOUDS:
+
+            if cloud.rect.left > screen_right:
+
+                cloud.rect.right = clouds_left - cloud.rect.width
+                moved_cloud = True
+
+
+        if moved_cloud:
+
+            self.clouds_topleft = CLOUDS.rect.topleft
+            clouds_movement_delta.update(0, 0)
 
     def normal_update(self):
 
@@ -107,6 +156,8 @@ class LevelManagerLoopManagement:
             update_chunks_and_layers()
 
         ### now we update what is on the screen
+
+        self.update_clouds()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.update()
@@ -173,6 +224,8 @@ class LevelManagerLoopManagement:
             update_chunks_and_layers()
 
         ### now we update what is on the screen
+
+        self.update_clouds()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.update()
@@ -291,9 +344,21 @@ class LevelManagerLoopManagement:
         for element in VFX_ELEMENTS:
             element.rect.move_ip(diff)
 
+        ###
+
+        scrolling_x, scrolling_y = scrolling
+
+        scrolling_x //= 300
+        scrolling_y //= 60
+
+        CLOUDS.rect.topleft = self.clouds_topleft + clouds_movement_delta
+        CLOUDS.rect.move_ip(scrolling_x, scrolling_y)
+
     def draw_level(self):
 
         blit_on_screen(self.bg, (0, 0))
+
+        CLOUDS.draw()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()
@@ -352,6 +417,26 @@ class LevelManagerLoopManagement:
 
         ###
         self.boss_gate1.trigger_opening()
+
+        ### place a new trigger to the right of boss gate 0 that opens it
+        ### when the player walks back to the satellite after defeating the
+        ### boss
+
+        reopening_trigger = (
+
+            InvisibleCollidingTrigger(
+                on_collision=self.boss_gate0.trigger_opening,
+                width=16,
+                height=64,
+                coordinates_name='midbottom',
+                coordinates_value=self.boss_gate0.rect.move(100, 0).midbottom,
+            )
+
+        )
+
+        append_ready_task(
+            partial(add_obj, reopening_trigger)
+        )
 
         ### disable camera overall and feet tracking, since
         ### screen will now be focused solely on the arena,
@@ -475,11 +560,118 @@ class LevelManagerLoopManagement:
 
         if 'kane' in REFS.slot_data.get('beaten_bosses', ()):
 
+            music_volume = (
+                (USER_PREFS['MASTER_VOLUME']/100)
+                * (USER_PREFS['MUSIC_VOLUME']/100)
+            )
+
+            music.set_volume(music_volume)
+            music.load(str(MUSIC_DIR / 'level_1_by_juhani_junkala.ogg'))
+            music.play(-1)
+
             ### TODO should probably also:
             ###
             ### - deactivate kane and play the deactivation sound before
             ### leaving
-            self.player.teleport_away()
+
+            self.boss_gate1.trigger_opening()
+
+            ### schedule camera pan to player
+
+            ## it starts in 1 second
+            frames_offset = msecs_to_frames(1000)
+
+            ## and takes 2 seconds to complete
+            frames = msecs_to_frames(2000)
+
+            ##
+
+            current_pos = scrolling
+
+            delta_pos = (
+
+                Vector2(SCREEN_RECT.centerx, FLOOR_LEVEL)
+                - self.player.rect.midbottom
+
+            )
+
+            final_pos = current_pos + delta_pos
+
+            increment = 1 / frames
+
+            tracked_pos = tuple(map(round, current_pos))
+            accumulator = 0
+
+            for frame_delta in range(1, frames):
+
+                accumulator += increment
+
+                pos = tuple(
+                    map(round, current_pos.lerp(final_pos, accumulator))
+                )
+
+                if pos != tracked_pos:
+
+                    diff = Vector2(pos) - tracked_pos
+
+                    append_timed_task(
+
+                        CallList(
+
+                            [
+                                partial(self.move_level, diff),
+                                update_chunks_and_layers,
+                            ]
+
+                        ),
+
+                        delta_t=frames_offset+frame_delta,
+                        unit='frames',
+                    )
+
+                    tracked_pos = pos
+
+            restore_camera_call = (
+
+                CallList(
+
+                    [
+                        self.enable_overall_tracking_for_camera,
+                        self.enable_feet_tracking_for_camera,
+                    ],
+
+                )
+
+            )
+
+            append_timed_task(
+                restore_camera_call,
+                delta_t=frames_offset+frame_delta+1,
+                unit='frames',
+            )
+
+            ###
+
+            frame_duration = (
+
+                self.player.act_on_given_script(
+
+                    [
+                        {
+                            'type': 'wait',
+                            'secs': 3,
+                        }
+                    ]
+                )
+            )
+
+            append_timed_task(
+
+                self.player.teleport_away,
+                delta_t=frame_duration,
+                unit='frames',
+
+            )
 
         else:
 
@@ -487,3 +679,70 @@ class LevelManagerLoopManagement:
                 'kane_boss_parting',
                 restore_camera=False,
             )
+
+    def schedule_level_restart(self):
+
+        append_timed_task(
+            REFS.states.level_manager.restart_level,
+            delta_t=4000,
+            unit='milliseconds',
+        )
+
+        append_timed_task(
+
+            reset_fade_accumulator,
+
+            delta_t=2500,
+            unit='milliseconds',
+
+        )
+
+        append_timed_task(
+
+            partial(
+                setattr,
+                self,
+                'draw',
+                self.draw_fading_level
+            ),
+
+            delta_t=2500,
+            unit='milliseconds',
+
+        )
+
+    def draw_fading_level(self):
+
+        blit_on_screen(self.bg, (0, 0))
+
+        CLOUDS.draw()
+
+        for prop in BACK_PROPS_NEAR_SCREEN:
+            prop.draw()
+
+        for prop in MIDDLE_PROPS_NEAR_SCREEN:
+            prop.draw()
+
+        for projectile in PROJECTILES:
+            projectile.draw()
+
+        for block in BLOCKS_NEAR_SCREEN:
+            block.draw()
+
+        self.player.draw()
+
+        for actor in ACTORS_NEAR_SCREEN:
+            actor.draw()
+
+        for element in VFX_ELEMENTS:
+            element.draw()
+
+        for prop in FRONT_PROPS_NEAR_SCREEN:
+            prop.draw()
+
+        for column in HEALTH_COLUMNS:
+            column.draw()
+
+        apply_fade()
+
+        update_screen()

@@ -28,12 +28,7 @@ from pygame.draw import rect as draw_rect
 
 ### local imports
 
-from ...config import (
-    REFS,
-    SOUND_MAP,
-    LoopException,
-    quit_game,
-)
+from ...config import REFS, LoopException, quit_game
 
 from ...pygamesetup import SERVICES_NS
 
@@ -151,7 +146,7 @@ class ReportLoopManagement:
 
     def leave_report(self):
 
-        SOUND_MAP['ui_success.wav'].play()
+        self.clear_collections()
 
         transition_screen = REFS.states.transition_screen
         transition_screen.prepare(start_first_level)
