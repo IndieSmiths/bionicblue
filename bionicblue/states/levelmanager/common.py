@@ -320,16 +320,14 @@ class LevelChunk:
         ###
         ### - storing them in layers
         ### - storing objects centers relative to level's topleft
+        ### - storing 2D vector to keep track of movement beyond initial
+        ###   position (initial center)
 
         topleft = self.rect.topleft
 
         for obj in objs:
 
             obj.chunk = self
-
-            ### add delta to keep track of its travel
-            ### beyond its initial position
-            obj.delta = Vector2()
 
             getattr(self, obj.layer_name).add(obj)
 
@@ -338,6 +336,12 @@ class LevelChunk:
                 for chunk_pos, obj_center_pos
                 in zip(topleft, obj.rect.center)
             )
+
+            ### add delta to keep track of its travel beyond its initial
+            ### center position (if a switch in animation changes the
+            ### rect's size so that the center shifts, it is considered
+            ### travel/displacement as well)
+            obj.delta = Vector2()
 
     def position_objs(self):
 
@@ -378,6 +382,17 @@ class LevelChunk:
         self.objs.remove(obj)
         getattr(self, obj.layer_name).remove(obj)
         self.center_map.pop(obj)
+
+    def clear(self):
+
+        for obj in self.objs:
+            del obj.chunk
+
+        self.objs.clear()
+        self.center_map.clear()
+
+        for layer_name in LAYER_NAMES:
+            getattr(self, layer_name).clear()
 
 
 def add_obj(obj):
@@ -430,8 +445,24 @@ def add_obj(obj):
 
     update_chunks_and_layers()
 
+
 def remove_obj(obj):
 
     get_layer_from_name(obj.layer_name).remove(obj)
     get_near_screen_layer_from_name(obj.layer_name).remove(obj)
     obj.chunk.remove_obj(obj)
+
+
+def clear_chunks_and_layers():
+
+    CHUNKS_IN_VIC.clear()
+
+    for chunk in CHUNKS:
+        chunk.clear()
+
+    CHUNKS.clear()
+
+    for layer, near_screen_layer, _ in LAYER_DATA_TRIPLETS:
+
+        layer.clear()
+        near_screen_layer.clear()

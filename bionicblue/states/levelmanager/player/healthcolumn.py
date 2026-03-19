@@ -1,7 +1,7 @@
 
 ### standard library imports
 
-from math import tau
+from math import tau, inf as INFINITY
 
 from itertools import cycle
 
@@ -197,6 +197,16 @@ class HealthColumn:
         ### also create list for temporarily storing points of a star
         ### to be drawn along the path
         self.star_points = []
+
+    def reset(self):
+
+        ### set routines
+
+        self.update = do_nothing
+        self.draw = self.normal_draw
+
+        ### restore all health
+        self.damage(-INFINITY)
 
     def damage(self, amount):
 

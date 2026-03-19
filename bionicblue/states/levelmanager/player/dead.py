@@ -7,14 +7,25 @@ from pygame.locals import (
 
     KEYDOWN,
     K_ESCAPE,
+    K_RETURN,
+
+    JOYBUTTONDOWN,
+
 )
 
 
 ### local imports
 
-from ....config import quit_game
+from ....config import REFS, quit_game
 
 from ....pygamesetup import SERVICES_NS
+
+from ....pygamesetup.gamepaddirect import setup_gamepad_if_existent
+
+from ....pygamesetup.constants import GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS
+
+from ....userprefsman.main import GAMEPAD_CONTROLS
+
 
 
 class Dead:
@@ -23,10 +34,26 @@ class Dead:
 
         for event in SERVICES_NS.get_events():
 
-            if event.type == QUIT:
+            if event.type == KEYDOWN:
+
+                if event.key == K_ESCAPE:
+                    REFS.pause()
+
+                elif event.key == K_RETURN:
+                    REFS.pause()
+
+            elif event.type == JOYBUTTONDOWN:
+
+                if event.button == GAMEPAD_CONTROLS['start_button']:
+                    REFS.pause()
+
+            elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
+                setup_gamepad_if_existent()
+
+            elif event.type == QUIT:
                 quit_game()
 
-            elif event.type == KEYDOWN and event.key == K_ESCAPE:
-                quit_game()
+    def dead_update(self):
 
-    def dead_update(self): pass
+        if self.aniplayer.main_timing.peek_loops_no(1) == 1:
+            REFS.states.level_manager.restart_level()

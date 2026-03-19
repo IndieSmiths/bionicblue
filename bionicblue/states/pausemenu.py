@@ -37,7 +37,7 @@ from ..pygamesetup.constants import (
 
 from ..userprefsman.main import GAMEPAD_CONTROLS
 
-from ..config import REFS, COLORKEY, LoopException, quit_game
+from ..config import REFS, COLORKEY, SOUND_MAP, LoopException, quit_game
 
 from ..classes2d.single import UIObject2D
 
@@ -80,6 +80,8 @@ def pause():
     raise LoopException(next_state=pm)
 
 def resume():
+
+    SOUND_MAP['pause_out.wav'].play()
     raise LoopException(next_state=REFS.states.level_manager)
 
 
@@ -211,6 +213,8 @@ class PauseMenu:
 
         self.current_index = 0
         self.highlight_selected()
+
+        SOUND_MAP['pause_in.wav'].play()
 
     def on_language_change(self):
 

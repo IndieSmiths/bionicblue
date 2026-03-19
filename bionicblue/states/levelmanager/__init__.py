@@ -66,6 +66,7 @@ from .common import (
     group_objects,
     add_obj,
     update_chunks_and_layers,
+    clear_chunks_and_layers,
 
 )
 
@@ -177,11 +178,19 @@ class LevelManager(
             if label_data['text'] == 'npc'
         )['pos']
 
-        npc = Giovanni(npc_midbottom)
-        npc.layer_name = 'actors'
-        add_obj(npc)
+        if not hasattr(self, 'npc'):
 
-        self.npc = npc
+            npc = Giovanni(npc_midbottom)
+            npc.layer_name = 'actors'
+
+            self.npc = npc
+
+        else:
+
+            npc = self.npc
+            npc.reset(npc_midbottom)
+
+        add_obj(npc)
 
         ### add boss
 
@@ -191,9 +200,21 @@ class LevelManager(
             if label_data['text'] == 'boss_br'
         )['pos']
 
-        boss = ChiefSecurityBot('chief_sec_bot', boss_bottomright, facing_right=False)
-        boss.layer_name = 'actors'
+        if not hasattr(self, 'level_boss'):
+
+            boss = ChiefSecurityBot('chief_sec_bot', boss_bottomright, facing_right=False)
+            boss.layer_name = 'actors'
+
+            self.level_boss = boss
+
+        else:
+
+            boss = self.level_boss
+            boss.reset(boss_bottomright)
+
         add_obj(boss)
+
+        ### TODO keep adjusting for restart_level() from this point
 
         ### add gates and related objs
 
@@ -469,6 +490,11 @@ class LevelManager(
 
         ### update chunks and list objects on screen
         update_chunks_and_layers()
+
+    def restart_level(self):
+
+        clear_chunks_and_layers()
+        self.prepare()
 
 
 def instantiate(obj_data, layer_name):

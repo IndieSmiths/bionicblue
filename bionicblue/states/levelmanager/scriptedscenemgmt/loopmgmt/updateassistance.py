@@ -92,7 +92,8 @@ TEXT_SETTINGS = {
     'style': 'regular',
     'size': 12,
     'padding': 2,
-    'foreground_color': 'cyan',
+    'foreground_color': 'white',
+    'background_color': 'black',
 }
 
 _WAIT_BEFORE_LINE_ADVANCE_MSECS = 600
