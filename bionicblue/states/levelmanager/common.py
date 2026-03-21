@@ -466,3 +466,7 @@ def clear_chunks_and_layers():
 
         layer.clear()
         near_screen_layer.clear()
+
+    PROJECTILES.clear()
+    VFX_ELEMENTS.clear()
+    HEALTH_COLUMNS.clear()

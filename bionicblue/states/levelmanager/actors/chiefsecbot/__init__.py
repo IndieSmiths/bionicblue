@@ -119,13 +119,19 @@ class ChiefSecurityBot:
         self.shoot_countdown = 0
         self.did_run_into_player = False
 
+        ###
+
+        self.initial_pos = pos + INITIAL_OFFSET
+        self.facing_right = facing_right
+
         animation_name = 'idle_right' if facing_right else 'idle_left'
 
         self.aniplayer = (
             AnimationPlayer2D(
-                self, name, animation_name, 'bottomright', pos+INITIAL_OFFSET,
+                self, name, animation_name, 'bottomright', self.initial_pos,
             )
         )
+
 
         # last_damage is set to negative infinity so that the first damage is
         # always triggered (check self.damage() method to understand)
@@ -143,7 +149,7 @@ class ChiefSecurityBot:
         self.shoot_countdown = 0
         self.did_run_into_player = False
 
-        animation_name = 'idle_right' if facing_right else 'idle_left'
+        animation_name = 'idle_right' if self.facing_right else 'idle_left'
 
         self.aniplayer.switch_animation(animation_name)
 
@@ -156,7 +162,7 @@ class ChiefSecurityBot:
 
         self.health_column.reset()
 
-        setattr(self.rect, 'bottomright', pos+INITIAL_OFFET)
+        setattr(self.rect, 'bottomright', self.initial_pos)
 
     @property
     def health(self):

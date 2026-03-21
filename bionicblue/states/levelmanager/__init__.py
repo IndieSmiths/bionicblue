@@ -80,6 +80,9 @@ from .constants import FLOOR_LEVEL
 
 
 
+SATELLITE_DISH_OFFSET = Vector2(48, 0)
+
+
 class LevelManager(
     LevelManagerLoopManagement,
     LevelManagerPopupManagement,
@@ -135,7 +138,6 @@ class LevelManager(
 
         self.player.prepare()
 
-        HEALTH_COLUMNS.clear()
         HEALTH_COLUMNS.add(self.player.health_column)
 
         ###
@@ -200,16 +202,16 @@ class LevelManager(
             if label_data['text'] == 'boss_br'
         )['pos']
 
-        if not hasattr(self, 'level_boss'):
+        if not hasattr(REFS, 'level_boss'):
 
             boss = ChiefSecurityBot('chief_sec_bot', boss_bottomright, facing_right=False)
             boss.layer_name = 'actors'
 
-            self.level_boss = boss
+            REFS.level_boss = boss
 
         else:
 
-            boss = self.level_boss
+            boss = REFS.level_boss
             boss.reset(boss_bottomright)
 
         add_obj(boss)
@@ -388,12 +390,12 @@ class LevelManager(
             if label_data['text'] == 'cam_cx'
         )['pos']
 
-        ### store smartphone instance
-        self.smartphone = Smartphone()
+        ### store smartphone instance if not created already
+
+        if not hasattr(self, 'smartphone'):
+            self.smartphone = Smartphone()
 
         ### scroll level so player ends up positioned above given label
-
-        satellite_dish_offset = Vector2(48, 0)
 
         last_checkpoint_name = REFS.last_checkpoint_name
 
@@ -411,7 +413,7 @@ class LevelManager(
 
                     SatelliteDish(
                         checkpoint_name=label_name,
-                        midbottom=(pos + satellite_dish_offset),
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
                         animation_name='activated',
                     )
 
@@ -423,7 +425,7 @@ class LevelManager(
 
                     SatelliteDish(
                         checkpoint_name=label_name,
-                        midbottom=(pos + satellite_dish_offset),
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
                         animation_name='deactivated',
                     )
 
@@ -435,7 +437,7 @@ class LevelManager(
 
                     SatelliteDish(
                         checkpoint_name=label_name,
-                        midbottom=(pos + satellite_dish_offset),
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
                         animation_name='activated',
                     )
 
@@ -445,7 +447,7 @@ class LevelManager(
 
                 animation_name = (
                     'deactivated'
-                    if last_check_point == 'midpoint'
+                    if last_checkpoint_name == 'midpoint'
                     else 'activated'
                 )
 
@@ -453,7 +455,7 @@ class LevelManager(
 
                     SatelliteDish(
                         checkpoint_name=label_name,
-                        midbottom=(pos + satellite_dish_offset),
+                        midbottom=(pos + SATELLITE_DISH_OFFSET),
                         animation_name=animation_name,
                     )
 

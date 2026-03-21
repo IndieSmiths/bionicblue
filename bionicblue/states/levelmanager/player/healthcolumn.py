@@ -205,6 +205,14 @@ class HealthColumn:
         self.update = do_nothing
         self.draw = self.normal_draw
 
+        ### redraw grey outline
+
+        draw_rect(self.image, 'grey80', self.inflated_bg_rect)
+        draw_circle(self.image, 'grey80', self.head_rect.center, 7)
+
+        ### redraw head
+        self.image.blit(self.head_surf, self.head_rect)
+
         ### restore all health
         self.damage(-INFINITY)
 

@@ -452,6 +452,8 @@ class Player(
         self.set_state('dead')
         self.aniplayer = self.death_rings_aniplayer
 
+        self.death_rings_aniplayer.switch_animation('expanding')
+
         center = self.rect.center
         self.rect = self.aniplayer.root.rect
         self.rect.center = center

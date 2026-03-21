@@ -191,8 +191,6 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
     def exit_scripted_scene(self):
 
-        print("Exiting scripted scene")
-
         self.control = self.control_player
         self.update = self.normal_update
         self.draw = self.draw_level
