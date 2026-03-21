@@ -17,8 +17,10 @@ from pygame.math import Vector2
 
 from ...config import (
     REFS,
+    SURF_MAP,
     LEVELS_DIR,
     MUSIC_DIR,
+    PARALLAX_POSITIONING_DIR,
 )
 
 from ...pygamesetup.constants import SCREEN_RECT
@@ -26,6 +28,8 @@ from ...pygamesetup.constants import SCREEN_RECT
 from ...ourstdlibs.pyl import load_pyl
 
 from ...userprefsman.main import USER_PREFS
+
+from ...classes2d.single import UIObject2D
 
 from .player import Player
 
@@ -57,6 +61,7 @@ from .frontprops.lightpoleback import LightPoleBack
 from .common import (
 
     HEALTH_COLUMNS,
+    CLOUDS,
 
     VICINITY_RECT,
 
@@ -76,7 +81,7 @@ from .popupmgmt import LevelManagerPopupManagement
 
 from .scriptedscenemgmt import ScriptedSceneManagement
 
-from .constants import FLOOR_LEVEL
+from .constants import FLOOR_LEVEL, MOVE_CLOUDS_FRAMES, clouds_movement_delta
 
 
 
@@ -139,6 +144,40 @@ class LevelManager(
         self.player.prepare()
 
         HEALTH_COLUMNS.add(self.player.health_column)
+
+        ###
+
+        if not CLOUDS:
+
+            cpm = self.cloud_positioning_map = (
+                load_pyl(PARALLAX_POSITIONING_DIR / 'clouds.pyl')
+            )
+
+            CLOUDS.extend(
+
+                UIObject2D.from_surface(
+
+                    surface=SURF_MAP[image_name],
+                    coordinates_name='center',
+                    coordinates_value=rect_center,
+                    image_name=image_name,
+
+                )
+
+                for image_name, rect_center in cpm.items()
+
+            )
+
+        else:
+
+            cpm = self.cloud_positioning_map
+
+            for obj in CLOUDS:
+                obj.rect.center = cpm[obj.image_name]
+
+        self.clouds_topleft = CLOUDS.rect.topleft
+        clouds_movement_delta.update(0, 0)
+        self.move_clouds_countdown = MOVE_CLOUDS_FRAMES
 
         ###
 

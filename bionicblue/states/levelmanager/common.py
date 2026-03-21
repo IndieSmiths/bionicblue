@@ -5,7 +5,10 @@ from pygame.math import Vector2
 
 
 ### local imports
+
 from ...pygamesetup.constants import screen_colliderect, SCREEN_RECT
+
+from ...classes2d.collections import UIList2D
 
 
 
@@ -137,6 +140,8 @@ LAYER_DATA_TRIPLETS = list(
 PROJECTILES = set()
 VFX_ELEMENTS = set()
 HEALTH_COLUMNS = set()
+
+CLOUDS = UIList2D()
 
 
 ### chunks

@@ -102,6 +102,7 @@ LEVELS_DIR = DATA_DIR / 'levels'
 PARTICLES_DIR = DATA_DIR / 'particles'
 MOTION_PATHS_DIR = DATA_DIR / 'motion_paths'
 SCRIPTED_SCENES_DATA_DIR = DATA_DIR / 'scripted_scenes_data'
+PARALLAX_POSITIONING_DIR = DATA_DIR / 'parallax_positioning'
 
 TRANSLATIONS_DIR = DATA_DIR / 'translations'
 LANGUAGE_NAMES_FILEPATH = TRANSLATIONS_DIR / 'language_native_names.pyl'

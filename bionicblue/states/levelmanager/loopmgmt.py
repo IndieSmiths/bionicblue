@@ -25,6 +25,8 @@ from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 
 from .common import (
 
+    CLOUDS,
+
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
     BLOCKS_NEAR_SCREEN,
@@ -52,7 +54,7 @@ from .taskmanager import (
     update_task_manager,
 )
 
-from .constants import FLOOR_LEVEL
+from .constants import FLOOR_LEVEL, MOVE_CLOUDS_FRAMES, clouds_movement_delta
 
 
 
@@ -60,6 +62,7 @@ CAMERA_TRACKING_AREA = SCREEN_RECT.copy()
 CAMERA_TRACKING_AREA.width //= 5
 CAMERA_TRACKING_AREA.height += -40
 CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
+
 
 
 class LevelManagerLoopManagement:
@@ -78,6 +81,42 @@ class LevelManagerLoopManagement:
 
     def control_player(self):
         self.player.control()
+
+    def update_clouds(self):
+
+        ### move clouds if it is time
+
+        self.move_clouds_countdown -= 1
+
+        if self.move_clouds_countdown <= 0:
+
+            CLOUDS.rect.move_ip(1, 0)
+            clouds_movement_delta.x += 1
+
+            self.move_clouds_countdown = MOVE_CLOUDS_FRAMES
+
+
+        ### also shift rightmost cloud to left of all clouds
+        ### so it enters the screen again over time
+
+        screen_right = SCREEN_RECT.right
+
+        clouds_left = CLOUDS.rect.left
+
+        moved_cloud = False
+
+        for cloud in CLOUDS:
+
+            if cloud.rect.left > screen_right:
+
+                cloud.rect.right = clouds_left - cloud.rect.width
+                moved_cloud = True
+
+
+        if moved_cloud:
+
+            self.clouds_topleft = CLOUDS.rect.topleft
+            clouds_movement_delta.update(0, 0)
 
     def normal_update(self):
 
@@ -107,6 +146,8 @@ class LevelManagerLoopManagement:
             update_chunks_and_layers()
 
         ### now we update what is on the screen
+
+        self.update_clouds()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.update()
@@ -173,6 +214,8 @@ class LevelManagerLoopManagement:
             update_chunks_and_layers()
 
         ### now we update what is on the screen
+
+        self.update_clouds()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.update()
@@ -291,9 +334,21 @@ class LevelManagerLoopManagement:
         for element in VFX_ELEMENTS:
             element.rect.move_ip(diff)
 
+        ###
+
+        scrolling_x, scrolling_y = scrolling
+
+        scrolling_x //= 300
+        scrolling_y //= 60
+
+        CLOUDS.rect.topleft = self.clouds_topleft + clouds_movement_delta
+        CLOUDS.rect.move_ip(scrolling_x, scrolling_y)
+
     def draw_level(self):
 
         blit_on_screen(self.bg, (0, 0))
+
+        CLOUDS.draw()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()

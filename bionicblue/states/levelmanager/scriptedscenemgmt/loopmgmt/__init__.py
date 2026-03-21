@@ -56,6 +56,8 @@ from .....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ...common import (
 
+    CLOUDS,
+
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
     BLOCKS_NEAR_SCREEN,
@@ -330,6 +332,8 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         self.player.update()
 
+        self.update_clouds()
+
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.update()
 
@@ -358,6 +362,8 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         """Draw level elements (and dialogue elements when applicable)."""
 
         SCREEN.fill(self.bg_color)
+
+        CLOUDS.draw()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()
