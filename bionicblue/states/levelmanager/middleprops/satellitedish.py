@@ -12,7 +12,7 @@ from pygame.draw import circle as draw_circle
 
 from ....config import REFS, SOUND_MAP
 
-from ....pygamesetup.constants import SCREEN
+from ....pygamesetup.constants import SCREEN, msecs_to_frames
 
 from ....ani2d.player import AnimationPlayer2D
 
@@ -22,6 +22,10 @@ from ..common import VFX_ELEMENTS
 
 from ..otherprops.hoveringtext import HoveringText
 
+
+
+_SIGNAL_DURATION_MSECS = 5000
+SIGNAL_DURATION_FRAMES = msecs_to_frames(_SIGNAL_DURATION_MSECS)
 
 
 class SatelliteDish:
@@ -48,16 +52,14 @@ class SatelliteDish:
         self.update = do_nothing
         self.draw = self.normal_draw
 
-        self.next_radius = cycle(
+        self.next_radius = chain(
 
-            chain(
-                range(4, 16),
-                repeat(0, 8),
-                range(4, 16),
-                repeat(0, 8),
-                range(4, 16),
-                repeat(0, 30),
-            )
+            range(4, 28, 2),
+            repeat(0, 8),
+            range(4, 28, 2),
+            repeat(0, 8),
+            range(4, 28, 2),
+            repeat(0),
 
         ).__next__
 
@@ -89,7 +91,7 @@ class SatelliteDish:
 
             self.aniplayer.switch_animation('activated')
 
-            self.signal_countdown = 200
+            self.signal_countdown = SIGNAL_DURATION_FRAMES
             self.update = self.check_signal
             self.draw = self.draw_with_signal
 
