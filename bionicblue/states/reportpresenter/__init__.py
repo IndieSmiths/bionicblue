@@ -274,6 +274,18 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         elabel.rect = elabel.image.get_rect()
 
+    def clear_collections(self):
+
+        self.images.clear()
+        self.images_to_advance.clear()
+
+        self.anisprites.clear()
+        self.anisprites_to_advance.clear()
+
+        self.objs_to_remove.clear()
+
+        self.all_visible_objs.clear()
+
     def prepare(self, report_key):
         """Prepare objects for given report."""
 
@@ -303,6 +315,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
             obj = anisprite_data['obj']
             obj.rect.right = SCREEN_RECT.left
             obj.step_no = 0
+            obj.aniplayer.switch_animation(anisprite_data['animation_name'])
             append_anisprite(obj)
 
         ### XXX

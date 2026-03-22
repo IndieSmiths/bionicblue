@@ -21,7 +21,14 @@ from pygame.display import update
 
 ### local imports
 
-from ..config import REFS, SOUND_MAP, MUSIC_DIR, LoopException, quit_game
+from ..config import (
+    REFS,
+    SOUND_MAP,
+    MUSIC_DIR,
+    LoopException,
+    has_save_slots,
+    quit_game,
+)
 
 from ..pygamesetup import SERVICES_NS
 
@@ -200,7 +207,7 @@ class MainMenu:
         items = self.items = (
 
             self.full_items
-            if REFS.states.load_game_screen.save_slots_data
+            if has_save_slots()
 
             else self.compact_items
 

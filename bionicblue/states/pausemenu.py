@@ -109,8 +109,6 @@ def leave_to_main_menu():
 
     callable_to_use = go_to_main_menu
 
-    SOUND_MAP['ui_success.wav'].play()
-
     transition_screen = REFS.states.transition_screen
     transition_screen.prepare(callable_to_use)
 

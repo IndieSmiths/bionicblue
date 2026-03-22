@@ -126,6 +126,17 @@ WRITEABLE_PATH = Path(get_pref_path(ORG_DIR_NAME, APP_DIR_NAME))
 
 SAVE_SLOTS_DIR = WRITEABLE_PATH / 'save_slots'
 
+def has_save_slots():
+
+    return any(
+
+        path
+
+        for path in SAVE_SLOTS_DIR.iterdir()
+        if path.suffix.lower() == '.pyl'
+
+    )
+
 def get_custom_formated_current_datetime_str():
 
     now = datetime.now().astimezone()

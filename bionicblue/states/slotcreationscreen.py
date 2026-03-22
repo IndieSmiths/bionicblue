@@ -561,8 +561,6 @@ class SlotCreationScreen:
             REFS.slot_data = slot_data
             REFS.slot_path = new_save_slot_file
 
-            SOUND_MAP['ui_success.wav'].play()
-
             transition_screen = REFS.states.transition_screen
             transition_screen.prepare(present_intro)
 

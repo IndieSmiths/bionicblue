@@ -140,13 +140,14 @@ class ReportPreprocessing:
                 loaded_anisprite_data.get('anim_data_name', anisprite_name)
             )
             anim_name = loaded_anisprite_data['anim_name']
-            
+
             anisprite_obj = UIObject2D()
             anisprite_obj.aniplayer = (
                 AnimationPlayer2D(anisprite_obj, anim_data_name, anim_name)
             )
 
             anisprite_data['obj'] = anisprite_obj
+            anisprite_data['animation_name'] = anim_name
 
             for key in (
                 'panel_index',
