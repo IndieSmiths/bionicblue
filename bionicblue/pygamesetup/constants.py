@@ -106,6 +106,21 @@ blit_on_screen = SCREEN.blit
 
 screen_colliderect = SCREEN_RECT.colliderect
 
+### fade to black tools
+
+FADE_ACCUMULATOR_SURF = Surface(SCREEN.get_size()).convert_alpha()
+FADE_SURF = FADE_ACCUMULATOR_SURF.copy()
+
+FADE_ACCUMULATOR_SURF.fill((0, 0, 0, 0))
+FADE_SURF.fill((0, 0, 0, 15))
+
+def reset_fade_accumulator():
+    FADE_ACCUMULATOR_SURF.fill((0, 0, 0, 0))
+
+def apply_fade():
+
+    FADE_ACCUMULATOR_SURF.blit(FADE_SURF, (0, 0))
+    blit_on_screen(FADE_ACCUMULATOR_SURF, (0, 0))
 
 
 ### framerate-related values/objects

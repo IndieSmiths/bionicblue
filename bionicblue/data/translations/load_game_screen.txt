@@ -38,14 +38,14 @@ prompts
             en-us Unexpected error while trying to remove slot (please notify the developer): {error}
             pt-br Erro inesperado ao tentar apagar slot (por favor, notifique o desenvolvedor): {error}
 
-    visit_intro_level
+    revisit_first_mission
 
         caption
-            en-us Visit intro level?
-            pt-br Visitar primeiro nível?
+            en-us Revisit first mission?
+            pt-br Revisitar primeira missão?
         message
-            en-us There isn't any other level available yet, wanna revisit the first one?
-            pt-br Não há nenhum outro nível disponível ainda, gostaria de revisitar o primeiro?
+            en-us There isn't any other missions available yet, wanna revisit the first one?
+            pt-br Não há nenhuma outra missão disponível ainda, gostaria de revisitar a primeira?
 
     error_message_on_load
 

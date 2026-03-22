@@ -54,6 +54,4 @@ class Dead:
                 quit_game()
 
     def dead_update(self):
-
-        if self.aniplayer.main_timing.peek_loops_no(1) == 1:
-            REFS.states.level_manager.restart_level()
+        pass

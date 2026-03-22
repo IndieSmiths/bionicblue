@@ -407,12 +407,12 @@ class LoadGameScreen:
 
         if 'beaten_bosses' in slot_data:
 
-            visit_intro_level = t.prompts.visit_intro_level
+            revisit_first_mission = t.prompts.revisit_first_mission
 
             answer = present_prompt(
 
-                visit_intro_level.caption,
-                visit_intro_level.message,
+                revisit_first_mission.caption,
+                revisit_first_mission.message,
 
                 (
                     (TRANSLATIONS.general.yes, True),

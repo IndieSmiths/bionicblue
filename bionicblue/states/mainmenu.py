@@ -193,6 +193,10 @@ class MainMenu:
 
     def prepare(self):
 
+        REFS.last_checkpoint_name = 'landing'
+
+        ###
+
         items = self.items = (
 
             self.full_items

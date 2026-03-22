@@ -15,7 +15,12 @@ from pygame.mixer import music
 
 from ...config import REFS, SOUND_MAP, MUSIC_DIR
 
-from ...pygamesetup.constants import SCREEN_RECT, blit_on_screen
+from ...pygamesetup.constants import (
+    SCREEN_RECT,
+    blit_on_screen,
+    reset_fade_accumulator,
+    apply_fade,
+)
 
 from ...ourstdlibs.behaviour import CallList, do_nothing
 
@@ -542,3 +547,70 @@ class LevelManagerLoopManagement:
                 'kane_boss_parting',
                 restore_camera=False,
             )
+
+    def schedule_level_restart(self):
+
+        append_timed_task(
+            REFS.states.level_manager.restart_level,
+            delta_t=4000,
+            unit='milliseconds',
+        )
+
+        append_timed_task(
+
+            reset_fade_accumulator,
+
+            delta_t=2500,
+            unit='milliseconds',
+
+        )
+
+        append_timed_task(
+
+            partial(
+                setattr,
+                self,
+                'draw',
+                self.draw_fading_level
+            ),
+
+            delta_t=2500,
+            unit='milliseconds',
+
+        )
+
+    def draw_fading_level(self):
+
+        blit_on_screen(self.bg, (0, 0))
+
+        CLOUDS.draw()
+
+        for prop in BACK_PROPS_NEAR_SCREEN:
+            prop.draw()
+
+        for prop in MIDDLE_PROPS_NEAR_SCREEN:
+            prop.draw()
+
+        for projectile in PROJECTILES:
+            projectile.draw()
+
+        for block in BLOCKS_NEAR_SCREEN:
+            block.draw()
+
+        self.player.draw()
+
+        for actor in ACTORS_NEAR_SCREEN:
+            actor.draw()
+
+        for element in VFX_ELEMENTS:
+            element.draw()
+
+        for prop in FRONT_PROPS_NEAR_SCREEN:
+            prop.draw()
+
+        for column in HEALTH_COLUMNS:
+            column.draw()
+
+        apply_fade()
+
+        update_screen()

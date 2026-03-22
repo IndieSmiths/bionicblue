@@ -22,10 +22,10 @@ from ..pygamesetup import SERVICES_NS
 from ..pygamesetup.constants import (
     SCREEN_RECT,
     BLACK_BG,
-    FPS,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
     KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS,
     blit_on_screen,
+    msecs_to_frames,
 )
 
 from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
@@ -97,11 +97,13 @@ class TitleScreen:
 
     def prepare(self):
 
+        REFS.blue_boy.aniplayer.switch_animation('walk_right')
+
         ###
 
         title_rect = self.title_rect = REFS.bb_title.rect
 
-        # get copy of screen representing its first half
+        # get copy of screen rect representing its first half
         # when split from midtop to midbottom
         _scopy = SCREEN_RECT.copy()
         _scopy.width /= 2
@@ -114,9 +116,7 @@ class TitleScreen:
         self.end_top = _scopy.move(0, 45).top
 
         _movement_duration_msecs = 2400 # milliseconds
-        self.movement_duration_frames = (
-            round(_movement_duration_msecs / 1000 * FPS)
-        )
+        self.movement_duration_frames = msecs_to_frames(_movement_duration_msecs)
 
         self.current_movement_frame = 0
         self.last_movement_frame = self.movement_duration_frames - 1
@@ -135,8 +135,8 @@ class TitleScreen:
         _show_duration_msecs = 1000
         _hide_duration_msecs = 500
 
-        show_duration_frames = round(_show_duration_msecs / 1000 * FPS)
-        hide_duration_frames = round(_hide_duration_msecs / 1000 * FPS)
+        show_duration_frames = msecs_to_frames(_show_duration_msecs)
+        hide_duration_frames = msecs_to_frames(_hide_duration_msecs)
 
         self.must_draw_label = cycle(
             ((True,) * show_duration_frames)

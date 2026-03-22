@@ -11,6 +11,11 @@ labels
         en-us Resume
         pt-br Continuar
 
+    main_menu
+
+        en-us Main menu
+        pt-br Menu principal
+
     quit_game
 
         en-us Quit game

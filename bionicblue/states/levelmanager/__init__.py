@@ -537,6 +537,9 @@ class LevelManager(
         clear_chunks_and_layers()
         self.prepare()
 
+    def cleanup(self):
+        clear_chunks_and_layers()
+
 
 def instantiate(obj_data, layer_name):
 
