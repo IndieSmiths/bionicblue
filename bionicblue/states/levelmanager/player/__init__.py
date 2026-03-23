@@ -8,6 +8,8 @@ from math import inf as INFINITY
 
 from collections import deque
 
+from functools import partial
+
 
 ### local imports
 
@@ -30,13 +32,15 @@ from ....pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ....ourstdlibs.behaviour import do_nothing
+from ....ourstdlibs.behaviour import CallList, do_nothing
 
 ## classes for composition
 
 from ....ani2d.player import AnimationPlayer2D
 
 from ..common import MIDDLE_PROPS_NEAR_SCREEN, BLOCKS_NEAR_SCREEN
+
+from ..taskmanager import append_timed_task
 
 from .healthcolumn import HealthColumn
 
@@ -636,5 +640,38 @@ class Player(
 
     def teleport_away(self):
 
-        self.aniplayer.switch_animation('dematerializing')
-        self.set_state('teleporting_out')
+        delta_x = (
+            (REFS.states.level_manager.endpoint_satdish.rect.left - 32)
+            - self.rect.centerx
+        )
+
+        frame_duration = self.act_on_given_script(
+
+            [
+
+                {
+                    'type': 'walk',
+                    'delta_x': delta_x,
+                },
+
+                {
+                    'type': 'wait',
+                    'secs': 1.2,
+                },
+
+            ],
+
+        )
+
+        ### schedule teleportation away
+
+        callable_obj = CallList([
+            partial(self.aniplayer.switch_animation, 'dematerializing'),
+            partial(self.set_state, 'teleporting_out'),
+        ])
+
+        append_timed_task(
+            callable_obj,
+            delta_t=frame_duration,
+            unit='frames',
+        )

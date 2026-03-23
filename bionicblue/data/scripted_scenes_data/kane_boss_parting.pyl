@@ -244,13 +244,41 @@
 
         },
 
+        # XXX perhaps display a "mission complete" text?
+        #
         #'display_mission_complete_text': {
         #    'type': 'display_mission_complete_text',
         #},
 
+        'raise_gate1': {
+            'type': 'raise_gate1',
+            'delay_secs': 7.0,
+        },
+
+        # camera pans back
+
+        'pan_camera_to_player': {
+
+            'type': 'pan_camera_to_player',
+            'delay_secs': 7.4,
+
+            'keyword_arguments' : {
+                'linear_or_smooth': 'smooth',
+                'duration_type': 'seconds',
+                'duration_value': 2,
+                'frames_between_steps': 2,
+            },
+
+        },
+
+        'restore_camera_tracking': {
+            'type': 'restore_camera_tracking',
+            'delay_secs': 9.4,
+        },
+
         'teleport_blue_away': {
             'type': 'teleport_blue_away',
-            'delay_secs': 7.4,
+            'delay_secs': 9.8,
         },
 
         # boss defeat is recorded in slot data

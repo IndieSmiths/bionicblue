@@ -51,7 +51,7 @@ except ImportError:
 
 from .....config import MUSIC_DIR, SOUND_MAP
 
-from .....pygamesetup.constants import msecs_to_frames
+from .....pygamesetup.constants import SCREEN_RECT, msecs_to_frames
 
 from .....classes2d.single import UIObject2D
 
@@ -74,6 +74,8 @@ from ...common import (
 )
 
 from ...taskmanager import append_conditional_task
+
+from ...constants import FLOOR_LEVEL
 
 from ..constants import (
 
@@ -177,16 +179,28 @@ class UpdateAssistance:
                     for _ in range(delay_frames)
                 )
 
-            if action_type == 'pan_camera':
+
+            if action_type in ('pan_camera', 'pan_camera_to_player'):
 
                 kwargs = action_data['keyword_arguments']
 
                 current_x, current_y = scrolling
 
-                _delta_x, _delta_y = (
-                    kwargs.get('delta_x', 0),
-                    kwargs.get('delta_y', 0),
-                )
+                if action_type == 'pan_camera':
+
+                    _delta_x, _delta_y = (
+                        kwargs.get('delta_x', 0),
+                        kwargs.get('delta_y', 0),
+                    )
+
+                else:
+
+                    _delta_x, _delta_y = (
+
+                        Vector2(SCREEN_RECT.centerx, FLOOR_LEVEL)
+                        - self.player.rect.midbottom
+
+                    )
 
                 final_x, final_y = (
                     current_x + _delta_x,
@@ -344,6 +358,27 @@ class UpdateAssistance:
                         "value of 'character' argument must be one used"
                         " in either of the previous if-elif blocks"
                     )
+
+            elif action_type == 'restore_camera_tracking':
+
+                camera_restoring_call = CallList([
+                    self.enable_overall_tracking_for_camera,
+                    self.enable_feet_tracking_for_camera,
+                ])
+
+                if all_calls:
+                    all_calls.append(camera_restoring_call)
+
+                else:
+                    camera_restoring_call()
+
+            elif action_type == 'raise_gate1':
+
+                if all_calls:
+                    all_calls.append(self.boss_gate1.trigger_opening)
+
+                else:
+                    self.boss_gate1.trigger_opening()
 
             elif action_type == 'teleport_blue_away':
 

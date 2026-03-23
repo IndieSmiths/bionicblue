@@ -320,6 +320,7 @@ class LevelManager(
         add_obj(boss_gate0)
         add_obj(boss_gate1)
 
+        self.boss_gate0 = boss_gate0
         self.boss_gate1 = boss_gate1
 
         ### add colliding trigger for npc encounter
@@ -521,6 +522,10 @@ class LevelManager(
 
             if label_name == last_checkpoint_name:
                 landing_pos = pos
+
+            if label_name == 'endpoint':
+                self.endpoint_satdish = satdish
+
 
         dx = SCREEN_RECT.centerx - landing_pos[0]
         dy = FLOOR_LEVEL - landing_pos[1]

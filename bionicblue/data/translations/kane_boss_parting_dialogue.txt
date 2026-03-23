@@ -92,16 +92,19 @@ Newton
 # action: end_smartphone_call
 # action: remove_smartphone
 
-# Blue strikes a victory pose, a corresponding sound plays
-# a "Mission Complete" text appears on the screen, then Blue
-# teleports out of the level
+# Blue strikes a victory pose, a corresponding sound plays,
+# then the camera pans to player, the nearby boss gate is raised,
+# Blue walks towards the satellite and teleports out of the level
 #
 # action: play_stage_clear_triumph_sound
 # action: blue_victory_pose
 #
 # action: record_boss_defeat
+# action: pan_camera_to_player
+# action: raise_gate1
+# action: restore_camera_tracking
 # action: teleport_blue_away
 
-# TODO add action to display "mission complete" text
+# TODO add action to display "mission complete" text after victory pose
 #### action: display_mission_complete_text
 

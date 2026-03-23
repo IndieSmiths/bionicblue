@@ -10,6 +10,8 @@ from pygame.display import update as update_screen
 
 from pygame.mixer import music
 
+from pygame.math import Vector2
+
 
 ### local imports
 
@@ -20,6 +22,7 @@ from ...pygamesetup.constants import (
     blit_on_screen,
     reset_fade_accumulator,
     apply_fade,
+    msecs_to_frames,
 )
 
 from ...ourstdlibs.behaviour import CallList, do_nothing
@@ -413,6 +416,26 @@ class LevelManagerLoopManagement:
         ###
         self.boss_gate1.trigger_opening()
 
+        ### place a new trigger to the right of boss gate 0 that opens it
+        ### when the player walks back to the satellite after defeating the
+        ### boss
+
+        reopening_trigger = (
+
+            InvisibleCollidingTrigger(
+                on_collision=self.boss_gate0.trigger_opening,
+                width=16,
+                height=64,
+                coordinates_name='midbottom',
+                coordinates_value=self.boss_gate0.rect.move(100, 0).midbottom,
+            )
+
+        )
+
+        append_ready_task(
+            partial(add_obj, reopening_trigger)
+        )
+
         ### disable camera overall and feet tracking, since
         ### screen will now be focused solely on the arena,
         ### not moving for the duration of the battle
@@ -539,7 +562,59 @@ class LevelManagerLoopManagement:
             ###
             ### - deactivate kane and play the deactivation sound before
             ### leaving
-            self.player.teleport_away()
+
+            self.boss_gate1.trigger_opening()
+
+            frame_duration = (
+
+                self.player.act_on_given_script(
+
+                    [
+                        {
+                            'type': 'wait',
+                            'secs': 4,
+                        }
+                    ]
+                )
+            )
+
+            current_pos = scrolling
+
+            delta_pos = (
+
+                Vector2(SCREEN_RECT.centerx, FLOOR_LEVEL)
+                - self.player.rect.midbottom
+
+            )
+
+            final_pos = current_pos + delta_pos
+
+            frames = msces_to_frames(2000)
+
+            increment = 1 / frames
+
+            tracked_pos = current_pos.copy()
+            accumulator = 0
+
+            ### TODO finish this
+
+            for frame_delta in range(1, frames+1):
+
+                accumulator += increment
+
+                pos = tuple(
+                    map(round, current_pos.lerp(final_pos, accumulator))
+                )
+
+                if pos != tracked_pos:
+
+            append_timed_task(
+
+                self.player.teleport_away,
+                delta_t=frame_duration,
+                unit='frames',
+
+            )
 
         else:
 
