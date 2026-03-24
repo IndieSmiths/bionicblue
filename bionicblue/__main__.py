@@ -70,7 +70,7 @@ def run_game(debug_directive=False):
             state = REFS.states.title_screen
 
         else:
-            state = REFS.states.logo_screen
+            state = REFS.states.logos_screen
 
         ### prepare state
         state.prepare()
