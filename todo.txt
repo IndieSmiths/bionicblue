@@ -1,9 +1,7 @@
-(A) make it so player walks back to satellite before exiting level once boss is defeated
 (A) make it so a slot name is created automatically (timestamp), let the user rename on load screen instead
 (A) translate dialogue and popup message (and whatever else is missing)
 (A) make sure dialogues respond to change in language
 (A) make it so the very first time the game is launched, the user picks a language right away (just this once)
-(A) make it so logo screen can be skipped
 (B) improve input recording: rename to input logging, include gamepad support, think about playtesters screen
 (C) add small props to level layout in different layers to make it more detailed
 (C) make it so effect of "Reset to defaults" in options screen is seen in the widgets
@@ -11,6 +9,8 @@
 (D) playtest with few close acquaintances
 (E) release
 (F) make web version (won't be included in first release; will likely need new task for a password screen)
+x make it so logos screen can be skipped
+x make it so player walks back to satellite before exiting level once boss is defeated
 x make it so satellite dish goes up indicating checkpoint (at midpoint and endpoint) (also place risen one at landing)
 x make it so dying restarts level (on last check point)
 x make it so user can go from level to main menu then back
