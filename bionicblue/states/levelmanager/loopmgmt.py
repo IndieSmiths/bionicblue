@@ -29,6 +29,8 @@ from ...ourstdlibs.behaviour import CallList, do_nothing
 
 from ...ourstdlibs.pyl import save_pyl
 
+from ...userprefsman.main import USER_PREFS
+
 from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 
 from .common import (
@@ -558,6 +560,15 @@ class LevelManagerLoopManagement:
 
         if 'kane' in REFS.slot_data.get('beaten_bosses', ()):
 
+            music_volume = (
+                (USER_PREFS['MASTER_VOLUME']/100)
+                * (USER_PREFS['MUSIC_VOLUME']/100)
+            )
+
+            music.set_volume(music_volume)
+            music.load(str(MUSIC_DIR / 'level_1_by_juhani_junkala.ogg'))
+            music.play(-1)
+
             ### TODO should probably also:
             ###
             ### - deactivate kane and play the deactivation sound before
@@ -565,18 +576,15 @@ class LevelManagerLoopManagement:
 
             self.boss_gate1.trigger_opening()
 
-            frame_duration = (
+            ### schedule camera pan to player
 
-                self.player.act_on_given_script(
+            ## it starts in 1 second
+            frames_offset = msecs_to_frames(1000)
 
-                    [
-                        {
-                            'type': 'wait',
-                            'secs': 4,
-                        }
-                    ]
-                )
-            )
+            ## and takes 2 seconds to complete
+            frames = msecs_to_frames(2000)
+
+            ##
 
             current_pos = scrolling
 
@@ -589,16 +597,12 @@ class LevelManagerLoopManagement:
 
             final_pos = current_pos + delta_pos
 
-            frames = msces_to_frames(2000)
-
             increment = 1 / frames
 
-            tracked_pos = current_pos.copy()
+            tracked_pos = tuple(map(round, current_pos))
             accumulator = 0
 
-            ### TODO finish this
-
-            for frame_delta in range(1, frames+1):
+            for frame_delta in range(1, frames):
 
                 accumulator += increment
 
@@ -607,6 +611,59 @@ class LevelManagerLoopManagement:
                 )
 
                 if pos != tracked_pos:
+
+                    diff = Vector2(pos) - tracked_pos
+
+                    append_timed_task(
+
+                        CallList(
+
+                            [
+                                partial(self.move_level, diff),
+                                update_chunks_and_layers,
+                            ]
+
+                        ),
+
+                        delta_t=frames_offset+frame_delta,
+                        unit='frames',
+                    )
+
+                    tracked_pos = pos
+
+            restore_camera_call = (
+
+                CallList(
+
+                    [
+                        self.enable_overall_tracking_for_camera,
+                        self.enable_feet_tracking_for_camera,
+                    ],
+
+                )
+
+            )
+
+            append_timed_task(
+                restore_camera_call,
+                delta_t=frames_offset+frame_delta+1,
+                unit='frames',
+            )
+
+            ###
+
+            frame_duration = (
+
+                self.player.act_on_given_script(
+
+                    [
+                        {
+                            'type': 'wait',
+                            'secs': 3,
+                        }
+                    ]
+                )
+            )
 
             append_timed_task(
 
