@@ -4,7 +4,7 @@
 
 from ..config import REFS
 
-from .logoscreen import LogoScreen
+from .logosscreen import LogosScreen
 
 from .titlescreen import TitleScreen
 
@@ -41,7 +41,7 @@ def setup_states():
 
     states = REFS.states
 
-    states.logo_screen = LogoScreen()
+    states.logos_screen = LogosScreen()
     states.level_manager = LevelManager()
     states.hq_manager = HeadQuartersManager()
 

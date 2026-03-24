@@ -1,3 +1,4 @@
+"""Facility for screen where relevant logos and icons are presented."""
 
 ### local imports
 from itertools import repeat, chain
@@ -5,7 +6,16 @@ from itertools import repeat, chain
 
 ### third-party imports
 
-from pygame.locals import QUIT
+from pygame.locals import (
+
+    QUIT,
+
+    KEYDOWN,
+    K_RETURN,
+
+    JOYBUTTONDOWN,
+
+)
 
 from pygame.display import update
 
@@ -16,7 +26,14 @@ from ..config import REFS, SURF_MAP, COLORKEY, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
-from ..pygamesetup.constants import WHITE_BG, SCREEN_RECT, blit_on_screen
+from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+
+from ..pygamesetup.constants import (
+    WHITE_BG,
+    SCREEN_RECT,
+    GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
+    blit_on_screen,
+)
 
 from ..textman import render_text
 
@@ -24,7 +41,12 @@ from ..surfsman import combine_surfaces
 
 
 
-class LogoScreen:
+class LogosScreen:
+    """Presents relevant logos and icons.
+
+    Used before presenting the title screen and main menu to players.
+    Can be skipped.
+    """
 
     def prepare(self):
 
@@ -74,8 +96,28 @@ class LogoScreen:
 
         for event in SERVICES_NS.get_events():
 
-            if event.type == QUIT:
+            if event.type == KEYDOWN:
+
+                if event.key == K_RETURN:
+                    self.leave_logos_screen()
+
+            elif event.type == JOYBUTTONDOWN:
+
+                if event.button == GAMEPAD_CONTROLS['start_button']:
+                    self.leave_logos_screen()
+
+            elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
+                setup_gamepad_if_existent()
+
+            elif event.type == QUIT:
                 quit_game()
+
+    def leave_logos_screen(self):
+
+        title_screen = REFS.states.title_screen
+        title_screen.prepare()
+
+        raise LoopException(next_state=title_screen)
 
     def update(self):
         pass
@@ -97,9 +139,6 @@ class LogoScreen:
             blit_on_screen(surf, rect_or_pos)
 
         except StopIteration:
-
-            title_screen = REFS.states.title_screen
-            title_screen.prepare()
-            raise LoopException(next_state=title_screen)
+            self.leave_logos_screen()
 
         update()
