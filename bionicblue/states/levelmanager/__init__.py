@@ -126,8 +126,7 @@ class LevelManager(
         self.update = self.normal_update
         self.draw = self.draw_level
 
-        self.disable_overall_tracking_for_camera()
-        self.disable_feet_tracking_for_camera()
+        self.disable_all_camera_tracking()
 
         scrolling.update(0, 0)
         scrolling_backup.update(scrolling)

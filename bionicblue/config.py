@@ -66,22 +66,6 @@ REFS.__dict__.update(dict(
     dialogue_action_cueing_data = {},
     dialogue_character_names_set_map = {},
 
-    enable_overall_tracking_for_camera = (
-        lambda: REFS.states.level_manager.enable_overall_tracking_for_camera()
-    ),
-
-    disable_overall_tracking_for_camera = (
-        lambda: REFS.states.level_manager.disable_overall_tracking_for_camera()
-    ),
-
-    enable_feet_tracking_for_camera = (
-        lambda: REFS.states.level_manager.enable_feet_tracking_for_camera()
-    ),
-
-    disable_feet_tracking_for_camera = (
-        lambda: REFS.states.level_manager.disable_feet_tracking_for_camera()
-    ),
-
 ))
 
 

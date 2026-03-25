@@ -132,8 +132,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         restore_camera=True,
     ):
 
-        self.disable_overall_tracking_for_camera()
-        self.disable_feet_tracking_for_camera()
+        self.disable_all_camera_tracking()
 
         self.control = self.scene_control
         self.update = self.scene_update
@@ -203,9 +202,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         ###
 
         if self.restore_camera:
-
-            self.enable_overall_tracking_for_camera()
-            self.enable_feet_tracking_for_camera()
+            self.enable_all_camera_tracking()
 
         ### execute on exit action
         self.on_exit()

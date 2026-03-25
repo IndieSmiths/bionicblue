@@ -361,16 +361,11 @@ class UpdateAssistance:
 
             elif action_type == 'restore_camera_tracking':
 
-                camera_restoring_call = CallList([
-                    self.enable_overall_tracking_for_camera,
-                    self.enable_feet_tracking_for_camera,
-                ])
-
                 if all_calls:
-                    all_calls.append(camera_restoring_call)
+                    all_calls.append(self.enable_all_camera_tracking)
 
                 else:
-                    camera_restoring_call()
+                    self.enable_all_camera_tracking()
 
             elif action_type == 'raise_gate1':
 
