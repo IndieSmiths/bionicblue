@@ -10,6 +10,10 @@ buttons
         en-us Load game
         pt-br Carregar jogo
 
+    rename
+        en-us Rename
+        pt-br Renomear
+
     erase
         en-us Erase
         pt-br Apagar

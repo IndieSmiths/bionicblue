@@ -18,7 +18,7 @@ from .controlsscreen import ControlsScreen
 
 from .optionsscreen import OptionsScreen
 
-from .playtestersscreen import PlaytestersScreen
+from .datascreen import DataScreen
 
 from .pausemenu import PauseMenu, pause
 
@@ -26,7 +26,7 @@ from .creditsscreen import CreditsScreen
 
 from .linksscreen import LinksScreen
 
-from .slotcreationscreen import SlotCreationScreen
+from .slotrenamingscreen import SlotRenamingScreen
 
 from .loadgamescreen import LoadGameScreen
 
@@ -49,7 +49,7 @@ def setup_states():
     states.main_menu = MainMenu()
     states.controls_screen = ControlsScreen()
     states.options_screen = OptionsScreen()
-    states.playtesters_screen = PlaytestersScreen()
+    states.data_screen = DataScreen()
 
     states.pause_menu = PauseMenu()
     REFS.pause = pause
@@ -57,7 +57,7 @@ def setup_states():
     states.credits_screen = CreditsScreen()
     states.links_screen = LinksScreen()
 
-    states.slot_creation_screen = SlotCreationScreen()
+    states.slot_renaming_screen = SlotRenamingScreen()
     states.load_game_screen = LoadGameScreen()
     states.transition_screen = TransitionScreen()
     states.report_presenter = ReportPresenter()

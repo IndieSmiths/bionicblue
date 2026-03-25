@@ -69,13 +69,22 @@ class FallingCrate:
                 self.trigger_kill()
                 return
 
-        ### or if hits player...
+        ### reference boss locally
+        boss = REFS.level_boss
+
+        ### create variable indicating whether the boss is alive
+        boss_alive = boss.health > 0
+
+        ### destroy if hits player while boss is alive...
 
         player = REFS.states.level_manager.player
 
-        if rect.colliderect(player.rect):
+        if (
+            rect.colliderect(player.rect)
+            and boss_alive
+        ):
 
-            player.damage(3)
+            player.damage(0)
             self.trigger_kill()
             return
 
@@ -83,13 +92,11 @@ class FallingCrate:
         ### when the boss is alive and in the punch pose of the
         ### punch animation, give the crate x speed
 
-        boss = REFS.level_boss
-
         irect = self.inflated_rect
         irect.center = rect.center
 
         if (
-            boss.health > 0
+            boss_alive
             and irect.colliderect(boss.rect)
             and 'punch' in boss.aniplayer.anim_name
             and boss.aniplayer.get_current_frame() >= 12

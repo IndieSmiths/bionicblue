@@ -1,0 +1,102 @@
+
+caption
+
+    en-us Data Screen
+    pt-br Tela de Dados
+
+buttons
+
+    copy_data
+
+        en-us Copy to home folder
+        pt-br Copiar para pasta de usuário
+
+    erase_data
+
+        en-us Erase all data
+        pt-br Apagar todos os dados
+
+    go_back
+
+        en-us Go back
+        pt-br Voltar
+
+introduction
+
+    paragraph00
+
+        en-us Your user data always stays in your local storage and only you have access to it. This screen offers functionality like erasing all local user data before uninstallling/deleting the game or accessing data for debugging, playtesting or backups.
+
+        pt-br Seus dados de usuários sempre permanecem no seu armazenamento local e só você tem acesso a eles. Esta tela oferece funcionalidades como apagar todos os dados de usuários antes de desinstalar o jogo ou accessar dados para corrigir bugs, "playtesting" ou backups.
+
+    paragraph01
+
+        en-us Once you scroll all the way down, you'll find 02 buttons that you can use for those things.
+
+        pt-br Depois de rolar este conteúdo até o fim, você encontrará 02 botões que você pode user para essas coisas.
+
+first_button_explanation
+
+    paragraph00
+
+        en-us The first button is called "Copy to home folder". As the name implies, it copies all user data to the home folder. More precisely, this data is saved within a new folder inside your home folder. This is just a convenience so you don't need to look for such data yourself.
+
+        pt-br O primeiro botão se chama "Copiar para pasta de usuário". Como o nome indica, ele copia todos os dados para pasta de usuário. Mais precisamente, estes dados são salvos dentro de uma nova pasta dentro da sua pasta de usuário. Esta é apenas uma conveniência para você não ter de procurar esses dados você mesmo.
+
+    paragraph01
+
+        en-us This new folder will be called "bionic_blue_user_data" or, if a folder with such name already exists, "bionic_blue_user_data_000" and so on.
+
+        pt-br Esta nova pasta se chamará "bionic_blue_user_data" ou, se uma pasta com esse nome já existe, "bionic_blue_user_data_000" e assim por diante.
+
+    paragraph02
+
+        en-us This folder contains configurations, save files, but also logs of your play sessions. These logs in particular are useful to help me (the developer) fix a bug if you find one or analyse your play session in order to improve the game.
+
+        pt-br Esta pasta contém configurações, arquivos de "save"/progresso, mas também logs de suas sessões de jogo. Esses logs em particular são úteis para ajudar a mim (o desenvolvedor) a corrigir bugs caso você encontre algum or analizar sua sessão de jogo a fim de melhorar o jogo.
+
+    paragraph03
+
+        en-us Again, no one has access to this data but you, and the only way for other people to access these files is by you sharing them with other people outside this app.
+
+        pt-br De novo, ninguém tem acesso a estes dados além de você, e a única maneira de outras pessoas acessarem esses arquivos é se você compartilhá-los com outras pessoas fora deste applicativo.
+
+
+second_button_explanation
+
+    paragraph00
+
+        en-us The second button is called "Erase all data". As the name implies, it will delete all existing data inside the folders used to store user data for this game.
+
+        pt-br O segundo botão se chama "Apagar todos os dados". Como o próprio nome diz, ele deletará todos os dados existentes na pastas usadas para armazendas dados de usuário para este jogo.
+
+    paragraph01
+
+        en-us This is useful for when you don't intend to play this game anymore and want to make sure no user game data is left on your disk.
+
+        pt-br Isto é útil para quando você não pretender mais jogar este jogo e quiser garantir que nenhum dado de usuário para este jogo foi deixado no disco.
+
+    paragraph02
+
+        en-us Since this operation deletes all configuration, save files and logs, the user is asked to confirm before proceeding to make sure this operation isn't performed by accident.
+
+        pt-br Como esta operação deleta toda configuração, arquivos de "save"/progresso e logs, te pediremos para confirmar antes de continuar a fim de garantir que esta operação não está sendo executada acidentalmente.
+
+    paragraph03
+
+        en-us Lastly, since some of the deleted folders are needed for the game to work, once you confirm the deletion, we'll close the game. Then you can uninstall or delete the game knowing that no data was left behind. If instead you launch the game, it will automatically create those folders again.
+
+        pt-br Por último, como algumas das pastas deletadas são necessárias para que o jogo funcione, uma vez que você confirme a deleção, fecharemos o jogo. Então você poderá desinstalá-lo sabendo que nenhum dado foi deixado para trás. Se ao invés disso você executar o jogo, ele criará aquelas pasta de novo automaticamente.
+
+
+erase_data_prompt
+
+    caption
+
+        en-us Erase all data
+        pt-br Apagar todos os dados
+
+    message
+
+        en-us Are you absolutely sure you want to erase all local user data for this game? (if you confirm, we'll erase everything and quit the game; the game will still work fine if you desire to launch it again)
+        pt-br Tem absoluta certeza de que quer apagar todos os dados locais de usuários para estea jogo? (se confirmar, apagaremos tudo e saíremos do jogo; o jogo ainda funcionará normalmente if você desejar executá-lo novamente)

@@ -63,9 +63,9 @@ from ..userprefsman.main import (
     save_config_on_disk,
 )
 
-from ..promptscreen import prompt_to_dismiss_with_any_button
-
 from ..translatedtext import TRANSLATIONS, on_language_change
+
+from ..promptscreen import present_prompt
 
 from ..widget.slider import HundredSlider
 from ..widget.checkbutton import Checkbutton
@@ -99,7 +99,7 @@ class OptionsScreen:
         ###
 
         (
-          playtesting_button,
+          data_button,
           reset_button,
           back_button,
         ) = self.non_option_buttons = [
@@ -112,14 +112,14 @@ class OptionsScreen:
             )
 
             for text in (
-                t.playtesters_screen,
+                t.data_screen,
                 TRANSLATIONS.general.reset_to_defaults,
                 TRANSLATIONS.general.go_back,
             )
 
         ]
 
-        playtesting_button.command = self.to_playtesters_screen
+        data_button.command = self.to_data_screen
         reset_button.command = self.reset_to_defaults
         back_button.command = self.go_back
 
@@ -127,6 +127,8 @@ class OptionsScreen:
 
         labels = self.option_labels = UIList2D()
         widgets = self.widgets = UIList2D()
+
+        pk2w = self.preference_key_to_widget = {}
 
         for key, label_text, widget_class in (
             ('MASTER_VOLUME', t.options.master_volume, HundredSlider),
@@ -147,6 +149,8 @@ class OptionsScreen:
                 )
 
             )
+
+            pk2w[key] = widget
 
             widgets.append(widget)
 
@@ -219,7 +223,7 @@ class OptionsScreen:
         on_language_change.append(self.on_language_change)
 
     def prepare(self):
-        
+
         self.current_index = 0
         self.highlighted_widget = self.widgets[self.current_index]
 
@@ -278,7 +282,7 @@ class OptionsScreen:
             self.non_option_buttons,
 
             (
-                t.playtesters_screen,
+                t.data_screen,
                 TRANSLATIONS.general.reset_to_defaults,
                 TRANSLATIONS.general.go_back,
             ),
@@ -421,19 +425,44 @@ class OptionsScreen:
 
     def reset_to_defaults(self):
 
+        must_reset = present_prompt(
+
+            t.resetting_to_defaults_prompt.caption,
+            t.resetting_to_defaults_prompt.message,
+
+            (
+                (TRANSLATIONS.general.no, False),
+                (TRANSLATIONS.general.yes, True),
+            ),
+
+        )
+
+        if not must_reset:
+            return
+
         ###
 
-        for key, value in DEFAULT_USER_PREFS.items():
+        for key, widget in self.preference_key_to_widget.items():
 
-            ### if value is not a dict, we override it
-            ###
-            ### we ignore dicts cause they contain keyboard or
-            ### gamepad controls, and those should be set/reset
-            ### from the dedicated keyboard control or gamepad
-            ### control screens
+            default_value = DEFAULT_USER_PREFS[key]
+            current_value = USER_PREFS[key]
 
-            if not isinstance(value, dict):
-                USER_PREFS[key] = value
+            USER_PREFS[key] = default_value
+            widget.set(default_value, execute_on_value_change=False)
+
+            ## propagate changes differently for LOCALE and FULLSCREEN
+
+            if key == 'LOCALE' and default_value != current_value:
+                on_language_change()
+
+            elif key == 'FULLSCREEN' and default_value == current_value:
+                pass
+
+            ## otherwise, use the usual method
+
+            else:
+                self.update_system_for_option(key)
+
 
         ###
         save_config_on_disk()
@@ -518,23 +547,13 @@ class OptionsScreen:
 
         raise LoopException(next_state=main_menu)
 
-    def to_playtesters_screen(self):
-        """In the future, this will lead users to the playtesters screen.
+    def to_data_screen(self):
+        """Go to data screen."""
 
-        For now, it just displays a prompt notifying the user of its
-        unavailability.
-        """
+        data_screen = REFS.states.data_screen 
+        data_screen.prepare()
 
-        #playtesters_screen = REFS.states.playtesters_screen 
-        #playtesters_screen.prepare()
-
-        #raise LoopException(next_state=playtesters_screen)
-
-        prompt_to_dismiss_with_any_button(
-            t.playtesters_prompt.caption,
-            t.playtesters_prompt.message,
-        )
-
+        raise LoopException(next_state=data_screen)
 
     def on_mouse_click(self, event):
 

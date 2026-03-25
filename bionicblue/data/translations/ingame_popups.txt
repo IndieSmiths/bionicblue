@@ -2,7 +2,11 @@
 after_meal_power_up
 
     caption
+
         en-us Meal power-up
+        pt-br Poder da refeição
 
     message
+
         en-us Nutrients and minerals from a delicious meal increase your systems's efficiency. Now your health slowly recovers over time.
+        pt-br Nutrientes e minerais de uma refeição deliciosa aumentam a eficiência dos seus sistemas. Agora seus pontos de vida se regeneram lentamente ao longo do tempo.

@@ -4,8 +4,6 @@
 
 from pathlib import Path
 
-from contextlib import suppress
-
 from datetime import datetime
 
 
@@ -16,8 +14,11 @@ from pygame import quit as quit_pygame
 from pygame.system import get_pref_path
 
 
-### local import
-from .appinfo import ORG_DIR_NAME, APP_DIR_NAME 
+### local imports
+
+from .appinfo import ORG_DIR_NAME, APP_DIR_NAME
+
+from .ourstdlibs.pyl import save_pyl, load_pyl
 
 
 
@@ -42,11 +43,17 @@ class LoopException(Exception):
         next_state=None,
         next_input_mode_name='',
         input_data=None,
+        prepare=False,
+        clear_tasks=False,
     ):
 
         self.state = next_state
+
         self.input_mode_name = next_input_mode_name
         self.input_data = input_data
+
+        self.prepare = prepare
+        self.clear_tasks = clear_tasks
 
         super().__init__("Interrupting loop.")
 
@@ -66,21 +73,7 @@ REFS.__dict__.update(dict(
     dialogue_action_cueing_data = {},
     dialogue_character_names_set_map = {},
 
-    enable_overall_tracking_for_camera = (
-        lambda: REFS.states.level_manager.enable_overall_tracking_for_camera()
-    ),
-
-    disable_overall_tracking_for_camera = (
-        lambda: REFS.states.level_manager.disable_overall_tracking_for_camera()
-    ),
-
-    enable_feet_tracking_for_camera = (
-        lambda: REFS.states.level_manager.enable_feet_tracking_for_camera()
-    ),
-
-    disable_feet_tracking_for_camera = (
-        lambda: REFS.states.level_manager.disable_feet_tracking_for_camera()
-    ),
+    clear_tasks = None,
 
 ))
 
@@ -92,6 +85,7 @@ DATA_DIR = Path(__file__).parent / 'data'
 
 CREDITS_FILEPATH = DATA_DIR / 'credits.txt'
 LINKS_FILEPATH = DATA_DIR / 'links.txt'
+LANGUAGE_ICON_FILEPATH = DATA_DIR / 'language_icon.png'
 
 FONTS_DIR = DATA_DIR / 'fonts'
 IMAGES_DIR = DATA_DIR / 'images'
@@ -120,11 +114,42 @@ SURF_MAP = {}
 ANIM_DATA_MAP = {}
 SOUND_MAP = {}
 
-###
+### writeable folder and subfolders used to store user data
+### (configuration, save files, logs, etc.)
 
+# get_pref_path already creates the directory if it doesn't
+# exist already
 WRITEABLE_PATH = Path(get_pref_path(ORG_DIR_NAME, APP_DIR_NAME))
 
 SAVE_SLOTS_DIR = WRITEABLE_PATH / 'save_slots'
+LOGS_DIR = WRITEABLE_PATH / 'logs'
+REGULAR_PLAY_LOGS_DIR = LOGS_DIR / 'regular_play_logs'
+FIRST_PLAY_LOGS_DIR = LOGS_DIR / 'first_play_logs'
+
+## the others must be created by us if they don't exist already
+
+for dir_path in (
+    SAVE_SLOTS_DIR,
+    LOGS_DIR,
+    REGULAR_PLAY_LOGS_DIR,
+    FIRST_PLAY_LOGS_DIR,
+):
+
+    try:
+        dir_path.mkdir(exist_ok=True)
+
+    except FileExistsError as err:
+
+        path_name = str(dir_path)
+
+        raise RuntimeError(
+            "A path that is required by the game to be a folder"
+            f" has a file in its place {path_name}. Deleting it,"
+            " if possible, should solve the problem."
+        ) from err
+
+
+
 
 def has_save_slots():
 
@@ -137,7 +162,7 @@ def has_save_slots():
 
     )
 
-def get_custom_formated_current_datetime_str():
+def get_custom_datetime_str_for_last_played():
 
     now = datetime.now().astimezone()
 
@@ -149,30 +174,88 @@ def get_custom_formated_current_datetime_str():
 
     return f'{timestamp} {signal_name} {offset}'
 
-# XXX what if path exists but is a file instead? I know, unlikely scenario,
-# but not covered; same for playtest data dir and probably other paths
-# (files/directories) as well; ponder and act on it.
+def get_custom_datetime_str_for_default_slot_name():
+    return datetime.now().strftime('Y%Y_M%m_D%d_H%H_M%M')
 
-if not SAVE_SLOTS_DIR.exists():
+
+### constructs to keep track of one-off events
+###
+### this data is useful to trigger measures that only happen once, when
+### something happens for the first time.
+###
+### For instance, the "thank you for playing" message is presented only
+### when the player clears a mission for the first time since the app was
+### installed
+
+ONE_OFF_FILEPATH = WRITEABLE_PATH / 'one_off_events.pyl'
+
+DEFAULT_ONE_OFF_DATA = {
+    'cleared_a_mission': False,
+    'chose_a_locale': False,
+}
+
+ONE_OFF_DATA = {}
+
+def save_one_off_data():
+    save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
+
+if ONE_OFF_FILEPATH.exists():
 
     try:
-        SAVE_SLOTS_DIR.mkdir()
+        data = load_pyl(ONE_OFF_FILEPATH)
 
-    except Exception as err:
-        print("Couldn't create folder for save slots")
+    except Exception:
 
-###
+        print("Couldn't load one off events data, using defaults instead.")
 
-PLAYTEST_DATA_DIR = WRITEABLE_PATH / 'playtest_data'
+        ONE_OFF_DATA.update(DEFAULT_ONE_OFF_DATA)
+        save_one_off_data()
 
-if not PLAYTEST_DATA_DIR.exists():
+    else:
 
-    with suppress(Exception):
-        PLAYTEST_DATA_DIR.mkdir()
+        if (
+
+            not isinstance(data, dict)
+            or not data.keys() == DEFAULT_ONE_OFF_DATA.keys()
+            or any(
+                not isinstance(value, bool)
+                for value in data.values()
+            )
+
+        ):
+
+            ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
+            save_one_off_data()
+
+        else:
+            ONE_OFF_DATA = data
+
+else:
+
+    ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
+    save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
 
+def did_player_ever(event_name):
 
-###
+    ## if player already performed the event...
+
+    if ONE_OFF_DATA[event_name]:
+        return True
+
+    ## otherwise, this is the first time, so...
+
+    else:
+
+        ### set the event to True so next time it is check it is marked
+        ### as having happened before (this very time)
+
+        ONE_OFF_DATA[event_name] = True
+        save_one_off_data()
+
+        ## return False to indicate the player didn't do it before (it
+        ## is happening for the firs time now)
+        return False
 
 def quit_game():
 

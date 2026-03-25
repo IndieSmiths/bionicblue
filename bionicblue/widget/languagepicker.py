@@ -47,8 +47,6 @@ from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from ..ourstdlibs.behaviour import do_nothing
 
-from ..ourstdlibs.pyl import load_pyl
-
 from ..textman import render_text
 
 from ..classes2d.single import UIObject2D
@@ -57,7 +55,7 @@ from ..classes2d.collections import UIList2D
 
 from ..userprefsman.main import USER_PREFS, GAMEPAD_CONTROLS
 
-from ..translatedtext import AVAILABLE_LOCALES
+from ..translatedtext import AVAILABLE_LOCALES, LANGUAGE_NAMES_MAP
 
 
 
@@ -80,8 +78,6 @@ SELECTED_BUTTON_TEXT_SETTINGS = {
 def formatted_text_from_value(value):
     lang_code, _, country_code = value.partition('_')
     return lang_code + '-' + country_code.upper()
-
-LANGUAGE_NAMES_MAP = load_pyl(LANGUAGE_NAMES_FILEPATH)
 
 
 class LanguagePicker(UIObject2D):
@@ -363,7 +359,10 @@ class LanguagePicker(UIObject2D):
             option.image = ttubs[option.text]
 
         first_button = self.options_deque[0]
-        first_button.image = self.text_to_selected_button_surf[first_button.text]
+
+        first_button.image = (
+            self.text_to_selected_button_surf[first_button.text]
+        )
 
     def align_options(self):
 
@@ -385,6 +384,27 @@ class LanguagePicker(UIObject2D):
         )
 
         self.running = False
+
+    def set(self, value, execute_on_value_change=True):
+
+        for item in self.options_deque:
+
+            if value == item.value:
+                break
+
+        else:
+            return
+
+        self.image = (
+
+            self.text_to_idle_button_surf[
+                self.value_to_text[value]
+            ]
+
+        )
+
+        if execute_on_value_change:
+            self.on_value_change()
 
     def on_mouse_motion(self, event):
 

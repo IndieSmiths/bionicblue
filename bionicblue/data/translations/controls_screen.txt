@@ -1,75 +1,119 @@
 action_names
 
     up
+
         en-us Up
         pt-br Cima
+
     down
         en-us Down
         pt-br Baixo
+
     left
         en-us Left
         pt-br Esquerda
+
     right
+
         en-us Right
         pt-br Direita
 
     shoot
+
         en-us Shoot
         pt-br Atirar
+
     jump
+
         en-us Jump
         pt-br Pular
 
     previous_power
+
         en-us Previous power
         pt-br Poder anterior
+
     next_power
+
         en-us Next power
         pt-br Próximo poder
 
     start_button
+
         en-us Start/confirm
         pt-br Iniciar/confirmar
 
 keyboard_key
+
     en-us Key
     pt-br Tecla
 
 gamepad
+
     en-us Gamepad
     pt-br Controle
 
 action
+
     en-us Action
     pt-br Ação
 
 trigger
+
     en-us Trigger
     pt-br Gatilho
 
 press_trigger_to_assign
+
     en-us Press any trigger to assign it to the following action:
     pt-br Aperte qualquer gatilho para associá-lo à seguinte ação:
 
 prompts
+
     reserved_trigger
+
         caption
+
             en-us Reserved trigger
             pt-br Gatilho reservado
+
         message
+
             en-us This is a reserved trigger. Please, use another one.
             pt-br Esse gatilho é reservado. Por favor, escolha outro.
+
     used_by_another
+
         caption
+
             en-us Used by another action
             pt-br Usado por outra ação
+
         message
+
             en-us This trigger is being used for another action
             pt-br Este gatilho está sendo usado por outra ação
+
     already_set
+
         caption
+
             en-us Already set
             pt-br Já associado
+
         message
+
             en-us This trigger is already set for this action
             pt-br Este gatilho já está associado a esta ação
+
+    resetting_to_defaults
+
+        caption
+
+            en-us Resetting to defaults
+            pt-br Restaurando valores
+
+        message
+
+            en-us Are you sure you want to reset to the default values?
+            pt-br Tem certeza de que quer restaurar os valores?

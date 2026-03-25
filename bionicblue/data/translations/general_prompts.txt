@@ -1,0 +1,5 @@
+
+press_any_button
+
+    en-us Press any button to proceed
+    pt-br Aperte qualquer botão para prosseguir

@@ -1,6 +1,6 @@
-"""Facility for creating new save slot.
+"""Facility for renaming an existing save slot.
 
-That is, for player to enter name for new save slot.
+That is, for player to enter name for save slot.
 """
 
 ### standard library imports
@@ -45,7 +45,6 @@ from ..config import (
     SAVE_SLOTS_DIR,
     SOUND_MAP,
     LoopException,
-    get_custom_formated_current_datetime_str,
     quit_game,
 )
 
@@ -68,8 +67,6 @@ from ..constants import CHARGED_SHOT_SPEED
 
 from ..ourstdlibs.behaviour import do_nothing
 
-from ..ourstdlibs.pyl import save_pyl
-
 from ..textman import render_text, update_text_surface
 
 from ..surfsman import EMPTY_SURF
@@ -86,7 +83,7 @@ from ..translatedtext import TRANSLATIONS, on_language_change
 
 
 
-t = TRANSLATIONS.slot_creation_screen
+t = TRANSLATIONS.slot_renaming_screen
 
 ALLOWED_CHARS = (
 
@@ -133,8 +130,8 @@ SELECTED_TEXT_SETTINGS = {
 }
 
 
-class SlotCreationScreen:
-    """Interface for player to create new save slot by inputting name."""
+class SlotRenamingScreen:
+    """Interface for player to rename a save slot by inputting name."""
 
     def __init__(self):
 
@@ -276,7 +273,9 @@ class SlotCreationScreen:
         ### store operation to update text surfaces when language changes
         on_language_change.append(self.on_language_change)
 
-    def prepare(self):
+    def prepare(self, path_to_rename):
+
+        self.path_to_rename = path_to_rename
 
         slot_name_chars = self.slot_name_chars
 
@@ -528,9 +527,9 @@ class SlotCreationScreen:
         ###
 
         save_slot_name = ''.join(obj.text for obj in slot_name_chars)
-        new_save_slot_file = SAVE_SLOTS_DIR / f'{save_slot_name}.pyl'
+        new_save_slot_path = SAVE_SLOTS_DIR / f'{save_slot_name}.pyl'
 
-        if new_save_slot_file.exists():
+        if new_save_slot_path.exists():
 
             self.prepare_and_trigger_error_message(
                 t.error_messages.save_slot_with_name_exists
@@ -540,14 +539,8 @@ class SlotCreationScreen:
 
         ### save data
 
-        slot_data = {
-            'last_played_date': get_custom_formated_current_datetime_str(),
-        }
-
-        ### try writing save data
-
         try:
-            save_pyl(slot_data, new_save_slot_file)
+            self.path_to_rename.rename(new_save_slot_path)
 
         except Exception as err:
 
@@ -557,14 +550,7 @@ class SlotCreationScreen:
             )
 
         else:
-
-            REFS.slot_data = slot_data
-            REFS.slot_path = new_save_slot_file
-
-            transition_screen = REFS.states.transition_screen
-            transition_screen.prepare(present_intro)
-
-            raise LoopException(next_state=transition_screen)
+            self.go_back()
 
     def prepare_and_trigger_error_message(self, error_message):
 
@@ -605,11 +591,12 @@ class SlotCreationScreen:
 
     def go_back(self):
 
-        main_menu = REFS.states.main_menu
-        main_menu.prepare()
         stop_text_input()
 
-        raise LoopException(next_state=main_menu)
+        load_game_screen = REFS.states.load_game_screen
+        load_game_screen.prepare()
+
+        raise LoopException(next_state=load_game_screen)
 
     def go_to_next_char(self, x_steps, y_steps):
 
@@ -810,11 +797,3 @@ class SlotCreationScreen:
 
         update()
 
-
-def present_intro():
-    """Trigger presentation of game's introduction."""
-
-    report_presenter = REFS.states.report_presenter
-    report_presenter.prepare('story_intro')
-
-    raise LoopException(next_state=report_presenter)

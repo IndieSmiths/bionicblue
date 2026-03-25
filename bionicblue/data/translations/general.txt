@@ -14,5 +14,6 @@ go_back
     pt-br Voltar
 
 reset_to_defaults
+
     en-us Reset to defaults
     pt-br Restaurar valores

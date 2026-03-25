@@ -21,6 +21,8 @@ from ....ourstdlibs.pyl import load_pyl
 
 from ....translatedtext import TRANSLATIONS
 
+from ....userprefsman.main import USER_PREFS
+
 from .constants import TEXT_BOX
 
 
@@ -31,6 +33,10 @@ class ScriptedScenePreprocessing:
     def load_scripted_scenes(self):
 
         self.scripted_scene_map = ssm = {}
+
+        locale = USER_PREFS['LOCALE']
+
+        self.locales_of_retrieved_lines = [locale]
 
         for path in SCRIPTED_SCENES_DATA_DIR.iterdir():
 
@@ -80,7 +86,9 @@ class ScriptedScenePreprocessing:
                         ssm[dialogue_name] = {
 
                             'characters': character_names,
-                            'lines_data': lines_data,
+                            'lines_data': {
+                                locale: lines_data,
+                            },
                             'action_map': action_map,
 
                         }
@@ -123,6 +131,52 @@ class ScriptedScenePreprocessing:
         text_canvas.fill('black')
         self.blit_on_text_canvas = text_canvas.blit
 
+    def update_lines_data_for_current_locale_if_needed(self):
+
+        locale = USER_PREFS['LOCALE']
+
+        if locale in self.locales_of_retrieved_lines:
+            return
+
+        another_locale = self.locales_of_retrieved_lines[0]
+
+        for dialogue_name, dialogue_data in self.scripted_scene_map.items():
+
+            lines_data_from_another_locale = (
+                dialogue_data['lines_data'][another_locale]
+            )
+
+            t = getattr(TRANSLATIONS, f'{dialogue_name}_dialogue')
+
+            lines_data_from_current_locale = [
+
+                (
+
+                    line_attr_name,
+
+                    getattr(
+                        getattr(t, line_attr_name),
+                        character_name,
+                    ),
+
+                    character_name,
+                    line_index,
+                )
+
+                for (
+                    line_attr_name,
+                    line_contents,
+                    character_name,
+                    line_index,
+                ) in lines_data_from_another_locale
+
+            ]
+
+            dialogue_data['lines_data'][locale] = (
+                lines_data_from_current_locale
+            )
+
+        self.locales_of_retrieved_lines.append(locale)
 
 ### helper function
 

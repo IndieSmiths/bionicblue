@@ -12,25 +12,32 @@
 # action: set_defeated_animation_for_kane
 
 Kane
-    en-us How could you best me?
+    en-us How did you manage to best me?
+    pt-br Como você conseguiu me superar?
 
 Blue
     en-us You may be tough, but you are not perfect, Kane.
+    pt-br Você pode ser durão, mas não é perfeito, Kane.
 
 Blue
     en-us Winning requires more than fighting ability and firepower.
+    pt-br Vencer requer mais do que habilidade de luta e poder de fogo.
 
 Kane
-    en-us You are talking about strategy. It can't be that, I can understand strategy as well.
+    en-us You are talking about strategy. It can't be that, I understand strategy as well.
+    pt-br Você está falando de estratégia. Não tem como ser isso, eu também entendo de estratégia.
 
 Blue
-    en-us I'm sure you can, but how will you devise an effective one without understanding the human mind?
+    en-us I'm sure you do, but how will you devise an effective one without understanding the human mind?
+    pt-br Tenho certeza que entende, mas como criará uma estratégia efetiva sem entender a mente humana?
 
 Kane
     en-us ... ... ...
+    pt-br ... ... ...
 
 Blue
     en-us Goodbye, Kane.
+    pt-br Adeus, Kane.
 
 
 # at this point, kane deactivates
@@ -59,30 +66,39 @@ Blue
 
 Blue
     en-us Newton, you saw everything through my sensors, right? I did it!
+    pt-br Newton, você viu tudo pelos meus sensores, certo? Eu consegui!
 
 Newton
     en-us Yes, Blue! I'm just glad you made it out alive.
+    pt-br Sim, Blue! Só estou feliz que você saiu vivo.
 
 Newton
     en-us Please, get back so we can examine all your vitals, Blue.
+    pt-br Por favor, retorne para que possamos examinar seus sinais vitais, Blue.
 
 Newton
     en-us I'll send a team shortly to restore and manage the systems.
+    pt-br Enviarei uma equipe logo mais para restaurar e administrar os sistemas.
 
 Newton
     en-us And congrats on freeing all the people!
+    pt-br E parabéns por libertar todas as pessoas!
 
 Blue
     en-us Thank you. I took it upon myself, so I'm glad I was able to deliver.
+    pt-br Obrigado. Aceitei essa responsabilidade por iniciativa própria, por isso estou feliz de ter conseguido.
 
 Newton
     en-us Absolutely!
+    pt-br Absolutamente!
 
 Blue
     en-us See you in a sec!
+    pt-br Te vejo logo mais!
 
 Newton
-    en-us Okay, I'll be waiting! Bye!
+    en-us Okay, I'm waiting for you! Bye!
+    pt-br Ok, tou te esperando! Tchau!
 
 # action: remove_smartphone_animation_for_blue_and_newton
 
@@ -107,4 +123,3 @@ Newton
 
 # TODO add action to display "mission complete" text after victory pose
 #### action: display_mission_complete_text
-

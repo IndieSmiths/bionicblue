@@ -107,10 +107,8 @@ def leave_to_main_menu():
 
     REFS.states.level_manager.cleanup()
 
-    callable_to_use = go_to_main_menu
-
     transition_screen = REFS.states.transition_screen
-    transition_screen.prepare(callable_to_use)
+    transition_screen.prepare(go_to_main_menu)
 
     raise LoopException(next_state=transition_screen)
 
@@ -125,10 +123,11 @@ def go_to_main_menu():
     music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
     music.play(-1)
 
-    main_menu = REFS.states.main_menu
-    main_menu.prepare()
-
-    raise LoopException(next_state=main_menu)
+    raise LoopException(
+        next_state=REFS.states.main_menu,
+        clear_tasks=True,
+        prepare=True,
+    )
 
 
 class PauseMenu:

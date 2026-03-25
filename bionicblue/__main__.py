@@ -19,13 +19,15 @@ ensure_pygame_ce()
 
 ## remaining local imports
 
-from .config import REFS, MUST_LOCK_PLAY, LoopException
+from .config import REFS, MUST_LOCK_PLAY, LoopException, did_player_ever
 
 from .pygamesetup import SERVICES_NS, switch_mode
 
 from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from .promptscreen import prompt_to_dismiss_with_any_button
+
+from .localeprompt import LocalePrompt
 
 from .resourceloader import ResourceLoader
 
@@ -50,6 +52,9 @@ def run_game(debug_directive=False):
         return
 
     else:
+
+        if not did_player_ever(event_name='chose_a_locale'):
+            LocalePrompt().prompt_for_locale()
 
         ### load resources and setup states
 
@@ -96,9 +101,16 @@ def run_game(debug_directive=False):
             if exc.state is not None:
                 state = exc.state
 
+            if exc.clear_tasks:
+                REFS.clear_tasks()
+
+            if exc.prepare:
+                state.prepare()
+
             ### set input mode if one is named
 
             if exc.input_mode_name:
+
                 switch_mode(
                     exc.input_mode_name,
                     exc.input_data,
@@ -115,10 +127,7 @@ if __name__ == '__main__':
     ap.add_argument(
         '-b', '--debug-directive',
         default='',
-        help=(
-            "Grabs debug directive if specified, used to facilitate debugging"
-            " and other similar measures."
-        ),
+        help="flag to enable debug utilities/measures.",
     )
 
     parsed_args = ap.parse_args()

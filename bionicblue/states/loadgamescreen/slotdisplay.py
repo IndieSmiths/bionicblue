@@ -117,14 +117,20 @@ class SlotDisplay(UIList2D):
             UIObject2D.from_surface(button_surfs_map['load_button'])
         )
 
+        rename_button = self.rename_button = (
+            UIObject2D.from_surface(button_surfs_map['rename_button'])
+        )
+
         erase_button = self.erase_button = (
             UIObject2D.from_surface(button_surfs_map['erase_button'])
         )
 
         load_button.rect.topleft = last_played_label.rect.move(0, 5).bottomleft
-        erase_button.rect.topleft = load_button.rect.move(5, 0).topright
+        rename_button.rect.topleft = load_button.rect.move(5, 0).topright
+        erase_button.rect.topleft = rename_button.rect.move(5, 0).topright
 
         self.append(load_button)
+        self.append(rename_button)
         self.append(erase_button)
 
 
@@ -254,20 +260,29 @@ class SlotDisplay(UIList2D):
 
         ### update surface and rect of buttons
 
-        for button_name in ('load_button', 'erase_button'):
+        for button_name in ('load_button', 'rename_button', 'erase_button'):
 
-            obj = getattr(self, button_name)
+            button = getattr(self, button_name)
 
             new_surf = self.button_surfs_map[button_name]
             new_rect = new_surf.get_rect()
 
-            new_rect.midleft = obj.rect.midleft
+            new_rect.midleft = button.rect.midleft
 
-            obj.image = new_surf
-            obj.rect = new_rect
+            button.image = new_surf
+            button.rect = new_rect
+
+
+        self.load_button.rect.topleft = (
+            self.last_played_label.rect.move(0, 5).bottomleft
+        )
+
+        self.rename_button.rect.topleft = (
+            self.load_button.rect.move(5, 0).topright
+        )
 
         self.erase_button.rect.topleft = (
-            self.load_button.rect.move(5, 0).topright
+            self.rename_button.rect.move(5, 0).topright
         )
 
         ### update encounters label's text
@@ -279,7 +294,7 @@ class SlotDisplay(UIList2D):
             pos_to_align='midleft',
         )
 
-        ### reposition boss objs accordingly
+        ### reposition encounter objs accordingly
 
         if self.encounter_objs:
 
@@ -349,9 +364,12 @@ class SlotDisplay(UIList2D):
         no_of_beaten_bosses = len(self.slot_data.get('beaten_bosses', ()))
         no_of_boss_objs = len(boss_objs)
 
-        diff =  no_of_beaten_bosses - no_of_boss_objs
+        diff = no_of_beaten_bosses - no_of_boss_objs
 
         if diff:
+
+            for obj in boss_objs:
+                self.remove(obj)
 
             for index, boss_name in enumerate(self.slot_data['beaten_bosses']):
 
@@ -363,9 +381,6 @@ class SlotDisplay(UIList2D):
                             boss_name = boss_name,
                         )
                     )
-
-            for obj in boss_objs:
-                self.remove(obj)
 
             boss_objs.rect.snap_rects_ip(
                 retrieve_pos_from='midright',
@@ -398,6 +413,9 @@ class SlotDisplay(UIList2D):
 
         if diff:
 
+            for obj in encounter_objs:
+                self.remove(obj)
+
             for index, encounter_name in (
                 enumerate(self.slot_data['encounters'])
             ):
@@ -411,9 +429,6 @@ class SlotDisplay(UIList2D):
                         )
                     )
 
-            for obj in encounter_objs:
-                self.remove(obj)
-
             encounter_objs.rect.snap_rects_ip(
                 retrieve_pos_from='midright',
                 assign_pos_to='midleft',
@@ -421,6 +436,10 @@ class SlotDisplay(UIList2D):
             )
 
             encounters_label = self.encounters_label
+
+            encounter_objs.rect.midleft = (
+                encounters_label.rect.move(2, 0).midright
+            )
 
             index_to_insert = self.index(self.encounters_label) + 1
 

@@ -255,7 +255,7 @@ class ControlsScreen:
         on_language_change.append(self.on_language_change)
 
     def prepare(self, controls_type):
-        
+
         submap = self.groups_map[controls_type]
 
         self.action_labels = submap['action_labels']
@@ -472,6 +472,21 @@ class ControlsScreen:
     def reset_keyboard_controls(self):
         """Reset current controls to defaults."""
 
+        must_reset = present_prompt(
+
+            t.prompts.resetting_to_defaults.caption,
+            t.prompts.resetting_to_defaults.message,
+
+            (
+                (TRANSLATIONS.general.no, False),
+                (TRANSLATIONS.general.yes, True),
+            ),
+
+        )
+
+        if not must_reset:
+            return
+
         ### reset controls to defaults
 
         for obj in self.control_labels:
@@ -505,6 +520,21 @@ class ControlsScreen:
 
     def reset_gamepad_controls(self):
         """Reset current controls to defaults."""
+
+        must_reset = present_prompt(
+
+            t.prompts.resetting_to_defaults.caption,
+            t.prompts.resetting_to_defaults.message,
+
+            (
+                (TRANSLATIONS.general.no, False),
+                (TRANSLATIONS.general.yes, True),
+            ),
+
+        )
+
+        if not must_reset:
+            return
 
         ### reset controls to defaults
 

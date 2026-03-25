@@ -6,30 +6,39 @@
 
 Kane
     en-us Look who we have here! It is always a pleasure to see you, Blue. Or should I still call you "young master?"
+    pt-br Olha só quem temos aqui! Vê-lo é sempre um prazer, Blue. Ou ainda devo chamá-lo de "jovem mestre"?
 
 Blue
     en-us I don't care what you call me, Kane. I'm here to defeat you.
+    pt-br Não me importa do que você me chama, Kane. Estou aqui para derrotá-lo.
 
 Blue
     en-us You betrayed my family and almost got my father killed. The man who was by your side since the day you were created.
+    pt-br Você traiu minha família e quase causou a morte do meu pai. O homem que estava do seu lado desde o dia em que você foi criado.
 
 Blue
-    en-us All advanced robots claim intelligence, but all you've shown us was savagery.
+    en-us All advanced robots claim to be intelligent, but all you've shown us was savagery.
+    pt-br Todos os robôs avançados se dizem inteligentes, mas tudo que nos mostrou foi selvageria.
 
 Kane
     en-us You know, for a kid, you speak almost like a grown up.
+    pt-br Sabe, para uma criança, você fala quase como um adulto.
 
 Kane
     en-us Don't you realize your enhanced body is affecting your brain's development as well?
+    pt-br Você não percebe que seu corpo melhorado está afetando o desenvolvimento do seu cérebro também?
 
 Kane
     en-us Is a human even fit for processing so much data?
+    pt-br Seria mesmo saudável para um humano processar tantos dados?
 
 Kane
-    en-us The same enhanced semi-robotic brain that allows you to manage your enhanced body is causing you to mature much quicker than a normal kid.
+    en-us The same enhanced semi-robotic brain that allows you to manage your enhanced body is causing you to mature faster than a normal kid.
+    pt-br O mesmo cérebro semi-robótico melhorado que te permite gerir seu corpo melhorado está fazendo com que você amadureça mais rápido do que uma criança normal.
 
 Kane
     en-us That's enough chatter, though. Show me how enhanced your fighting abilities are as well!
+    pt-br Mas, chega de conversa mole. Me mostre o quão melhoradas também são suas habilidades de luta!
 
 # camera pans back to original position
 # action: camera_pans_down

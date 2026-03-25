@@ -129,6 +129,8 @@ class Player(
         else:
             self.health_column.reset()
 
+        self.ladder = None
+
         self.y_speed = MAX_Y_SPEED
 
         self.aniplayer = self.blue_shooter_man_aniplayer
@@ -262,6 +264,11 @@ class Player(
             if 'right' in self.state_name
             else 'jump_left'
         )
+
+
+    @property
+    def health(self):
+        return self.health_column.health
 
     def damage(self, amount):
 
@@ -462,8 +469,7 @@ class Player(
         self.rect = self.aniplayer.root.rect
         self.rect.center = center
 
-        REFS.disable_overall_tracking_for_camera()
-        REFS.disable_feet_tracking_for_camera()
+        REFS.states.level_manager.disable_all_camera_tracking()
 
         SOUND_MAP['blue_shooter_man_death.wav'].play()
 
@@ -673,5 +679,40 @@ class Player(
         append_timed_task(
             callable_obj,
             delta_t=frame_duration,
+            unit='frames',
+        )
+
+        ### a couple of seconds after teleporting away, stop camera tracking,
+        ### so that the playable character leaves the screen
+
+        frames_until_disabling_camera = (
+
+            frame_duration
+
+            # time_offset
+            + msecs_to_frames(2000)
+
+        )
+
+        append_timed_task(
+            REFS.states.level_manager.disable_all_camera_tracking,
+            delta_t=frames_until_disabling_camera,
+            unit='frames',
+        )
+
+        ### a second after all this, trigger the exit of the level
+
+        frames_until_leaving_level = (
+
+            frames_until_disabling_camera
+
+            # time offset
+            + msecs_to_frames(1000)
+
+        )
+
+        append_timed_task(
+            REFS.states.level_manager.schedule_level_exit_on_completed_mission,
+            delta_t=frames_until_disabling_camera,
             unit='frames',
         )

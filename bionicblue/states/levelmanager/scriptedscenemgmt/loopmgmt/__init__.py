@@ -52,11 +52,16 @@ from .....pygamesetup.gamepaddirect import (
 
 from .....ourstdlibs.behaviour import do_nothing
 
-from .....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
+from .....userprefsman.main import (
+    USER_PREFS,
+    KEYBOARD_CONTROLS,
+    GAMEPAD_CONTROLS,
+)
 
 from ...common import (
 
     CLOUDS,
+    BUILDINGS,
 
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
@@ -131,8 +136,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         restore_camera=True,
     ):
 
-        self.disable_overall_tracking_for_camera()
-        self.disable_feet_tracking_for_camera()
+        self.disable_all_camera_tracking()
 
         self.control = self.scene_control
         self.update = self.scene_update
@@ -147,14 +151,32 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         ###
 
+        ## XXX
+        ##
+        ## instead of performing cleanup measures here (like calling
+        ## clear() on collections), should probably do cleanup in more
+        ## appropriate spots, like when leaving the scene or when the
+        ## play leaves the level (including via the pause menu);
+        ##
+        ## also, there may be other stuff to clean up that we are missing
+        ## (although nothing that is causing a bug right now); one instance
+        ## is the iterators holding functions to perform scripted actions;
+        ## check this when you have time
+
         data = self.scripted_scene_map[scripted_scene_name]
 
-        self.remaining_lines_deque.extend(data['lines_data'])
+        locale = USER_PREFS['LOCALE']
+
+        self.remaining_lines_deque.clear()
+        self.remaining_lines_deque.extend(data['lines_data'][locale])
+
         self.action_map = data['action_map']
 
         self.current_line = ''
         self.current_character = ''
         self.line_index = -1
+
+        self.character_map.clear()
 
         self.character_map.update(
 
@@ -202,9 +224,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         ###
 
         if self.restore_camera:
-
-            self.enable_overall_tracking_for_camera()
-            self.enable_feet_tracking_for_camera()
+            self.enable_all_camera_tracking()
 
         ### execute on exit action
         self.on_exit()
@@ -363,7 +383,9 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         SCREEN.fill(self.bg_color)
 
-        CLOUDS.draw()
+        CLOUDS.draw_on_screen()
+
+        BUILDINGS.draw_on_screen()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()

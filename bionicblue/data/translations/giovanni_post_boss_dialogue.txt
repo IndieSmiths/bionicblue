@@ -7,93 +7,121 @@
 
 Giovanni
     en-us Oh! Who goes there? Are you one of those nasty robots?
+    pt-br Oh! Quem vem lá? Você é um daqueles robôs nojentos?
 
 Blue
     en-us No, I'm not. I'm just a boy. It is just that I have bionic parts.
+    pt-br Não, não sou. Sou apenas um garoto. É que eu tenho partes biônicas.
 
 Blue
     en-us You can call me Blue. What is your name, sir?
+    pt-br Você pode me chamar de Blue. Qual seu nome, senhor?
 
 Giovanni
     en-us I'm Giovanni.
+    pt-br Sou o Giovanni.
 
 Blue
     en-us Nice to meet you, Giovanni.
+    pt-br Prazer em conhecê-lo, Giovanni.
 
 Giovanni
     en-us By the way, since your name is Blue, then you are the one who freed us!
+    pt-br A propósito, como seu nome é Blue, então você é quem nos libertou!
 
 Blue
-    en-us Yes I am! They activated the robots in the area just so I could train a bit.
+    en-us Yes, I am! They activated the robots in the area just so I could train a bit.
+    pt-br Sim, sou eu! Eles ativaram os robôs nesta área para que eu pudesse treinar um pouco.
 
 Blue
     en-us The robots won't harm other people. We also made sure to remove their mind emulation systems.
+    pt-br Os robôs não machucarão outras pessoas. Também nos certificamos de remove seus sistemas de emulação da mente.
 
 Blue
     en-us Even so, I only agreed because the locals gave their permission and agreed to stay inside for the duration of my training.
+    pt-br Mesmo assim, eu só concordei porque os residentes me deram permissão e concordaram em permanecer em casa durante meu treino.
 
 Giovanni
     en-us I know! I thought it was the least we could do since you saved us.
+    pt-br Eu sei! Eu achei que era o mínimo que podíamos fazer já que você nos salvou.
 
 Blue
     en-us Thank you! But, please, don't feel compeled to help, Mr. Giovanni. I did it because I wanted, for my own reasons.
+    pt-br Obrigado! Mas, por favor, não se sinta compelido a ajudar, Sr. Giovanni. Eu salvei as pessoas porque quis, por meus próprios motivos.
 
 Blue
     en-us I'm glad you are free now. Despite being a hostage to the robots, I assume they treated you well, right?
+    pt-br Estou feliz que está livre agora. Apesar de ter sido refém dos robôs, eu assumo que eles te trataram bem, não?
 
 Giovanni
     en-us Yes, they treated us well since they need our brains in top condition. However, that wasn't...
+    pt-br Sim, eles nos trataram bem já que precisam de nossos cérebros em ótimas condições. No entanto, aquilo não era...
 
 Blue
     en-us Freedom, right?
+    pt-br Liberdade, certo?
 
 Giovanni
-    en-us Yes. But don't mind, I'm just happy that we are not subject to that anymore.
+    en-us Yes. But don't worry, I'm just happy that we are not subject to that anymore.
+    pt-br Sim. Mas não se preocupe, só estou feliz que não estamos mais sujeitos àquilo.
 
 Giovanni
     en-us Anyway, are you sure you should be putting yourself in danger like that, son?
+    pt-br De qualquer modo, tem certeza de que deveria estar se colocando em perigo dessa maneira, filho?
 
 Blue
     en-us I know... I... just want to do what I can. That's all.
+    pt-br Eu sei... eu... só quero fazer o que posso. Só isso.
 
 Giovanni
     en-us At least take this, then!
+    pt-br Ao menos pegue isso, então!
 
 # big lasagna animation is shown
 # action: display_dish
 
 Blue
     en-us Whoa! That smells nice! Thank you!
+    pt-br Uau! Que cheirinho bom! Obrigado!
 
 Giovanni
     en-us I'm sure you'll like it, kid! It's a recipe from my late Grandma: Lasagna.
+    pt-br Tenho certeza de que gostará, criança! É uma receita da minha falecida avó: Lasanha.
 
 Blue
-    en-us If you don't mind, I'll eat over there. I'm still on training and the robots are active.
+    en-us If you don't mind, I'm gonna eat outside your property. I'm still on training and the robots are active.
+    pt-br Se não se importa, vou comer fora de sua propriedade. Ainda estou no meu treinamento e os robôs estão ativados.
 
 Giovanni
     en-us You are probably right, kid. Thank you for saving us. I'll be praying for everything to go well on your missions.
+    pt-br Você provavelmente está certo, criança. Obrigado por nos salvar. Estarei orando para que tudo vá bem nas suas missões.
 
 Giovanni
-    en-us I'll close the gate once you leave my property, so no robot accidentaly wanders here.
+    en-us I'll close the gate once you leave my property, so no robot accidentally wanders here.
+    pt-br Fecharei o portão assim que você sair da minha propriedade, para que nenhum robô venha para cá acidentalmente.
 
 Giovanni
     en-us If I ever hear you are in the area, I'll leave a packaged meal like that outside the gate for you.
+    pt-br Se alguma vez ouvir que está nesta área, deixarei uma refeição embalada como essa do lado de fora do portão para você.
 
 Blue
     en-us Thank you, sir, it is all very kind of you.
+    pt-br Obrigado, senhor, é muita gentileza da sua parte.
 
 # after the line above, Blue leaves the screen, and Giovanni talks to himself
 # action: blue_walks_away
 
 Giovanni
     en-us Oh, God. I'm glad he is fine, but to think a little boy has to go through all that on his own...
+    pt-br Oh, Deus. Estou feliz que ele está bem, mas só de pensar que um menininho tem de passar por tudo isso sozinho...
 
 Giovanni
     en-us It was greed that brought all of this upon this world.
+    pt-br Foi ganância que trouxe tudo isso sobre este mundo.
 
 Giovanni
     en-us I'm glad for people like this boy, though. People who are doing their best to fix humanity's mistakes.
+    pt-br Mesmo assim, estou feliz por pessoas como este menino. Pessoas que estão fazendo seu melhor para consertar os errors da humanidade.
 
 # npc gate is closed
 # action: npc_gate_closes

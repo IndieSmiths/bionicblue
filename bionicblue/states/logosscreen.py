@@ -39,7 +39,11 @@ from ..textman import render_text
 
 from ..surfsman import combine_surfaces
 
+from ..translatedtext import TRANSLATIONS
 
+
+
+captions = TRANSLATIONS.logos_screen.captions
 
 class LogosScreen:
     """Presents relevant logos and icons.
@@ -53,22 +57,31 @@ class LogosScreen:
         surfs = tuple(
 
             combine_surfaces(
+
                 [
-                    render_text(text, 'regular', 12, 0, 'black', COLORKEY),
+
+                    render_text(
+                        getattr(captions, attr_name),
+                        'regular', 12, 0, 'black', COLORKEY,
+                    ),
+
                     SURF_MAP[key],
+
                 ],
+
                 retrieve_pos_from = 'midtop',
                 assign_pos_to = 'midbottom',
                 offset_pos_by = (0, -4),
                 background_color = COLORKEY,
+
             )
 
-            for key, text in (
-                ('indiesmiths_logo.png', "The Indie Smiths project"),
-                ('kennedy_logo.png', "A game by Kennedy R. S. Guerra"),
-                ('python_logo.png', "Powered by Python"),
-                ('pygame_logo.png', "Powered by pygame-ce"),
-                ('no_ai.png', "No GenAI/LLMs used"),
+            for key, attr_name in (
+                ('indiesmiths_logo.png', 'indiesmiths'),
+                ('kennedy_logo.png', 'kennedy'),
+                ('python_logo.png', 'python'),
+                ('pygame_logo.png', 'pygame_ce'),
+                ('no_ai.png', 'no_ai'),
             )
 
         )

@@ -36,6 +36,7 @@ from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 from .common import (
 
     CLOUDS,
+    BUILDINGS,
 
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
@@ -77,17 +78,33 @@ CAMERA_TRACKING_AREA.center = SCREEN_RECT.center
 
 class LevelManagerLoopManagement:
 
-    def enable_overall_tracking_for_camera(self):
+    def enable_camera_on_pc(self):
+        """Enable camera tracking on playable character."""
         self.camera_overall_routine = self.move_level_to_keep_pc_within_area
 
-    def disable_overall_tracking_for_camera(self):
+    def disable_camera_on_pc(self):
+        """Disable camera tracking on playable character."""
         self.camera_overall_routine = do_nothing
 
-    def enable_feet_tracking_for_camera(self):
+    def enable_camera_on_floor_level(self):
+        """Enable camera tracking on floor level."""
         self.camera_feet_routine = self.move_level_to_align_feet
 
-    def disable_feet_tracking_for_camera(self):
+    def disable_camera_on_floor_level(self):
+        """Disable camera tracking on floor level."""
         self.camera_feet_routine = do_nothing
+
+    def enable_all_camera_tracking(self):
+        """Enable all camera tracking (playable character and floor level)."""
+
+        self.enable_camera_on_pc()
+        self.enable_camera_on_floor_level()
+
+    def disable_all_camera_tracking(self):
+        """Disable all camera tracking (playable character and floor level)."""
+
+        self.disable_camera_on_pc()
+        self.disable_camera_on_floor_level()
 
     def control_player(self):
         self.player.control()
@@ -345,20 +362,35 @@ class LevelManagerLoopManagement:
             element.rect.move_ip(diff)
 
         ###
-
         scrolling_x, scrolling_y = scrolling
 
-        scrolling_x //= 300
-        scrolling_y //= 60
+        ###
 
         CLOUDS.rect.topleft = self.clouds_topleft + clouds_movement_delta
-        CLOUDS.rect.move_ip(scrolling_x, scrolling_y)
+
+        clouds_scrolling_x = scrolling_x // 300
+        clouds_scrolling_y = scrolling_y // 60
+
+        CLOUDS.rect.move_ip(clouds_scrolling_x, clouds_scrolling_y)
+
+        ###
+
+        BUILDINGS.rect.bottomleft = (
+            SCREEN_RECT.move(0, self.buildings_y_offset).bottomleft
+        )
+
+        buildings_scrolling_x = scrolling_x // 80
+        buildings_scrolling_y = scrolling_y // 15
+
+        BUILDINGS.rect.move_ip(buildings_scrolling_x, buildings_scrolling_y)
 
     def draw_level(self):
 
         blit_on_screen(self.bg, (0, 0))
 
-        CLOUDS.draw()
+        CLOUDS.draw_on_screen()
+
+        BUILDINGS.draw_on_screen()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()
@@ -438,12 +470,10 @@ class LevelManagerLoopManagement:
             partial(add_obj, reopening_trigger)
         )
 
-        ### disable camera overall and feet tracking, since
+        ### disable camera on playable character and floor level, since
         ### screen will now be focused solely on the arena,
         ### not moving for the duration of the battle
-
-        self.disable_overall_tracking_for_camera()
-        self.disable_feet_tracking_for_camera()
+        self.disable_all_camera_tracking()
 
         ###
 
@@ -631,21 +661,9 @@ class LevelManagerLoopManagement:
 
                     tracked_pos = pos
 
-            restore_camera_call = (
-
-                CallList(
-
-                    [
-                        self.enable_overall_tracking_for_camera,
-                        self.enable_feet_tracking_for_camera,
-                    ],
-
-                )
-
-            )
 
             append_timed_task(
-                restore_camera_call,
+                self.enable_all_camera_tracking,
                 delta_t=frames_offset+frame_delta+1,
                 unit='frames',
             )
@@ -715,7 +733,9 @@ class LevelManagerLoopManagement:
 
         blit_on_screen(self.bg, (0, 0))
 
-        CLOUDS.draw()
+        CLOUDS.draw_on_screen()
+
+        BUILDINGS.draw_on_screen()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()

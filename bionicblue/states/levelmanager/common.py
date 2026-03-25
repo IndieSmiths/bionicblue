@@ -142,6 +142,7 @@ VFX_ELEMENTS = set()
 HEALTH_COLUMNS = set()
 
 CLOUDS = UIList2D()
+BUILDINGS = UIList2D()
 
 
 ### chunks

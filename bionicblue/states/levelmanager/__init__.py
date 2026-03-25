@@ -21,15 +21,21 @@ from ...config import (
     LEVELS_DIR,
     MUSIC_DIR,
     PARALLAX_POSITIONING_DIR,
+    LoopException,
+    did_player_ever,
 )
 
-from ...pygamesetup.constants import SCREEN_RECT
+from ...pygamesetup.constants import SCREEN_RECT, reset_fade_accumulator
 
 from ...ourstdlibs.pyl import load_pyl
 
 from ...userprefsman.main import USER_PREFS
 
 from ...classes2d.single import UIObject2D
+
+from ...promptscreen import prompt_to_dismiss_with_any_button
+
+from ...translatedtext import TRANSLATIONS, on_language_change
 
 from .player import Player
 
@@ -62,6 +68,7 @@ from .common import (
 
     HEALTH_COLUMNS,
     CLOUDS,
+    BUILDINGS,
 
     VICINITY_RECT,
 
@@ -75,7 +82,11 @@ from .common import (
 
 )
 
+from .buildinggen import get_building_surf
+
 from .loopmgmt import LevelManagerLoopManagement
+
+from .taskmanager import append_timed_task
 
 from .popupmgmt import LevelManagerPopupManagement
 
@@ -86,6 +97,8 @@ from .constants import FLOOR_LEVEL, MOVE_CLOUDS_FRAMES, clouds_movement_delta
 
 
 SATELLITE_DISH_OFFSET = Vector2(48, 0)
+
+t = TRANSLATIONS.ingame_prompts
 
 
 class LevelManager(
@@ -116,15 +129,21 @@ class LevelManager(
         ###
         self.load_scripted_scenes()
 
-        self.control = self.control_player
+        ### store method to update dialogue lines when language changes
+
+        on_language_change.append(
+            self.update_lines_data_for_current_locale_if_needed
+        )
+
+        ###
 
     def prepare(self):
 
+        self.control = self.control_player
         self.update = self.normal_update
         self.draw = self.draw_level
 
-        self.disable_overall_tracking_for_camera()
-        self.disable_feet_tracking_for_camera()
+        self.disable_all_camera_tracking()
 
         scrolling.update(0, 0)
         scrolling_backup.update(scrolling)
@@ -178,6 +197,10 @@ class LevelManager(
         self.clouds_topleft = CLOUDS.rect.topleft
         clouds_movement_delta.update(0, 0)
         self.move_clouds_countdown = MOVE_CLOUDS_FRAMES
+
+        ###
+        if not BUILDINGS:
+            self.setup_buildings()
 
         ###
 
@@ -254,8 +277,6 @@ class LevelManager(
             boss.reset(boss_bottomright)
 
         add_obj(boss)
-
-        ### TODO keep adjusting for restart_level() from this point
 
         ### add gates and related objs
 
@@ -537,14 +558,107 @@ class LevelManager(
         ### update chunks and list objects on screen
         update_chunks_and_layers()
 
+    def setup_buildings(self):
+
+        no_of_buildings = 5
+
+        building_width = distance_between_buildings = (
+            SCREEN_RECT.width // (no_of_buildings * 2)
+        )
+
+        window_size = building_width // 5
+
+        BUILDINGS.extend(
+
+            UIObject2D.from_surface(
+                get_building_surf(
+                    window_size=window_size,
+                    no_of_windows_on_same_floor=2,
+                    no_of_stories=no_of_stories,
+                    padding_around_windows=window_size,
+                )
+            )
+
+            for no_of_stories in (
+                8, 16, 10, 9, 14, 8, 12, 8, 13, 10, 12, 16, 8
+            )
+
+        )
+
+        BUILDINGS.rect.snap_rects_ip(
+            retrieve_pos_from='bottomright',
+            assign_pos_to='bottomleft',
+            offset_pos_by=(building_width, 0),
+        )
+
+        self.buildings_y_offset = window_size * 3
+
     def restart_level(self):
 
         clear_chunks_and_layers()
-        self.prepare()
+
+        raise LoopException(
+            clear_tasks=True,
+            prepare=True,
+        )
 
     def cleanup(self):
         clear_chunks_and_layers()
 
+    def schedule_level_exit_on_completed_mission(self):
+
+        reset_fade_accumulator()
+        self.draw = self.draw_fading_level
+
+        append_timed_task(
+            self.leave_level_after_completing_mission,
+            delta_t=1500,
+            unit='milliseconds',
+        )
+
+    def leave_level_after_completing_mission(self):
+
+        self.cleanup()
+
+        if not did_player_ever(event_name='cleared_a_mission'):
+
+            report_presenter = REFS.states.report_presenter
+
+            report_presenter.prepare(
+                'thanking_player',
+                on_report_exit=go_to_main_menu,
+            )
+
+            raise LoopException(
+                next_state=report_presenter,
+                clear_tasks=True,
+            )
+
+        else:
+            go_to_main_menu()
+
+
+def go_to_main_menu():
+
+    prompt_to_dismiss_with_any_button(
+        caption=t.mission_completed.caption,
+        message=t.mission_completed.message,
+    )
+
+    music_volume = (
+        (USER_PREFS['MASTER_VOLUME']/100)
+        * (USER_PREFS['MUSIC_VOLUME']/100)
+    )
+
+    music.set_volume(music_volume)
+    music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
+    music.play(-1)
+
+    raise LoopException(
+        next_state=REFS.states.main_menu,
+        clear_tasks=True,
+        prepare=True,
+    )
 
 def instantiate(obj_data, layer_name):
 
