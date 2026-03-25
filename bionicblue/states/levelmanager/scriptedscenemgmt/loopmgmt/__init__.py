@@ -57,6 +57,7 @@ from .....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 from ...common import (
 
     CLOUDS,
+    BUILDINGS,
 
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
@@ -363,7 +364,9 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         SCREEN.fill(self.bg_color)
 
-        CLOUDS.draw()
+        CLOUDS.draw_on_screen()
+
+        BUILDINGS.draw_on_screen()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()

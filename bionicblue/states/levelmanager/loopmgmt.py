@@ -36,6 +36,7 @@ from .middleprops.invisiblecollidingtrigger import InvisibleCollidingTrigger
 from .common import (
 
     CLOUDS,
+    BUILDINGS,
 
     BACK_PROPS_NEAR_SCREEN,
     MIDDLE_PROPS_NEAR_SCREEN,
@@ -345,20 +346,35 @@ class LevelManagerLoopManagement:
             element.rect.move_ip(diff)
 
         ###
-
         scrolling_x, scrolling_y = scrolling
 
-        scrolling_x //= 300
-        scrolling_y //= 60
+        ###
 
         CLOUDS.rect.topleft = self.clouds_topleft + clouds_movement_delta
-        CLOUDS.rect.move_ip(scrolling_x, scrolling_y)
+
+        clouds_scrolling_x = scrolling_x // 300
+        clouds_scrolling_y = scrolling_y // 60
+
+        CLOUDS.rect.move_ip(clouds_scrolling_x, clouds_scrolling_y)
+
+        ###
+
+        BUILDINGS.rect.bottomleft = (
+            SCREEN_RECT.move(0, self.buildings_y_offset).bottomleft
+        )
+
+        buildings_scrolling_x = scrolling_x // 80
+        buildings_scrolling_y = scrolling_y // 15
+
+        BUILDINGS.rect.move_ip(buildings_scrolling_x, buildings_scrolling_y)
 
     def draw_level(self):
 
         blit_on_screen(self.bg, (0, 0))
 
-        CLOUDS.draw()
+        CLOUDS.draw_on_screen()
+
+        BUILDINGS.draw_on_screen()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()
@@ -715,7 +731,9 @@ class LevelManagerLoopManagement:
 
         blit_on_screen(self.bg, (0, 0))
 
-        CLOUDS.draw()
+        CLOUDS.draw_on_screen()
+
+        BUILDINGS.draw_on_screen()
 
         for prop in BACK_PROPS_NEAR_SCREEN:
             prop.draw()

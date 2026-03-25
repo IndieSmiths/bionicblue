@@ -62,6 +62,7 @@ from .common import (
 
     HEALTH_COLUMNS,
     CLOUDS,
+    BUILDINGS,
 
     VICINITY_RECT,
 
@@ -74,6 +75,8 @@ from .common import (
     clear_chunks_and_layers,
 
 )
+
+from .buildinggen import get_building_surf
 
 from .loopmgmt import LevelManagerLoopManagement
 
@@ -178,6 +181,10 @@ class LevelManager(
         self.clouds_topleft = CLOUDS.rect.topleft
         clouds_movement_delta.update(0, 0)
         self.move_clouds_countdown = MOVE_CLOUDS_FRAMES
+
+        ###
+        if not BUILDINGS:
+            self.setup_buildings()
 
         ###
 
@@ -536,6 +543,41 @@ class LevelManager(
 
         ### update chunks and list objects on screen
         update_chunks_and_layers()
+
+    def setup_buildings(self):
+
+        no_of_buildings = 5
+
+        building_width = distance_between_buildings = (
+            SCREEN_RECT.width // (no_of_buildings * 2)
+        )
+
+        window_size = building_width // 5
+
+        BUILDINGS.extend(
+
+            UIObject2D.from_surface(
+                get_building_surf(
+                    window_size=window_size,
+                    no_of_windows_on_same_floor=2,
+                    no_of_stories=no_of_stories,
+                    padding_around_windows=window_size,
+                )
+            )
+
+            for no_of_stories in (
+                8, 16, 10, 9, 14, 8, 12, 8, 13, 10, 12, 16, 8
+            )
+
+        )
+
+        BUILDINGS.rect.snap_rects_ip(
+            retrieve_pos_from='bottomright',
+            assign_pos_to='bottomleft',
+            offset_pos_by=(building_width, 0),
+        )
+
+        self.buildings_y_offset = window_size * 3
 
     def restart_level(self):
 
