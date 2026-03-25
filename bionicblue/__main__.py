@@ -96,9 +96,16 @@ def run_game(debug_directive=False):
             if exc.state is not None:
                 state = exc.state
 
+            if exc.clear_tasks:
+                REFS.clear_tasks()
+
+            if exc.prepare:
+                state.prepare()
+
             ### set input mode if one is named
 
             if exc.input_mode_name:
+
                 switch_mode(
                     exc.input_mode_name,
                     exc.input_data,

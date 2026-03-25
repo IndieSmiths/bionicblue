@@ -21,15 +21,20 @@ from ...config import (
     LEVELS_DIR,
     MUSIC_DIR,
     PARALLAX_POSITIONING_DIR,
+    LoopException,
 )
 
-from ...pygamesetup.constants import SCREEN_RECT
+from ...pygamesetup.constants import SCREEN_RECT, reset_fade_accumulator
 
 from ...ourstdlibs.pyl import load_pyl
 
 from ...userprefsman.main import USER_PREFS
 
 from ...classes2d.single import UIObject2D
+
+from ...promptscreen import prompt_to_dismiss_with_any_button
+
+from ...translatedtext import TRANSLATIONS
 
 from .player import Player
 
@@ -80,6 +85,8 @@ from .buildinggen import get_building_surf
 
 from .loopmgmt import LevelManagerLoopManagement
 
+from .taskmanager import append_timed_task
+
 from .popupmgmt import LevelManagerPopupManagement
 
 from .scriptedscenemgmt import ScriptedSceneManagement
@@ -89,6 +96,8 @@ from .constants import FLOOR_LEVEL, MOVE_CLOUDS_FRAMES, clouds_movement_delta
 
 
 SATELLITE_DISH_OFFSET = Vector2(48, 0)
+
+t = TRANSLATIONS.ingame_prompts
 
 
 class LevelManager(
@@ -260,8 +269,6 @@ class LevelManager(
             boss.reset(boss_bottomright)
 
         add_obj(boss)
-
-        ### TODO keep adjusting for restart_level() from this point
 
         ### add gates and related objs
 
@@ -581,10 +588,49 @@ class LevelManager(
     def restart_level(self):
 
         clear_chunks_and_layers()
-        self.prepare()
+
+        raise LoopException(
+            clear_tasks=True,
+            prepare=True,
+        )
 
     def cleanup(self):
         clear_chunks_and_layers()
+
+    def schedule_level_exit_on_completed_mission(self):
+
+        reset_fade_accumulator()
+        self.draw = self.draw_fading_level
+
+        append_timed_task(
+            self.leave_level_after_completing_mission,
+            delta_t=1500,
+            unit='milliseconds',
+        )
+
+    def leave_level_after_completing_mission(self):
+
+        self.cleanup()
+
+        prompt_to_dismiss_with_any_button(
+            caption=t.mission_completed.caption,
+            message=t.mission_completed.message,
+        )
+
+        music_volume = (
+            (USER_PREFS['MASTER_VOLUME']/100)
+            * (USER_PREFS['MUSIC_VOLUME']/100)
+        )
+
+        music.set_volume(music_volume)
+        music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
+        music.play(-1)
+
+        raise LoopException(
+            next_state=REFS.states.main_menu,
+            clear_tasks=True,
+            prepare=True,
+        )
 
 
 def instantiate(obj_data, layer_name):

@@ -42,11 +42,17 @@ class LoopException(Exception):
         next_state=None,
         next_input_mode_name='',
         input_data=None,
+        prepare=False,
+        clear_tasks=False,
     ):
 
         self.state = next_state
+
         self.input_mode_name = next_input_mode_name
         self.input_data = input_data
+
+        self.prepare = prepare
+        self.clear_tasks = clear_tasks
 
         super().__init__("Interrupting loop.")
 
@@ -65,6 +71,8 @@ REFS.__dict__.update(dict(
 
     dialogue_action_cueing_data = {},
     dialogue_character_names_set_map = {},
+
+    clear_tasks = None,
 
 ))
 

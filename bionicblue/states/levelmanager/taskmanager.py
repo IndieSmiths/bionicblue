@@ -5,6 +5,9 @@ from math import inf as INFINITY
 
 
 ### local import
+
+from ...config import REFS
+
 from ...pygamesetup.constants import msecs_to_frames
 
 
@@ -16,43 +19,29 @@ class TaskManager:
         """Assign variables."""
 
         self.tasks = []
-        self.sendoff_tasks = []
+        self.finished_tasks = []
 
     def clear(self):
         """Set defaults and perform setups."""
         self.tasks.clear()
 
-        for task in self.sendoff_tasks:
-            try:
-                task()
-            except Exception as err:
-                err_msg = str(err)
-                print(err_msg)
-
-        self.sendoff_tasks.clear()
-
     def update(self):
         """Update tasks."""
 
-        finished_tasks = []
+        finished_tasks = self.finished_tasks
+        tasks = self.tasks
 
-        for task in self.tasks:
+        for task in tasks:
 
-            try:
-                task.update()
-
-            except Exception as err:
-
-                err_msg = str(err)
-                print(err_msg)
-
-                task.finished = True
+            task.update()
 
             if task.finished:
                 finished_tasks.append(task)
 
         for task in finished_tasks:
-            self.tasks.remove(task)
+            tasks.remove(task)
+
+        finished_tasks.clear()
 
     def append_ready_task(
         self,
@@ -124,15 +113,6 @@ class TaskManager:
         self.tasks.append(task)
 
         return task
-
-    def append_sendoff_task(self, callable_task):
-        """Store a callable to call before leaving level.
-
-        callable_task
-            A callable to be called before exiting a level.
-            Callables are executed in the self.clear method.
-        """
-        self.sendoff_tasks.append(callable_task)
 
 
 class ReadyTask:
@@ -319,7 +299,8 @@ append_ready_task = TASK_MANAGER.append_ready_task
 append_conditional_task = TASK_MANAGER.append_conditional_task
 append_timed_task = TASK_MANAGER.append_timed_task
 
-append_sendoff_task = TASK_MANAGER.append_sendoff_task
-
-clear_task_manager = TASK_MANAGER.clear
 update_task_manager = TASK_MANAGER.update
+
+
+###
+REFS.clear_tasks = TASK_MANAGER.clear

@@ -674,3 +674,38 @@ class Player(
             delta_t=frame_duration,
             unit='frames',
         )
+
+        ### a couple of seconds after teleporting away, stop camera tracking,
+        ### so that the playable character leaves the screen
+
+        frames_until_disabling_camera = (
+
+            frame_duration
+
+            # time_offset
+            + msecs_to_frames(2000)
+
+        )
+
+        append_timed_task(
+            REFS.states.level_manager.disable_all_camera_tracking,
+            delta_t=frames_until_disabling_camera,
+            unit='frames',
+        )
+
+        ### a second after all this, trigger the exit of the level
+
+        frames_until_leaving_level = (
+
+            frames_until_disabling_camera
+
+            # time offset
+            + msecs_to_frames(1000)
+
+        )
+
+        append_timed_task(
+            REFS.states.level_manager.schedule_level_exit_on_completed_mission,
+            delta_t=frames_until_disabling_camera,
+            unit='frames',
+        )

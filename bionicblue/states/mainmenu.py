@@ -202,16 +202,38 @@ class MainMenu:
 
         REFS.last_checkpoint_name = 'landing'
 
+        there_are_save_slots = has_save_slots()
+
+        ### need to do update the slot displays because they are used to
+        ### load the most recent slot in the "continue" item in the
+        ### main menu, but this is needed only when there are save slots;
+
+        ### XXX
+        ### strictly speaking, though, when the load game screen is
+        ### created, this kind of stuff is already checked, so this is
+        ### actually only needed after revisiting the main menu once
+        ### you leave the level (since the load game screen was already
+        ### created before and now the slots really need to be updated)
+        ###
+        ### because of that, make sure to review the related code in order
+        ### to prevent needless reprocessing; for now, the redundant checks
+        ### (when they happen) are very negligible and seem unnoticeable
+
+        if there_are_save_slots:
+            REFS.states.load_game_screen.update_slot_displays()
+
         ###
 
         items = self.items = (
 
             self.full_items
-            if has_save_slots()
+            if there_are_save_slots
 
             else self.compact_items
 
         )
+
+        ###
 
         self.item_count = len(items)
 

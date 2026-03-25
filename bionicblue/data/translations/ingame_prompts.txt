@@ -1,0 +1,12 @@
+
+mission_completed
+
+    caption
+
+        en-us Congratulations
+        pt-br Parabéns
+
+    message
+
+        en-us Congratulations on completing the mission! Since there isn't another mission available for now, we'll leave you at the main menu.
+        pt-br Parabéns por completar a missão! Como não há outra missão disponível por hora, te deixaremos no menu principal.
