@@ -1,5 +1,4 @@
-(A) translate dialogue and popup message (and whatever else is missing)
-(A) make sure dialogues respond to change in language
+(A) translate dialogue and popup message (and whatever else is missing) (use "grep -rL [pattern]")
 (A) make it so the very first time the game is launched, the user picks a language right away (just this once)
 (A) make it so the very first time the player completes the first mission, it sees the thank you report (just this once)
 (B) improve input recording: rename to input logging, include gamepad support, think about playtesters screen
@@ -8,6 +7,7 @@
 (D) playtest with few close acquaintances
 (E) release
 (F) make web version (won't be included in first release; will likely need new task for a password screen)
+x make sure dialogues respond to change in language
 x make it so a slot name is created automatically (timestamp), let the user rename on load screen instead
 x add small props to level layout in different layers to make it more detailed
 x make it so logos screen can be skipped
