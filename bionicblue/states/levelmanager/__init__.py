@@ -34,7 +34,7 @@ from ...classes2d.single import UIObject2D
 
 from ...promptscreen import prompt_to_dismiss_with_any_button
 
-from ...translatedtext import TRANSLATIONS
+from ...translatedtext import TRANSLATIONS, on_language_change
 
 from .player import Player
 
@@ -128,6 +128,13 @@ class LevelManager(
         ###
         self.load_scripted_scenes()
 
+        ### store method to update dialogue lines when language changes
+
+        on_language_change.append(
+            self.update_lines_data_for_current_locale_if_needed
+        )
+
+        ###
         self.control = self.control_player
 
     def prepare(self):

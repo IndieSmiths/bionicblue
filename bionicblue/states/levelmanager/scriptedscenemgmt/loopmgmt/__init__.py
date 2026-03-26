@@ -52,7 +52,11 @@ from .....pygamesetup.gamepaddirect import (
 
 from .....ourstdlibs.behaviour import do_nothing
 
-from .....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
+from .....userprefsman.main import (
+    USER_PREFS,
+    KEYBOARD_CONTROLS,
+    GAMEPAD_CONTROLS,
+)
 
 from ...common import (
 
@@ -149,7 +153,9 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         data = self.scripted_scene_map[scripted_scene_name]
 
-        self.remaining_lines_deque.extend(data['lines_data'])
+        locale = USER_PREFS['LOCALE']
+
+        self.remaining_lines_deque.extend(data['lines_data'][locale])
         self.action_map = data['action_map']
 
         self.current_line = ''
