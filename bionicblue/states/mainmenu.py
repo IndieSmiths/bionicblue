@@ -1,5 +1,9 @@
 """Facility for main menu."""
 
+### standard library import
+from itertools import count
+
+
 ### third-party imports
 
 from pygame.locals import (
@@ -25,8 +29,11 @@ from ..config import (
     REFS,
     SOUND_MAP,
     MUSIC_DIR,
+    SAVE_SLOTS_DIR,
     LoopException,
     has_save_slots,
+    get_custom_datetime_str_for_default_slot_name,
+    get_custom_datetime_str_for_last_played,
     quit_game,
 )
 
@@ -46,6 +53,8 @@ from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
 from ..constants import CHARGED_SHOT_SPEED
 
 from ..ourstdlibs.behaviour import do_nothing
+
+from ..ourstdlibs.pyl import save_pyl
 
 from ..textman import render_text
 
@@ -355,11 +364,7 @@ class MainMenu:
             raise LoopException(next_state=load_game_screen)
 
         elif item_key == 'new_game':
-
-            slot_creation_screen = REFS.states.slot_creation_screen
-            slot_creation_screen.prepare()
-
-            raise LoopException(next_state=slot_creation_screen)
+            start_new_game()
 
         elif 'controls' in item_key :
 
@@ -497,3 +502,52 @@ class MainMenu:
         REFS.middle_shot.aniplayer.draw()
 
         update()
+
+
+def start_new_game():
+
+    timestamp_slot_name = get_custom_datetime_str_for_default_slot_name()
+    last_played_date = get_custom_datetime_str_for_last_played()
+
+    save_slot_name = timestamp_slot_name
+
+    next_index = count().__next__
+
+    while True:
+        
+        new_save_slot_file = SAVE_SLOTS_DIR / f'{save_slot_name}.pyl'
+
+        if new_save_slot_file.exists():
+
+            save_slot_name = (
+                timestamp_slot_name
+                + '_'
+                + str(next_index()).rjust(3, '0')
+            )
+
+        else:
+            break
+
+    slot_data = {
+        'last_played_date': last_played_date,
+    }
+
+    save_pyl(slot_data, new_save_slot_file)
+
+
+    REFS.slot_data = slot_data
+    REFS.slot_path = new_save_slot_file
+
+    transition_screen = REFS.states.transition_screen
+    transition_screen.prepare(present_intro)
+
+    raise LoopException(next_state=transition_screen)
+
+
+def present_intro():
+    """Trigger presentation of game's introduction."""
+
+    report_presenter = REFS.states.report_presenter
+    report_presenter.prepare('story_intro')
+
+    raise LoopException(next_state=report_presenter)

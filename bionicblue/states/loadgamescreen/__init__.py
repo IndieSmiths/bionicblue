@@ -1,7 +1,10 @@
 """Facility for screen wherin to load saved game."""
 
-### standard library import
+### standard library imports
+
 from itertools import cycle
+
+from collections import deque
 
 
 ### third-party imports
@@ -30,7 +33,7 @@ from ...config import (
     REFS,
     SAVE_SLOTS_DIR,
     LoopException,
-    get_custom_formated_current_datetime_str,
+    get_custom_datetime_str_for_last_played,
     quit_game,
 )
 
@@ -223,15 +226,20 @@ class LoadGameScreen:
     def trigger_slot_button(self, slot_path):
         """Trigger action from selected slot button."""
 
-        if self.slot_button_index == 0:
+        slot_button_index = self.slot_button_indices[0]
+
+        if slot_button_index == 0:
             self.load_slot(slot_path)
 
-        elif self.slot_button_index == 1:
+        elif slot_button_index == 1:
+            self.rename_slot(slot_path)
+
+        elif slot_button_index == 2:
             self.delete_slot_if_user_confirms(slot_path)
 
         else:
             raise RuntimeError(
-                "'slot_button_index' must always be 0 or 1"
+                "'slot_button_index' must always be 0, 1 or 2"
             )
 
     def delete_slot_if_user_confirms(self, slot_path):
@@ -309,6 +317,21 @@ class LoadGameScreen:
         for item in sort_aid_list:
             items.remove(item)
 
+        slot_displays_to_remove = [
+
+            item
+            for item in sort_aid_list
+            if not item.slot_path.exists()
+
+        ]
+
+        save_slots_data = self.save_slots_data
+
+        for item in slot_displays_to_remove:
+
+            sort_aid_list.remove(item)
+            save_slots_data.pop(item.slot_path)
+
         ###
 
         all_slot_paths = {
@@ -327,7 +350,6 @@ class LoadGameScreen:
 
         paths_not_displayed = all_slot_paths - current_slot_paths
 
-        save_slots_data = self.save_slots_data
 
         for slot_path in paths_not_displayed:
 
@@ -385,8 +407,10 @@ class LoadGameScreen:
                 button.update_encounters()
 
         self.current_index = 0
-        self.slot_button_index = 0
         self.highlighted_widget = self.buttons[self.current_index]
+
+        self.slot_button_indices = deque(range(3))
+
         self.align_button()
 
     prepare = update_slot_displays
@@ -448,7 +472,7 @@ class LoadGameScreen:
                 return
 
         slot_data['last_played_date'] = (
-            get_custom_formated_current_datetime_str()
+            get_custom_datetime_str_for_last_played()
         )
 
         try:
@@ -496,6 +520,13 @@ class LoadGameScreen:
 
         raise LoopException(next_state=transition_screen)
 
+    def rename_slot(self, slot_path):
+
+        slot_renaming_screen = REFS.states.slot_renaming_screen
+        slot_renaming_screen.prepare(slot_path)
+
+        raise LoopException(next_state=slot_renaming_screen)
+
     def load_first(self):
         """Load first slot, which is the most-recently-played one."""
         self.load_slot(self.buttons[0].slot_path)
@@ -507,7 +538,11 @@ class LoadGameScreen:
 
         y_diff = screen_centery - centery
         self.items.rect.move_ip(0, y_diff)
-        self.slot_button_index = 0
+
+        slot_button_indices = self.slot_button_indices
+
+        while slot_button_indices[0] != 0:
+            slot_button_indices.rotate(1)
 
     def control(self):
         
@@ -533,11 +568,11 @@ class LoadGameScreen:
 
                     self.align_button()
 
-                elif event.key in (K_LEFT, K_RIGHT):
+                elif event.key == K_LEFT:
+                    self.slot_button_indices.rotate(1)
 
-                    self.slot_button_index = (
-                        0 if self.slot_button_index == 1 else 1
-                    )
+                elif event.key == K_RIGHT:
+                    self.slot_button_indices.rotate(-1)
 
                 elif event.key == K_RETURN:
                     self.highlighted_widget.command()
@@ -564,11 +599,11 @@ class LoadGameScreen:
 
                     self.align_button()
 
-                elif event.direction in ('left', 'right'):
+                elif event.direction == 'left':
+                    self.slot_button_indices.rotate(1)
 
-                    self.slot_button_index = (
-                        0 if self.slot_button_index == 1 else 1
-                    )
+                elif event.direction == 'right':
+                    self.slot_button_indices.rotate(-1)
 
             elif event.type == MOUSEBUTTONDOWN:
 
@@ -607,6 +642,9 @@ class LoadGameScreen:
                     if obj.load_button.rect.collidepoint(pos):
                         self.load_slot(obj.slot_path)
 
+                    elif obj.rename_button.rect.collidepoint(pos):
+                        self.rename_slot(obj.slot_path)
+
                     elif obj.erase_button.rect.collidepoint(pos):
                         self.delete_slot_if_user_confirms(obj.slot_path)
 
@@ -625,11 +663,24 @@ class LoadGameScreen:
 
                 if hasattr(obj, 'slot_path'):
 
-                    if obj.erase_button.rect.collidepoint(pos):
-                        self.slot_button_index = 1
+                    if obj.load_button.rect.collidepoint(pos):
+                        slot_button_index = 0
+
+                    elif obj.rename_button.rect.collidepoint(pos):
+                        slot_button_index = 1
+
+                    elif obj.erase_button.rect.collidepoint(pos):
+                        slot_button_index = 2
 
                     else:
-                        self.slot_button_index = 0
+                        slot_button_index = None
+
+                    if slot_button_index is not None:
+
+                        slot_button_indices = self.slot_button_indices
+
+                        while slot_button_indices[0] != slot_button_index:
+                            slot_button_indices.rotate(1)
 
                 break
 
@@ -651,16 +702,32 @@ class LoadGameScreen:
             draw_rect(SCREEN, 'orange', hw.rect, 2, border_radius=10)
 
             if must_blink():
+                
+                slot_button_index = self.slot_button_indices[0]
 
                 draw_rect(
+
                     SCREEN,
                     'orangered',
+
                     (
+
                         hw.load_button.rect
-                        if self.slot_button_index == 0
-                        else hw.erase_button.rect
+                        if slot_button_index == 0
+
+                        else (
+
+                            hw.rename_button.rect
+                            if slot_button_index == 1
+
+                            else hw.erase_button.rect
+
+                        )
+
                     ),
+
                     1,
+
                 )
 
         else:
@@ -692,6 +759,7 @@ def recreate_button_surfs(button_surfs_map):
 
     for icon_chars, icon_bg_color, button_text, key in (
         ('OK', 'blue', t.buttons.load_game, 'load_button'),
+        ('__', 'darkgreen', t.buttons.rename, 'rename_button'),
         ('X', 'red', t.buttons.erase, 'erase_button'),
     ):
 

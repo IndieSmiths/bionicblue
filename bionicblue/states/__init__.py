@@ -26,7 +26,7 @@ from .creditsscreen import CreditsScreen
 
 from .linksscreen import LinksScreen
 
-from .slotcreationscreen import SlotCreationScreen
+from .slotrenamingscreen import SlotRenamingScreen
 
 from .loadgamescreen import LoadGameScreen
 
@@ -57,7 +57,7 @@ def setup_states():
     states.credits_screen = CreditsScreen()
     states.links_screen = LinksScreen()
 
-    states.slot_creation_screen = SlotCreationScreen()
+    states.slot_renaming_screen = SlotRenamingScreen()
     states.load_game_screen = LoadGameScreen()
     states.transition_screen = TransitionScreen()
     states.report_presenter = ReportPresenter()

@@ -129,7 +129,7 @@ def has_save_slots():
 
     )
 
-def get_custom_formated_current_datetime_str():
+def get_custom_datetime_str_for_last_played():
 
     now = datetime.now().astimezone()
 
@@ -140,6 +140,9 @@ def get_custom_formated_current_datetime_str():
     offset = tz[1:]
 
     return f'{timestamp} {signal_name} {offset}'
+
+def get_custom_datetime_str_for_default_slot_name():
+    return datetime.now().strftime('Y%Y_M%m_D%d_H%H_M%M')
 
 # XXX what if path exists but is a file instead? I know, unlikely scenario,
 # but not covered; same for playtest data dir and probably other paths

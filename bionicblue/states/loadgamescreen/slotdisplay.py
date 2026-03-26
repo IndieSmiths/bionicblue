@@ -117,14 +117,20 @@ class SlotDisplay(UIList2D):
             UIObject2D.from_surface(button_surfs_map['load_button'])
         )
 
+        rename_button = self.rename_button = (
+            UIObject2D.from_surface(button_surfs_map['rename_button'])
+        )
+
         erase_button = self.erase_button = (
             UIObject2D.from_surface(button_surfs_map['erase_button'])
         )
 
         load_button.rect.topleft = last_played_label.rect.move(0, 5).bottomleft
-        erase_button.rect.topleft = load_button.rect.move(5, 0).topright
+        rename_button.rect.topleft = load_button.rect.move(5, 0).topright
+        erase_button.rect.topleft = rename_button.rect.move(5, 0).topright
 
         self.append(load_button)
+        self.append(rename_button)
         self.append(erase_button)
 
 
