@@ -20,8 +20,9 @@ def get_building_surf(
     no_of_windows_on_same_floor,
     no_of_stories,
     padding_around_windows,
-    building_color=(69, 214, 255),
-    window_color=(69, 184, 255),
+    building_color=(68, 204, 68),
+    window_color=(34, 102, 34),
+    atmospheric_perspective_color=(69, 174, 255, 170),
 ):
 
     key = ( 
@@ -31,6 +32,7 @@ def get_building_surf(
         padding_around_windows,
         building_color,
         window_color,
+        atmospheric_perspective_color,
     )
 
     if key not in BUILDING_SURF_MAP:
@@ -63,6 +65,10 @@ def get_building_surf(
             window_rect.topleft = (x, y)
 
             draw_rect(building_surf, window_color, window_rect)
+
+        atmospheric_perspective_surf = Surface((width, height)).convert_alpha()
+        atmospheric_perspective_surf.fill(atmospheric_perspective_color)
+        building_surf.blit(atmospheric_perspective_surf, (0, 0))
 
         BUILDING_SURF_MAP[key] = building_surf
 
