@@ -1,4 +1,3 @@
-(A) make it so a slot name is created automatically (timestamp), let the user rename on load screen instead
 (A) translate dialogue and popup message (and whatever else is missing)
 (A) make sure dialogues respond to change in language
 (A) make it so the very first time the game is launched, the user picks a language right away (just this once)
@@ -9,6 +8,7 @@
 (D) playtest with few close acquaintances
 (E) release
 (F) make web version (won't be included in first release; will likely need new task for a password screen)
+x make it so a slot name is created automatically (timestamp), let the user rename on load screen instead
 x add small props to level layout in different layers to make it more detailed
 x make it so logos screen can be skipped
 x make it so player walks back to satellite before exiting level once boss is defeated
