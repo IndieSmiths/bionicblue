@@ -87,11 +87,13 @@ hello
 ...are okay, as long as `en-us` comes first.
 
 
-### Comments and empty lines
-
-You can make liberal usage of comments and empty lines in the file if you think it will make the file more readable.
+### Comments, directives and empty lines
 
 Comments are any lines whose first non-white space character is a `#`.
+
+The only exception are lines that start with `# action:` (exactly one `#` character followed by a space character, the `action` word and `:`). These lines are used in translation files representing dialogues to mark a spot of interest for an action that happens during that dialogue. Although they are similar to comments, these lines are actually called "directives".
+
+As long as you don't touch the directives or introduced new ones, you can make liberal usage of comments and empty lines in the file while introducing translations if you think it will make the file more readable.
 
 Example using empty lines and comments:
 

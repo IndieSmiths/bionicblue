@@ -1,0 +1,44 @@
+
+caption
+
+    en-us Name new save slot
+    pt-br Escolha nome para novo slot
+
+chosen_name_label
+
+    en-us Chosen name:
+    pt-br Nome escolhido:
+
+buttons
+
+    ok
+
+        en-us OK
+        pt-br OK
+
+    cancel_go_back
+
+        en-us CANCEL/GO BACK
+        pt-br CANCELAR/VOLTAR
+
+    backspace
+
+        en-us BACKSPACE
+        pt-br BACKSPACE
+
+error_messages
+
+    must_input_some_name
+
+        en-us Must input some name for the slot
+        pt-br É preciso inserir um nome para o slot
+
+    save_slot_with_name_exists
+
+        en-us A save slot with that name already exists
+        pt-br Um slot com esse nome já existe
+
+    unexpected_error
+
+        en-us Unexpected error
+        pt-br Error inesperado

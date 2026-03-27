@@ -83,7 +83,7 @@ from ..translatedtext import TRANSLATIONS, on_language_change
 
 
 
-t = TRANSLATIONS.slot_creation_screen
+t = TRANSLATIONS.slot_renaming_screen
 
 ALLOWED_CHARS = (
 

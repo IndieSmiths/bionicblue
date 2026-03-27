@@ -1,3 +1,3 @@
 press_any_button
-    en_us Press any button
-    pt_br Pressione qualquer botão
+    en-us Press any button
+    pt-br Pressione qualquer botão
