@@ -63,8 +63,6 @@ from ..userprefsman.main import (
     save_config_on_disk,
 )
 
-from ..promptscreen import prompt_to_dismiss_with_any_button
-
 from ..translatedtext import TRANSLATIONS, on_language_change
 
 from ..widget.slider import HundredSlider
@@ -99,7 +97,7 @@ class OptionsScreen:
         ###
 
         (
-          playtesting_button,
+          data_button,
           reset_button,
           back_button,
         ) = self.non_option_buttons = [
@@ -112,14 +110,14 @@ class OptionsScreen:
             )
 
             for text in (
-                t.playtesters_screen,
+                t.data_screen,
                 TRANSLATIONS.general.reset_to_defaults,
                 TRANSLATIONS.general.go_back,
             )
 
         ]
 
-        playtesting_button.command = self.to_playtesters_screen
+        data_button.command = self.to_data_screen
         reset_button.command = self.reset_to_defaults
         back_button.command = self.go_back
 
@@ -278,7 +276,7 @@ class OptionsScreen:
             self.non_option_buttons,
 
             (
-                t.playtesters_screen,
+                t.data_screen,
                 TRANSLATIONS.general.reset_to_defaults,
                 TRANSLATIONS.general.go_back,
             ),
@@ -518,23 +516,13 @@ class OptionsScreen:
 
         raise LoopException(next_state=main_menu)
 
-    def to_playtesters_screen(self):
-        """In the future, this will lead users to the playtesters screen.
+    def to_data_screen(self):
+        """Go to data screen."""
 
-        For now, it just displays a prompt notifying the user of its
-        unavailability.
-        """
+        data_screen = REFS.states.data_screen 
+        data_screen.prepare()
 
-        #playtesters_screen = REFS.states.playtesters_screen 
-        #playtesters_screen.prepare()
-
-        #raise LoopException(next_state=playtesters_screen)
-
-        prompt_to_dismiss_with_any_button(
-            t.playtesters_prompt.caption,
-            t.playtesters_prompt.message,
-        )
-
+        raise LoopException(next_state=data_screen)
 
     def on_mouse_click(self, event):
 

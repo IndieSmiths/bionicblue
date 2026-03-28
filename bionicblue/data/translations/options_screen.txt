@@ -31,20 +31,7 @@ options
         en-us Language
         pt-br Idioma
 
-playtesters_screen
+data_screen
 
-    en-us Playtesters screen
-    pt-br Tela dos playtesters
-
-playtesters_prompt
-
-    caption
-
-        en-us Playtesting tools
-        pt-br Ferramentas de playtesting
-
-    message
-
-        en-us Playtesting and related tools aren't available yet
-        pt-br Playtesting e ferramentas relacionadas ainda não estão disponíveis
-
+    en-us Data screen
+    pt-br Tela de dados

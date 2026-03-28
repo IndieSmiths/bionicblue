@@ -1,11 +1,6 @@
 """Facility for local data services."""
 
-### standard library imports
-
-from pathlib import Path
-
-from shutil import make_archive
-
+### standard library import
 from itertools import count
 
 
@@ -24,14 +19,14 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
+from pygame.display import update as update_screen
 
 from pygame.draw import rect as draw_rect
 
 
 ### local imports
 
-from ..config import REFS, PLAYTEST_DATA_DIR, LoopException, quit_game
+from ..config import REFS, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -44,7 +39,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
 
 from ..classes2d.single import UIObject2D
 
@@ -54,16 +49,35 @@ from ..textman import render_text
 
 from ..surfsman import unite_surfaces
 
+from ..userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
+
 from ..translatedtext import TRANSLATIONS, on_language_change
 
 
 
-LABEL_TEXT_SETTINGS = {
+###
+
+SCROLL_SPEED = 8
+
+UPPER_LIMIT = SCREEN_RECT.top + 2
+LOWER_LIMIT = SCREEN_RECT.bottom - 16
+
+###
+
+PARAGRAPH_TEXT_SETTINGS = {
     'style': 'regular',
     'size': 12,
     'padding': 1,
     'foreground_color': 'white',
     'background_color': 'black',
+}
+
+BUTTON_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 1,
+    'foreground_color': 'white',
+    'background_color': 'blue',
 }
 
 TITLE_TEXT_SETTINGS = {
@@ -74,6 +88,8 @@ TITLE_TEXT_SETTINGS = {
     'background_color': 'black',
 }
 
+###
+
 def get_message_obj(text):
 
     word_objs = UIList2D(
@@ -81,7 +97,7 @@ def get_message_obj(text):
         UIObject2D.from_surface(
                 render_text(
                     word,
-                    **LABEL_TEXT_SETTINGS,
+                    **PARAGRAPH_TEXT_SETTINGS,
                 )
         )
 
@@ -116,19 +132,34 @@ def get_message_obj(text):
     return message_obj
 
 
+###
 t = TRANSLATIONS.data_screen
+
+
+### class definition
 
 class DataScreen:
     """Displays buttons for useful data-related operations and related info."""
 
     def __init__(self):
 
+        self.widgets = UIList2D()
+
+        self.create_widgets()
+        self.position_widgets()
+        self.store_widgets()
+
+        self.buttons_bg_rect = self.buttons.rect.inflate(18, 18)
+
         ###
+        on_language_change.append(self.on_language_change)
+
+    def create_widgets(self):
 
         self.caption = (
             UIObject2D.from_surface(
                 render_text(
-                    "Data screen",
+                    t.caption,
                     **TITLE_TEXT_SETTINGS
                 )
             )
@@ -136,30 +167,7 @@ class DataScreen:
 
         ###
 
-        self.buttons = UIList2D(
-
-            UIObject2D.from_surface(
-
-                render_text(
-                    getattr(t.buttons, attr_name),
-                    **LABEL_TEXT_SETTINGS,
-                ),
-
-                button_name = attr_name,
-
-            )
-
-            for attr_name in (
-                'copy_data',
-                'erase_data',
-                'go_back',
-            )
-        )
-
-
-        ###
-
-        self.message_labels = (
+        self.paragraphs = (
 
             UIList2D(
                 get_message_obj(text)
@@ -169,21 +177,6 @@ class DataScreen:
         )
 
         ###
-        self.widgets = UIList2D()
-
-        ###
-        on_language_change.append(self.on_language_change)
-
-    def on_language_change(self):
-
-        self.messages = self.message_labels = (
-
-            UIList2D(
-                get_message_obj(text)
-                for text in self.get_translated_text()
-            )
-
-        )
 
         self.buttons = UIList2D(
 
@@ -191,51 +184,55 @@ class DataScreen:
 
                 render_text(
                     getattr(t.buttons, attr_name),
-                    **LABEL_TEXT_SETTINGS,
+                    **BUTTON_TEXT_SETTINGS,
                 ),
 
-                button_name = attr_name,
+                command=command,
 
             )
 
-            for attr_name in (
-                'copy_data',
-                'erase_data',
-                'go_back',
+            for attr_name, command in (
+
+                ('copy_data', self.copy_data_to_home_folder),
+                ('erase_data', self.erase_all_data_on_confirmation),
+                ('go_back', self.go_back),
+
             )
-        )
-
-    def get_translated_text(self):
-
-        return (
-
-            t.two_button_explanation,
-
-            *yield_paragraphs(t.first_button_explanation),
-            *yield_paragraphs(t.second_button_explanation),
 
         )
 
+        for button in self.buttons:
+            button.inflated_rect = button.rect.inflate(10, 10)
 
-    def prepare(self):
+    def position_widgets(self):
 
-        self.message_labels.rect.snap_rects_ip(
+        self.paragraphs.rect.snap_rects_ip(
             retrieve_pos_from='bottomleft',
             assign_pos_to='topleft',
+            offset_pos_by=(0, 20),
         )
 
         self.buttons.rect.snap_rects_ip(
             retrieve_pos_from='midbottom',
             assign_pos_to='midtop',
+            offset_pos_by=(0, 5),
         )
 
         ###
 
         self.caption.rect.midtop = SCREEN_RECT.move(0, 2).midtop
-        self.message_labels.rect.midtop = self.caption.rect.move(0, 10).midbottom
-        self.buttons.rect.midtop = self.message_labels.rect.move(0, 10).midbottom
+        self.paragraphs.rect.midtop = self.caption.rect.move(0, 10).midbottom
+        self.buttons.rect.midtop = self.paragraphs.rect.move(0, 20).midbottom
 
-        ###
+    def on_language_change(self):
+
+        self.create_widgets()
+        self.position_widgets()
+        self.store_widgets()
+
+        self.buttons_bg_rect = self.buttons.rect.inflate(18, 18)
+
+    def store_widgets(self):
 
         self.widgets.clear()
 
@@ -243,17 +240,29 @@ class DataScreen:
 
             (
                 self.caption,
-                self.message_labels,
+                self.paragraphs,
                 self.buttons,
             )
 
         )
 
-        self.current_index = None
-        self.highlighted_widget = None
 
-    ### TODO keep working from this spot (there might be stuff before this
-    ### point that needs to be updated, but I don't think so)
+    def get_translated_text(self):
+
+        return (
+
+            *yield_paragraphs(t.introduction),
+            *yield_paragraphs(t.first_button_explanation),
+            *yield_paragraphs(t.second_button_explanation),
+
+        )
+
+    def prepare(self):
+
+        self.widgets.rect.top = SCREEN_RECT.top + 2
+
+        self.button_index = 0
+        self.highlighted_button = None
 
     def control(self):
         
@@ -264,58 +273,183 @@ class DataScreen:
                 if event.key == K_ESCAPE:
                     self.go_back()
 
-                elif event.key in (K_UP, K_DOWN):
+                elif self.highlighted_button is not None:
 
-                    increment = -1 if event.key == K_UP else 1
+                    if event.key in (K_UP, K_DOWN):
 
-                    self.current_index = (
-                        (self.current_index + increment)
-                        % self.item_count
-                    )
+                        self.act_on_action_representing_motion(
+                            True if event.key == K_UP else False
+                        )
 
-                    self.highlighted_widget = (
-                        self.widgets[self.current_index]
-                    )
 
-                elif event.key == K_RETURN:
+                    elif event.key in (
+                        KEYBOARD_CONTROLS['up'],
+                        KEYBOARD_CONTROLS['down'],
+                    ):
 
-                    self.highlighted_widget.command()
+                        self.act_on_action_representing_motion(
 
+                            True
+                            if event.key == KEYBOARD_CONTROLS['up']
+
+                            else False
+
+                        )
+
+                    elif event.key == K_RETURN:
+                        self.highlighted_button.command()
 
             elif event.type == JOYBUTTONDOWN:
 
                 if event.button == GAMEPAD_CONTROLS['start_button']:
 
-                    self.highlighted_widget.command()
+                    if self.highlighted_button is not None:
+                        self.highlighted_button.command()
 
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 
-                if event.direction in ('up', 'down'):
+                if (
+                    event.direction in ('up', 'down')
+                    and self.highlighted_button is not None
+                ):
 
-                    increment = -1 if event.direction == 'up' else 1
-
-                    self.current_index = (
-                        (self.current_index + increment)
-                        % self.item_count
-                    )
-
-                    self.highlighted_widget = (
-                        self.widgets[self.current_index]
+                    self.act_on_action_representing_motion(
+                        True if event.direction == 'up' else False
                     )
 
             elif event.type == MOUSEBUTTONDOWN:
 
-                if event.button == 1:
+                if (
+                    event.button == 1
+                    and self.highlighted_button is not None
+                ):
                     self.on_mouse_click(event)
 
             elif event.type == MOUSEMOTION:
-                self.highlight_under_mouse(event)
+
+                if self.highlighted_button is not None:
+                    self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
+
+        ###
+
+        if self.highlighted_button is None:
+
+            pressed_state = SERVICES_NS.get_pressed_keys()
+
+            if (
+
+                pressed_state[K_DOWN]
+                or pressed_state[KEYBOARD_CONTROLS['down']]
+                or GAMEPAD_NS.y_sum > 0
+
+            ):
+                self.scroll_down()
+
+            elif (
+
+                pressed_state[K_UP]
+                or pressed_state[KEYBOARD_CONTROLS['up']]
+                or GAMEPAD_NS.y_sum < 0
+
+            ):
+                self.scroll_up()
+
+    def act_on_action_representing_motion(self, up=True):
+
+        if up:
+
+            if self.button_index == 0:
+
+                self.highlighted_button = None
+                self.scroll_up()
+
+            else:
+
+                self.button_index -= 1
+
+                self.highlighted_button = (
+                    self.buttons[self.button_index]
+                )
+
+        else:
+
+            if self.button_index < 2:
+
+                self.button_index += 1
+
+                self.highlighted_button = (
+                    self.buttons[self.button_index]
+                )
+
+    def scroll_up(self):
+
+        widgets = self.widgets
+        widgets_rect = widgets.rect
+
+        ## if top above upper limit...
+
+        if widgets_rect.top < UPPER_LIMIT:
+
+            widgets.rect.move_ip(0, SCROLL_SPEED)
+
+            ## if top ends up below upper limit...
+
+            if widgets_rect.top > UPPER_LIMIT:
+                widgets.rect.top = UPPER_LIMIT
+
+    def scroll_down(self):
+
+        widgets = self.widgets
+        widgets_rect = widgets.rect
+
+        ## if bottom below lower limit...
+
+        if widgets_rect.bottom > LOWER_LIMIT:
+
+            widgets.rect.move_ip(0, -SCROLL_SPEED)
+
+            ## if bottom ends up above lower limit...
+
+            if widgets_rect.bottom < LOWER_LIMIT:
+                widgets.rect.bottom = LOWER_LIMIT
+
+        if widgets_rect.bottom == LOWER_LIMIT:
+            self.highlighted_button = self.buttons[self.button_index]
+
+    def on_mouse_click(self, event):
+
+        pos = event.pos
+
+        button_to_click = None
+
+        for button in self.buttons:
+
+            if button.rect.collidepoint(pos):
+
+                button_to_click = button
+                break
+
+        if button_to_click:
+            button_to_click.command()
+
+    def highlight_under_mouse(self, event):
+
+        pos = event.pos
+
+        for index, button in enumerate(self.buttons):
+
+            if button.rect.collidepoint(pos):
+
+                self.button_index = index
+                self.highlighted_button = button
+
+                break
 
     def go_back(self):
 
@@ -324,37 +458,11 @@ class DataScreen:
 
         raise LoopException(next_state=options_screen)
 
-    def on_mouse_click(self, event):
+    def copy_data_to_home_folder(self):
+        print("Copy data to home folder")
 
-        pos = event.pos
-
-        for index, obj in enumerate(self.widgets):
-
-            if obj.rect.collidepoint(pos):
-
-                self.current_index = index
-                self.highlighted_widget = obj
-
-                if hasattr(obj, 'command'):
-                    obj.command()
-
-                elif hasattr(obj, 'on_mouse_click'):
-                    obj.on_mouse_click(event)
-
-                break
-
-    def highlight_under_mouse(self, event):
-
-        pos = event.pos
-
-        for index, obj in enumerate(self.widgets):
-
-            if obj.rect.collidepoint(pos):
-
-                self.current_index = index
-                self.highlighted_widget = obj
-
-                break
+    def erase_all_data_on_confirmation(self):
+        print("Erase all data")
 
     def update(self):
         """Do nothing."""
@@ -363,18 +471,46 @@ class DataScreen:
 
         blit_on_screen(BLACK_BG, (0, 0))
 
-        self.caption.draw()
-        self.message_labels.draw()
-        self.widgets.draw()
+        self.caption.draw_on_screen()
+        self.paragraphs.draw_on_screen()
 
-        draw_rect(
-            SCREEN,
-            'orange',
-            self.highlighted_widget.rect,
-            1,
-        )
+        hb = self.highlighted_button
 
-        update()
+        if hb is None:
+            self.buttons.draw_on_screen()
+
+        else:
+
+            self.buttons_bg_rect.center = self.buttons.rect.center
+
+            draw_rect(
+                SCREEN,
+                'blue',
+                self.buttons_bg_rect,
+                border_radius=10,
+            )
+
+            draw_rect(
+                SCREEN,
+                'white',
+                self.buttons_bg_rect,
+                2,
+                border_radius=10,
+            )
+
+            self.buttons.draw()
+
+            hb.inflated_rect.center = hb.rect.center
+
+            draw_rect(
+                SCREEN,
+                'orangered',
+                hb.inflated_rect,
+                2,
+                border_radius=8,
+            )
+
+        update_screen()
 
 
 def yield_paragraphs(t):
