@@ -1,10 +1,12 @@
-"""Facility for playtesters screen."""
+"""Facility for local data services."""
 
 ### standard library imports
 
 from pathlib import Path
 
 from shutil import make_archive
+
+from itertools import count
 
 
 ### third-party imports
@@ -52,11 +54,7 @@ from ..textman import render_text
 
 from ..surfsman import unite_surfaces
 
-from ..userprefsman.main import (
-    USER_PREFS,
-    DEFAULT_USER_PREFS,
-    save_config_on_disk,
-)
+from ..translatedtext import TRANSLATIONS, on_language_change
 
 
 
@@ -75,19 +73,6 @@ TITLE_TEXT_SETTINGS = {
     'foreground_color': 'white',
     'background_color': 'black',
 }
-
-MESSAGES = (
-    "Playtesting and related tools aren't available yet",
-#    "- After you play a few times, a button appears below",
-#    (
-#        "- just click the button and the play data is copied to"
-#        " your HOME FOLDER"
-#    ),
-#    (
-#        "- then please, contact me so we can figure out how to send"
-#        " the data to me"
-#    ),
-)
 
 def get_message_obj(text):
 
@@ -131,13 +116,10 @@ def get_message_obj(text):
     return message_obj
 
 
-### TODO
-###
-### will probably save data according to different versions of the app;
-### ponder how to give users access to functionality like deleting the data,
-### or preventing it to be saved altogether;
+t = TRANSLATIONS.data_screen
 
-class PlaytestersScreen:
+class DataScreen:
+    """Displays buttons for useful data-related operations and related info."""
 
     def __init__(self):
 
@@ -146,7 +128,7 @@ class PlaytestersScreen:
         self.caption = (
             UIObject2D.from_surface(
                 render_text(
-                    "Playtesters screen",
+                    "Data screen",
                     **TITLE_TEXT_SETTINGS
                 )
             )
@@ -154,87 +136,124 @@ class PlaytestersScreen:
 
         ###
 
-        back_button = self.back_button = (
+        self.buttons = UIList2D(
 
             UIObject2D.from_surface(
+
                 render_text(
-                    'back',
+                    getattr(t.buttons, attr_name),
                     **LABEL_TEXT_SETTINGS,
-                )
+                ),
+
+                button_name = attr_name,
+
             )
 
+            for attr_name in (
+                'copy_data',
+                'erase_data',
+                'go_back',
+            )
         )
 
-        back_button.command = self.go_back
 
         ###
 
-        copy_button = self.copy_button = (
+        self.message_labels = (
 
-            UIObject2D.from_surface(
-                render_text(
-                    'Copy playtest data to your HOME FOLDER',
-                    **LABEL_TEXT_SETTINGS,
-                )
+            UIList2D(
+                get_message_obj(text)
+                for text in self.get_translated_text()
             )
 
         )
-
-        copy_button.command = self.copy_playtest_data_to_home
 
         ###
         self.widgets = UIList2D()
 
         ###
+        on_language_change.append(self.on_language_change)
 
-        messages = self.message_labels = (
+    def on_language_change(self):
+
+        self.messages = self.message_labels = (
+
             UIList2D(
-                get_message_obj(text) for text in MESSAGES
+                get_message_obj(text)
+                for text in self.get_translated_text()
+            )
+
+        )
+
+        self.buttons = UIList2D(
+
+            UIObject2D.from_surface(
+
+                render_text(
+                    getattr(t.buttons, attr_name),
+                    **LABEL_TEXT_SETTINGS,
+                ),
+
+                button_name = attr_name,
+
+            )
+
+            for attr_name in (
+                'copy_data',
+                'erase_data',
+                'go_back',
             )
         )
 
-        messages.rect.snap_rects_ip(
-            retrieve_pos_from='bottomleft',
-            assign_pos_to='topleft',
+    def get_translated_text(self):
+
+        return (
+
+            t.two_button_explanation,
+
+            *yield_paragraphs(t.first_button_explanation),
+            *yield_paragraphs(t.second_button_explanation),
+
         )
-
-        ###
-
-        self.caption.rect.midtop = SCREEN_RECT.move(0, 4).midtop
-        messages.rect.midtop = self.caption.rect.move(0, 2).midbottom
 
 
     def prepare(self):
 
-        widgets = self.widgets
-        widgets.clear()
-
-        if (
-
-            ## path must be a dir
-            PLAYTEST_DATA_DIR.is_dir()
-
-            ## only contain .pyl files
-            and {path.suffix.lower() for path in PLAYTEST_DATA_DIR.iterdir()} == {'.pyl'}
-
-            ## XXX perhaps we should have another step for validating the .pyl files?
-
-        ):
-            widgets.append(self.copy_button)
-
-        widgets.append(self.back_button)
-
-        widgets.rect.snap_rects_ip(
-            retrieve_pos_from='bottomright',
-            assign_pos_to='topright',
-            offset_pos_by=(0, 2),
+        self.message_labels.rect.snap_rects_ip(
+            retrieve_pos_from='bottomleft',
+            assign_pos_to='topleft',
         )
 
-        widgets.rect.bottomright = SCREEN_RECT.move(-5, -5).bottomright
+        self.buttons.rect.snap_rects_ip(
+            retrieve_pos_from='midbottom',
+            assign_pos_to='midtop',
+        )
 
-        self.current_index = 0
-        self.highlighted_widget = self.widgets[self.current_index]
-        self.item_count = len(self.widgets)
+        ###
+
+        self.caption.rect.midtop = SCREEN_RECT.move(0, 2).midtop
+        self.message_labels.rect.midtop = self.caption.rect.move(0, 10).midbottom
+        self.buttons.rect.midtop = self.message_labels.rect.move(0, 10).midbottom
+
+        ###
+
+        self.widgets.clear()
+
+        self.widgets.extend(
+
+            (
+                self.caption,
+                self.message_labels,
+                self.buttons,
+            )
+
+        )
+
+        self.current_index = None
+        self.highlighted_widget = None
+
+    ### TODO keep working from this spot (there might be stuff before this
+    ### point that needs to be updated, but I don't think so)
 
     def control(self):
         
@@ -298,26 +317,6 @@ class PlaytestersScreen:
             elif event.type == QUIT:
                 quit_game()
 
-    def copy_playtest_data_to_home(self):
-
-        try:
-
-            home_dir = Path.home()
-            home_name = home_dir.name
-
-            make_archive(
-                str(home_dir / f'{home_name}_bblue_playdata'),
-                'zip',
-                str(PLAYTEST_DATA_DIR),
-            )
-
-        # TODO replace prints with messages on screen
-
-        except Exception as err:
-            print("Something went wrong:" + str(err))
-        else:
-            print("Saved")
-
     def go_back(self):
 
         options_screen = REFS.states.options_screen
@@ -377,3 +376,15 @@ class PlaytestersScreen:
 
         update()
 
+
+def yield_paragraphs(t):
+
+    for i in count():
+
+        parag_attr_name = 'paragraph' + str(i).rjust(2, '0')
+
+        try:
+            yield getattr(t, parag_attr_name)
+
+        except AttributeError:
+            return

@@ -4,8 +4,6 @@
 
 from pathlib import Path
 
-from contextlib import suppress
-
 from datetime import datetime
 
 
@@ -118,6 +116,13 @@ WRITEABLE_PATH = Path(get_pref_path(ORG_DIR_NAME, APP_DIR_NAME))
 
 SAVE_SLOTS_DIR = WRITEABLE_PATH / 'save_slots'
 
+# XXX what if path exists but is a file instead? I know, unlikely scenario,
+# but not covered; same for playtest data dir and probably other paths
+# (files/directories) as well; ponder and act on it.
+
+if not SAVE_SLOTS_DIR.exists():
+    SAVE_SLOTS_DIR.mkdir()
+
 def has_save_slots():
 
     return any(
@@ -144,28 +149,16 @@ def get_custom_datetime_str_for_last_played():
 def get_custom_datetime_str_for_default_slot_name():
     return datetime.now().strftime('Y%Y_M%m_D%d_H%H_M%M')
 
-# XXX what if path exists but is a file instead? I know, unlikely scenario,
-# but not covered; same for playtest data dir and probably other paths
-# (files/directories) as well; ponder and act on it.
-
-if not SAVE_SLOTS_DIR.exists():
-
-    try:
-        SAVE_SLOTS_DIR.mkdir()
-
-    except Exception as err:
-        print("Couldn't create folder for save slots")
-
 ###
 
-PLAYTEST_DATA_DIR = WRITEABLE_PATH / 'playtest_data'
+LOGS_DIR = WRITEABLE_PATH / 'logs'
 
-if not PLAYTEST_DATA_DIR.exists():
+INPUT_LOGS_DIR = LOGS_DIR / 'rotating_input_logs'
 
-    with suppress(Exception):
-        PLAYTEST_DATA_DIR.mkdir()
+for dir_path in (LOGS_DIR, INPUT_LOGS_DIR):
 
-
+    if not dir_path.exists():
+        dir_path.mkdir()
 
 ###
 

@@ -18,7 +18,7 @@ from .controlsscreen import ControlsScreen
 
 from .optionsscreen import OptionsScreen
 
-from .playtestersscreen import PlaytestersScreen
+from .datascreen import DataScreen
 
 from .pausemenu import PauseMenu, pause
 
@@ -49,7 +49,7 @@ def setup_states():
     states.main_menu = MainMenu()
     states.controls_screen = ControlsScreen()
     states.options_screen = OptionsScreen()
-    states.playtesters_screen = PlaytestersScreen()
+    states.data_screen = DataScreen()
 
     states.pause_menu = PauseMenu()
     REFS.pause = pause
