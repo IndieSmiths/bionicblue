@@ -148,8 +148,12 @@ class ReportLoopManagement:
 
         self.clear_collections()
 
+
         transition_screen = REFS.states.transition_screen
-        transition_screen.prepare(start_first_level)
+
+        on_report_exit = self.on_report_exit
+        del self.on_report_exit
+        transition_screen.prepare(on_report_exit)
 
         raise LoopException(next_state=transition_screen)
 
@@ -352,13 +356,3 @@ def get_relative_topleft(
     )
 
     return rect_a.topleft
-
-
-def start_first_level():
-    """Start first level."""
-
-    level_manager = REFS.states.level_manager
-    REFS.level_to_load = 'intro.lvl'
-    level_manager.prepare()
-
-    raise LoopException(next_state=level_manager)

@@ -548,6 +548,15 @@ def present_intro():
     """Trigger presentation of game's introduction."""
 
     report_presenter = REFS.states.report_presenter
-    report_presenter.prepare('story_intro')
+    report_presenter.prepare('story_intro', on_report_exit=start_first_level)
 
     raise LoopException(next_state=report_presenter)
+
+def start_first_level():
+    """Start first level."""
+
+    level_manager = REFS.states.level_manager
+    REFS.level_to_load = 'intro.lvl'
+    level_manager.prepare()
+
+    raise LoopException(next_state=level_manager)

@@ -22,6 +22,7 @@ from ...config import (
     MUSIC_DIR,
     PARALLAX_POSITIONING_DIR,
     LoopException,
+    is_it_the_first_time,
 )
 
 from ...pygamesetup.constants import SCREEN_RECT, reset_fade_accumulator
@@ -619,26 +620,45 @@ class LevelManager(
 
         self.cleanup()
 
-        prompt_to_dismiss_with_any_button(
-            caption=t.mission_completed.caption,
-            message=t.mission_completed.message,
-        )
+        if is_it_the_first_time(event_name='cleared_a_mission'):
 
-        music_volume = (
-            (USER_PREFS['MASTER_VOLUME']/100)
-            * (USER_PREFS['MUSIC_VOLUME']/100)
-        )
+            report_presenter = REFS.states.report_presenter
 
-        music.set_volume(music_volume)
-        music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
-        music.play(-1)
+            report_presenter.prepare(
+                'thanking_player',
+                on_report_exit=go_to_main_menu,
+            )
 
-        raise LoopException(
-            next_state=REFS.states.main_menu,
-            clear_tasks=True,
-            prepare=True,
-        )
+            raise LoopException(
+                next_state=report_presenter,
+                clear_tasks=True,
+            )
 
+        else:
+            go_to_main_menu()
+
+
+def go_to_main_menu():
+
+    prompt_to_dismiss_with_any_button(
+        caption=t.mission_completed.caption,
+        message=t.mission_completed.message,
+    )
+
+    music_volume = (
+        (USER_PREFS['MASTER_VOLUME']/100)
+        * (USER_PREFS['MUSIC_VOLUME']/100)
+    )
+
+    music.set_volume(music_volume)
+    music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
+    music.play(-1)
+
+    raise LoopException(
+        next_state=REFS.states.main_menu,
+        clear_tasks=True,
+        prepare=True,
+    )
 
 def instantiate(obj_data, layer_name):
 

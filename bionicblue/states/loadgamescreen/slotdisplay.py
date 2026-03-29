@@ -355,9 +355,12 @@ class SlotDisplay(UIList2D):
         no_of_beaten_bosses = len(self.slot_data.get('beaten_bosses', ()))
         no_of_boss_objs = len(boss_objs)
 
-        diff =  no_of_beaten_bosses - no_of_boss_objs
+        diff = no_of_beaten_bosses - no_of_boss_objs
 
         if diff:
+
+            for obj in boss_objs:
+                self.remove(obj)
 
             for index, boss_name in enumerate(self.slot_data['beaten_bosses']):
 
@@ -369,9 +372,6 @@ class SlotDisplay(UIList2D):
                             boss_name = boss_name,
                         )
                     )
-
-            for obj in boss_objs:
-                self.remove(obj)
 
             boss_objs.rect.snap_rects_ip(
                 retrieve_pos_from='midright',
@@ -404,6 +404,9 @@ class SlotDisplay(UIList2D):
 
         if diff:
 
+            for obj in encounter_objs:
+                self.remove(obj)
+
             for index, encounter_name in (
                 enumerate(self.slot_data['encounters'])
             ):
@@ -416,9 +419,6 @@ class SlotDisplay(UIList2D):
                             encounter_name = encounter_name,
                         )
                     )
-
-            for obj in encounter_objs:
-                self.remove(obj)
 
             encounter_objs.rect.snap_rects_ip(
                 retrieve_pos_from='midright',

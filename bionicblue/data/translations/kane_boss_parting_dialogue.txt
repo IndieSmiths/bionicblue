@@ -21,7 +21,7 @@ Blue
 
 Blue
     en-us Winning requires more than fighting ability and firepower.
-    en-us Vencer requer mais do que habilidade de luta e poder de fogo.
+    pt-br Vencer requer mais do que habilidade de luta e poder de fogo.
 
 Kane
     en-us You are talking about strategy. It can't be that, I understand strategy as well.

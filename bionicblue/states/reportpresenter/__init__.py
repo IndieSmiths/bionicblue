@@ -286,10 +286,11 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
         self.all_visible_objs.clear()
 
-    def prepare(self, report_key):
+    def prepare(self, report_key, on_report_exit):
         """Prepare objects for given report."""
 
         report = self.report_map[report_key]
+        self.on_report_exit = on_report_exit
 
         ### images
 

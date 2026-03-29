@@ -177,38 +177,39 @@ def get_custom_datetime_str_for_default_slot_name():
     return datetime.now().strftime('Y%Y_M%m_D%d_H%H_M%M')
 
 
-### constructs to keep track of events that happen only once within
-### the game
+### constructs to keep track of events that happen for the first time
+### in the game
 ###
-### (for instance, the "thank you" message is present only
-### in the first time the player clears a mission after a fresh
-### isntall)
+### this data is useful to trigger events that only happen once, when
+### something happens for the first time. For instance, the "thank you"
+### message is presented only when the player clears a mission for the
+### first time since the app was installed
 
-SINGLE_EVENTS_FILEPATH = WRITEABLE_PATH / 'single_events.pyl'
+FIRST_TIME_FILEPATH = WRITEABLE_PATH / 'first_time.pyl'
 
-DEFAULT_SINGLE_EVENTS_DATA = {
-    'cleared_first_mission': False,
-    'set_language_for_the_first_time': False,
+DEFAULT_FIRST_TIME_DATA = {
+    'cleared_a_mission': True,
+    'chose_a_locale_on_startup': True,
 }
 
-if SINGLE_EVENTS_FILEPATH.exists():
+if FIRST_TIME_FILEPATH.exists():
 
     try:
-        data = load_pyl(SINGLE_EVENTS_FILEPATH)
+        data = load_pyl(FIRST_TIME_FILEPATH)
 
     except Exception:
 
-        print("Couldn't load single events data, using defaults instead.")
+        print("Couldn't load first time data, using defaults instead.")
 
-        SINGLE_EVENTS_DATA = DEFAULT_SINGLE_EVENTS_DATA.copy()
-        save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
+        FIRST_TIME_DATA = DEFAULT_FIRST_TIME_DATA.copy()
+        save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
 
     else:
 
         if (
 
             not isinstance(data, dict)
-            or data.keys() == DEFAULT_SINGLE_EVENTS_DATA.keys()
+            or data.keys() == DEFAULT_FIRST_TIME_DATA.keys()
             or any(
                 not isinstance(value, bool)
                 for value in data.values()
@@ -216,32 +217,40 @@ if SINGLE_EVENTS_FILEPATH.exists():
 
         ):
 
-            SINGLE_EVENTS_DATA = DEFAULT_SINGLE_EVENTS_DATA.copy()
-            save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
+            FIRST_TIME_DATA = DEFAULT_FIRST_TIME_DATA.copy()
+            save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
 
         else:
-            SINGLE_EVENTS_DATA = data
+            FIRST_TIME_DATA = data
 
 else:
 
-    SINGLE_EVENTS_DATA = DEFAULT_SINGLE_EVENTS_DATA.copy()
-    save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
+    FIRST_TIME_DATA = DEFAULT_FIRST_TIME_DATA.copy()
+    save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
 
 ###
 
-def save_single_events_data():
-    save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
+def save_first_time_data():
+    save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
 
-def did_single_event_occur(event_name):
+def is_it_the_first_time(event_name):
 
-    if SINGLE_EVENTS_DATA[event_name]:
+    ## if it is the first time...
+
+    if FIRST_TIME_DATA[event_name]:
+
+        ### this is the first time, so we set the event to false
+        ### and save the data so next time we know it is not the
+        ### first time anymore
+
+        FIRST_TIME_DATA[event_name] = False
+        save_first_time_data()
+
+        ### since this is the first time, we return True
         return True
 
+    ## if it is not the first time, return False
     else:
-
-        SINGLE_EVENTS_DATA[event_name] = True
-        save_single_events_data()
-
         return False
 
 def quit_game():
