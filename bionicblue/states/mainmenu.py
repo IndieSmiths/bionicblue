@@ -514,7 +514,7 @@ def start_new_game():
     next_index = count().__next__
 
     while True:
-        
+
         new_save_slot_file = SAVE_SLOTS_DIR / f'{save_slot_name}.pyl'
 
         if new_save_slot_file.exists():

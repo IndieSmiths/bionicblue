@@ -14,8 +14,11 @@ from pygame import quit as quit_pygame
 from pygame.system import get_pref_path
 
 
-### local import
-from .appinfo import ORG_DIR_NAME, APP_DIR_NAME 
+### local imports
+
+from .appinfo import ORG_DIR_NAME, APP_DIR_NAME
+
+from .ourstdlibs.pyl import save_pyl, load_pyl
 
 
 
@@ -110,18 +113,42 @@ SURF_MAP = {}
 ANIM_DATA_MAP = {}
 SOUND_MAP = {}
 
-###
+### writeable folder and subfolders used to store user data
+### (configuration, save files, logs, etc.)
 
+# get_pref_path already creates the directory if it doesn't
+# exist already
 WRITEABLE_PATH = Path(get_pref_path(ORG_DIR_NAME, APP_DIR_NAME))
 
 SAVE_SLOTS_DIR = WRITEABLE_PATH / 'save_slots'
+LOGS_DIR = WRITEABLE_PATH / 'logs'
+REGULAR_PLAY_LOGS_DIR = LOGS_DIR / 'regular_play_logs'
+FIRST_PLAY_LOGS_DIR = LOGS_DIR / 'first_play_logs'
 
-# XXX what if path exists but is a file instead? I know, unlikely scenario,
-# but not covered; same for playtest data dir and probably other paths
-# (files/directories) as well; ponder and act on it.
+## the others must be created by us if they don't exist already
 
-if not SAVE_SLOTS_DIR.exists():
-    SAVE_SLOTS_DIR.mkdir()
+for dir_path in (
+    SAVE_SLOTS_DIR,
+    LOGS_DIR,
+    REGULAR_PLAY_LOGS_DIR,
+    FIRST_PLAY_LOGS_DIR,
+):
+
+    try:
+        dir_path.mkdir(exist_ok=True)
+
+    except FileExistsError as err:
+
+        path_name = str(dir_path)
+
+        raise RuntimeError(
+            "A path that is required by the game to be a folder"
+            f" has a file in its place {path_name}. Deleting it,"
+            " if possible, should solve the problem."
+        ) from err
+
+
+
 
 def has_save_slots():
 
@@ -149,18 +176,73 @@ def get_custom_datetime_str_for_last_played():
 def get_custom_datetime_str_for_default_slot_name():
     return datetime.now().strftime('Y%Y_M%m_D%d_H%H_M%M')
 
+
+### constructs to keep track of events that happen only once within
+### the game
+###
+### (for instance, the "thank you" message is present only
+### in the first time the player clears a mission after a fresh
+### isntall)
+
+SINGLE_EVENTS_FILEPATH = WRITEABLE_PATH / 'single_events.pyl'
+
+DEFAULT_SINGLE_EVENTS_DATA = {
+    'cleared_first_mission': False,
+    'set_language_for_the_first_time': False,
+}
+
+if SINGLE_EVENTS_FILEPATH.exists():
+
+    try:
+        data = load_pyl(SINGLE_EVENTS_FILEPATH)
+
+    except Exception:
+
+        print("Couldn't load single events data, using defaults instead.")
+
+        SINGLE_EVENTS_DATA = DEFAULT_SINGLE_EVENTS_DATA.copy()
+        save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
+
+    else:
+
+        if (
+
+            not isinstance(data, dict)
+            or data.keys() == DEFAULT_SINGLE_EVENTS_DATA.keys()
+            or any(
+                not isinstance(value, bool)
+                for value in data.values()
+            )
+
+        ):
+
+            SINGLE_EVENTS_DATA = DEFAULT_SINGLE_EVENTS_DATA.copy()
+            save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
+
+        else:
+            SINGLE_EVENTS_DATA = data
+
+else:
+
+    SINGLE_EVENTS_DATA = DEFAULT_SINGLE_EVENTS_DATA.copy()
+    save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
+
 ###
 
-LOGS_DIR = WRITEABLE_PATH / 'logs'
+def save_single_events_data():
+    save_pyl(SINGLE_EVENTS_DATA, SINGLE_EVENTS_FILEPATH)
 
-INPUT_LOGS_DIR = LOGS_DIR / 'rotating_input_logs'
+def did_single_event_occur(event_name):
 
-for dir_path in (LOGS_DIR, INPUT_LOGS_DIR):
+    if SINGLE_EVENTS_DATA[event_name]:
+        return True
 
-    if not dir_path.exists():
-        dir_path.mkdir()
+    else:
 
-###
+        SINGLE_EVENTS_DATA[event_name] = True
+        save_single_events_data()
+
+        return False
 
 def quit_game():
 

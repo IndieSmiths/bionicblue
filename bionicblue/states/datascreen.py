@@ -1,7 +1,12 @@
 """Facility for local data services."""
 
-### standard library import
+### standard library imports
+
 from itertools import count
+
+from shutil import copytree, rmtree
+
+from pathlib import Path
 
 
 ### third-party imports
@@ -26,7 +31,7 @@ from pygame.draw import rect as draw_rect
 
 ### local imports
 
-from ..config import REFS, LoopException, quit_game
+from ..config import REFS, WRITEABLE_PATH, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
@@ -53,6 +58,7 @@ from ..userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ..translatedtext import TRANSLATIONS, on_language_change
 
+from ..promptscreen import present_prompt
 
 
 ###
@@ -459,10 +465,34 @@ class DataScreen:
         raise LoopException(next_state=options_screen)
 
     def copy_data_to_home_folder(self):
-        print("Copy data to home folder")
+
+        copytree(
+            str(WRITEABLE_PATH),
+            get_available_path_in_home(),
+        )
 
     def erase_all_data_on_confirmation(self):
-        print("Erase all data")
+
+        must_erase_everything = (
+
+            present_prompt(
+
+                t.erase_data_prompt.caption,
+                t.erase_data_prompt.message,
+
+                (
+                    (TRANSLATIONS.general.no, False),
+                    (TRANSLATIONS.general.yes, True),
+                ),
+
+            )
+
+        )
+
+        if must_erase_everything:
+
+            rmtree(str(WRITEABLE_PATH))
+            quit_game()
 
     def update(self):
         """Do nothing."""
@@ -524,3 +554,28 @@ def yield_paragraphs(t):
 
         except AttributeError:
             return
+
+def get_available_path_in_home():
+
+    home_dir = Path.home()
+
+    chosen_name = base_name = 'bionic_blue_user_data'
+
+    next_index = count().__next__
+
+    while True:
+
+        destination_path = home_dir / chosen_name
+
+        if destination_path.exists():
+
+            chosen_name = (
+                base_name
+                + '_'
+                + str(next_index()).rjust(3, '0')
+            )
+
+        else:
+            break
+
+    return str(destination_path)
