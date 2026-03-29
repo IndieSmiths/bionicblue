@@ -2,7 +2,7 @@
 (A) make it so the very first time the player completes the first mission, it sees the thank you report (just this once)
 (A) make it so effect of "Reset to defaults" in options screen is seen in the widgets
 (A) add mouse support where missing (i.e.: prompt screen)
-(B) improve input recording: rename to input logging, include gamepad support
+(B) improve input recording: rename to play logging, include gamepad support
 (B) playtesters screen must be renamed to "data screen" and feature 02 main buttons with explanations ("copy data to home folder" and "erase all data")
 (C) playtest with few close acquaintances
 (D) release on pip, GitHub and itch (with windows installer)
