@@ -260,20 +260,29 @@ class SlotDisplay(UIList2D):
 
         ### update surface and rect of buttons
 
-        for button_name in ('load_button', 'erase_button'):
+        for button_name in ('load_button', 'rename_button', 'erase_button'):
 
-            obj = getattr(self, button_name)
+            button = getattr(self, button_name)
 
             new_surf = self.button_surfs_map[button_name]
             new_rect = new_surf.get_rect()
 
-            new_rect.midleft = obj.rect.midleft
+            new_rect.midleft = button.rect.midleft
 
-            obj.image = new_surf
-            obj.rect = new_rect
+            button.image = new_surf
+            button.rect = new_rect
+
+
+        self.load_button.rect.topleft = (
+            self.last_played_label.rect.move(0, 5).bottomleft
+        )
+
+        self.rename_button.rect.topleft = (
+            self.load_button.rect.move(5, 0).topright
+        )
 
         self.erase_button.rect.topleft = (
-            self.load_button.rect.move(5, 0).topright
+            self.rename_button.rect.move(5, 0).topright
         )
 
         ### update encounters label's text
@@ -285,7 +294,7 @@ class SlotDisplay(UIList2D):
             pos_to_align='midleft',
         )
 
-        ### reposition boss objs accordingly
+        ### reposition encounter objs accordingly
 
         if self.encounter_objs:
 

@@ -155,12 +155,16 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         locale = USER_PREFS['LOCALE']
 
+        self.remaining_lines_deque.clear()
         self.remaining_lines_deque.extend(data['lines_data'][locale])
+
         self.action_map = data['action_map']
 
         self.current_line = ''
         self.current_character = ''
         self.line_index = -1
+
+        self.character_map.clear()
 
         self.character_map.update(
 

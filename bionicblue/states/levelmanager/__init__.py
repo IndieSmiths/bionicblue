@@ -136,10 +136,10 @@ class LevelManager(
         )
 
         ###
-        self.control = self.control_player
 
     def prepare(self):
 
+        self.control = self.control_player
         self.update = self.normal_update
         self.draw = self.draw_level
 
