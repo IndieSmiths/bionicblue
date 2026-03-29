@@ -233,7 +233,7 @@ class PromptScreen:
 
             (
                 (
-                    TRANSLATIONS.soft_lock_prompt.press_any_button,
+                    TRANSLATIONS.general_prompts.press_any_button,
                     None,
                 ),
             ),

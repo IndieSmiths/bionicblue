@@ -613,6 +613,7 @@ class UpdateAssistance:
             elif action_type == 'place_smartphone':
                 
                 smartphone = self.smartphone
+                smartphone.aniplayer.switch_animation('idle')
 
                 player_pos_name = (
 

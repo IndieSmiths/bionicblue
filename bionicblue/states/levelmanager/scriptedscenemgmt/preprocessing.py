@@ -138,7 +138,7 @@ class ScriptedScenePreprocessing:
         if locale in self.locales_of_retrieved_lines:
             return
 
-        another_locale = self.langs_of_retrieved_lines[0]
+        another_locale = self.locales_of_retrieved_lines[0]
 
         for dialogue_name, dialogue_data in self.scripted_scene_map.items():
 

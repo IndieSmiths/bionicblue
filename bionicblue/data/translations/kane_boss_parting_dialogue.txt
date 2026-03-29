@@ -28,7 +28,7 @@ Kane
     pt-br Você está falando de estratégia. Não tem como ser isso, eu também entendo de estratégia.
 
 Blue
-    en-us I'm sure you can, but how will you devise an effective one without understanding the human mind?
+    en-us I'm sure you do, but how will you devise an effective one without understanding the human mind?
     pt-br Tenho certeza que entende, mas como criará uma estratégia efetiva sem entender a mente humana?
 
 Kane

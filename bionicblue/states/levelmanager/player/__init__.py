@@ -129,6 +129,8 @@ class Player(
         else:
             self.health_column.reset()
 
+        self.ladder = None
+
         self.y_speed = MAX_Y_SPEED
 
         self.aniplayer = self.blue_shooter_man_aniplayer

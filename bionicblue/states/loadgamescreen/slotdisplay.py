@@ -428,6 +428,10 @@ class SlotDisplay(UIList2D):
 
             encounters_label = self.encounters_label
 
+            encounter_objs.rect.midleft = (
+                encounters_label.rect.move(2, 0).midright
+            )
+
             index_to_insert = self.index(self.encounters_label) + 1
 
             for obj in encounter_objs:
