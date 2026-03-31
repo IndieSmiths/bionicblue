@@ -151,6 +151,18 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
 
         ###
 
+        ## XXX
+        ##
+        ## instead of performing cleanup measures here (like calling
+        ## clear() on collections), should probably do cleanup in more
+        ## appropriate spots, like when leaving the scene or when the
+        ## play leaves the level (including via the pause menu);
+        ##
+        ## also, there may be other stuff to clean up that we are missing
+        ## (although nothing that is causing a bug right now); one instance
+        ## is the iterators holding functions to perform scripted actions;
+        ## check this when you have time
+
         data = self.scripted_scene_map[scripted_scene_name]
 
         locale = USER_PREFS['LOCALE']

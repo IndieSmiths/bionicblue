@@ -177,39 +177,40 @@ def get_custom_datetime_str_for_default_slot_name():
     return datetime.now().strftime('Y%Y_M%m_D%d_H%H_M%M')
 
 
-### constructs to keep track of events that happen for the first time
-### in the game
+### constructs to keep track of one-off events
 ###
-### this data is useful to trigger events that only happen once, when
-### something happens for the first time. For instance, the "thank you"
-### message is presented only when the player clears a mission for the
-### first time since the app was installed
+### this data is useful to trigger measures that only happen once, when
+### something happens for the first time.
+###
+### For instance, the "thank you for playing" message is presented only
+### when the player clears a mission for the first time since the app was
+### installed
 
-FIRST_TIME_FILEPATH = WRITEABLE_PATH / 'first_time.pyl'
+ONE_OFF_FILEPATH = WRITEABLE_PATH / 'first_time.pyl'
 
-DEFAULT_FIRST_TIME_DATA = {
-    'cleared_a_mission': True,
-    'chose_a_locale_on_startup': True,
+DEFAULT_ONE_OFF_DATA = {
+    'cleared_a_mission': False,
+    'chose_a_locale': False,
 }
 
-if FIRST_TIME_FILEPATH.exists():
+if ONE_OFF_FILEPATH.exists():
 
     try:
-        data = load_pyl(FIRST_TIME_FILEPATH)
+        data = load_pyl(ONE_OFF_FILEPATH)
 
     except Exception:
 
         print("Couldn't load first time data, using defaults instead.")
 
-        FIRST_TIME_DATA = DEFAULT_FIRST_TIME_DATA.copy()
-        save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
+        ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
+        save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
     else:
 
         if (
 
             not isinstance(data, dict)
-            or data.keys() == DEFAULT_FIRST_TIME_DATA.keys()
+            or data.keys() == DEFAULT_ONE_OFF_DATA.keys()
             or any(
                 not isinstance(value, bool)
                 for value in data.values()
@@ -217,40 +218,41 @@ if FIRST_TIME_FILEPATH.exists():
 
         ):
 
-            FIRST_TIME_DATA = DEFAULT_FIRST_TIME_DATA.copy()
-            save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
+            ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
+            save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
         else:
-            FIRST_TIME_DATA = data
+            ONE_OFF_DATA = data
 
 else:
 
-    FIRST_TIME_DATA = DEFAULT_FIRST_TIME_DATA.copy()
-    save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
+    ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
+    save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
 ###
 
 def save_first_time_data():
-    save_pyl(FIRST_TIME_DATA, FIRST_TIME_FILEPATH)
+    save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
-def is_it_the_first_time(event_name):
+def did_player_ever(event_name):
 
-    ## if it is the first time...
+    ## if player already performed the event...
 
-    if FIRST_TIME_DATA[event_name]:
-
-        ### this is the first time, so we set the event to false
-        ### and save the data so next time we know it is not the
-        ### first time anymore
-
-        FIRST_TIME_DATA[event_name] = False
-        save_first_time_data()
-
-        ### since this is the first time, we return True
+    if ONE_OFF_DATA[event_name]:
         return True
 
-    ## if it is not the first time, return False
+    ## otherwise, this is the first time, so...
+
     else:
+
+        ### set the event to True so next time it is check it is marked
+        ### as having happened before (this very time)
+
+        ONE_OFF_DATA[event_name] = True
+        save_first_time_data()
+
+        ## return False to indicate the player didn't do it before (it
+        ## is happening for the firs time now)
         return False
 
 def quit_game():

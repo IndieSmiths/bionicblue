@@ -22,7 +22,7 @@ from ...config import (
     MUSIC_DIR,
     PARALLAX_POSITIONING_DIR,
     LoopException,
-    is_it_the_first_time,
+    did_player_ever,
 )
 
 from ...pygamesetup.constants import SCREEN_RECT, reset_fade_accumulator
@@ -620,7 +620,7 @@ class LevelManager(
 
         self.cleanup()
 
-        if is_it_the_first_time(event_name='cleared_a_mission'):
+        if did_player_ever(event_name='cleared_a_mission'):
 
             report_presenter = REFS.states.report_presenter
 

@@ -11,11 +11,16 @@ from textwrap import indent
 
 ### local imports
 
-from .config import REFS, TRANSLATIONS_DIR
+from .config import REFS, LANGUAGE_NAMES_FILEPATH, TRANSLATIONS_DIR
 
 from .ourstdlibs.behaviour import CallList
 
+from .ourstdlibs.pyl import load_pyl
 
+
+
+### how each language/locale is called by the locals
+LANGUAGE_NAMES_MAP = load_pyl(LANGUAGE_NAMES_FILEPATH)
 
 ### module level helper objects
 
