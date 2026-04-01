@@ -37,7 +37,7 @@ You can add translations in any line under the ones starting with `en-us`.
 
 You don't even need to translate everything if you are not sure about the translation of a specific word/sentence. Although we'd appreciate a lot if you provided a full translation for your language/region, as long as you contribute, someone can always come after and finish what you started. Languages missing translations will appear with a `*` near their name/locale code in the options menu, indicating partial support for that language/region.
 
-Although nothing more is required, you may also want to add the name of the language as the natives call it, to make it easier for them to pick it in the options menu. You can add such name in the `.pyl` file within this folder (it is just a text file containing a Python dictionary). If you don't add the name, we'll use the locale code instead in the options menu. In case the language you added is spoken in more than one region, make sure to indicate the region in the name you add. For instance, `English (USA)`, `English (United Kingdom)` or `Português do Brasil`.
+Although nothing more is required, we also ask that you provide the name of the language as the natives call it, to make it easier for users to choose a language. You can add such name in the `.pyl` file within this folder (it is just a text file containing a Python dictionary). If you don't add the name, we'll use the locale code instead whenever users have to pick a language. In case the language you added is spoken in more than one region, make sure to indicate the region in the name you add. For instance, `English (USA)`, `English (United Kingdom)` or `Português do Brasil`.
 
 
 ## More formatting tips/demonstrations

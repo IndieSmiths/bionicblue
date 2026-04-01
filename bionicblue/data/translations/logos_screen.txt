@@ -1,0 +1,27 @@
+
+captions
+
+    indiesmiths
+
+        en-us The Indie Smiths project
+        pt-br Projeto Indie Smiths
+
+    kennedy
+
+        en-us A game by Kennedy R. S. Guerra
+        pt-br Um jogo de Kennedy R. S. Guerra
+
+    python
+
+        en-us Made with Python
+        pt-br Feito com Python
+
+    pygame_ce
+
+        en-us Made with pygame-ce
+        pt-br Feito com pygame-ce
+
+    no_ai
+
+        en-us No generative AI/LLMs used
+        pt-br Sem uso de IA generativa/LLMs

@@ -620,7 +620,7 @@ class LevelManager(
 
         self.cleanup()
 
-        if did_player_ever(event_name='cleared_a_mission'):
+        if not did_player_ever(event_name='cleared_a_mission'):
 
             report_presenter = REFS.states.report_presenter
 

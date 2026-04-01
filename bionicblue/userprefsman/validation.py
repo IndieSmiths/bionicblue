@@ -84,7 +84,6 @@ def validate_prefs_dict(prefs_dict):
         "MUSIC_VOLUME",
         "SOUND_VOLUME",
         "FULLSCREEN",
-        "LAST_USED_SAVE_SLOT",
         "KEYBOARD_CONTROL_NAMES",
         "GAMEPAD_CONTROLS",
     ):
@@ -110,18 +109,6 @@ def validate_prefs_dict(prefs_dict):
 
     if not isinstance(prefs_dict['FULLSCREEN'], bool):
         raise TypeError(f"FULLSCREEN option must be a boolean (False or True)")
-
-
-    ### save slots
-
-    value = prefs_dict['LAST_USED_SAVE_SLOT']
-
-    if value is None or isinstance(value, str):
-        pass
-
-    else:
-        raise TypeError("LAST_USED_SAVE_SLOT must be None or a string")
-
 
 
     ### keyboard controls

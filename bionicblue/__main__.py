@@ -27,7 +27,7 @@ from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from .promptscreen import prompt_to_dismiss_with_any_button
 
-from .localeprompt import prompt_for_locale
+from .localeprompt import LocalePrompt
 
 from .resourceloader import ResourceLoader
 
@@ -54,7 +54,7 @@ def run_game(debug_directive=False):
     else:
 
         if not did_player_ever(event_name='chose_a_locale'):
-            prompt_for_locale()
+            LocalePrompt().prompt_for_locale()
 
         ### load resources and setup states
 

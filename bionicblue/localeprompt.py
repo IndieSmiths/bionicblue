@@ -155,7 +155,7 @@ class LocalePrompt:
 
             )
 
-            for locale in AVAILABLE_LOCALES
+            for locale in sorted(AVAILABLE_LOCALES)
 
         )
 
@@ -243,7 +243,3 @@ class LocalePrompt:
         self.items.draw()
 
         update_screen()
-
-
-
-prompt_for_locale = LocalePrompt().prompt_for_locale

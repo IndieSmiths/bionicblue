@@ -31,7 +31,7 @@ Blue
 
 Blue
     en-us I assume you are being kept hostage, Mr. Giovanni. They should be treating you fine, though, right?
-    pt-br Eu assumo que esteja sendo mantido refém, Mr. Giovanni. Eles devem estar te tratando bem, no entanto, certo?
+    pt-br Eu assumo que esteja sendo mantido refém, Sr. Giovanni. Eles devem estar te tratando bem, no entanto, certo?
 
 Giovanni
     en-us Yes, you are well informed, Blue. We are hostages.
