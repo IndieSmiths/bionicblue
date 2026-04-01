@@ -1,4 +1,4 @@
-"""Facility to present media to convey information.
+"""Facility to present information in the form of multimedia reports.
 
 Media is comprised of text, images and animated sprites.
 """
@@ -46,7 +46,7 @@ from .loopmanagement import ReportLoopManagement
 
 
 
-### module level object
+### module level objects
 
 INSTRUCTIONAL_TEXT_SETTINGS = {
     'style': 'regular',
@@ -55,6 +55,8 @@ INSTRUCTIONAL_TEXT_SETTINGS = {
     'foreground_color': 'yellow',
     'background_color': 'blue4',
 }
+
+t = TRANSLATIONS.report_presenter
 
 
 ### class definition
@@ -121,7 +123,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
             UIObject2D.from_surface(
                 render_text(
-                    TRANSLATIONS.media_presenter.report + ':',
+                    t.report + ':',
                     **REPORT_TEXT_SETTINGS,
                 )
             )
@@ -133,7 +135,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
             UIObject2D.from_surface(
                 render_text(
-                    TRANSLATIONS.media_presenter.directionals_to_advance,
+                    t.directionals_to_advance,
                     **INSTRUCTIONAL_TEXT_SETTINGS,
                 )
             )
@@ -146,7 +148,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
             UIObject2D.from_surface(
                 render_text(
-                    TRANSLATIONS.media_presenter.progress + ':',
+                    t.progress + ':',
                     **INSTRUCTIONAL_TEXT_SETTINGS,
                 )
             )
@@ -159,7 +161,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
 
             UIObject2D.from_surface(
                 render_text(
-                    TRANSLATIONS.media_presenter.press_to_advance,
+                    t.press_to_advance,
                     **INSTRUCTIONAL_TEXT_SETTINGS,
                 )
             )
@@ -222,7 +224,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
         rlabel.image = (
 
             render_text(
-                TRANSLATIONS.media_presenter.report + ':',
+                t.report + ':',
                 **REPORT_TEXT_SETTINGS,
             )
 
@@ -236,7 +238,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
         dlabel.image = (
 
             render_text(
-                TRANSLATIONS.media_presenter.directionals_to_advance,
+                t.directionals_to_advance,
                 **INSTRUCTIONAL_TEXT_SETTINGS,
             )
 
@@ -251,7 +253,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
         plabel.image = (
 
             render_text(
-                TRANSLATIONS.media_presenter.progress + ':',
+                t.progress + ':',
                 **INSTRUCTIONAL_TEXT_SETTINGS,
             )
 
@@ -266,7 +268,7 @@ class ReportPresenter(ReportPreprocessing, ReportLoopManagement):
         elabel.image = (
 
             render_text(
-                TRANSLATIONS.media_presenter.press_to_advance,
+                t.press_to_advance,
                 **INSTRUCTIONAL_TEXT_SETTINGS,
             )
 

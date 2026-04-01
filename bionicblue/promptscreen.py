@@ -18,6 +18,9 @@ from pygame.locals import (
 
     JOYBUTTONDOWN,
 
+    MOUSEBUTTONDOWN,
+    MOUSEMOTION,
+
 )
 
 from pygame.display import update
@@ -281,11 +284,55 @@ class PromptScreen:
                     rotation = 1 if event.direction == 'left' else -1
                     self.buttons_deque.rotate(rotation)
 
+            elif event.type == MOUSEBUTTONDOWN:
+
+                if event.button == 1:
+                    self.on_mouse_click(event)
+
+            elif event.type == MOUSEMOTION:
+                self.highlight_under_mouse(event)
+
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
+
+    def highlight_under_mouse(self, event):
+
+        pos = event.pos
+
+        buttons_deque = self.buttons_deque
+
+        for button in buttons_deque:
+
+            if button.rect.collidepoint(pos):
+                break
+
+        else:
+            return
+
+        while buttons_deque[0] is not button:
+            buttons_deque.rotate(1)
+
+    def on_mouse_click(self, event):
+
+        pos = event.pos
+
+        buttons_deque = self.buttons_deque
+
+        for button in buttons_deque:
+
+            if button.rect.collidepoint(pos):
+                break
+
+        else:
+            return
+
+        while buttons_deque[0] is not button:
+            buttons_deque.rotate(1)
+
+        self.push_selected_button()
 
     def push_selected_button(self):
 

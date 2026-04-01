@@ -14,6 +14,9 @@ from pygame.locals import (
     K_UP,
     K_DOWN,
 
+    MOUSEBUTTONDOWN,
+    MOUSEMOTION,
+
 )
 
 from pygame.image import load as load_image
@@ -215,11 +218,45 @@ class LocalePrompt:
                         ) % self.no_of_available_items
                     )
 
+            elif event.type == MOUSEBUTTONDOWN:
+
+                if event.button == 1:
+                    self.on_mouse_click(event)
+
+            elif event.type == MOUSEMOTION:
+                self.highlight_under_mouse(event)
+
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
+
+    def highlight_under_mouse(self, event):
+
+        pos = event.pos
+
+        for index, item in enumerate(self.items):
+
+            if item.rect.collidepoint(pos):
+
+                self.current_index = index
+                break
+
+    def on_mouse_click(self, event):
+
+        pos = event.pos
+
+        for index, item in enumerate(self.items):
+
+            if item.rect.collidepoint(pos):
+                break
+
+        else:
+            return
+
+        self.current_index = index
+        self.pick_selected_locale()
 
     def pick_selected_locale(self):
 

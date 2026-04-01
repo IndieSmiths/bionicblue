@@ -18,6 +18,9 @@ from pygame.locals import (
 
     JOYBUTTONDOWN,
 
+    MOUSEBUTTONDOWN,
+    MOUSEMOTION,
+
 )
 
 from pygame.display import update
@@ -62,7 +65,7 @@ from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D
 
-from ..userprefsman.main import GAMEPAD_CONTROLS
+from ..userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ..translatedtext import TRANSLATIONS, on_language_change
 
@@ -421,6 +424,14 @@ class MainMenu:
                     steps = -1 if event.key == K_UP else 1
                     self.select_another(steps)
 
+                elif event.key in (
+                    KEYBOARD_CONTROLS['up'],
+                    KEYBOARD_CONTROLS['down'],
+                ):
+
+                    steps = -1 if event.key == KEYBOARD_CONTROLS['up'] else 1
+                    self.select_another(steps)
+
             elif event.type == JOYBUTTONDOWN:
 
                 if event.button == GAMEPAD_CONTROLS['start_button']:
@@ -433,6 +444,14 @@ class MainMenu:
                     steps = -1 if event.direction == 'up' else 1
                     self.select_another(steps)
 
+            elif event.type == MOUSEBUTTONDOWN:
+
+                if event.button == 1:
+                    self.on_mouse_click(event)
+
+            elif event.type == MOUSEMOTION:
+                self.highlight_under_mouse(event)
+
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
 
@@ -443,6 +462,37 @@ class MainMenu:
 
         self.current_index = (self.current_index + steps) % self.item_count
         self.highlight_selected()
+
+    def highlight_under_mouse(self, event):
+
+        pos = event.pos
+
+        for index, item in enumerate(self.items):
+
+            if item.rect.collidepoint(pos):
+                break
+
+        else:
+            return
+
+        self.current_index = index
+        self.highlight_selected()
+
+    def on_mouse_click(self, event):
+
+        pos = event.pos
+
+        for index, item in enumerate(self.items):
+
+            if item.rect.collidepoint(pos):
+                break
+
+        else:
+            return
+
+        self.current_index = index
+        self.highlight_selected()
+        self.start_shooting_animation()
 
     def start_shooting_animation(self):
 
