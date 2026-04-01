@@ -85,6 +85,7 @@ DATA_DIR = Path(__file__).parent / 'data'
 
 CREDITS_FILEPATH = DATA_DIR / 'credits.txt'
 LINKS_FILEPATH = DATA_DIR / 'links.txt'
+LANGUAGE_ICON_FILEPATH = DATA_DIR / 'language_icon.png'
 
 FONTS_DIR = DATA_DIR / 'fonts'
 IMAGES_DIR = DATA_DIR / 'images'
@@ -186,12 +187,17 @@ def get_custom_datetime_str_for_default_slot_name():
 ### when the player clears a mission for the first time since the app was
 ### installed
 
-ONE_OFF_FILEPATH = WRITEABLE_PATH / 'first_time.pyl'
+ONE_OFF_FILEPATH = WRITEABLE_PATH / 'one_off_events.pyl'
 
 DEFAULT_ONE_OFF_DATA = {
     'cleared_a_mission': False,
     'chose_a_locale': False,
 }
+
+ONE_OFF_DATA = {}
+
+def save_one_off_data():
+    save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
 if ONE_OFF_FILEPATH.exists():
 
@@ -200,17 +206,17 @@ if ONE_OFF_FILEPATH.exists():
 
     except Exception:
 
-        print("Couldn't load first time data, using defaults instead.")
+        print("Couldn't load one off events data, using defaults instead.")
 
-        ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
-        save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
+        ONE_OFF_DATA.update(DEFAULT_ONE_OFF_DATA)
+        save_one_off_data()
 
     else:
 
         if (
 
             not isinstance(data, dict)
-            or data.keys() == DEFAULT_ONE_OFF_DATA.keys()
+            or not data.keys() == DEFAULT_ONE_OFF_DATA.keys()
             or any(
                 not isinstance(value, bool)
                 for value in data.values()
@@ -219,7 +225,7 @@ if ONE_OFF_FILEPATH.exists():
         ):
 
             ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
-            save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
+            save_one_off_data()
 
         else:
             ONE_OFF_DATA = data
@@ -229,10 +235,6 @@ else:
     ONE_OFF_DATA = DEFAULT_ONE_OFF_DATA.copy()
     save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
-###
-
-def save_first_time_data():
-    save_pyl(ONE_OFF_DATA, ONE_OFF_FILEPATH)
 
 def did_player_ever(event_name):
 
@@ -249,7 +251,7 @@ def did_player_ever(event_name):
         ### as having happened before (this very time)
 
         ONE_OFF_DATA[event_name] = True
-        save_first_time_data()
+        save_one_off_data()
 
         ## return False to indicate the player didn't do it before (it
         ## is happening for the firs time now)

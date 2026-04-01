@@ -1,9 +1,5 @@
 """Facility for special languae/locale-related prompt."""
 
-### standard library import
-from collections import deque
-
-
 ### third-party imports
 
 from pygame import Surface
@@ -15,33 +11,31 @@ from pygame.locals import (
     KEYDOWN,
     K_ESCAPE,
     K_RETURN,
-    K_LEFT,
-    K_RIGHT,
-
-    JOYBUTTONDOWN,
+    K_UP,
+    K_DOWN,
 
 )
 
 from pygame.image import load as load_image
 
-from pygame.display import update
+from pygame.display import update as update_screen
 
-from pygame.draw import polygon as draw_polygon
+from pygame.draw import (
+    polygon as draw_polygon,
+    rect as draw_rect,
+)
 
 
 ### local imports
 
-from .config import NO_COLORKEY_IMAGES_DIR, quit_game
+from .config import LANGUAGE_ICON_FILEPATH, quit_game
 
 from .pygamesetup import SERVICES_NS
 
 from .pygamesetup.constants import (
-    SCREEN,
     SCREEN_RECT,
     BLACK_BG,
-    GAMEPADDIRECTIONALPRESSED,
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
-    KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS,
     blit_on_screen,
 )
 
@@ -53,11 +47,19 @@ from .classes2d.single import UIObject2D
 
 from .classes2d.collections import UIList2D
 
-from .userprefsman.main import GAMEPAD_CONTROLS
-
 from .translatedtext import AVAILABLE_LOCALES, LANGUAGE_NAMES_MAP
 
+from .userprefsman.main import USER_PREFS, save_config_on_disk
 
+
+
+TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 20,
+    'padding': 2,
+    'foreground_color': 'dodgerblue',
+    'background_color': 'black',
+}
 
 BUTTON_TEXT_SETTINGS = {
     'style': 'regular',
@@ -77,50 +79,66 @@ class LocalePrompt:
 
     def __init__(self):
 
-        ### language icon
+        ### Bionic Blue label
 
-        self.languages_icon = (
+        self.bblue_label = (
 
             UIObject2D.from_surface(
-
-                load_image(
-                    str(NO_COLORKEY_IMAGES_DIR / 'language_icon.png')
-                )
-
+                render_text("Bionic Blue", **TEXT_SETTINGS)
             )
 
         )
 
-        self.languages_icon.rect.midtop = SCREEN_RECT.move(0, 5).midtop
+        self.bblue_label.rect.midtop = SCREEN_RECT.move(0, 5).midtop
+
+        ### language icon
+
+        self.language_icon = (
+
+            UIObject2D.from_surface(
+                load_image(str(LANGUAGE_ICON_FILEPATH))
+            )
+
+        )
+
+        self.language_icon.rect.midtop = (
+            self.bblue_label.rect.move(0, 5).midbottom
+        )
 
         ### arrow for users to select language
 
-        self.arrow = UIObject2D.from_surface(Surface((42, 14)).convert())
+        arrow = self.arrow = (
+            UIObject2D.from_surface(Surface((28, 14)).convert())
+        )
 
-        arrow_rect = self.arrow.rect
+        arrow_rect = arrow.rect
 
-        points = [
+        arrow_head = arrow_rect.copy()
 
-            getattr(arrow_rect.move(offset), point_name)
+        arrow_head.width = 14
+        arrow_head.topright = arrow_rect.topright
 
-            for point_name, offset in (
+        arrow_body = arrow_rect.copy()
+        arrow_body.width = 14
+        arrow_body.height = 6
+        arrow_body.midright = arrow_head.midleft
 
-                ('midright', (0, 0)),
-                ('midtop', (14, 0)),
-                ('center', (14, -4)),
-                ('midleft', (0, -4)),
-                ('midleft', (0, 4)),
-                ('center', (14, 4)),
-                ('midbottom', (14, 0)),
-            )
+        arrow_image = arrow.image
 
-        ]
+        arrow_image.fill((192, 192, 192))
+        arrow_image.set_colorkey((192, 192, 192))
 
         draw_polygon(
-            self.arrow.image,
+            arrow_image,
             'orange',
-            points,
+            (
+                arrow_head.midright,
+                arrow_head.topleft,
+                arrow_head.bottomleft,
+            ),
         )
+
+        draw_rect(arrow_image, 'orange', arrow_body)
 
         ### languages/locales to choose from
 
@@ -167,51 +185,35 @@ class LocalePrompt:
             SERVICES_NS.frame_checkups()
 
             self.control()
+            self.update()
             self.draw()
 
-        return self.value
 
-    ### TODO keep working from here (also review the imports to make sure
-    ### none is missing or unused)
+        USER_PREFS['LOCALE'] = self.value
+        save_config_on_disk()
 
     def control(self):
 
         for event in SERVICES_NS.get_events():
 
-            if (
-                self.dismissable_with_any
-                and event.type in KEYBOARD_OR_GAMEPAD_PRESSED_EVENTS
-            ):
-
-                self.value = self.value_on_escape
-                self.running = False
-
-            elif event.type == KEYDOWN:
+            if event.type == KEYDOWN:
 
                 if event.key == K_ESCAPE:
-
-                    self.value = self.value_on_escape
                     self.running = False
 
                 elif event.key == K_RETURN:
-                    self.push_selected_button()
+                    self.pick_selected_locale()
 
-                elif event.key in (K_LEFT, K_RIGHT):
+                elif event.key in (K_UP, K_DOWN):
 
-                    rotation = 1 if event.key == K_LEFT else -1
-                    self.buttons_deque.rotate(rotation)
+                    increment = 1 if event.key == K_UP else -1
 
-            elif event.type == JOYBUTTONDOWN:
-
-                if event.button == GAMEPAD_CONTROLS['start_button']:
-                    self.push_selected_button()
-
-            elif event.type == GAMEPADDIRECTIONALPRESSED:
-
-                if event.direction in ('left', 'right'):
-
-                    rotation = 1 if event.direction == 'left' else -1
-                    self.buttons_deque.rotate(rotation)
+                    self.current_index = (
+                        (
+                            self.current_index
+                            + increment
+                        ) % self.no_of_available_items
+                    )
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
                 setup_gamepad_if_existent()
@@ -219,22 +221,28 @@ class LocalePrompt:
             elif event.type == QUIT:
                 quit_game()
 
-    def push_selected_button(self):
+    def pick_selected_locale(self):
 
-        self.value = self.buttons_deque[0].value
+        self.value = self.items[self.current_index].locale
         self.running = False
+
+    def update(self):
+        """Snap arrow to selected locale."""
+
+        self.arrow.rect.midright = (
+            self.items[self.current_index].rect.move(-5, 0).midleft
+        )
 
     def draw(self):
 
         blit_on_screen(BLACK_BG, (0, 0))
 
-        self.caption.draw()
-        self.message.draw()
-        self.buttons.draw()
+        self.bblue_label.draw()
+        self.language_icon.draw()
+        self.arrow.draw()
+        self.items.draw()
 
-        draw_rect(SCREEN, 'orange', self.buttons_deque[0].rect, 1)
-
-        update()
+        update_screen()
 
 
 
