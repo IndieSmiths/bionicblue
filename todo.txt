@@ -1,9 +1,9 @@
-(A) add mouse support where missing (i.e.: prompt screen)
-(A) make it so wasd buttons (or movement actions on keyboard work on main menu and other places)
-(B) finish play logging: make final adjustments, include gamepad data
-(C) playtest with few close acquaintances
-(D) release on pip, GitHub and itch (GitHub releases and itch must include executables; check options using wine app, etc.)
-(E) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
+(A) finish play logging: make final adjustments, include gamepad data
+(B) playtest with few close acquaintances
+(C) release on pip, GitHub and itch (GitHub releases and itch must include executables; check options using wine app, etc.)
+(D) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
+x add mouse support where missing (i.e.: prompt screen)
+x make it so wasd buttons (or movement actions on keyboard work on main menu and other places)
 x make it so effect of "Reset to defaults" in options screen is seen in the widgets (widgets should update their value, also, volume should change)
 x make it so "Reset to defaults" prompts user to confirm before proceeding
 x make it so boss projectiles only damage pc if boss is alive and vice-versa (to prevent a draw; the character hit by the project acts hurt but doesn't lose health)
@@ -24,18 +24,3 @@ x make it so dying restarts level (on last check point)
 x make it so user can go from level to main menu then back
 x make "thank you" screen for when clearing level with info about supporting project
 x make "links" screen with various links
-x implement scripted scene manager for in-game scenes/dialogues
-x create new section of intro level for encounter with civilian
-x create art for civilian and dish he'll gift
-x add dialog between Blue and Chief Sec Bot
-x create art needed for screen to present game's plot (at least 02 bosses included)
-x create screen to present game's plot
-x create screen to type name for new slot
-x create screen for loading game
-x implement "continue" item in main menu (to load last used slot)
-x add credit for font used
-x add "Open [website portion] link" text to bottom of credits screen;
-x make it so space key inputs '_' in slot creation screen
-x make it so last buttons in options menu (playtesters screen, reset and back) keep their order
-x add translation support (and translate to pt-BR)
-x make it so text align properly once language is changed (for instance, load game screen has problems in pt-br)
