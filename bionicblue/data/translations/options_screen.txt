@@ -2,32 +2,39 @@
 captions
 
     option
+
         en-us Option
         pt-br Opção
 
     value
+
         en-us Value
         pt-br Valor
 
 options
 
     master_volume
+
         en-us Master volume
         pt-br Volume mestre
 
     music_volume
+
         en-us Music volume
         pt-br Volume da música
 
     sound_volume
+
         en-us Sound volume
         pt-br Volume de sons
 
     full_screen
+
         en-us Full screen
         pt-br Tela cheia
 
     language
+
         en-us Language
         pt-br Idioma
 
@@ -35,3 +42,16 @@ data_screen
 
     en-us Data screen
     pt-br Tela de dados
+
+
+resetting_to_defaults_prompt
+
+    caption
+
+        en-us Resetting to defaults
+        pt-br Restaurando valores
+
+    message
+
+        en-us Are you sure you want to reset to the default values? (this won't affect controls: they can only be reset from their dedicated settings on the main menu)
+        pt-br Tem certeza de que quer restaurar os valores? (controles não serão afetados: só podem ser resetados em suas próprias interfaces de configurações no menu principal)

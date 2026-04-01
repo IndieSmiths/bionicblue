@@ -65,6 +65,8 @@ from ..userprefsman.main import (
 
 from ..translatedtext import TRANSLATIONS, on_language_change
 
+from ..promptscreen import present_prompt
+
 from ..widget.slider import HundredSlider
 from ..widget.checkbutton import Checkbutton
 from ..widget.languagepicker import LanguagePicker
@@ -126,6 +128,8 @@ class OptionsScreen:
         labels = self.option_labels = UIList2D()
         widgets = self.widgets = UIList2D()
 
+        pk2w = self.preference_key_to_widget = {}
+
         for key, label_text, widget_class in (
             ('MASTER_VOLUME', t.options.master_volume, HundredSlider),
             ('MUSIC_VOLUME', t.options.music_volume, HundredSlider),
@@ -145,6 +149,8 @@ class OptionsScreen:
                 )
 
             )
+
+            pk2w[key] = widget
 
             widgets.append(widget)
 
@@ -217,7 +223,7 @@ class OptionsScreen:
         on_language_change.append(self.on_language_change)
 
     def prepare(self):
-        
+
         self.current_index = 0
         self.highlighted_widget = self.widgets[self.current_index]
 
@@ -419,19 +425,44 @@ class OptionsScreen:
 
     def reset_to_defaults(self):
 
+        must_reset = present_prompt(
+
+            t.resetting_to_defaults_prompt.caption,
+            t.resetting_to_defaults_prompt.message,
+
+            (
+                (TRANSLATIONS.general.no, False),
+                (TRANSLATIONS.general.yes, True),
+            ),
+
+        )
+
+        if not must_reset:
+            return
+
         ###
 
-        for key, value in DEFAULT_USER_PREFS.items():
+        for key, widget in self.preference_key_to_widget.items():
 
-            ### if value is not a dict, we override it
-            ###
-            ### we ignore dicts cause they contain keyboard or
-            ### gamepad controls, and those should be set/reset
-            ### from the dedicated keyboard control or gamepad
-            ### control screens
+            default_value = DEFAULT_USER_PREFS[key]
+            current_value = USER_PREFS[key]
 
-            if not isinstance(value, dict):
-                USER_PREFS[key] = value
+            USER_PREFS[key] = default_value
+            widget.set(default_value, execute_on_value_change=False)
+
+            ## propagate changes differently for LOCALE and FULLSCREEN
+
+            if key == 'LOCALE' and default_value != current_value:
+                on_language_change()
+
+            elif key == 'FULLSCREEN' and default_value == current_value:
+                pass
+
+            ## otherwise, use the usual method
+
+            else:
+                self.update_system_for_option(key)
+
 
         ###
         save_config_on_disk()

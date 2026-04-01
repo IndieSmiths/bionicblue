@@ -359,7 +359,10 @@ class LanguagePicker(UIObject2D):
             option.image = ttubs[option.text]
 
         first_button = self.options_deque[0]
-        first_button.image = self.text_to_selected_button_surf[first_button.text]
+
+        first_button.image = (
+            self.text_to_selected_button_surf[first_button.text]
+        )
 
     def align_options(self):
 
@@ -381,6 +384,27 @@ class LanguagePicker(UIObject2D):
         )
 
         self.running = False
+
+    def set(self, value, execute_on_value_change=True):
+
+        for item in self.options_deque:
+
+            if value == item.value:
+                break
+
+        else:
+            return
+
+        self.image = (
+
+            self.text_to_idle_button_surf[
+                self.value_to_text[value]
+            ]
+
+        )
+
+        if execute_on_value_change:
+            self.on_value_change()
 
     def on_mouse_motion(self, event):
 
