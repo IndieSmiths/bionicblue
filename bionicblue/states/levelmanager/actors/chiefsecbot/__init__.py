@@ -707,6 +707,16 @@ class ChiefSecurityBot:
             > HURT_WHITENING_FRAMES
         ):
 
+            ### if boss is damaged when player is already dead, the boss
+            ### will act hurt but not actually loose health (we do this
+            ### by changing the amount of damage to 0)
+
+            if self.player.health <= 0:
+                amount = 0
+
+            ### process the amount of health received and act according to
+            ### whether this killed the boss or not
+
             self.health_column.damage(amount)
             self.last_damage = GENERAL_NS.frame_index
 

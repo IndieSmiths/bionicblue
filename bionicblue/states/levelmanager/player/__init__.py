@@ -265,6 +265,11 @@ class Player(
             else 'jump_left'
         )
 
+
+    @property
+    def health(self):
+        return self.health_column.health
+
     def damage(self, amount):
 
         if self.state_name in UNDAMAGEABLE_STATES: return

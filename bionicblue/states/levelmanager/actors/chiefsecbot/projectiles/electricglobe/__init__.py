@@ -112,11 +112,17 @@ class ElectricGlobe:
 
         player = REFS.states.level_manager.player
 
-        if rect.colliderect(player.rect) and self.confirm_radius(player.rect):
+        if (
+            rect.colliderect(player.rect)
+            and self.confirm_radius(player.rect)
+        ):
 
-            player.damage(4)
             self.trigger_kill()
-            return
+
+            ### but only damage player if boss is alive
+
+            if REFS.level_boss.health > 0:
+                player.damage(4)
 
     def update_image(self):
 
