@@ -1,4 +1,3 @@
-(A) make it so box damages pc by 0 (if feasible) when boss is already defeated (so it is hurt but doesn't lose health) or make it so it doesn't hurt pc at all
 (A) make it so effect of "Reset to defaults" in options screen is seen in the widgets (widgets should update their value, also, volume should change)
 (A) make it so "Reset to defaults" prompts user to confirm before proceeding
 (A) add mouse support where missing (i.e.: prompt screen)
@@ -7,6 +6,7 @@
 (C) playtest with few close acquaintances
 (D) release on pip, GitHub and itch (with executables)
 (E) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
+x make it so boss projectiles only damage pc if boss is alive and vice-versa (to prevent a draw; the character hit by the project acts hurt but doesn't lose health)
 x make final adjustments on level layout
 x remove annoying pixel on cloud image
 x translate text on logo screen as well
