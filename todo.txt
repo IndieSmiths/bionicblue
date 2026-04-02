@@ -1,0 +1,5 @@
+(A) finish play logging: make final adjustments, include gamepad data
+(A) when user requests to erasing all data, make it so both ORG and APP folders are deleted (unless ORG folder is not empty)
+(B) playtest with few close acquaintances
+(C) release on pip, GitHub and itch (GitHub releases and itch must include executables; check options using wine app, etc.)
+(D) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
