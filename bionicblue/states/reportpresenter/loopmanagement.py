@@ -38,7 +38,7 @@ from ...pygamesetup.constants import (
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
 )
 
-from ...pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
+from ...pygamesetup.gamepadservices import GAMEPAD_NS
 
 from ...ourstdlibs.pyl import load_pyl
 
@@ -111,7 +111,7 @@ class ReportLoopManagement:
                     self.leave_report()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()

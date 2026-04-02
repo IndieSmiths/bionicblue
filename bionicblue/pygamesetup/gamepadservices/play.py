@@ -1,8 +1,8 @@
-"""Utility for gamepad directionals controls management.
+"""Utility for gamepad controls management.
 
-Directional controls refer not only to the buttons on the
-D-pad, but also the axes' controls, since they also convey
-direction information.
+Directional controls refer not only to the buttons on the D-pad,
+but also the axes's controls, since they also convey direction
+information.
 """
 
 ### standard library import
@@ -38,7 +38,7 @@ from .constants import (
 ## anonymous object to store gamepad state
 GAMEPAD_NS = type('Object', (), {})()
 
-## mock gamepad states
+## mock gamepad states, for when no gamepad is plugged
 
 mock_gamepad_dict = {
 

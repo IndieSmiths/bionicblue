@@ -43,7 +43,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices import GAMEPAD_NS
 
 from ..ourstdlibs.behaviour import do_nothing
 
@@ -338,7 +338,7 @@ class LanguagePicker(UIObject2D):
                     self.align_options()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == MOUSEMOTION:
                 self.on_mouse_motion(event)

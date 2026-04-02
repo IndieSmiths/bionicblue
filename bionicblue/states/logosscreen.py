@@ -26,7 +26,7 @@ from ..config import REFS, SURF_MAP, COLORKEY, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices import GAMEPAD_NS
 
 from ..pygamesetup.constants import (
     WHITE_BG,
@@ -120,7 +120,7 @@ class LogosScreen:
                     self.leave_logos_screen()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()

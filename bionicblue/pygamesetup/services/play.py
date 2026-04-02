@@ -52,6 +52,8 @@ from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
 
+from ..gamepadservices import GAMEPAD_NS
+
 from ..constants import (
 
     SCREEN, SCREEN_RECT, blit_on_screen,
@@ -694,6 +696,9 @@ def frame_checkups():
     ### increment frame number
     GENERAL_NS.frame_index += 1
 
+    ### store data and post custom events for gamepad
+    ### directional triggers
+    GAMEPAD_NS.prepare_data_and_events()
 
 
 ### small utility

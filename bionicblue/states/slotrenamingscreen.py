@@ -61,7 +61,7 @@ from ..pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices import GAMEPAD_NS
 
 from ..constants import CHARGED_SHOT_SPEED
 
@@ -429,7 +429,7 @@ class SlotRenamingScreen:
                     )
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()

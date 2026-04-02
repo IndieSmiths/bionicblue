@@ -23,7 +23,7 @@ from .config import REFS, MUST_LOCK_PLAY, LoopException, did_player_ever
 
 from .pygamesetup import SERVICES_NS, switch_mode
 
-from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from .pygamesetup.gamepadservices import GAMEPAD_NS
 
 from .promptscreen import prompt_to_dismiss_with_any_button
 
@@ -40,7 +40,7 @@ from .translatedtext import TRANSLATIONS
 def run_game(debug_directive=False):
     """Run the game loop."""
 
-    setup_gamepad_if_existent()
+    GAMEPAD_NS.setup_gamepad_if_existent()
 
     if MUST_LOCK_PLAY:
 

@@ -28,7 +28,7 @@ from ..pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices import GAMEPAD_NS
 
 from ..textman import render_text
 
@@ -170,7 +170,7 @@ class TitleScreen:
                     raise LoopException(next_state=main_menu)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()

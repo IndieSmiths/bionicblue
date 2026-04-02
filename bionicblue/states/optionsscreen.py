@@ -49,7 +49,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepaddirect import GAMEPAD_NS
 
 from ..classes2d.single import UIObject2D
 
@@ -418,7 +418,7 @@ class OptionsScreen:
                 self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()

@@ -20,7 +20,7 @@ from ....config import REFS, quit_game
 
 from ....pygamesetup import SERVICES_NS
 
-from ....pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ....pygamesetup.gamepadservices import GAMEPAD_NS
 
 from ....pygamesetup.constants import GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS
 
@@ -48,7 +48,7 @@ class Dead:
                     REFS.pause()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
