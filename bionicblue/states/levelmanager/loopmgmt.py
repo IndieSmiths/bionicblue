@@ -6,8 +6,6 @@ from functools import partial
 
 ### third-party imports
 
-from pygame.display import update as update_screen
-
 from pygame.mixer import music
 
 from pygame.math import Vector2
@@ -16,6 +14,8 @@ from pygame.math import Vector2
 ### local imports
 
 from ...config import REFS, SOUND_MAP, MUSIC_DIR
+
+from ...pygamesetup import SERVICES_NS
 
 from ...pygamesetup.constants import (
     SCREEN_RECT,
@@ -443,7 +443,7 @@ class LevelManagerLoopManagement:
         for column in HEALTH_COLUMNS:
             column.draw()
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
     def getting_to_boss_area(self):
 
@@ -765,4 +765,4 @@ class LevelManagerLoopManagement:
 
         apply_fade()
 
-        update_screen()
+        SERVICES_NS.update_screen()

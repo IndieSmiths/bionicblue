@@ -12,8 +12,6 @@ from pygame.locals import QUIT
 
 from pygame.time import get_ticks as get_msecs
 
-from pygame.display import update
-
 from pygame.image import load as load_image
 
 from pygame.mixer import Sound
@@ -211,7 +209,7 @@ class ResourceLoader:
 
 
     def draw(self):
-        update()
+        SERVICES_NS.update_screen()
 
 
 ### utility functions

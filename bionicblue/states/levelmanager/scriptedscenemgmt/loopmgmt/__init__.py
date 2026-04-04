@@ -23,8 +23,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import (
     rect as draw_rect,
     polygon as draw_polygon,
@@ -410,7 +408,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         if self.drive_scene_state == self.present_dialogue:
             self.draw_dialogue_elements()
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
     def draw_dialogue_elements(self):
         """Draw dialogue elements."""

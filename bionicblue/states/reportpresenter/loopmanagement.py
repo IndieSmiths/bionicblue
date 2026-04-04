@@ -21,8 +21,6 @@ from pygame.locals import (
 
 from pygame.math import Vector2
 
-from pygame.display import update
-
 from pygame.draw import rect as draw_rect
 
 
@@ -288,7 +286,7 @@ class ReportLoopManagement:
         else:
             self.exit_label.draw()
 
-        update()
+        SERVICES_NS.update_screen()
 
 
     def draw_progress_widgets(self, progress):

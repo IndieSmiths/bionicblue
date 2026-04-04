@@ -717,7 +717,7 @@ class ControlsScreen:
             1,
         )
 
-        update()
+        SERVICES_NS.update_screen()
 
     def draw_prompt(self):
 
@@ -725,7 +725,7 @@ class ControlsScreen:
         self.general_prompt.draw()
         self.prompt_label.draw()
 
-        update()
+        SERVICES_NS.update_screen()
 
 
 def recreate_general_prompt_surf():

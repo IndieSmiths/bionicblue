@@ -23,8 +23,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 from pygame.draw import rect as draw_rect
 
 
@@ -349,7 +347,7 @@ class PromptScreen:
 
         draw_rect(SCREEN, 'orange', self.buttons_deque[0].rect, 1)
 
-        update()
+        SERVICES_NS.update_screen()
 
 _ps = PromptScreen()
 present_prompt = _ps.present_prompt

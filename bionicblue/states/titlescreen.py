@@ -8,8 +8,6 @@ from itertools import cycle
 
 from pygame.locals import QUIT
 
-from pygame.display import update
-
 from pygame.mixer import music
 
 
@@ -204,4 +202,4 @@ class TitleScreen:
         if self.draw_label_flag:
             self.press_any_button_label.draw()
 
-        update()
+        SERVICES_NS.update_screen()

@@ -35,11 +35,11 @@ from pygame.math import Vector2
 
 from pygame.event import Event, get, set_allowed, set_blocked
 
-from pygame.display import update
-
 from pygame.mouse import set_pos, set_visible as set_mouse_visibility
 
 from pygame.draw import rect as draw_rect
+
+from pygame.display import update
 
 
 ### local imports
@@ -60,6 +60,7 @@ from ..constants import (
     GENERAL_NS,
     GENERAL_SERVICE_NAMES,
     FPS,
+    SIZE,
     maintain_fps,
 
     CancelWhenPaused, pause,
@@ -237,7 +238,8 @@ def get_ready_events(events):
 def set_behaviour(services_namespace, input_data):
     """Setup play services and data."""
 
-    ### set play services as current ones
+    ### grab playback services from our globals (module-level names)
+    ### and set them as attributes of the services namespace
 
     our_globals = globals()
 
@@ -277,23 +279,9 @@ def set_behaviour(services_namespace, input_data):
 
     PLAY_REFS.fps = playback_speed
     PLAY_REFS.last_frame_index = last_frame_index
-    PLAY_REFS.recording_width = SESSION_DATA['recording_size'][0]
 
-    ### create and store title and duration label, then reposition
-    ### all labels
+    ### print duration
 
-    new_title_label = (
-        UIObject2D.from_surface(
-            render_text(
-                text = SESSION_DATA['recording_title'],
-                style = 'regular',
-                size = 12,
-                padding = 0,
-                foreground_color = THECOLORS['white'],
-                background_color = THECOLORS['blue'],
-            )
-        )
-    )
 
     if playback_speed:
 
@@ -311,35 +299,11 @@ def set_behaviour(services_namespace, input_data):
     else:
         duration_text = "No duration (uncapped speed)"
 
-    duration_label = (
-        UIObject2D.from_surface(
-            render_text(
-                text = duration_text,
-                style = 'regular',
-                size = 12,
-                padding = 0,
-                foreground_color = THECOLORS['white'],
-                background_color = THECOLORS['blue'],
-            )
-        )
-    )
-
-    LABELS.insert(0, new_title_label)
-    LABELS.append(duration_label)
-
-    topright = SCREEN_RECT.move(-10, 32).topright
-
-    for label in LABELS:
-
-        label.rect.topright = topright
-        topright = label.rect.move(0, 5).bottomright
-
-    ### ensure paused label has same position as the second one
-    PAUSED_LABEL.rect.topleft = LABELS[2].rect.topleft
+    print(duration_text)
 
     ### since the app will be playing recorded events, we are not interested
     ### in new ones generated while playing, so we block most of them, leaving
-    ### just a few that we may use to during playback
+    ### just a few that we may use during playback
 
     set_blocked(None)
     set_allowed([QUIT, KEYDOWN])
@@ -450,43 +414,6 @@ def set_behaviour(services_namespace, input_data):
 ## set with mouse event types
 MOUSE_EVENTS = frozenset({MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP})
 
-## label creation
-
-# create labels
-
-LABELS = [
-
-    UIObject2D.from_surface(
-        render_text(
-            text = text,
-            style = 'regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['blue'],
-        )
-    )
-
-    for text in (
-        "F7: leave playing mode",
-        "F8: play/pause",
-        "F9: toggle mouse control",
-    )
-
-]
-
-PAUSED_LABEL = (
-    UIObject2D.from_surface(
-        render_text(
-            text = "F8: play/pause",
-            style = 'regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['red3'],
-        )
-    )
-)
 
 
 ### session behaviours
@@ -513,9 +440,6 @@ def get_events():
             ### pause playing
 
             if event.key == K_F8:
-
-                ### indicate pause by blitting paused label
-                blit_on_screen(PAUSED_LABEL.image, PAUSED_LABEL.rect)
 
                 ### pause
 
@@ -634,21 +558,22 @@ get_mouse_pressed = MOUSE_PRESSED_TUPLES.pop
 
 ### screen updating
 
+SCREEN_WIDTH = SIZE[0]
+
 def update_screen():
     """Extends pygame.display.update()."""
     ### draw progress
 
     width = round(
-        abs(GENERAL_NS.frame_index / PLAY_REFS.last_frame_index) # progress
-        * PLAY_REFS.recording_width                              # full width
+
+        # progress percentage
+        abs(GENERAL_NS.frame_index / PLAY_REFS.last_frame_index)
+
+        # full width
+        * SCREEN_WIDTH
     )
 
-    draw_rect(SCREEN, 'red', (0, 0, width, 3))
-
-    ### blit labels
-
-    for label in LABELS:
-        blit_on_screen(label.image, label.rect)
+    draw_rect(SCREEN, 'red', (0, 0, width, 1))
 
     ### update the screen
     update()
@@ -675,11 +600,6 @@ def clear_data():
         MOUSE_PRESSED_TUPLES,
     ):
         collection.clear()
-
-    ### remove title and duration labels
-
-    del LABELS[0]
-    del LABELS[-1]
 
 
 ### frame checkup operation

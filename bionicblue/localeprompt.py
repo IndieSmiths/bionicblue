@@ -21,8 +21,6 @@ from pygame.locals import (
 
 from pygame.image import load as load_image
 
-from pygame.display import update as update_screen
-
 from pygame.draw import (
     polygon as draw_polygon,
     rect as draw_rect,
@@ -279,4 +277,4 @@ class LocalePrompt:
         self.arrow.draw()
         self.items.draw()
 
-        update_screen()
+        SERVICES_NS.update_screen()

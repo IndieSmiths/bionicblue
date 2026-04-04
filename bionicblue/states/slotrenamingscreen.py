@@ -31,8 +31,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 from pygame.draw import rect as draw_rect
 
 from pygame.key import start_text_input, stop_text_input
@@ -795,5 +793,5 @@ class SlotRenamingScreen:
         draw_rect(SCREEN, 'orange', self.selected_button.rect, 1)
         self.slot_name_chars.draw()
 
-        update()
+        SERVICES_NS.update_screen()
 

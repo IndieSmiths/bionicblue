@@ -24,8 +24,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import rect as draw_rect
 
 
@@ -540,7 +538,7 @@ class DataScreen:
                 border_radius=8,
             )
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
 
 def yield_paragraphs(t):

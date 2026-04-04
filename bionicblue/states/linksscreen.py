@@ -21,8 +21,6 @@ from pygame.locals import (
     MOUSEBUTTONDOWN,
 )
 
-from pygame.display import update
-
 from pygame.draw import rect as draw_rect
 
 
@@ -496,4 +494,4 @@ class LinksScreen:
 
         self.open_link_label.draw()
 
-        update()
+        SERVICES_NS.update_screen()

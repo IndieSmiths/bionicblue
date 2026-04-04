@@ -163,8 +163,6 @@ GENERAL_SERVICE_NAMES = (
     "set_mouse_pos",
     "set_mouse_visibility",
 
-    "update_screen",
-
     "frame_checkups",
 
 )

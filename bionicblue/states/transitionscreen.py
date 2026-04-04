@@ -4,11 +4,8 @@ That is, for us to present another state to the player smoothly,
 in some cases (this isn't supposed to be used all the time).
 """
 
-### third-party imports
-
+### third-party import
 from pygame.locals import QUIT
-
-from pygame.display import update
 
 
 ### local imports
@@ -80,4 +77,4 @@ class TransitionScreen:
             SCREEN_RECT.move(0, self.remaining_height),
         )
 
-        update()
+        SERVICES_NS.update_screen()

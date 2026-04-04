@@ -23,8 +23,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 
 ### local imports
 
@@ -551,7 +549,7 @@ class MainMenu:
 
         REFS.middle_shot.aniplayer.draw()
 
-        update()
+        SERVICES_NS.update()
 
 
 def start_new_game():

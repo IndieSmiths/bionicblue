@@ -23,8 +23,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 from pygame.draw import rect as draw_rect, polygon as draw_polygon
 
 
@@ -457,4 +455,4 @@ class LanguagePicker(UIObject2D):
         self.bg_column.draw()
         self.options.draw()
         draw_rect(SCREEN, 'orange', self.options_deque[0].rect, 1)
-        update()
+        SERVICES_NS.update_screen()

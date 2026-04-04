@@ -31,31 +31,24 @@ from .constants import (
     GAMEPADRIGHTRELEASED,
 )
 
+from .common import (
+
+    GAMEPAD_NS,
+    mock_gamepad_dict,
+
+    _get_0,
+    _get_0_0,
+    round_axis,
+
+)
 
 
-### constants
 
-## anonymous object to store gamepad state
-GAMEPAD_NS = type('Object', (), {})()
+def set_behaviour():
 
-## mock gamepad states, for when no gamepad is plugged
+    GAMEPAD_NS.setup_gamepad_if_existent = setup_gamepad_if_existent
+    setup_gamepad_if_existent()
 
-mock_gamepad_dict = {
-
-    ## data
-
-    '_last_x_hat': 0,
-    '_last_y_hat': 0,
-    '_last_x_axis': 0,
-    '_last_y_axis': 0,
-    'x_sum': 0,
-    'y_sum': 0,
-
-    ## behaviours
-
-    'prepare_data_and_events': do_nothing,
-    'get_button': lambda button: False,
-}
 
 ### main function
 
@@ -66,14 +59,6 @@ def setup_gamepad_if_existent():
 
     else:
         GAMEPAD_NS.__dict__.update(mock_gamepad_dict)
-
-
-### support functions/utilities
-
-_get_0 = lambda: 0
-_get_0_0 = lambda: (0, 0)
-
-round_axis = lambda axis: 0 if abs(axis) < .2 else (1 if axis > 0 else -1)
 
 
 def _prepare_existing_gamepad():

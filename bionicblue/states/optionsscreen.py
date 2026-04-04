@@ -25,7 +25,7 @@ from pygame.locals import (
     MOUSEBUTTONDOWN,
 )
 
-from pygame.display import set_mode, update
+from pygame.display import set_mode
 
 from pygame.mixer import music, get_busy
 
@@ -609,5 +609,5 @@ class OptionsScreen:
             1,
         )
 
-        update()
+        SERVICES_NS.update()
 

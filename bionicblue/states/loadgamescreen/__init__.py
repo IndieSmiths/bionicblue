@@ -22,8 +22,6 @@ from pygame.locals import (
     MOUSEBUTTONDOWN,
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import rect as draw_rect
 
 
@@ -733,7 +731,7 @@ class LoadGameScreen:
         else:
             draw_rect(SCREEN, 'orange', hw.rect, 2, border_radius=10)
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
 
 def enter_stage_selection_screen():

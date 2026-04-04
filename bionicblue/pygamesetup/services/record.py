@@ -1,8 +1,6 @@
 
 ### standard library imports
 
-from pathlib import Path
-
 from collections import defaultdict
 
 from datetime import datetime
@@ -10,18 +8,7 @@ from datetime import datetime
 
 ### third-party imports
 
-from pygame import locals as pygame_locals
-
-from pygame.locals import (
-    KEYDOWN,
-    KEYUP,
-    K_F7,
-    K_F8,
-    K_F9,
-    KMOD_NONE,
-)
-
-from pygame.color import THECOLORS
+from pygame.locals import KMOD_NONE
 
 from pygame.event import clear, get, event_name
 
@@ -39,12 +26,12 @@ from pygame.mouse import (
     set_visible as set_mouse_visibility,
 )
 
-from pygame.display import update
+from pygame.display import update as update_screen
 
 
 ### local imports
 
-from ...config import LoopException
+from ...config import REGULAR_PLAY_LOGS_DIR, LoopException
 
 from ...ourstdlibs.pyl import save_pyl
 
@@ -60,9 +47,6 @@ from ..constants import (
     GENERAL_NS,
     GENERAL_SERVICE_NAMES,
     FPS, maintain_fps,
-    SIZE,
-
-    CancelWhenPaused, pause,
 
     EVENT_KEY_STRIP_MAP,
     EVENT_COMPACT_NAME_MAP,
@@ -100,43 +84,6 @@ MOUSE_KEY_STATE_REQUESTS = []
 append_mouse_key_state_request = MOUSE_KEY_STATE_REQUESTS.append
 
 
-## create labels objects
-
-LABELS = [
-
-    UIObject2D.from_surface(
-        render_text(
-            text=text,
-            style='regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['blue'],
-        )
-    )
-
-    for text in (
-        "F7: cancel recording",
-        "F8: play/pause",
-        "F9: finish recording & exit",
-    )
-]
-
-PAUSED_LABEL = (
-
-    UIObject2D.from_surface(
-        render_text(
-            text = "F8: play/pause",
-            style = 'regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['red3'],
-        )
-    )
-)
-
-
 ### events to keep in the recorded data;
 ###
 ### all other events aren't relevant because it is not possible for
@@ -148,12 +95,15 @@ PAUSED_LABEL = (
 ### events not listed here (for instance, for new features)
 
 NAMES_OF_EVENTS_TO_KEEP = frozenset((
+    'JOYBUTTONDOWN',
+    'JOYBUTTONUP',
     'KEYDOWN',
     'KEYUP',
     'MOUSEBUTTONDOWN',
     'MOUSEBUTTONUP',
     'MOUSEMOTION',
     'TEXTINPUT',
+    'UserEvent',
 ))
 
 ### timestamp format string
@@ -165,7 +115,8 @@ TIMESTAMP_FORMAT_STRING = 'Y%YM%mD%d_H%HM%MS%S'
 def set_behaviour(services_namespace):
     """Setup record services and data."""
 
-    ### set record services as current ones.
+    ### grab recording services from our globals (module-level names)
+    ### and set them as attributes of the services namespace
 
     our_globals = globals()
 
@@ -174,55 +125,13 @@ def set_behaviour(services_namespace):
         value = our_globals[attr_name]
         setattr(services_namespace, attr_name, value)
 
-    ### store recording title, path and size
+    ### create and store path wherein to save recording
 
-    home = Path.home()
-
-    now = datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
-    title = home.name + '_at_' + now
-
-    filepath = home / 'my_recording.pyl'
-
-    for name, value in (
-        ('recording_title', title),
-        ('recording_path', filepath),
-        ('recording_size', SIZE),
-    ):
-        setattr(REC_REFS, name, value)
-
-    ### create and store title label, then reposition
-    ### all labels
-
-    new_title_label = (
-        UIObject2D.from_surface(
-            render_text(
-                text = REC_REFS.recording_title,
-                style = 'regular',
-                size = 12,
-                padding = 0,
-                foreground_color = THECOLORS['white'],
-                background_color = THECOLORS['blue'],
-            )
-        )
-    )
-
-    LABELS.insert(0, new_title_label)
-
-    topright = SCREEN_RECT.move(-10, 32).topright
-
-    for label in LABELS:
-
-        label.rect.topright = topright
-        topright = label.rect.move(0, 5).bottomright
-
-    ### ensure paused label has same position as the second one
-    PAUSED_LABEL.rect.topleft = LABELS[2].rect.topleft
+    filename = 'play_at_' + datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
+    REC_REFS.recording_path = REGULAR_PLAY_LOGS_DIR / filename
 
     ## clear any existing events
     clear()
-
-    ## record beginning of recording session
-    REC_REFS.session_start_datetime = datetime.now()
 
     ## set frame index to -1 (so it is set to 0 at the beginning
     ## of the loop, the first frame)
@@ -249,56 +158,6 @@ def get_events():
 
         if event.type == KEYDOWN:
 
-            if event.key == K_F8:
-
-                ### indicate pause by blitting paused label
-                blit_on_screen(PAUSED_LABEL.image, PAUSED_LABEL.rect)
-
-                ### pause
-
-                try:
-                    pause()
-
-                ### if during pause user asks to cancel recording, do
-                ### it here
-
-                except CancelWhenPaused:
-                    cancel_recording()
-
-                ### pressing F8 is part of the session recording,
-                ### not the session per se, so we skip the event
-                ### in order to prevent it to be recorded
-                continue
-
-            elif event.key == K_F9:
-
-                ### save session data
-                save_session_data()
-
-                ### clear stored data
-                clear_data()
-
-                ### switch mode;
-                ###
-                ### since this stops recording completely there's
-                ### no need to use the "continue" statement as we
-                ### did for the F8 key in the if-block above
-                raise LoopException(next_input_mode_name='normal')
-
-            ### cancel recording
-
-            elif event.key == K_F7:
-                cancel_recording()
-
-        ### pressing F8 is part of the session recording,
-        ### not the session per se, so we skip the event
-        ### in order to prevent it from being recorded;
-        ###
-        ### this also applies to F9, but during the KEYDOWN event
-        ### of the F9 key, the recording stops altogether due to the
-        ### raised exception, so it isn't necessary to watch for it
-        elif event.type == KEYUP and event.key == K_F8:
-            continue
 
         ### record event
 
@@ -324,6 +183,7 @@ def get_pressed_keys():
     return key_states
 
 def get_pressed_mod_keys():
+
     # get mod bistmask
     mods_bitmask = get_mods()
 
@@ -336,6 +196,7 @@ def get_pressed_mod_keys():
 ## processing mouse
 
 def get_mouse_pos():
+
     # get mouse pos
     pos = get_pos()
 
@@ -346,6 +207,7 @@ def get_mouse_pos():
     return pos
 
 def get_mouse_pressed():
+
     # get mouse pressed tuple
     pressed_tuple = mouse_get_pressed()
 
@@ -354,18 +216,6 @@ def get_mouse_pressed():
 
     # return it
     return pressed_tuple
-
-## screen updating
-
-def update_screen():
-
-    ### blit labels
-
-    for label in LABELS:
-        blit_on_screen(label.image, label.rect)
-
-    ### update the screen (pygame.display.update())
-    update()
 
 
 ### frame checkup operation
@@ -435,25 +285,14 @@ def save_session_data():
     ### store last frame index as well
     session_data['last_frame_index'] = GENERAL_NS.frame_index + 1
 
-    ### store recording size and title
+    ### save session data in file
 
-    session_data['recording_size'] = REC_REFS.recording_size
-
-    session_data['recording_title'] = REC_REFS.recording_title
-
-    ### save session data in file or its rotated version
-
-    parent, stem = (
-        getattr(REC_REFS.recording_path, attr_name)
-        for attr_name in ('parent', 'stem')
+    save_pyl(
+        session_data,
+        REC_REFS.recording_path,
+        width=125,
+        compact=True,
     )
-
-    timestamp = (
-        REC_REFS.session_start_datetime.strftime(TIMESTAMP_FORMAT_STRING)
-    )
-
-    final_path = parent / f"{stem}.{timestamp}.pyl"
-    save_pyl(session_data, final_path, width=125, compact=True)
 
     ### clear collections created in this function (not really needed,
     ### but in our experience memory is freed faster when collections

@@ -17,8 +17,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 
 ### local imports
 
@@ -154,4 +152,4 @@ class LogosScreen:
         except StopIteration:
             self.leave_logos_screen()
 
-        update()
+        SERVICES_NS.update_screen()

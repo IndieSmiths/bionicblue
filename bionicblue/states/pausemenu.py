@@ -17,8 +17,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import rect as draw_rect
 
 from pygame.mixer import music
@@ -381,4 +379,4 @@ class PauseMenu:
             border_radius=8,
         )
 
-        update_screen()
+        SERVICES_NS.update_screen()

@@ -25,8 +25,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import (
     rect as draw_rect,
     lines as draw_lines,
@@ -344,5 +342,5 @@ class LevelManagerPopupManagement:
 
         draw_rect(SCREEN, 'yellow', POPUP_BOX, 2, border_radius=10)
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
