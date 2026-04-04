@@ -5,8 +5,11 @@ but also the axes's controls, since they also convey direction
 information.
 """
 
-### standard library import
+### standard library imports
+
 from functools import partial
+
+from collections import defaultdict
 
 
 ### third-party imports
@@ -18,9 +21,12 @@ from pygame.event import post as post_event
 
 ### local imports
 
-from ..ourstdlibs.behaviour import do_nothing
+from ...ourstdlibs.behaviour import do_nothing
 
-from .constants import (
+from ..constants import (
+
+    GENERAL_NS,
+
     GAMEPADUPPRESSED,
     GAMEPADDOWNPRESSED,
     GAMEPADLEFTPRESSED,
@@ -29,6 +35,7 @@ from .constants import (
     GAMEPADDOWNRELEASED,
     GAMEPADLEFTRELEASED,
     GAMEPADRIGHTRELEASED,
+
 )
 
 from .common import (
@@ -44,13 +51,26 @@ from .common import (
 
 
 
+
+DIRECTIONAL_STATE_MAP = {}
+
+BUTTON_STATE_MAP = defaultdict(dict)
+
+
 def set_behaviour():
 
     GAMEPAD_NS.setup_gamepad_if_existent = setup_gamepad_if_existent
+    GAMEPAD_NS.clear_data = clear_data
+    GAMEPAD_NS.store_play_data = store_play_data
+
     setup_gamepad_if_existent()
+    clear_data()
 
+def clear_data():
 
-### main function
+    DIRECTIONAL_STATE_MAP.clear()
+    BUTTON_STATE_MAP.clear()
+
 
 def setup_gamepad_if_existent():
 
@@ -61,13 +81,30 @@ def setup_gamepad_if_existent():
         GAMEPAD_NS.__dict__.update(mock_gamepad_dict)
 
 
+def get_button(button_id):
+
+    button_pressed = GAMEPAD_NS._get_button(button_id)
+
+    if button_pressed:
+        BUTTON_STATE_MAP[GENERAL_NS.frame_index][button_id] = True
+
+    return button_pressed
+
+def store_play_data(session_data):
+
+    session_data['gamepad_directional_state_map'] = DIRECTIONAL_STATE_MAP
+    session_data['gamepad_button_state_map'] = dict(BUTTON_STATE_MAP)
+
+
 def _prepare_existing_gamepad():
 
     ### instantiate gamepad
     gamepad = Joystick(0)
 
     ### store gamepad behaviour to check state of non-directional button
-    GAMEPAD_NS.get_button = gamepad.get_button
+
+    GAMEPAD_NS.get_button = get_button
+    GAMEPAD_NS._get_button = gamepad.get_button
 
 
     ### store gamepad behaviour depending on existence of hats/axes
@@ -253,6 +290,8 @@ def _prepare_data_and_events():
 
     ### store sum of directional states
 
-    GAMEPAD_NS.x_sum = x_hat + x_axis
-    GAMEPAD_NS.y_sum = y_hat + y_axis
+    x_sum = GAMEPAD_NS.x_sum = x_hat + x_axis
+    y_sum = GAMEPAD_NS.y_sum = y_hat + y_axis
 
+    if x_sum or y_sum:
+        DIRECTIONAL_STATE_MAP[GENERAL_NS.frame_index] = (x_sum, y_sum)

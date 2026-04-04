@@ -42,7 +42,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepadservices import GAMEPAD_NS
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..classes2d.single import UIObject2D
 

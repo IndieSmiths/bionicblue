@@ -27,7 +27,7 @@ from ....pygamesetup.constants import (
     GENERAL_NS,
 )
 
-from ....pygamesetup.gamepadservices import GAMEPAD_NS
+from ....pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ....userprefsman.main import GAMEPAD_CONTROLS
 

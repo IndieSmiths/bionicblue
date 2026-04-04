@@ -23,7 +23,7 @@ from .config import REFS, MUST_LOCK_PLAY, LoopException, did_player_ever
 
 from .pygamesetup import SERVICES_NS, switch_mode
 
-from .pygamesetup.gamepadservices import GAMEPAD_NS
+from .pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from .promptscreen import prompt_to_dismiss_with_any_button
 

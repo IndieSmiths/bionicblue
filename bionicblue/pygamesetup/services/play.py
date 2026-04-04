@@ -52,7 +52,7 @@ from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
 
-from ..gamepadservices import GAMEPAD_NS
+from ..gamepadservices.common import GAMEPAD_NS
 
 from ..constants import (
 
@@ -600,6 +600,8 @@ def clear_data():
         MOUSE_PRESSED_TUPLES,
     ):
         collection.clear()
+
+    GAMEPAD_NS.clear_data()
 
 
 ### frame checkup operation

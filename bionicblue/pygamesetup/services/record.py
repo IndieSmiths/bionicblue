@@ -39,7 +39,7 @@ from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
 
-from ..gamepadservices import GAMEPAD_NS
+from ..gamepadservices.common import GAMEPAD_NS
 
 from ..constants import (
 
@@ -156,9 +156,6 @@ def get_events():
 
     for event in get():
 
-        if event.type == KEYDOWN:
-
-
         ### record event
 
         EVENTS_MAP[GENERAL_NS.frame_index].append([
@@ -254,15 +251,19 @@ def save_session_data():
     }
 
     ## remove keys whose values (a list of events) ended up empty,
-    ## (if there)
+    ## (if any)
 
     keys_to_pop = [
+
         # item
         key
+
         # source
         for key, event_list in events_map.items()
+
         # filtering condition
         if not event_list
+
     ]
 
     for key in keys_to_pop:
@@ -284,6 +285,9 @@ def save_session_data():
 
     ### store last frame index as well
     session_data['last_frame_index'] = GENERAL_NS.frame_index + 1
+
+    ### store gamepad related data
+    GAMEPAD_NS.store_play_data(session_data)
 
     ### save session data in file
 
@@ -322,8 +326,9 @@ def clear_data():
     ):
         a_collection.clear()
 
-    ### remove title label
-    del LABELS[0]
+    ###
+    GAMEPAD_NS.clear_data()
+
 
 def yield_treated_events(events_type_and_dict_pairs):
 

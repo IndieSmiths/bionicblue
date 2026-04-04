@@ -24,7 +24,7 @@ from ..config import REFS, SURF_MAP, COLORKEY, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
-from ..pygamesetup.gamepadservices import GAMEPAD_NS
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..pygamesetup.constants import (
     WHITE_BG,

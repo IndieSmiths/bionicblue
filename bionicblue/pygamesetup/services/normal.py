@@ -30,7 +30,7 @@ from ..constants import (
     maintain_fps,
 )
 
-from ..gamepadservices import GAMEPAD_NS
+from ..gamepadservices.common import GAMEPAD_NS
 
 
 

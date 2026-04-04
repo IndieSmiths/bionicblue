@@ -32,7 +32,7 @@ mock_gamepad_dict = {
 
 ### support utilities
 
-_get_0 = lambda: 0
+_get_0 = lambda: 0 # XXX probably delete this and just use 'int()' instead
 _get_0_0 = lambda: (0, 0)
 
 round_axis = lambda axis: 0 if abs(axis) < .2 else (1 if axis > 0 else -1)

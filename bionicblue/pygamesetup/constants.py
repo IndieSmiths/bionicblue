@@ -152,6 +152,8 @@ GENERAL_NS.input_mode_name = 'normal'
 
 GENERAL_SERVICE_NAMES = (
 
+    "frame_checkups",
+
     "get_events",
 
     "get_pressed_keys",
@@ -163,7 +165,7 @@ GENERAL_SERVICE_NAMES = (
     "set_mouse_pos",
     "set_mouse_visibility",
 
-    "frame_checkups",
+    "update_screen",
 
 )
 

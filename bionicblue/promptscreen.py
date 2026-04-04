@@ -42,7 +42,7 @@ from .pygamesetup.constants import (
     blit_on_screen,
 )
 
-from .pygamesetup.gamepadservices import GAMEPAD_NS
+from .pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from .textman import render_text
 

@@ -59,7 +59,7 @@ from ..pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ..pygamesetup.gamepadservices import GAMEPAD_NS
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..constants import CHARGED_SHOT_SPEED
 

@@ -49,7 +49,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import GAMEPAD_NS
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..classes2d.single import UIObject2D
 
@@ -609,5 +609,5 @@ class OptionsScreen:
             1,
         )
 
-        SERVICES_NS.update()
+        SERVICES_NS.update_screen()
 

@@ -43,7 +43,7 @@ from .....pygamesetup.constants import (
     GAMEPADDIRECTIONALPRESSED,
 )
 
-from .....pygamesetup.gamepadservices import GAMEPAD_NS
+from .....pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from .....ourstdlibs.behaviour import do_nothing
 

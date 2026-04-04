@@ -22,7 +22,7 @@ from ....pygamesetup import SERVICES_NS
 
 from ....pygamesetup.constants import GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS
 
-from ....pygamesetup.gamepadservices import GAMEPAD_NS
+from ....pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ....userprefsman.main import GAMEPAD_CONTROLS
 

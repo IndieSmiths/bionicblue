@@ -2,14 +2,14 @@
 
 ### local imports
 
-## constants
-
+## constant
 from .constants import GENERAL_NS
 
 ## custom services
 from .services import normal, record, play
 
-## custom gamepad services switcher
+## custom gamepad services
+
 from .gamepadservices import (
     normal as gpnormal,
     record as gprecord,
