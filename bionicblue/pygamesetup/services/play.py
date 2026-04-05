@@ -11,6 +11,8 @@ from itertools import cycle, repeat
 
 from operator import or_ as bitwise_or
 
+from copy import deepcopy
+
 
 ### third-party imports
 
@@ -44,13 +46,15 @@ from pygame.display import update
 
 ### local imports
 
-from ...config import LoopException, quit_game
+from ...config import quit_game
 
 from ...ourstdlibs.pyl import load_pyl
 
 from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
+
+from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ..gamepadservices.common import GAMEPAD_NS
 
@@ -269,6 +273,26 @@ def set_behaviour(services_namespace, input_data):
         input_data = load_pyl(path)
 
     SESSION_DATA.update(input_data)
+
+    ### setup initial context
+
+    ## slot data and path
+
+    REFS.slot_data = SESSION_DATA['slot_data']
+    REFS.slot_path = Path(tempfile(suffix='.pyl', text=True)[1])
+
+    ## keyboard and gamepad controls (but back them up first)
+
+    PLAY_REFS.keyboard_controls = deepcopy(KEYBOARD_CONTROLS)
+    PLAY_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
+
+    KEYBOARD_CONTROLS.update(SESSION_DATA['keyboard_controls'])
+    GAMEPAD_CONTROLS.update(SESSION_DATA['gamepad_controls'])
+
+    ## last_checkpoint_name
+    REFS.last_checkpoint_name = SESSION_DATA['last_checkpoint_name']
+
+    ###
 
     ### retrieve playback speed and last frame index
 
@@ -582,11 +606,13 @@ def update_screen():
 
 def leave_playing_mode():
 
+    ### restore controls
+
+    KEYBOARD_CONTROLS.update(PLAY_REFS.keyboard_controls)
+    GAMEPAD_CONTROLS.update(PLAY_REFS.gamepad_controls)
+
     ### clear stored data
     clear_data()
-
-    ### switch mode
-    raise LoopException(next_input_mode_name='normal')
 
 def clear_data():
 

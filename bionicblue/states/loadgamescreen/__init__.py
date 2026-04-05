@@ -496,18 +496,6 @@ class LoadGameScreen:
         REFS.slot_data = slot_data
         REFS.slot_path = slot_path
 
-        slot_display = next(
-
-            button
-
-            for button in self.buttons
-
-            if (
-                hasattr(button, 'slot_path')
-                and button.slot_data is slot_data
-            )
-        )
-
         # TODO when the the stage selection screen is ready,
         # use it instead of start_intro_level, but only if there
         # are beaten bosses
@@ -751,7 +739,10 @@ def start_intro_level():
     REFS.level_to_load = 'intro.lvl'
     level_manager.prepare()
 
-    raise LoopException(next_state=level_manager)
+    raise LoopException(
+        next_state=level_manager,
+        next_input_mode_name='record',
+    )
 
 def recreate_button_surfs(button_surfs_map):
 

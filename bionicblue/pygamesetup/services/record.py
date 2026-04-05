@@ -5,6 +5,8 @@ from collections import defaultdict
 
 from datetime import datetime
 
+from copy import deepcopy
+
 
 ### third-party imports
 
@@ -31,13 +33,15 @@ from pygame.display import update as update_screen
 
 ### local imports
 
-from ...config import REGULAR_PLAY_LOGS_DIR, LoopException
+from ...config import REFS, REGULAR_PLAY_LOGS_DIR, LoopException
 
 from ...ourstdlibs.pyl import save_pyl
 
 from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
+
+from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
 from ..gamepadservices.common import GAMEPAD_NS
 
@@ -130,12 +134,28 @@ def set_behaviour(services_namespace):
     filename = 'play_at_' + datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
     REC_REFS.recording_path = REGULAR_PLAY_LOGS_DIR / filename
 
+    ### store copy of initial data
+
+    ## slot data
+    REC_REFS.slot_data = deepcopy(REFS.slot_data)
+
+    ## keyboard and gamepad controls
+
+    REC_REFS.keyboard_controls = deepcopy(KEYBOARD_CONTROLS)
+    REC_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
+
+    ## last_checkpoint_name
+    REC_REFS.last_checkpoint_name = REFS.last_checkpoint_name
+
     ## clear any existing events
     clear()
 
     ## set frame index to -1 (so it is set to 0 at the beginning
     ## of the loop, the first frame)
     GENERAL_NS.frame_index = -1
+
+    ## reference function to save recorded data
+    GENERAL_NS.save_play_data = save_play_data
 
 
 ### extended session behaviours
@@ -235,7 +255,7 @@ def frame_checkups():
 
 ### session data saving operations
 
-def save_session_data():
+def save_play_data():
 
     session_data = {}
 
@@ -289,6 +309,18 @@ def save_session_data():
     ### store gamepad related data
     GAMEPAD_NS.store_play_data(session_data)
 
+    ### save initial context data
+
+    session_data['slot_data'] = REC_REFS.slot_data
+
+    ## keyboard and gamepad controls
+
+    session_data['keyboard_controls'] = REC_REFS.keyboard_controls
+    session_data['gamepad_controls'] = REC_REFS.gamepad_controls
+
+    ## last_checkpoint_name
+    session_data['last_checkpoint_name'] = REC_REFS.last_checkpoint_name
+
     ### save session data in file
 
     save_pyl(
@@ -305,10 +337,8 @@ def save_session_data():
     events_map.clear()
     session_data.clear()
 
-def cancel_recording():
-
+    ### clear recorded data
     clear_data()
-    raise LoopException(next_input_mode_name='normal')
 
 def clear_data():
 

@@ -25,7 +25,11 @@ from ...config import (
     did_player_ever,
 )
 
-from ...pygamesetup.constants import SCREEN_RECT, reset_fade_accumulator
+from ...pygamesetup.constants import (
+    GENERAL_NS,
+    SCREEN_RECT,
+    reset_fade_accumulator,
+)
 
 from ...ourstdlibs.pyl import load_pyl
 
@@ -595,12 +599,20 @@ class LevelManager(
 
     def restart_level(self):
 
-        clear_chunks_and_layers()
+        self.cleanup()
 
-        raise LoopException(
-            clear_tasks=True,
-            prepare=True,
-        )
+        if GENERAL_NS.input_mode_name == 'record':
+
+            GENERAL_NS.save_play_data()
+
+            raise LoopException(
+                clear_tasks=True,
+                prepare=True,
+                next_input_mode_name='record',
+            )
+
+        elif GENERAL_NS.input_mode_name == 'play':
+            go_to_main_menu()
 
     def cleanup(self):
         clear_chunks_and_layers()

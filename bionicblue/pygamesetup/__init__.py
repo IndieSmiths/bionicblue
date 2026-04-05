@@ -40,6 +40,7 @@ def switch_mode(input_mode_name, input_data=None):
     input_data (dict or NoneType)
         if dict, data is used in play mode.
     """
+
     GENERAL_NS.input_mode_name = input_mode_name
 
     if input_mode_name == 'record':
@@ -56,3 +57,11 @@ def switch_mode(input_mode_name, input_data=None):
 
         normal.set_behaviour(SERVICES_NS)
         gpnormal.set_behaviour()
+
+    else:
+
+        raise RuntimeError(
+            "'input_mode_name' must be in previous if/elif blocks,"
+            f"cannot be {input_mode_name}"
+        )
+

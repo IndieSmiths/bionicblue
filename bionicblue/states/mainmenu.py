@@ -607,4 +607,7 @@ def start_first_level():
     REFS.level_to_load = 'intro.lvl'
     level_manager.prepare()
 
-    raise LoopException(next_state=level_manager)
+    raise LoopException(
+        next_state=level_manager,
+        next_input_mode_name='record',
+    )
