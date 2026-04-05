@@ -58,6 +58,8 @@ from ...textman import render_text
 
 from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
+from ...appinfo import OVERALL_PLAY_VERSION, INTRO_LEVEL_PLAY_VERSION
+
 from ..gamepadservices.common import GAMEPAD_NS
 
 from ..constants import (
@@ -86,7 +88,7 @@ from ..constants import (
 SESSION_DATA = {}
 
 ### custom namespace for replay mode
-PLAY_REFS = type("Object", (), {})()
+REPLAY_REFS = type("Object", (), {})()
 
 ### map to store events
 EVENTS_MAP = {}
@@ -110,7 +112,7 @@ MOUSE_POS = Vector2(0, 0)
 
 ### create flag indicating whether real mouse must trace movements
 ### of virtual one
-PLAY_REFS.mouse_tracing = True
+REPLAY_REFS.mouse_tracing = True
 
 ### special frozenset class
 
@@ -243,17 +245,7 @@ def get_ready_events(events):
 def set_behaviour(services_namespace, input_data):
     """Setup replay services and data."""
 
-    ### grab replay services from our globals (module-level names)
-    ### and set them as attributes of the services namespace
-
-    our_globals = globals()
-
-    for attr_name in GENERAL_SERVICE_NAMES:
-
-        value = our_globals[attr_name]
-        setattr(services_namespace, attr_name, value)
-
-    ### load input data for session
+    ### load input data for session if needed
 
     if input_data is None:
 
@@ -273,6 +265,33 @@ def set_behaviour(services_namespace, input_data):
 
         input_data = load_pyl(path)
 
+    ### a play session doesn't make sense unless the overall play version
+    ### and level play version match;
+    ###
+    ### check the explanation in the appinfo.py to understand;
+
+    if input_data['overall_play_version'] != OVERALL_PLAY_VERSION:
+
+        raise RuntimeError(
+            "Play data was recorded with different overall play."
+        )
+
+    elif input_data['level_play_version'] != INTRO_LEVEL_PLAY_VERSION:
+
+        raise RuntimeError(
+            "Play data was recorded with different play for this level."
+        )
+
+    ### grab replay services from our globals (module-level names)
+    ### and set them as attributes of the services namespace
+
+    our_globals = globals()
+
+    for attr_name in GENERAL_SERVICE_NAMES:
+
+        value = our_globals[attr_name]
+        setattr(services_namespace, attr_name, value)
+
     SESSION_DATA.update(input_data)
 
     ### setup initial context
@@ -287,8 +306,8 @@ def set_behaviour(services_namespace, input_data):
 
     ## keyboard and gamepad controls (but back them up first)
 
-    PLAY_REFS.keyboard_controls = deepcopy(KEYBOARD_CONTROLS)
-    PLAY_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
+    REPLAY_REFS.keyboard_controls = deepcopy(KEYBOARD_CONTROLS)
+    REPLAY_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
 
     KEYBOARD_CONTROLS.update(SESSION_DATA['keyboard_controls'])
     GAMEPAD_CONTROLS.update(SESSION_DATA['gamepad_controls'])
@@ -305,8 +324,8 @@ def set_behaviour(services_namespace, input_data):
 
     ### store playback speed, last frame index and recording width
 
-    PLAY_REFS.fps = playback_speed
-    PLAY_REFS.last_frame_index = last_frame_index
+    REPLAY_REFS.fps = playback_speed
+    REPLAY_REFS.last_frame_index = last_frame_index
 
     ### print duration
 
@@ -484,7 +503,7 @@ def get_events():
             ### toggle mouse tracing
 
             elif event.key == K_F9:
-                PLAY_REFS.mouse_tracing = not PLAY_REFS.mouse_tracing
+                REPLAY_REFS.mouse_tracing = not REPLAY_REFS.mouse_tracing
 
             ### leave replaying mode earlier
 
@@ -574,7 +593,7 @@ def set_mouse_pos(pos):
     ###
     ### this is done so that the real mouse traces the movement of the
     ### virtual one
-    PLAY_REFS.mouse_tracing and set_pos(pos)
+    REPLAY_REFS.mouse_tracing and set_pos(pos)
 
 
 ## processing mouse button pressed state;
@@ -596,7 +615,7 @@ def update_screen():
     width = round(
 
         # progress percentage
-        abs(GENERAL_NS.frame_index / PLAY_REFS.last_frame_index)
+        abs(GENERAL_NS.frame_index / REPLAY_REFS.last_frame_index)
 
         # full width
         * SCREEN_WIDTH
@@ -635,8 +654,8 @@ def perform_replay_mode_exit_setups():
 
     ### restore controls
 
-    KEYBOARD_CONTROLS.update(PLAY_REFS.keyboard_controls)
-    GAMEPAD_CONTROLS.update(PLAY_REFS.gamepad_controls)
+    KEYBOARD_CONTROLS.update(REPLAY_REFS.keyboard_controls)
+    GAMEPAD_CONTROLS.update(REPLAY_REFS.gamepad_controls)
 
     ### clear stored data
     clear_data()
@@ -669,7 +688,7 @@ def frame_checkups():
     app loop.
     """
     ### keep constants fps
-    maintain_fps(PLAY_REFS.fps)
+    maintain_fps(REPLAY_REFS.fps)
 
     ### increment frame number
     GENERAL_NS.frame_index += 1

@@ -66,12 +66,7 @@ def run_game(debug_directive=False):
 
         REFS.debug_directive = debug_directive
 
-        if debug_directive == 'level_manager':
-
-            state = REFS.states.level_manager
-            REFS.level_to_load = 'intro.lvl'
-
-        elif debug_directive == 'title_screen':
+        if debug_directive == 'title_screen':
             state = REFS.states.title_screen
 
         else:

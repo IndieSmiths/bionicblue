@@ -48,6 +48,8 @@ from ...textman import render_text
 
 from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
+from ...appinfo import OVERALL_PLAY_VERSION, INTRO_LEVEL_PLAY_VERSION
+
 from ..gamepadservices.common import GAMEPAD_NS
 
 from ..constants import (
@@ -151,6 +153,16 @@ def set_behaviour(services_namespace):
 
     ## last_checkpoint_name
     REC_REFS.last_checkpoint_name = REFS.last_checkpoint_name
+
+    ## overall play version
+    REC_REFS.overall_play_version = OVERALL_PLAY_VERSION
+
+    ## level name and its play version
+
+    REC_REFS.level_name = REFS.level_to_load
+
+    if REFS.level_to_load == 'intro.lvl':
+        REC_REFS.level_play_version = INTRO_LEVEL_PLAY_VERSION
 
     ## clear any existing events
     clear()
@@ -325,6 +337,11 @@ def save_play_data():
 
     ## last_checkpoint_name
     session_data['last_checkpoint_name'] = REC_REFS.last_checkpoint_name
+
+    ##
+    session_data['overall_play_version'] = REC_REFS.overall_play_version
+    session_data['level_name'] = REC_REFS.level_name
+    session_data['level_play_version'] = REC_REFS.level_play_version
 
     ### save session data in file and manage play data rotation
 
