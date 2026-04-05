@@ -13,6 +13,8 @@ from operator import or_ as bitwise_or
 
 from copy import deepcopy
 
+from tempfile import mkstemp
+
 
 ### third-party imports
 
@@ -46,9 +48,9 @@ from pygame.display import update
 
 ### local imports
 
-from ...config import quit_game
+from ...config import LoopException, quit_game
 
-from ...ourstdlibs.pyl import load_pyl
+from ...ourstdlibs.pyl import load_pyl, save_pyl
 
 from ...classes2d.single import UIObject2D
 
@@ -83,7 +85,7 @@ from ..constants import (
 ### dictionary to store session data
 SESSION_DATA = {}
 
-### custom namespace for playing mode
+### custom namespace for replay mode
 PLAY_REFS = type("Object", (), {})()
 
 ### map to store events
@@ -121,8 +123,7 @@ EMPTY_GETTER_FROZENSET = GetterFrozenSet()
 
 
 
-### TODO collections defined below lack proper commenting
-
+### XXX collections defined below lack proper commenting
 
 REVERSE_EVENT_COMPACT_NAME_MAP = {
     value: key
@@ -240,9 +241,9 @@ def get_ready_events(events):
 
 
 def set_behaviour(services_namespace, input_data):
-    """Setup play services and data."""
+    """Setup replay services and data."""
 
-    ### grab playback services from our globals (module-level names)
+    ### grab replay services from our globals (module-level names)
     ### and set them as attributes of the services namespace
 
     our_globals = globals()
@@ -278,8 +279,11 @@ def set_behaviour(services_namespace, input_data):
 
     ## slot data and path
 
-    REFS.slot_data = SESSION_DATA['slot_data']
-    REFS.slot_path = Path(tempfile(suffix='.pyl', text=True)[1])
+    REFS.slot_data = slot_data = SESSION_DATA['slot_data']
+    REFS.slot_path = slot_path = Path(mkstemp(suffix='.pyl', text=True)[1])
+
+    save_pyl(slot_data, slot_path)
+
 
     ## keyboard and gamepad controls (but back them up first)
 
@@ -325,9 +329,9 @@ def set_behaviour(services_namespace, input_data):
 
     print(duration_text)
 
-    ### since the app will be playing recorded events, we are not interested
-    ### in new ones generated while playing, so we block most of them, leaving
-    ### just a few that we may use during playback
+    ### since the app will be replaying recorded events, we are not interested
+    ### in most of the new ones generated while replaying, so we block most of them,
+    ### leaving just a few that we may use during replay
 
     set_blocked(None)
     set_allowed([QUIT, KEYDOWN])
@@ -427,6 +431,12 @@ def set_behaviour(services_namespace, input_data):
     MOUSE_PRESSED_TUPLES.extend(SESSION_DATA['mouse_key_state_requests'])
     MOUSE_PRESSED_TUPLES.reverse()
 
+    ### reference function to execute setups when exitting replay mode
+
+    GENERAL_NS.perform_replay_mode_exit_setups = (
+        perform_replay_mode_exit_setups
+    )
+
     ### set frame index to -1 (so when it is incremented at the beginning
     ### of the loop it is set to 0, the first frame)
     GENERAL_NS.frame_index = -1
@@ -446,11 +456,6 @@ MOUSE_EVENTS = frozenset({MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP})
 
 def get_events():
 
-    ### leave playing mode if frame is last one
-
-    if GENERAL_NS.frame_index == PLAY_REFS.last_frame_index:
-        leave_playing_mode()
-
     ### process QUIT or KEYDOWN event (for the F9 key) if
     ### they are thrown
 
@@ -461,7 +466,7 @@ def get_events():
 
         elif event.type == KEYDOWN:
 
-            ### pause playing
+            ### pause replaying
 
             if event.key == K_F8:
 
@@ -470,23 +475,23 @@ def get_events():
                 try:
                     pause()
 
-                ### if during pause user asks to cancel playing, do
+                ### if during pause user asks to cancel replaying, do
                 ### it here
 
                 except CancelWhenPaused:
-                    leave_playing_mode()
+                    leave_replay_mode_earlier()
 
             ### toggle mouse tracing
 
             elif event.key == K_F9:
                 PLAY_REFS.mouse_tracing = not PLAY_REFS.mouse_tracing
 
-            ### leave playing mode
+            ### leave replaying mode earlier
 
             elif event.key == K_F7:
-                leave_playing_mode()
+                leave_replay_mode_earlier()
 
-    ### play the recorded events
+    ### replay the recorded events
 
     ## if there are events for the current frame index in the event map,
     ## iterate over them
@@ -604,7 +609,29 @@ def update_screen():
 
 ### other operations
 
-def leave_playing_mode():
+def leave_replay_mode_earlier():
+
+    perform_replay_mode_exit_setups()
+
+    music_volume = (
+        (USER_PREFS['MASTER_VOLUME']/100)
+        * (USER_PREFS['MUSIC_VOLUME']/100)
+    )
+
+    music.set_volume(music_volume)
+    music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
+    music.play(-1)
+
+    REFS.states.level_manager.cleanup()
+
+    raise LoopException(
+        next_state=REFS.states.main_menu,
+        clear_tasks=True,
+        prepare=True,
+        next_input_mode_name='normal',
+    )
+
+def perform_replay_mode_exit_setups():
 
     ### restore controls
 
@@ -613,6 +640,9 @@ def leave_playing_mode():
 
     ### clear stored data
     clear_data()
+
+    ### delete temporary file
+    REFS.slot_path.unlink()
 
 def clear_data():
 

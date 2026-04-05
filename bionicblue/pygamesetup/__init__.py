@@ -6,14 +6,14 @@
 from .constants import GENERAL_NS
 
 ## custom services
-from .services import normal, record, play
+from .services import normal, record, replay
 
 ## custom gamepad services
 
 from .gamepadservices import (
     normal as gpnormal,
     record as gprecord,
-    play as gpplay,
+    replay as gpreplay,
 )
 
 
@@ -35,7 +35,7 @@ def switch_mode(input_mode_name, input_data=None):
     Parameters
     ==========
     input_mode_name (str)
-        Name of input mode to switch to (either 'record', 'play' or 'normal')
+        Name of input mode to switch to (either 'record', 'replay' or 'normal')
 
     input_data (dict or NoneType)
         if dict, data is used in play mode.
@@ -48,10 +48,10 @@ def switch_mode(input_mode_name, input_data=None):
         record.set_behaviour(SERVICES_NS)
         gprecord.set_behaviour()
 
-    elif input_mode_name == 'play':
+    elif input_mode_name == 'replay':
 
-        play.set_behaviour(SERVICES_NS, input_data)
-        gprecord.set_behaviour(input_data)
+        replay.set_behaviour(SERVICES_NS, input_data)
+        gpreplay.set_behaviour(input_data)
 
     elif input_mode_name == 'normal':
 

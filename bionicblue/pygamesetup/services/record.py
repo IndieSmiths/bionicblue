@@ -33,7 +33,12 @@ from pygame.display import update as update_screen
 
 ### local imports
 
-from ...config import REFS, REGULAR_PLAY_LOGS_DIR, LoopException
+from ...config import (
+    REFS,
+    REGULAR_PLAY_LOGS_DIR,
+    LoopException,
+    manage_play_data_rotation,
+)
 
 from ...ourstdlibs.pyl import save_pyl
 
@@ -321,7 +326,7 @@ def save_play_data():
     ## last_checkpoint_name
     session_data['last_checkpoint_name'] = REC_REFS.last_checkpoint_name
 
-    ### save session data in file
+    ### save session data in file and manage play data rotation
 
     save_pyl(
         session_data,
@@ -329,6 +334,8 @@ def save_play_data():
         width=125,
         compact=True,
     )
+
+    manage_play_data_rotation()
 
     ### clear collections created in this function (not really needed,
     ### but in our experience memory is freed faster when collections

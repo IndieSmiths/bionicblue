@@ -601,18 +601,33 @@ class LevelManager(
 
         self.cleanup()
 
-        if GENERAL_NS.input_mode_name == 'record':
+        input_mode_name = GENERAL_NS.input_mode_name
+
+        if input_mode_name == 'record':
 
             GENERAL_NS.save_play_data()
 
             raise LoopException(
+
                 clear_tasks=True,
                 prepare=True,
+
+                ## must provide record input mode name again,
+                ## even though it is the current mode already,
+                ## in order for extra setups to be performed
                 next_input_mode_name='record',
+
             )
 
-        elif GENERAL_NS.input_mode_name == 'play':
-            go_to_main_menu()
+        elif input_mode_name == 'replay':
+            go_to_main_menu(show_prompt=False)
+
+        else:
+
+            raise RuntimeError(
+                "'input_mode_name' must be in if/elif blocks."
+                f" '{input_mode_name}' is not."
+            )
 
     def cleanup(self):
         clear_chunks_and_layers()
@@ -632,30 +647,55 @@ class LevelManager(
 
         self.cleanup()
 
-        if not did_player_ever(event_name='cleared_a_mission'):
+        input_mode_name = GENERAL_NS.input_mode_name
 
-            report_presenter = REFS.states.report_presenter
+        if input_mode_name == 'record':
 
-            report_presenter.prepare(
-                'thanking_player',
-                on_report_exit=go_to_main_menu,
-            )
+            GENERAL_NS.save_play_data()
 
-            raise LoopException(
-                next_state=report_presenter,
-                clear_tasks=True,
-            )
+            if not did_player_ever(event_name='cleared_a_mission'):
+
+                report_presenter = REFS.states.report_presenter
+
+                report_presenter.prepare(
+                    'thanking_player',
+                    on_report_exit=go_to_main_menu,
+                )
+
+                raise LoopException(
+                    next_state=report_presenter,
+                    clear_tasks=True,
+                    next_input_mode_name='normal',
+                )
+
+            else:
+                go_to_main_menu()
+
+        elif input_mode_name == 'replay':
+            go_to_main_menu(show_prompt=False)
 
         else:
-            go_to_main_menu()
+
+            raise RuntimeError(
+                "'input_mode_name' must be in if/elif blocks."
+                f" '{input_mode_name}' is not."
+            )
 
 
-def go_to_main_menu():
+def go_to_main_menu(show_prompt=True):
 
-    prompt_to_dismiss_with_any_button(
-        caption=t.mission_completed.caption,
-        message=t.mission_completed.message,
-    )
+    if show_prompt:
+
+        prompt_to_dismiss_with_any_button(
+            caption=t.mission_completed.caption,
+            message=t.mission_completed.message,
+        )
+
+    else:
+
+        ### if prompt is not to be shown, it means we are leaving
+        ### replay mode, so perform replay mode exit setups
+        GENERAL_NS.perform_replay_mode_exit_setups()
 
     music_volume = (
         (USER_PREFS['MASTER_VOLUME']/100)
@@ -670,7 +710,9 @@ def go_to_main_menu():
         next_state=REFS.states.main_menu,
         clear_tasks=True,
         prepare=True,
+        next_input_mode_name='normal',
     )
+
 
 def instantiate(obj_data, layer_name):
 

@@ -27,6 +27,7 @@ from pygame.mixer import music
 from ..pygamesetup import SERVICES_NS
 
 from ..pygamesetup.constants import (
+    GENERAL_NS,
     SCREEN,
     SCREEN_COPY,
     SCREEN_TRANSP_OVERLAY,
@@ -105,10 +106,32 @@ def leave_to_main_menu():
 
     REFS.states.level_manager.cleanup()
 
+    ###
+
+    input_mode_name = GENERAL_NS.input_mode_name
+
+    if input_mode_name == 'record':
+        GENERAL_NS.save_play_data()
+
+    elif input_mode_name == 'replay':
+        GENERAL_NS.perform_replay_mode_exit_setups()
+
+    else:
+
+        raise RuntimeError(
+            "'input_mode_name' must be in if/elif blocks."
+            f" '{input_mode_name}' is not."
+        )
+
+    ###
+
     transition_screen = REFS.states.transition_screen
     transition_screen.prepare(go_to_main_menu)
 
-    raise LoopException(next_state=transition_screen)
+    raise LoopException(
+        next_state=transition_screen,
+        next_input_mode_name='normal',
+    )
 
 def go_to_main_menu():
 

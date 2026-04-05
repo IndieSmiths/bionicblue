@@ -148,7 +148,24 @@ for dir_path in (
             " if possible, should solve the problem."
         ) from err
 
+def manage_play_data_rotation():
+    """Ensure old play data files are deleted and first ones are backed up."""
+    ### TODO write code
 
+    ### if first play logs doesn't have 10 files yet (it must not exceed this
+    ### quantity), copy files from regular play logs into it, if they don't
+    ### exist there already;
+    ###
+    ### first play logs are the very first 10 play sessions and are used for
+    ### playtesting; but attention: no data ever leaves your disk; the only
+    ### way for the developer to access this data is if you share it yourself,
+    ### which I'd appreciate a lot ;) - you just contact me via social
+    ### networks or discord and I'll get back to you on how to do that
+    ...
+
+    ### ensure regular play logs only has at most 20 files, making sure to
+    ### erase the older ones in case this number is exceeded
+    ...
 
 
 def has_save_slots():
