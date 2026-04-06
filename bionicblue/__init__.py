@@ -3,12 +3,8 @@
 A bionic boy fights robots to protect humanity.
 """
 
-# a trailing...
-#
-# 'a1', 'a2', etc.: indicates an alpha release
-# 'b1', 'b2', etc.: indicates a beta release
-# 'rc1', 'rc2', etc.: indicates a release candidate
-#
-# the absence of those indicates a stable release
+from .appinfo import APP_VERSION_STRING
 
-__version__ = '0.12.2'
+
+
+__version__ = APP_VERSION_STRING

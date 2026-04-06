@@ -46,9 +46,13 @@ from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
 
-from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
+from ...userprefsman.main import (
+    USER_PREFS,
+    KEYBOARD_CONTROL_NAMES,
+    GAMEPAD_CONTROLS,
+)
 
-from ...appinfo import OVERALL_PLAY_VERSION, INTRO_LEVEL_PLAY_VERSION
+from ...appinfo import APP_VERSION_STRING
 
 from ..gamepadservices.common import GAMEPAD_NS
 
@@ -138,7 +142,12 @@ def set_behaviour(services_namespace):
 
     ### create and store path wherein to save recording
 
-    filename = 'play_at_' + datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
+    filename = (
+        'play_at_'
+        + datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
+        + '.pyl'
+    )
+
     REC_REFS.recording_path = REGULAR_PLAY_LOGS_DIR / filename
 
     ### store copy of initial data
@@ -148,21 +157,18 @@ def set_behaviour(services_namespace):
 
     ## keyboard and gamepad controls
 
-    REC_REFS.keyboard_controls = deepcopy(KEYBOARD_CONTROLS)
+    REC_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
     REC_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
 
     ## last_checkpoint_name
     REC_REFS.last_checkpoint_name = REFS.last_checkpoint_name
 
-    ## overall play version
-    REC_REFS.overall_play_version = OVERALL_PLAY_VERSION
+    ## locale
+    REC_REFS.locale = USER_PREFS['LOCALE']
 
-    ## level name and its play version
+    ## app version
+    REC_REFS.app_version_string = APP_VERSION_STRING
 
-    REC_REFS.level_name = REFS.level_to_load
-
-    if REFS.level_to_load == 'intro.lvl':
-        REC_REFS.level_play_version = INTRO_LEVEL_PLAY_VERSION
 
     ## clear any existing events
     clear()
@@ -332,16 +338,16 @@ def save_play_data():
 
     ## keyboard and gamepad controls
 
-    session_data['keyboard_controls'] = REC_REFS.keyboard_controls
+    session_data['keyboard_control_names'] = REC_REFS.keyboard_control_names
     session_data['gamepad_controls'] = REC_REFS.gamepad_controls
 
     ## last_checkpoint_name
     session_data['last_checkpoint_name'] = REC_REFS.last_checkpoint_name
 
-    ##
-    session_data['overall_play_version'] = REC_REFS.overall_play_version
-    session_data['level_name'] = REC_REFS.level_name
-    session_data['level_play_version'] = REC_REFS.level_play_version
+    ## locale and app version
+
+    session_data['app_version_string'] = REC_REFS.app_version_string
+    session_data['locale'] = REC_REFS.locale
 
     ### save session data in file and manage play data rotation
 
@@ -352,7 +358,7 @@ def save_play_data():
         compact=True,
     )
 
-    manage_play_data_rotation()
+    manage_play_data_rotation(REC_REFS.recording_path)
 
     ### clear collections created in this function (not really needed,
     ### but in our experience memory is freed faster when collections

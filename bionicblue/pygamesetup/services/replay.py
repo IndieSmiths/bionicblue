@@ -56,9 +56,15 @@ from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
 
-from ...userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
+from ...userprefsman.main import (
+    KEYBOARD_CONTROL_NAMES,
+    KEYBOARD_CONTROLS,
+    GAMEPAD_CONTROLS,
+)
 
-from ...appinfo import OVERALL_PLAY_VERSION, INTRO_LEVEL_PLAY_VERSION
+from ...appinfo import APP_VERSION_STRING
+
+from ...translatedtext import on_language_change
 
 from ..gamepadservices.common import GAMEPAD_NS
 
@@ -265,21 +271,17 @@ def set_behaviour(services_namespace, input_data):
 
         input_data = load_pyl(path)
 
-    ### a play session doesn't make sense unless the overall play version
-    ### and level play version match;
-    ###
-    ### check the explanation in the appinfo.py to understand;
+    ### replaying play data doesn't make sense unless the play is reproduced
+    ### in the same version where it was recorded
 
-    if input_data['overall_play_version'] != OVERALL_PLAY_VERSION:
+    app_version_string = input_data['app_version_string']
 
-        raise RuntimeError(
-            "Play data was recorded with different overall play."
-        )
-
-    elif input_data['level_play_version'] != INTRO_LEVEL_PLAY_VERSION:
+    if app_version_string != APP_VERSION_STRING:
 
         raise RuntimeError(
-            "Play data was recorded with different play for this level."
+            "Play data recorded in different version."
+            f" Ours: {APP_VERSION_STRING};"
+            f" Play data's: {app_version_string}"
         )
 
     ### grab replay services from our globals (module-level names)
@@ -303,13 +305,27 @@ def set_behaviour(services_namespace, input_data):
 
     save_pyl(slot_data, slot_path)
 
+    ## back up current locale use the one indicated in the play data
 
-    ## keyboard and gamepad controls (but back them up first)
+    REPLAY_REFS.locale = USER_PREFS['LOCALE']
 
-    REPLAY_REFS.keyboard_controls = deepcopy(KEYBOARD_CONTROLS)
+    if SESSION_DATA['locale'] != USER_PREFS['LOCALE']:
+
+        USER_PREFS['LOCALE'] = SESSION_DATA['LOCALE']
+        on_language_change()
+
+    ## back up current keyboard and gamepad controls and use the ones 
+    ## provided by the play data
+
+    REPLAY_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
     REPLAY_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
 
-    KEYBOARD_CONTROLS.update(SESSION_DATA['keyboard_controls'])
+    for action_name, key_name in (
+        SESSION_DATA['keyboard_control_names'].items()
+    ):
+
+        KEYBOARD_CONTROLS[action_name] = getattr(pygame_locals, key_name)
+
     GAMEPAD_CONTROLS.update(SESSION_DATA['gamepad_controls'])
 
     ## last_checkpoint_name
@@ -652,7 +668,17 @@ def leave_replay_mode_earlier():
 
 def perform_replay_mode_exit_setups():
 
+    ## restore locale if needed
+
+    if USER_PREFS['LOCALE'] != REPLAY_REFS.locale:
+
+        USER_PREFS['LOCALE'] = REPLAY_REFS.locale
+        on_language_change()
+
     ### restore controls
+
+    for action_name, key_name in REPLAY_REFS.keyboard_control_names.items():
+        KEYBOARD_CONTROLS[action_name] = getattr(pygame_locals, key_name)
 
     KEYBOARD_CONTROLS.update(REPLAY_REFS.keyboard_controls)
     GAMEPAD_CONTROLS.update(REPLAY_REFS.gamepad_controls)

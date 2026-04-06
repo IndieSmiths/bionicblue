@@ -6,6 +6,8 @@ from pathlib import Path
 
 from datetime import datetime
 
+from shutils import copyfile
+
 
 ### third-party imports
 
@@ -148,24 +150,62 @@ for dir_path in (
             " if possible, should solve the problem."
         ) from err
 
-def manage_play_data_rotation():
+
+def manage_play_data_rotation(latest_added_path):
     """Ensure old play data files are deleted and first ones are backed up."""
-    ### TODO write code
 
     ### if first play logs doesn't have 10 files yet (it must not exceed this
-    ### quantity), copy files from regular play logs into it, if they don't
-    ### exist there already;
+    ### quantity), copy latest added path into it;
     ###
     ### first play logs are the very first 10 play sessions and are used for
     ### playtesting; but attention: no data ever leaves your disk; the only
     ### way for the developer to access this data is if you share it yourself,
     ### which I'd appreciate a lot ;) - you just contact me via social
     ### networks or discord and I'll get back to you on how to do that
-    ...
+
+    if len([
+
+        path
+        for path in FIRST_PLAY_LOGS_DIR.iterdir()
+
+        if path.suffix.lower() == '.pyl'
+        if path.name.startswith('play_at_')
+
+    ]) < 10:
+
+        source = latest_added_path
+        destination = FIRST_PLAY_LOGS_DIR / latest_added_path.name
+
+        copyfile(str(source), str(destination))
 
     ### ensure regular play logs only has at most 20 files, making sure to
     ### erase the older ones in case this number is exceeded
-    ...
+
+    ## sort regular log paths by name
+
+    sorted_regular_log_paths = sorted(
+
+        (
+            path
+            for path in REGULAR_PLAY_LOGS_DIR
+
+            if path.suffix.lower() == '.pyl'
+            if path.name.startswith('play_at_')
+        ),
+
+        key = lambda item: item.name.lower()
+
+    )
+
+    ## grab set with paths of 10 most recent paths
+    most_recent_paths = set(sorted_regular_log_paths[-10:])
+
+    ## delete existing paths not listed among most recent ones
+
+    for path in sorted_regular_log_paths:
+
+        if path not in most_recent_paths:
+            path.unlink()
 
 
 def has_save_slots():
