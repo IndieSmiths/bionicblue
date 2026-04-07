@@ -122,6 +122,10 @@ NAMES_OF_EVENTS_TO_KEEP = frozenset((
     *USER_EVENT_NAMES_MAP.values(),
 ))
 
+
+### create frozenset holding names of user events
+USER_EVENT_NAMES = frozenset(USER_EVENT_NAMES_MAP.values())
+
 ### timestamp format string
 TIMESTAMP_FORMAT_STRING = 'Y%YM%mD%d_H%HM%MS%S'
 
@@ -506,15 +510,37 @@ def get_compact_event_dict(name, a_dict):
     ### which keys we are making compact, we just invert the operation
     ### when we are about to play the session in the session playing
     ### mode;
+    ###
+    ### additionally, user events actually have their dicts replaced,
+    ### by a new one, because they are reused rather than instantiated
+    ### every time, so popping the original key would cause them to miss
+    ### that key the next time they are reused
 
     if name in EVENT_KEY_COMPACT_NAME_MAP:
 
         map_of_keys_to_make_compact = EVENT_KEY_COMPACT_NAME_MAP[name]
 
-        for key, compact_key in map_of_keys_to_make_compact.items():
-            
-            if key in a_dict:
-                a_dict[compact_key] = a_dict.pop(key)
+        ## if event is an user event, we copy dict, using the compact version
+        ## of the keys instead
+
+        if name in USER_EVENT_NAMES:
+
+            new_dict = {}
+
+            for key, compact_key in map_of_keys_to_make_compact.items():
+                new_dict[compact_key] = a_dict[key]
+
+            ### mark the new dict as the dict to be returned
+            a_dict = new_dict
+
+        ## otherwise, we pop they keys and insert in their compact versions
+
+        else:
+
+            for key, compact_key in map_of_keys_to_make_compact.items():
+                
+                if key in a_dict:
+                    a_dict[compact_key] = a_dict.pop(key)
 
     ### return the dict
     return a_dict

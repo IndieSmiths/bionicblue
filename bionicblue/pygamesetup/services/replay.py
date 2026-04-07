@@ -179,8 +179,8 @@ def get_resulting_bitmask(mod_key_names):
 ## event map
 
 
-def get_ready_events(events):
-    """Return preprocessed objects as pygame.event.Event instances."""
+def yield_ready_events(events):
+    """Yield preprocessed objects as pygame.event.Event instances."""
 
     for event_name, event_dict in events:
 
@@ -258,6 +258,8 @@ def get_ready_events(events):
         )
 
         ### yield a pygame.event.Event object
+
+        # TODO user events should probably be reused instead of reinstantiated
         yield Event(event_type, event_dict)
 
 
@@ -356,7 +358,7 @@ def set_behaviour(services_namespace, play_data):
 
     EVENTS_MAP.update(
 
-        (frame_index, list(get_ready_events(compact_events)))
+        (frame_index, list(yield_ready_events(compact_events)))
 
         for frame_index, compact_events
         in SESSION_DATA['events_map'].items()
