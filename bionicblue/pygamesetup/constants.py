@@ -170,6 +170,36 @@ GENERAL_SERVICE_NAMES = (
 )
 
 
+### custom gamepad event types and respective event instances
+### for directional triggers; they serve the same purpose of
+### KEYUP/MOUSEBUTTONUP events, but for gamepad movement triggers
+
+## pressing directionals
+
+GAMEPADDIRECTIONALPRESSED = get_custom_event_type()
+
+GAMEPADUPPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'up'})
+GAMEPADDOWNPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'down'})
+GAMEPADLEFTPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'left'})
+GAMEPADRIGHTPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'right'})
+
+## releasing directionals
+
+GAMEPADDIRECTIONALRELEASED = get_custom_event_type()
+
+GAMEPADUPRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'up'})
+GAMEPADDOWNRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'down'})
+GAMEPADLEFTRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'left'})
+GAMEPADRIGHTRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'right'})
+
+### map that associates the custom event type with its name
+
+USER_EVENT_NAMES_MAP = {
+    GAMEPADDIRECTIONALPRESSED: 'GAMEPADDIRECTIONALPRESSED',
+    GAMEPADDIRECTIONALRELEASED: 'GAMEPADDIRECTIONALRELEASED',
+}
+
+
 ## event values to strip
 
 EVENT_KEY_STRIP_MAP = {
@@ -204,21 +234,31 @@ EVENT_KEY_STRIP_MAP = {
     'window': None,
   },
 
-  'TEXTINPUT': {
-    'window': None,
+  'JOYBUTTONUP': {
+    'instance_id': 0,
+    'joy': 0,
+  },
+
+  'JOYBUTTONDOWN': {
+    'instance_id': 0,
+    'joy': 0,
   },
 
 }
 
+
 ### event name to make compact
 
 EVENT_COMPACT_NAME_MAP = {
-    'KEYDOWN': 'kd',
     'KEYUP': 'ku',
-    'TEXTINPUT': 'ti',
+    'KEYDOWN': 'kd',
+    'JOYBUTTONUP': 'jbu',
+    'JOYBUTTONDOWN': 'jbd',
     'MOUSEMOTION': 'mm',
     'MOUSEBUTTONUP': 'mbu',
     'MOUSEBUTTONDOWN': 'mbd',
+    'GAMEPADDIRECTIONALPRESSED': 'gdp',
+    'GAMEPADDIRECTIONALRELEASED': 'gdr',
 }
 
 ### key of events to make compact
@@ -263,9 +303,20 @@ EVENT_KEY_COMPACT_NAME_MAP = {
     'window': 'w',
   },
 
-  'TEXTINPUT': {
-    'text': 't',
-    'window': 'w',
+  'JOYBUTTONUP': {
+    'button': 'b',
+  },
+
+  'JOYBUTTONDOWN': {
+    'button': 'b',
+  },
+
+  'GAMEPADDIRECTIONALPRESSED': {
+    'direction': 'd',
+  },
+
+  'GAMEPADDIRECTIONALRELEASED': {
+    'direction': 'd',
   },
 
 }
@@ -312,29 +363,6 @@ MOD_KEYS_MAP = {
     )
 
 }
-
-
-### custom gamepad event types and respective event instances
-### for directional triggers; they serve the same purpose of
-### KEYUP/MOUSEBUTTONUP events, but for gamepad movement triggers
-
-## pressing directionals
-
-GAMEPADDIRECTIONALPRESSED = get_custom_event_type()
-
-GAMEPADUPPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'up'})
-GAMEPADDOWNPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'down'})
-GAMEPADLEFTPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'left'})
-GAMEPADRIGHTPRESSED = Event(GAMEPADDIRECTIONALPRESSED, {'direction': 'right'})
-
-## releasing directionals
-
-GAMEPADDIRECTIONALRELEASED = get_custom_event_type()
-
-GAMEPADUPRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'up'})
-GAMEPADDOWNRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'down'})
-GAMEPADLEFTRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'left'})
-GAMEPADRIGHTRELEASED = Event(GAMEPADDIRECTIONALRELEASED, {'direction': 'right'})
 
 
 ### events indicating gamepad plugging/unplugging

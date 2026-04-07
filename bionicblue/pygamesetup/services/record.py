@@ -12,7 +12,7 @@ from copy import deepcopy
 
 from pygame.locals import KMOD_NONE
 
-from pygame.event import clear, get, event_name
+from pygame.event import clear, get, event_name as get_event_name
 
 from pygame.key import get_pressed, get_mods
 
@@ -71,6 +71,8 @@ from ..constants import (
     SCANCODE_NAMES_MAP,
     MOD_KEYS_MAP,
 
+    USER_EVENT_NAMES_MAP,
+
 )
 
 
@@ -117,8 +119,7 @@ NAMES_OF_EVENTS_TO_KEEP = frozenset((
     'MOUSEBUTTONDOWN',
     'MOUSEBUTTONUP',
     'MOUSEMOTION',
-    'TEXTINPUT',
-    'UserEvent',
+    *USER_EVENT_NAMES_MAP.values(),
 ))
 
 ### timestamp format string
@@ -414,10 +415,15 @@ def yield_treated_events(events_type_and_dict_pairs):
 def yield_named_events(events_type_and_dict_pairs):
 
     for event_type, event_dict in events_type_and_dict_pairs:
+        
+        event_name = get_event_name(event_type).upper()
+
+        if event_name == 'USEREVENT':
+            event_name = USER_EVENT_NAMES_MAP[event_type]
     
         yield (
-            event_name(event_type).upper(),
-            event_dict
+            event_name,
+            event_dict,
         )
 
 def yield_events_to_keep(events_name_and_dict):

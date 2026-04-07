@@ -80,6 +80,7 @@ from ..constants import (
 
     CancelWhenPaused, pause,
 
+    USER_EVENT_NAMES_MAP,
     EVENT_KEY_STRIP_MAP,
     EVENT_COMPACT_NAME_MAP,
     EVENT_KEY_COMPACT_NAME_MAP,
@@ -144,6 +145,10 @@ REVERSE_SCANCODE_NAMES_MAP = {
     for key, value in SCANCODE_NAMES_MAP.items()
 }
 
+REVERSE_USER_EVENT_NAMES_MAP = {
+    value: key
+    for key, value in USER_EVENT_NAMES_MAP.items()
+}
 
 ##
 
@@ -242,7 +247,15 @@ def get_ready_events(events):
                 )
 
         ### obtain the event type
-        event_type = getattr(pygame_locals, event_name)
+
+        event_type = (
+
+            REVERSE_USER_EVENT_NAMES_MAP[event_name]
+            if event_name in REVERSE_USER_EVENT_NAMES_MAP
+
+            else getattr(pygame_locals, event_name)
+
+        )
 
         ### yield a pygame.event.Event object
         yield Event(event_type, event_dict)
