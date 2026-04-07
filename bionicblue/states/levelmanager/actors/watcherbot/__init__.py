@@ -1,7 +1,10 @@
 """Facility for watcher bot enemy."""
 
-### standard library import
+### standard library imports
+
 from functools import partial
+
+from math import inf as INFINITY
 
 
 ### local imports
@@ -50,7 +53,10 @@ class WatcherBot:
             )
         )
 
-        self.last_damage = GENERAL_NS.frame_index
+        ## set to negative infinity so next time it is checked, it is as
+        ## though an infinite amount of time elapsed
+        self.last_damage = -INFINITY
+
         self.routine_check = do_nothing
         self.shooting_countdown = 0
 
@@ -83,7 +89,7 @@ class WatcherBot:
 
             else:
 
-                ### TODO why considering when player is too close?
+                ### XXX why considering when player is too close?
                 ###
                 ### if player is too close, maybe we should consider as though
                 ### the shot will hit the player right away, but only if player

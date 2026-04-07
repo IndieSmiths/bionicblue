@@ -129,6 +129,10 @@ class Player(
         else:
             self.health_column.reset()
 
+        ### set initial values for time tracking attributes
+        self.reset_time_tracking_attributes()
+        ###
+
         self.ladder = None
 
         self.y_speed = MAX_Y_SPEED
