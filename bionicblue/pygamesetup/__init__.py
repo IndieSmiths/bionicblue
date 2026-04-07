@@ -29,31 +29,32 @@ gpnormal.set_behaviour()
 
 ### function to switch modes
 
-def switch_mode(input_mode_name, input_data=None):
-    """Switch to named input mode.
+def switch_mode(play_mode_name, play_data=None):
+    """Switch to named play mode.
 
     Parameters
     ==========
-    input_mode_name (str)
-        Name of input mode to switch to (either 'record', 'replay' or 'normal')
+    play_mode_name (str)
+        Name of play mode to switch to (either 'record', 'replay' or 'normal')
 
-    input_data (dict or NoneType)
-        if dict, data is used in play mode.
+    play_data (dict or NoneType)
+        if play_mode_name=='replay', must be a dict containing data used in
+        replay mode.
     """
 
-    GENERAL_NS.input_mode_name = input_mode_name
+    GENERAL_NS.play_mode_name = play_mode_name
 
-    if input_mode_name == 'record':
+    if play_mode_name == 'record':
 
         record.set_behaviour(SERVICES_NS)
         gprecord.set_behaviour()
 
-    elif input_mode_name == 'replay':
+    elif play_mode_name == 'replay':
 
-        replay.set_behaviour(SERVICES_NS, input_data)
-        gpreplay.set_behaviour(input_data)
+        replay.set_behaviour(SERVICES_NS, play_data)
+        gpreplay.set_behaviour(play_data)
 
-    elif input_mode_name == 'normal':
+    elif play_mode_name == 'normal':
 
         normal.set_behaviour(SERVICES_NS)
         gpnormal.set_behaviour()
@@ -61,7 +62,7 @@ def switch_mode(input_mode_name, input_data=None):
     else:
 
         raise RuntimeError(
-            "'input_mode_name' must be in previous if/elif blocks,"
-            f"cannot be {input_mode_name}"
+            "'play_mode_name' must be in previous if/elif blocks,"
+            f"cannot be {play_mode_name}"
         )
 

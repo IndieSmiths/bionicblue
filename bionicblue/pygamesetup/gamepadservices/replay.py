@@ -32,7 +32,7 @@ BUTTON_STATE_MAP = defaultdict(dict)
 
 TWO_TUPLE_OF_ZEROS = (0, 0)
 
-def set_behaviour(input_data):
+def set_behaviour(play_data):
 
     GAMEPAD_NS.setup_gamepad_if_existent = setup_gamepad_if_existent
     GAMEPAD_NS.get_button = get_button
@@ -41,8 +41,8 @@ def set_behaviour(input_data):
 
     clear_data()
 
-    DIRECTIONAL_STATE_MAP.update(input_data['gamepad_directional_state_map'])
-    BUTTON_STATE_MAP.update(input_data['gamepad_button_state_map'])
+    DIRECTIONAL_STATE_MAP.update(play_data['gamepad_directional_state_map'])
+    BUTTON_STATE_MAP.update(play_data['gamepad_button_state_map'])
 
 
 def clear_data():

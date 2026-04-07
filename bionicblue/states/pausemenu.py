@@ -108,19 +108,19 @@ def leave_to_main_menu():
 
     ###
 
-    input_mode_name = GENERAL_NS.input_mode_name
+    play_mode_name = GENERAL_NS.play_mode_name
 
-    if input_mode_name == 'record':
+    if play_mode_name == 'record':
         GENERAL_NS.save_play_data()
 
-    elif input_mode_name == 'replay':
+    elif play_mode_name == 'replay':
         GENERAL_NS.perform_replay_mode_exit_setups()
 
     else:
 
         raise RuntimeError(
-            "'input_mode_name' must be in if/elif blocks."
-            f" '{input_mode_name}' is not."
+            "'play_mode_name' must be in if/elif blocks."
+            f" '{play_mode_name}' is not."
         )
 
     ###
@@ -130,7 +130,7 @@ def leave_to_main_menu():
 
     raise LoopException(
         next_state=transition_screen,
-        next_input_mode_name='normal',
+        next_play_mode_name='normal',
     )
 
 def go_to_main_menu():

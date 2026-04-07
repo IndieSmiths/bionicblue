@@ -741,7 +741,7 @@ def start_intro_level():
 
     raise LoopException(
         next_state=level_manager,
-        next_input_mode_name='record',
+        next_play_mode_name='record',
     )
 
 def recreate_button_surfs(button_surfs_map):

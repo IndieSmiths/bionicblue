@@ -609,5 +609,5 @@ def start_first_level():
 
     raise LoopException(
         next_state=level_manager,
-        next_input_mode_name='record',
+        next_play_mode_name='record',
     )

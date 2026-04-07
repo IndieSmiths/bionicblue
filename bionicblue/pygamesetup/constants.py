@@ -145,7 +145,7 @@ def msecs_to_frames(msecs):
 GENERAL_NS = type("Object", (), {})()
 
 GENERAL_NS.frame_index = -1
-GENERAL_NS.input_mode_name = 'normal'
+GENERAL_NS.play_mode_name = 'normal'
 
 
 ### name of key pygame services used by all different modes

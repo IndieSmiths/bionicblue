@@ -18,6 +18,8 @@ from tempfile import mkstemp
 
 ### third-party imports
 
+from pygame.mixer import music
+
 from pygame.locals import (
 
     QUIT,
@@ -48,7 +50,7 @@ from pygame.display import update
 
 ### local imports
 
-from ...config import LoopException, quit_game
+from ...config import REFS, MUSIC_DIR, LoopException, quit_game
 
 from ...ourstdlibs.pyl import load_pyl, save_pyl
 
@@ -57,12 +59,11 @@ from ...classes2d.single import UIObject2D
 from ...textman import render_text
 
 from ...userprefsman.main import (
+    USER_PREFS,
     KEYBOARD_CONTROL_NAMES,
     KEYBOARD_CONTROLS,
     GAMEPAD_CONTROLS,
 )
-
-from ...appinfo import APP_VERSION_STRING
 
 from ...translatedtext import on_language_change
 
@@ -248,41 +249,8 @@ def get_ready_events(events):
 
 
 
-def set_behaviour(services_namespace, input_data):
+def set_behaviour(services_namespace, play_data):
     """Setup replay services and data."""
-
-    ### load input data for session if needed
-
-    if input_data is None:
-
-        path = str(
-
-            next(
-
-                item
-                for item in Path.home().iterdir()
-
-                if item.name.endswith('.pyl')
-                if not item.name.startswith('.')
-
-            )
-
-        )
-
-        input_data = load_pyl(path)
-
-    ### replaying play data doesn't make sense unless the play is reproduced
-    ### in the same version where it was recorded
-
-    app_version_string = input_data['app_version_string']
-
-    if app_version_string != APP_VERSION_STRING:
-
-        raise RuntimeError(
-            "Play data recorded in different version."
-            f" Ours: {APP_VERSION_STRING};"
-            f" Play data's: {app_version_string}"
-        )
 
     ### grab replay services from our globals (module-level names)
     ### and set them as attributes of the services namespace
@@ -294,7 +262,7 @@ def set_behaviour(services_namespace, input_data):
         value = our_globals[attr_name]
         setattr(services_namespace, attr_name, value)
 
-    SESSION_DATA.update(input_data)
+    SESSION_DATA.update(play_data)
 
     ### setup initial context
 
@@ -328,10 +296,10 @@ def set_behaviour(services_namespace, input_data):
 
     GAMEPAD_CONTROLS.update(SESSION_DATA['gamepad_controls'])
 
-    ## last_checkpoint_name
-    REFS.last_checkpoint_name = SESSION_DATA['last_checkpoint_name']
+    ## level to load and last_checkpoint_name
 
-    ###
+    REFS.level_to_load = SESSION_DATA['level_to_load']
+    REFS.last_checkpoint_name = SESSION_DATA['last_checkpoint_name']
 
     ### retrieve playback speed and last frame index
 
@@ -663,7 +631,7 @@ def leave_replay_mode_earlier():
         next_state=REFS.states.main_menu,
         clear_tasks=True,
         prepare=True,
-        next_input_mode_name='normal',
+        next_play_mode_name='normal',
     )
 
 def perform_replay_mode_exit_setups():
@@ -680,7 +648,6 @@ def perform_replay_mode_exit_setups():
     for action_name, key_name in REPLAY_REFS.keyboard_control_names.items():
         KEYBOARD_CONTROLS[action_name] = getattr(pygame_locals, key_name)
 
-    KEYBOARD_CONTROLS.update(REPLAY_REFS.keyboard_controls)
     GAMEPAD_CONTROLS.update(REPLAY_REFS.gamepad_controls)
 
     ### clear stored data

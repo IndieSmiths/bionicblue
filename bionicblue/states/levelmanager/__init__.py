@@ -601,9 +601,9 @@ class LevelManager(
 
         self.cleanup()
 
-        input_mode_name = GENERAL_NS.input_mode_name
+        play_mode_name = GENERAL_NS.play_mode_name
 
-        if input_mode_name == 'record':
+        if play_mode_name == 'record':
 
             GENERAL_NS.save_play_data()
 
@@ -612,25 +612,29 @@ class LevelManager(
                 clear_tasks=True,
                 prepare=True,
 
-                ## must provide record input mode name again,
+                ## must provide record play mode name again,
                 ## even though it is the current mode already,
                 ## in order for extra setups to be performed
-                next_input_mode_name='record',
+                next_play_mode_name='record',
 
             )
 
-        elif input_mode_name == 'replay':
+        elif play_mode_name == 'replay':
             go_to_main_menu(show_prompt=False)
 
         else:
 
             raise RuntimeError(
-                "'input_mode_name' must be in if/elif blocks."
-                f" '{input_mode_name}' is not."
+                "'play_mode_name' must be in if/elif blocks."
+                f" '{play_mode_name}' is not."
             )
 
     def cleanup(self):
         clear_chunks_and_layers()
+
+        ### TODO should probably trigger cleanups on player as well
+        ### (for instance, if leaving when player is holding charge,
+        ### the sound will keep playing)
 
     def schedule_level_exit_on_completed_mission(self):
 
@@ -647,9 +651,9 @@ class LevelManager(
 
         self.cleanup()
 
-        input_mode_name = GENERAL_NS.input_mode_name
+        play_mode_name = GENERAL_NS.play_mode_name
 
-        if input_mode_name == 'record':
+        if play_mode_name == 'record':
 
             GENERAL_NS.save_play_data()
 
@@ -665,20 +669,20 @@ class LevelManager(
                 raise LoopException(
                     next_state=report_presenter,
                     clear_tasks=True,
-                    next_input_mode_name='normal',
+                    next_play_mode_name='normal',
                 )
 
             else:
                 go_to_main_menu()
 
-        elif input_mode_name == 'replay':
+        elif play_mode_name == 'replay':
             go_to_main_menu(show_prompt=False)
 
         else:
 
             raise RuntimeError(
-                "'input_mode_name' must be in if/elif blocks."
-                f" '{input_mode_name}' is not."
+                "'play_mode_name' must be in if/elif blocks."
+                f" '{play_mode_name}' is not."
             )
 
 
@@ -710,7 +714,7 @@ def go_to_main_menu(show_prompt=True):
         next_state=REFS.states.main_menu,
         clear_tasks=True,
         prepare=True,
-        next_input_mode_name='normal',
+        next_play_mode_name='normal',
     )
 
 

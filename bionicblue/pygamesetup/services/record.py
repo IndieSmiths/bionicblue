@@ -160,7 +160,9 @@ def set_behaviour(services_namespace):
     REC_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
     REC_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
 
-    ## last_checkpoint_name
+    ## level to load and last_checkpoint_name
+
+    REC_REFS.level_to_load = REFS.level_to_load
     REC_REFS.last_checkpoint_name = REFS.last_checkpoint_name
 
     ## locale
@@ -341,7 +343,9 @@ def save_play_data():
     session_data['keyboard_control_names'] = REC_REFS.keyboard_control_names
     session_data['gamepad_controls'] = REC_REFS.gamepad_controls
 
-    ## last_checkpoint_name
+    ## level to load and last_checkpoint_name
+
+    session_data['level_to_load'] = REC_REFS.level_to_load
     session_data['last_checkpoint_name'] = REC_REFS.last_checkpoint_name
 
     ## locale and app version
