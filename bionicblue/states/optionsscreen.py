@@ -60,6 +60,7 @@ from ..textman import render_text, update_text_surface
 from ..userprefsman.main import (
     USER_PREFS,
     DEFAULT_USER_PREFS,
+    GAMEPAD_CONTROLS,
     save_config_on_disk,
 )
 

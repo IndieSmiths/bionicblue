@@ -63,6 +63,8 @@ from ...surfsman import combine_surfaces
 
 from ...promptscreen import present_prompt
 
+from ...userprefsman.main import GAMEPAD_CONTROLS
+
 from ...translatedtext import TRANSLATIONS, on_language_change
 
 from .slotdisplay import SlotDisplay

@@ -53,6 +53,8 @@ from ..classes2d.collections import UIList2D
 
 from ..textman import render_text, update_text_surface
 
+from ..userprefsman.main import GAMEPAD_CONTROLS
+
 from ..translatedtext import TRANSLATIONS, on_language_change
 
 

@@ -37,6 +37,8 @@ from ..textman import render_text
 
 from ..surfsman import combine_surfaces
 
+from ..userprefsman.main import GAMEPAD_CONTROLS
+
 from ..translatedtext import TRANSLATIONS
 
 
