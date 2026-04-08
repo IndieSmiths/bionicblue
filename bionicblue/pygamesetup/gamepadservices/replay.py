@@ -5,18 +5,9 @@ but also the axes's controls, since they also convey direction
 information.
 """
 
-### standard library imports
-
-from functools import partial
-
+### standard library import
 from collections import defaultdict
 
-
-### third-party imports
-
-from pygame.joystick import get_count, Joystick
-
-from pygame.event import post as post_event
 
 ### local imports
 
