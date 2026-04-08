@@ -413,11 +413,10 @@ class ChiefSecurityBot:
 
                     self.no_of_punched_crates = 0
 
-                    health_percentage = (
-                        self.health_column.get_health_percentage()
-                    )
+                    health = self.health_column.health
+                    # full health == 50
 
-                    if health_percentage <= .4:
+                    if health <= 20:
 
                         if 'left' in ap.anim_name:
 
@@ -430,7 +429,7 @@ class ChiefSecurityBot:
 
                         self.update = self.run
 
-                    elif health_percentage <= .7:
+                    elif health <= 35:
 
                         y = self.rect.centery - 4
 

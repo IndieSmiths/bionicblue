@@ -60,8 +60,5 @@ class HealthColumn:
     def is_depleted(self):
         return self.health <= 0
 
-    def get_health_percentage(self):
-        return self.health / self.full_health
-
     def draw(self):
         blit_on_screen(self.image, self.rect)
