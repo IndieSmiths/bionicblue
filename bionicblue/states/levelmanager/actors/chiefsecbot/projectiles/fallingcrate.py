@@ -84,7 +84,7 @@ class FallingCrate:
             and boss_alive
         ):
 
-            player.damage(0)
+            player.damage(3)
             self.trigger_kill()
             return
 
