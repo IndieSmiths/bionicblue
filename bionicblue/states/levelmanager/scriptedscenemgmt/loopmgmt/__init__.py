@@ -333,7 +333,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         for event in SERVICES_NS.get_events():
 
             if event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
