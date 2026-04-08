@@ -29,8 +29,6 @@ from .config import (
 
 from .pygamesetup import SERVICES_NS, switch_mode
 
-from .pygamesetup.gamepadservices.common import GAMEPAD_NS
-
 from .promptscreen import prompt_to_dismiss_with_any_button
 
 from .localeprompt import LocalePrompt
@@ -45,8 +43,6 @@ from .translatedtext import TRANSLATIONS
 
 def run_game(dev_directive='', replay_directive=''):
     """Run the game loop."""
-
-    GAMEPAD_NS.setup_gamepad_if_existent()
 
     if MUST_LOCK_PLAY:
 

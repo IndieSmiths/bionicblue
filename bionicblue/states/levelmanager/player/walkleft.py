@@ -104,7 +104,7 @@ class WalkLeft:
 
             elif event.type == KEYUP:
 
-                if event.key == KEYBOARD_CONTROLS['shoot'] and self.charge_start:
+                if event.key == KEYBOARD_CONTROLS['shoot'] and self.charge_start_frame:
 
                     result = self.stop_charging()
 
@@ -113,7 +113,7 @@ class WalkLeft:
 
             elif event.type == JOYBUTTONUP:
 
-                if event.button == GAMEPAD_CONTROLS['shoot'] and self.charge_start:
+                if event.button == GAMEPAD_CONTROLS['shoot'] and self.charge_start_frame:
 
                     result = self.stop_charging()
 
@@ -160,7 +160,7 @@ class WalkLeft:
         if current_frame - self.last_shot >= SHOOTING_STANCE_FRAMES:
             self.aniplayer.blend('-shooting')
 
-        if self.charge_start:
+        if self.charge_start_frame:
             self.check_charge()
 
         self.avoid_blocks_horizontally()
@@ -182,7 +182,7 @@ class WalkLeft:
         )
 
         self.aniplayer.blend('+shooting')
-        self.charge_start = self.last_shot = GENERAL_NS.frame_index
+        self.charge_start_frame = self.last_shot = GENERAL_NS.frame_index
 
     def walk_left_release_charge(self, charge_type):
 

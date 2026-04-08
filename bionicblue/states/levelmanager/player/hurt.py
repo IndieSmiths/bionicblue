@@ -111,7 +111,7 @@ class Hurt:
 
             )
 
-        if self.charge_start:
+        if self.charge_start_frame:
             self.check_charge()
 
         if not self.ladder:
