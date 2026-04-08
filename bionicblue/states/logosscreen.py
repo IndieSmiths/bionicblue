@@ -17,8 +17,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 
 ### local imports
 
@@ -26,7 +24,7 @@ from ..config import REFS, SURF_MAP, COLORKEY, LoopException, quit_game
 
 from ..pygamesetup import SERVICES_NS
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..pygamesetup.constants import (
     WHITE_BG,
@@ -38,6 +36,8 @@ from ..pygamesetup.constants import (
 from ..textman import render_text
 
 from ..surfsman import combine_surfaces
+
+from ..userprefsman.main import GAMEPAD_CONTROLS
 
 from ..translatedtext import TRANSLATIONS
 
@@ -120,7 +120,7 @@ class LogosScreen:
                     self.leave_logos_screen()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -154,4 +154,4 @@ class LogosScreen:
         except StopIteration:
             self.leave_logos_screen()
 
-        update()
+        SERVICES_NS.update_screen()

@@ -25,7 +25,7 @@ from pygame.locals import (
     MOUSEBUTTONDOWN,
 )
 
-from pygame.display import set_mode, update
+from pygame.display import set_mode
 
 from pygame.mixer import music, get_busy
 
@@ -49,7 +49,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..classes2d.single import UIObject2D
 
@@ -60,6 +60,7 @@ from ..textman import render_text, update_text_surface
 from ..userprefsman.main import (
     USER_PREFS,
     DEFAULT_USER_PREFS,
+    GAMEPAD_CONTROLS,
     save_config_on_disk,
 )
 
@@ -418,7 +419,7 @@ class OptionsScreen:
                 self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -609,5 +610,5 @@ class OptionsScreen:
             1,
         )
 
-        update()
+        SERVICES_NS.update_screen()
 

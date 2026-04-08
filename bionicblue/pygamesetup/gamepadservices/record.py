@@ -1,12 +1,15 @@
-"""Utility for gamepad directionals controls management.
+"""Utility for gamepad controls management.
 
-Directional controls refer not only to the buttons on the
-D-pad, but also the axes' controls, since they also convey
-direction information.
+Directional controls refer not only to the buttons on the D-pad,
+but also the axes's controls, since they also convey direction
+information.
 """
 
-### standard library import
+### standard library imports
+
 from functools import partial
+
+from collections import defaultdict
 
 
 ### third-party imports
@@ -18,9 +21,12 @@ from pygame.event import post as post_event
 
 ### local imports
 
-from ..ourstdlibs.behaviour import do_nothing
+from ...ourstdlibs.behaviour import do_nothing
 
-from .constants import (
+from ..constants import (
+
+    GENERAL_NS,
+
     GAMEPADUPPRESSED,
     GAMEPADDOWNPRESSED,
     GAMEPADLEFTPRESSED,
@@ -29,35 +35,42 @@ from .constants import (
     GAMEPADDOWNRELEASED,
     GAMEPADLEFTRELEASED,
     GAMEPADRIGHTRELEASED,
+
+)
+
+from .common import (
+
+    GAMEPAD_NS,
+    mock_gamepad_dict,
+
+    _get_0,
+    _get_0_0,
+    round_axis,
+
 )
 
 
 
-### constants
 
-## anonymous object to store gamepad state
-GAMEPAD_NS = type('Object', (), {})()
+DIRECTIONAL_STATE_MAP = {}
 
-## mock gamepad states
+BUTTON_STATE_MAP = defaultdict(dict)
 
-mock_gamepad_dict = {
 
-    ## data
+def set_behaviour():
 
-    '_last_x_hat': 0,
-    '_last_y_hat': 0,
-    '_last_x_axis': 0,
-    '_last_y_axis': 0,
-    'x_sum': 0,
-    'y_sum': 0,
+    GAMEPAD_NS.setup_gamepad_if_existent = setup_gamepad_if_existent
+    GAMEPAD_NS.clear_data = clear_data
+    GAMEPAD_NS.store_play_data = store_play_data
 
-    ## behaviours
+    setup_gamepad_if_existent()
+    clear_data()
 
-    'prepare_data_and_events': do_nothing,
-    'get_button': lambda button: False,
-}
+def clear_data():
 
-### main function
+    DIRECTIONAL_STATE_MAP.clear()
+    BUTTON_STATE_MAP.clear()
+
 
 def setup_gamepad_if_existent():
 
@@ -68,12 +81,19 @@ def setup_gamepad_if_existent():
         GAMEPAD_NS.__dict__.update(mock_gamepad_dict)
 
 
-### support functions/utilities
+def get_button(button_id):
 
-_get_0 = lambda: 0
-_get_0_0 = lambda: (0, 0)
+    button_pressed = GAMEPAD_NS._get_button(button_id)
 
-round_axis = lambda axis: 0 if abs(axis) < .2 else (1 if axis > 0 else -1)
+    if button_pressed:
+        BUTTON_STATE_MAP[GENERAL_NS.frame_index][button_id] = True
+
+    return button_pressed
+
+def store_play_data(session_data):
+
+    session_data['gamepad_directional_state_map'] = DIRECTIONAL_STATE_MAP
+    session_data['gamepad_button_state_map'] = dict(BUTTON_STATE_MAP)
 
 
 def _prepare_existing_gamepad():
@@ -82,7 +102,9 @@ def _prepare_existing_gamepad():
     gamepad = Joystick(0)
 
     ### store gamepad behaviour to check state of non-directional button
-    GAMEPAD_NS.get_button = gamepad.get_button
+
+    GAMEPAD_NS.get_button = get_button
+    GAMEPAD_NS._get_button = gamepad.get_button
 
 
     ### store gamepad behaviour depending on existence of hats/axes
@@ -268,6 +290,8 @@ def _prepare_data_and_events():
 
     ### store sum of directional states
 
-    GAMEPAD_NS.x_sum = x_hat + x_axis
-    GAMEPAD_NS.y_sum = y_hat + y_axis
+    x_sum = GAMEPAD_NS.x_sum = x_hat + x_axis
+    y_sum = GAMEPAD_NS.y_sum = y_hat + y_axis
 
+    if x_sum or y_sum:
+        DIRECTIONAL_STATE_MAP[GENERAL_NS.frame_index] = (x_sum, y_sum)

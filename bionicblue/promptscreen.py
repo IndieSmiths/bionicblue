@@ -23,8 +23,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 from pygame.draw import rect as draw_rect
 
 
@@ -44,7 +42,7 @@ from .pygamesetup.constants import (
     blit_on_screen,
 )
 
-from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from .pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from .textman import render_text
 
@@ -293,7 +291,7 @@ class PromptScreen:
                 self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -349,7 +347,7 @@ class PromptScreen:
 
         draw_rect(SCREEN, 'orange', self.buttons_deque[0].rect, 1)
 
-        update()
+        SERVICES_NS.update_screen()
 
 _ps = PromptScreen()
 present_prompt = _ps.present_prompt

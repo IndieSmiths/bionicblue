@@ -24,8 +24,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import rect as draw_rect
 
 
@@ -44,7 +42,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..classes2d.single import UIObject2D
 
@@ -337,7 +335,7 @@ class DataScreen:
                     self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -540,7 +538,7 @@ class DataScreen:
                 border_radius=8,
             )
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
 
 def yield_paragraphs(t):

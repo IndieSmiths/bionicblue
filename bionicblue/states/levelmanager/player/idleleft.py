@@ -34,7 +34,7 @@ from ....pygamesetup.constants import (
     GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS,
 )
 
-from ....pygamesetup.gamepaddirect import GAMEPAD_NS, setup_gamepad_if_existent
+from ....pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ....userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
@@ -99,7 +99,7 @@ class IdleLeft:
 
                 elif event.button == GAMEPAD_CONTROLS['jump']:
 
-                    if self.ladder and pressed_state[KEYBOARD_CONTROLS['down']]:
+                    if self.ladder and (GAMEPAD_NS.y_sum > 0):
                         self.release_ladder()
 
                     else:
@@ -115,7 +115,7 @@ class IdleLeft:
 
             elif event.type == KEYUP:
 
-                if event.key == KEYBOARD_CONTROLS['shoot'] and self.charge_start:
+                if event.key == KEYBOARD_CONTROLS['shoot'] and self.charge_start_frame:
 
                     result = self.stop_charging()
 
@@ -124,7 +124,7 @@ class IdleLeft:
 
             elif event.type == JOYBUTTONUP:
 
-                if event.button == GAMEPAD_CONTROLS['shoot'] and self.charge_start:
+                if event.button == GAMEPAD_CONTROLS['shoot'] and self.charge_start_frame:
 
                     result = self.stop_charging()
 
@@ -132,7 +132,7 @@ class IdleLeft:
                         self.idle_left_release_charge(result)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -225,7 +225,7 @@ class IdleLeft:
         if current_frame - self.last_shot >= SHOOTING_STANCE_FRAMES:
             self.aniplayer.blend('-shooting')
 
-        if self.charge_start:
+        if self.charge_start_frame:
             self.check_charge()
 
         if not self.ladder:
@@ -251,7 +251,7 @@ class IdleLeft:
         else:
             self.aniplayer.blend('+shooting')
 
-        self.charge_start = self.last_shot = GENERAL_NS.frame_index
+        self.charge_start_frame = self.last_shot = GENERAL_NS.frame_index
 
     def idle_left_release_charge(self, charge_type):
 

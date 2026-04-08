@@ -1,29 +1,18 @@
 
 ### standard library imports
 
-from pathlib import Path
-
 from collections import defaultdict
 
 from datetime import datetime
 
+from copy import deepcopy
+
 
 ### third-party imports
 
-from pygame import locals as pygame_locals
+from pygame.locals import KMOD_NONE
 
-from pygame.locals import (
-    KEYDOWN,
-    KEYUP,
-    K_F7,
-    K_F8,
-    K_F9,
-    KMOD_NONE,
-)
-
-from pygame.color import THECOLORS
-
-from pygame.event import clear, get, event_name
+from pygame.event import clear, get, event_name as get_event_name
 
 from pygame.key import get_pressed, get_mods
 
@@ -39,12 +28,17 @@ from pygame.mouse import (
     set_visible as set_mouse_visibility,
 )
 
-from pygame.display import update
+from pygame.display import update as update_screen
 
 
 ### local imports
 
-from ...config import LoopException
+from ...config import (
+    REFS,
+    REGULAR_PLAY_LOGS_DIR,
+    LoopException,
+    manage_play_data_rotation,
+)
 
 from ...ourstdlibs.pyl import save_pyl
 
@@ -52,15 +46,22 @@ from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
 
+from ...userprefsman.main import (
+    USER_PREFS,
+    KEYBOARD_CONTROL_NAMES,
+    GAMEPAD_CONTROLS,
+)
+
+from ...appinfo import APP_VERSION_STRING
+
+from ..gamepadservices.common import GAMEPAD_NS
+
 from ..constants import (
 
     SCREEN_RECT, blit_on_screen,
     GENERAL_NS,
     GENERAL_SERVICE_NAMES,
     FPS, maintain_fps,
-    SIZE,
-
-    CancelWhenPaused, pause,
 
     EVENT_KEY_STRIP_MAP,
     EVENT_COMPACT_NAME_MAP,
@@ -69,6 +70,8 @@ from ..constants import (
     REVERSE_KEYS_MAP,
     SCANCODE_NAMES_MAP,
     MOD_KEYS_MAP,
+
+    USER_EVENT_NAMES_MAP,
 
 )
 
@@ -98,43 +101,6 @@ MOUSE_KEY_STATE_REQUESTS = []
 append_mouse_key_state_request = MOUSE_KEY_STATE_REQUESTS.append
 
 
-## create labels objects
-
-LABELS = [
-
-    UIObject2D.from_surface(
-        render_text(
-            text=text,
-            style='regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['blue'],
-        )
-    )
-
-    for text in (
-        "F7: cancel recording",
-        "F8: play/pause",
-        "F9: finish recording & exit",
-    )
-]
-
-PAUSED_LABEL = (
-
-    UIObject2D.from_surface(
-        render_text(
-            text = "F8: play/pause",
-            style = 'regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['red3'],
-        )
-    )
-)
-
-
 ### events to keep in the recorded data;
 ###
 ### all other events aren't relevant because it is not possible for
@@ -146,13 +112,19 @@ PAUSED_LABEL = (
 ### events not listed here (for instance, for new features)
 
 NAMES_OF_EVENTS_TO_KEEP = frozenset((
+    'JOYBUTTONDOWN',
+    'JOYBUTTONUP',
     'KEYDOWN',
     'KEYUP',
     'MOUSEBUTTONDOWN',
     'MOUSEBUTTONUP',
     'MOUSEMOTION',
-    'TEXTINPUT',
+    *USER_EVENT_NAMES_MAP.values(),
 ))
+
+
+### create frozenset holding names of user events
+USER_EVENT_NAMES = frozenset(USER_EVENT_NAMES_MAP.values())
 
 ### timestamp format string
 TIMESTAMP_FORMAT_STRING = 'Y%YM%mD%d_H%HM%MS%S'
@@ -163,7 +135,8 @@ TIMESTAMP_FORMAT_STRING = 'Y%YM%mD%d_H%HM%MS%S'
 def set_behaviour(services_namespace):
     """Setup record services and data."""
 
-    ### set record services as current ones.
+    ### grab recording services from our globals (module-level names)
+    ### and set them as attributes of the services namespace
 
     our_globals = globals()
 
@@ -172,59 +145,47 @@ def set_behaviour(services_namespace):
         value = our_globals[attr_name]
         setattr(services_namespace, attr_name, value)
 
-    ### store recording title, path and size
+    ### create and store path wherein to save recording
 
-    home = Path.home()
-
-    now = datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
-    title = home.name + '_at_' + now
-
-    filepath = home / 'my_recording.pyl'
-
-    for name, value in (
-        ('recording_title', title),
-        ('recording_path', filepath),
-        ('recording_size', SIZE),
-    ):
-        setattr(REC_REFS, name, value)
-
-    ### create and store title label, then reposition
-    ### all labels
-
-    new_title_label = (
-        UIObject2D.from_surface(
-            render_text(
-                text = REC_REFS.recording_title,
-                style = 'regular',
-                size = 12,
-                padding = 0,
-                foreground_color = THECOLORS['white'],
-                background_color = THECOLORS['blue'],
-            )
-        )
+    filename = (
+        'play_at_'
+        + datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
+        + '.pyl'
     )
 
-    LABELS.insert(0, new_title_label)
+    REC_REFS.recording_path = REGULAR_PLAY_LOGS_DIR / filename
 
-    topright = SCREEN_RECT.move(-10, 32).topright
+    ### store copy of initial data
 
-    for label in LABELS:
+    ## slot data
+    REC_REFS.slot_data = deepcopy(REFS.slot_data)
 
-        label.rect.topright = topright
-        topright = label.rect.move(0, 5).bottomright
+    ## keyboard and gamepad controls
 
-    ### ensure paused label has same position as the second one
-    PAUSED_LABEL.rect.topleft = LABELS[2].rect.topleft
+    REC_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
+    REC_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
+
+    ## level to load and last_checkpoint_name
+
+    REC_REFS.level_to_load = REFS.level_to_load
+    REC_REFS.last_checkpoint_name = REFS.last_checkpoint_name
+
+    ## locale
+    REC_REFS.locale = USER_PREFS['LOCALE']
+
+    ## app version
+    REC_REFS.app_version_string = APP_VERSION_STRING
+
 
     ## clear any existing events
     clear()
 
-    ## record beginning of recording session
-    REC_REFS.session_start_datetime = datetime.now()
-
     ## set frame index to -1 (so it is set to 0 at the beginning
     ## of the loop, the first frame)
     GENERAL_NS.frame_index = -1
+
+    ## reference function to save recorded data
+    GENERAL_NS.save_play_data = save_play_data
 
 
 ### extended session behaviours
@@ -244,59 +205,6 @@ def get_events():
     ### mode (in play mode as well)
 
     for event in get():
-
-        if event.type == KEYDOWN:
-
-            if event.key == K_F8:
-
-                ### indicate pause by blitting paused label
-                blit_on_screen(PAUSED_LABEL.image, PAUSED_LABEL.rect)
-
-                ### pause
-
-                try:
-                    pause()
-
-                ### if during pause user asks to cancel recording, do
-                ### it here
-
-                except CancelWhenPaused:
-                    cancel_recording()
-
-                ### pressing F8 is part of the session recording,
-                ### not the session per se, so we skip the event
-                ### in order to prevent it to be recorded
-                continue
-
-            elif event.key == K_F9:
-
-                ### save session data
-                save_session_data()
-
-                ### clear stored data
-                clear_data()
-
-                ### switch mode;
-                ###
-                ### since this stops recording completely there's
-                ### no need to use the "continue" statement as we
-                ### did for the F8 key in the if-block above
-                raise LoopException(next_input_mode_name='normal')
-
-            ### cancel recording
-
-            elif event.key == K_F7:
-                cancel_recording()
-
-        ### pressing F8 is part of the session recording,
-        ### not the session per se, so we skip the event
-        ### in order to prevent it from being recorded;
-        ###
-        ### this also applies to F9, but during the KEYDOWN event
-        ### of the F9 key, the recording stops altogether due to the
-        ### raised exception, so it isn't necessary to watch for it
-        elif event.type == KEYUP and event.key == K_F8:
-            continue
 
         ### record event
 
@@ -322,6 +230,7 @@ def get_pressed_keys():
     return key_states
 
 def get_pressed_mod_keys():
+
     # get mod bistmask
     mods_bitmask = get_mods()
 
@@ -334,6 +243,7 @@ def get_pressed_mod_keys():
 ## processing mouse
 
 def get_mouse_pos():
+
     # get mouse pos
     pos = get_pos()
 
@@ -344,6 +254,7 @@ def get_mouse_pos():
     return pos
 
 def get_mouse_pressed():
+
     # get mouse pressed tuple
     pressed_tuple = mouse_get_pressed()
 
@@ -352,18 +263,6 @@ def get_mouse_pressed():
 
     # return it
     return pressed_tuple
-
-## screen updating
-
-def update_screen():
-
-    ### blit labels
-
-    for label in LABELS:
-        blit_on_screen(label.image, label.rect)
-
-    ### update the screen (pygame.display.update())
-    update()
 
 
 ### frame checkup operation
@@ -380,10 +279,13 @@ def frame_checkups():
     ### increment frame number
     GENERAL_NS.frame_index += 1
 
+    ### store data and post custom events for gamepad
+    ### directional triggers
+    GAMEPAD_NS.prepare_data_and_events()
 
 ### session data saving operations
 
-def save_session_data():
+def save_play_data():
 
     session_data = {}
 
@@ -399,15 +301,19 @@ def save_session_data():
     }
 
     ## remove keys whose values (a list of events) ended up empty,
-    ## (if there)
+    ## (if any)
 
     keys_to_pop = [
+
         # item
         key
+
         # source
         for key, event_list in events_map.items()
+
         # filtering condition
         if not event_list
+
     ]
 
     for key in keys_to_pop:
@@ -430,25 +336,38 @@ def save_session_data():
     ### store last frame index as well
     session_data['last_frame_index'] = GENERAL_NS.frame_index + 1
 
-    ### store recording size and title
+    ### store gamepad related data
+    GAMEPAD_NS.store_play_data(session_data)
 
-    session_data['recording_size'] = REC_REFS.recording_size
+    ### save initial context data
 
-    session_data['recording_title'] = REC_REFS.recording_title
+    session_data['slot_data'] = REC_REFS.slot_data
 
-    ### save session data in file or its rotated version
+    ## keyboard and gamepad controls
 
-    parent, stem = (
-        getattr(REC_REFS.recording_path, attr_name)
-        for attr_name in ('parent', 'stem')
+    session_data['keyboard_control_names'] = REC_REFS.keyboard_control_names
+    session_data['gamepad_controls'] = REC_REFS.gamepad_controls
+
+    ## level to load and last_checkpoint_name
+
+    session_data['level_to_load'] = REC_REFS.level_to_load
+    session_data['last_checkpoint_name'] = REC_REFS.last_checkpoint_name
+
+    ## locale and app version
+
+    session_data['app_version_string'] = REC_REFS.app_version_string
+    session_data['locale'] = REC_REFS.locale
+
+    ### save session data in file and manage play data rotation
+
+    save_pyl(
+        session_data,
+        REC_REFS.recording_path,
+        width=125,
+        compact=True,
     )
 
-    timestamp = (
-        REC_REFS.session_start_datetime.strftime(TIMESTAMP_FORMAT_STRING)
-    )
-
-    final_path = parent / f"{stem}.{timestamp}.pyl"
-    save_pyl(session_data, final_path, width=125, compact=True)
+    manage_play_data_rotation(REC_REFS.recording_path)
 
     ### clear collections created in this function (not really needed,
     ### but in our experience memory is freed faster when collections
@@ -457,10 +376,8 @@ def save_session_data():
     events_map.clear()
     session_data.clear()
 
-def cancel_recording():
-
+    ### clear recorded data
     clear_data()
-    raise LoopException(next_input_mode_name='normal')
 
 def clear_data():
 
@@ -478,8 +395,9 @@ def clear_data():
     ):
         a_collection.clear()
 
-    ### remove title label
-    del LABELS[0]
+    ###
+    GAMEPAD_NS.clear_data()
+
 
 def yield_treated_events(events_type_and_dict_pairs):
 
@@ -501,10 +419,15 @@ def yield_treated_events(events_type_and_dict_pairs):
 def yield_named_events(events_type_and_dict_pairs):
 
     for event_type, event_dict in events_type_and_dict_pairs:
+        
+        event_name = get_event_name(event_type).upper()
+
+        if event_name == 'USEREVENT':
+            event_name = USER_EVENT_NAMES_MAP[event_type]
     
         yield (
-            event_name(event_type).upper(),
-            event_dict
+            event_name,
+            event_dict,
         )
 
 def yield_events_to_keep(events_name_and_dict):
@@ -587,15 +510,37 @@ def get_compact_event_dict(name, a_dict):
     ### which keys we are making compact, we just invert the operation
     ### when we are about to play the session in the session playing
     ### mode;
+    ###
+    ### additionally, user events actually have their dicts replaced,
+    ### by a new one, because they are reused rather than instantiated
+    ### every time, so popping the original key would cause them to miss
+    ### that key the next time they are reused
 
     if name in EVENT_KEY_COMPACT_NAME_MAP:
 
         map_of_keys_to_make_compact = EVENT_KEY_COMPACT_NAME_MAP[name]
 
-        for key, compact_key in map_of_keys_to_make_compact.items():
-            
-            if key in a_dict:
-                a_dict[compact_key] = a_dict.pop(key)
+        ## if event is an user event, we copy dict, using the compact version
+        ## of the keys instead
+
+        if name in USER_EVENT_NAMES:
+
+            new_dict = {}
+
+            for key, compact_key in map_of_keys_to_make_compact.items():
+                new_dict[compact_key] = a_dict[key]
+
+            ### mark the new dict as the dict to be returned
+            a_dict = new_dict
+
+        ## otherwise, we pop they keys and insert in their compact versions
+
+        else:
+
+            for key, compact_key in map_of_keys_to_make_compact.items():
+                
+                if key in a_dict:
+                    a_dict[compact_key] = a_dict.pop(key)
 
     ### return the dict
     return a_dict

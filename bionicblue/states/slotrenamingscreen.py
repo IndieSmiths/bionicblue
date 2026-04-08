@@ -31,8 +31,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 from pygame.draw import rect as draw_rect
 
 from pygame.key import start_text_input, stop_text_input
@@ -61,7 +59,7 @@ from ..pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..constants import CHARGED_SHOT_SPEED
 
@@ -429,7 +427,7 @@ class SlotRenamingScreen:
                     )
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -795,5 +793,5 @@ class SlotRenamingScreen:
         draw_rect(SCREEN, 'orange', self.selected_button.rect, 1)
         self.slot_name_chars.draw()
 
-        update()
+        SERVICES_NS.update_screen()
 

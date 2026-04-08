@@ -8,8 +8,6 @@ from itertools import cycle
 
 from pygame.locals import QUIT
 
-from pygame.display import update
-
 from pygame.mixer import music
 
 
@@ -28,7 +26,7 @@ from ..pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..textman import render_text
 
@@ -170,7 +168,7 @@ class TitleScreen:
                     raise LoopException(next_state=main_menu)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -204,4 +202,4 @@ class TitleScreen:
         if self.draw_label_flag:
             self.press_any_button_label.draw()
 
-        update()
+        SERVICES_NS.update_screen()

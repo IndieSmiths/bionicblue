@@ -25,8 +25,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import (
     rect as draw_rect,
     lines as draw_lines,
@@ -50,7 +48,7 @@ from ...pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ...pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ...pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ...ourstdlibs.behaviour import do_nothing
 
@@ -285,7 +283,7 @@ class LevelManagerPopupManagement:
                     self.scroll_message_down()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -344,5 +342,5 @@ class LevelManagerPopupManagement:
 
         draw_rect(SCREEN, 'yellow', POPUP_BOX, 2, border_radius=10)
 
-        update_screen()
+        SERVICES_NS.update_screen()
 

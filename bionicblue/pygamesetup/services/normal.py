@@ -30,7 +30,7 @@ from ..constants import (
     maintain_fps,
 )
 
-from ..gamepaddirect import GAMEPAD_NS
+from ..gamepadservices.common import GAMEPAD_NS
 
 
 
@@ -38,7 +38,9 @@ from ..gamepaddirect import GAMEPAD_NS
 
 def set_behaviour(services_namespace, reset_window_mode=True):
     """Setup normal mode."""
-    ### set normal services as current ones.
+
+    ### grab normal services from our globals (module-level names)
+    ### and set them as attributes of the services namespace
 
     our_globals = globals()
 

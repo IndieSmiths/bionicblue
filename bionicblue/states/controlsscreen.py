@@ -35,7 +35,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..ourstdlibs.behaviour import do_nothing
 
@@ -442,7 +442,7 @@ class ControlsScreen:
                 self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -615,7 +615,7 @@ class ControlsScreen:
                 self.try_setting_new_control(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -717,7 +717,7 @@ class ControlsScreen:
             1,
         )
 
-        update()
+        SERVICES_NS.update_screen()
 
     def draw_prompt(self):
 
@@ -725,7 +725,7 @@ class ControlsScreen:
         self.general_prompt.draw()
         self.prompt_label.draw()
 
-        update()
+        SERVICES_NS.update_screen()
 
 
 def recreate_general_prompt_surf():

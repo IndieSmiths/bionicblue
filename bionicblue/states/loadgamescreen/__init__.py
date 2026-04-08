@@ -22,8 +22,6 @@ from pygame.locals import (
     MOUSEBUTTONDOWN,
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import rect as draw_rect
 
 
@@ -49,7 +47,7 @@ from ...pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ...pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ...pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ...ourstdlibs.pyl import load_pyl, save_pyl
 
@@ -64,6 +62,8 @@ from ...textman import render_text, update_text_surface
 from ...surfsman import combine_surfaces
 
 from ...promptscreen import present_prompt
+
+from ...userprefsman.main import GAMEPAD_CONTROLS
 
 from ...translatedtext import TRANSLATIONS, on_language_change
 
@@ -498,18 +498,6 @@ class LoadGameScreen:
         REFS.slot_data = slot_data
         REFS.slot_path = slot_path
 
-        slot_display = next(
-
-            button
-
-            for button in self.buttons
-
-            if (
-                hasattr(button, 'slot_path')
-                and button.slot_data is slot_data
-            )
-        )
-
         # TODO when the the stage selection screen is ready,
         # use it instead of start_intro_level, but only if there
         # are beaten bosses
@@ -614,7 +602,7 @@ class LoadGameScreen:
                 self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -733,7 +721,7 @@ class LoadGameScreen:
         else:
             draw_rect(SCREEN, 'orange', hw.rect, 2, border_radius=10)
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
 
 def enter_stage_selection_screen():
@@ -749,11 +737,13 @@ def enter_stage_selection_screen():
 def start_intro_level():
     """Trigger start of intro level."""
 
-    level_manager = REFS.states.level_manager
     REFS.level_to_load = 'intro.lvl'
-    level_manager.prepare()
 
-    raise LoopException(next_state=level_manager)
+    raise LoopException(
+        next_state=REFS.states.level_manager,
+        next_play_mode_name='record',
+        prepare=True,
+    )
 
 def recreate_button_surfs(button_surfs_map):
 

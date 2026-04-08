@@ -23,8 +23,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import (
     rect as draw_rect,
     polygon as draw_polygon,
@@ -45,10 +43,7 @@ from .....pygamesetup.constants import (
     GAMEPADDIRECTIONALPRESSED,
 )
 
-from .....pygamesetup.gamepaddirect import (
-    GAMEPAD_NS,
-    setup_gamepad_if_existent,
-)
+from .....pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from .....ourstdlibs.behaviour import do_nothing
 
@@ -288,7 +283,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
                     self.advance_dialogue_if_possible()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -338,7 +333,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         for event in SERVICES_NS.get_events():
 
             if event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -413,7 +408,7 @@ class ScriptedSceneLoopManagement(UpdateAssistance):
         if self.drive_scene_state == self.present_dialogue:
             self.draw_dialogue_elements()
 
-        update_screen()
+        SERVICES_NS.update_screen()
 
     def draw_dialogue_elements(self):
         """Draw dialogue elements."""

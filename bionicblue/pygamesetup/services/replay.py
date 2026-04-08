@@ -11,8 +11,14 @@ from itertools import cycle, repeat
 
 from operator import or_ as bitwise_or
 
+from copy import deepcopy
+
+from tempfile import mkstemp
+
 
 ### third-party imports
+
+from pygame.mixer import music
 
 from pygame.locals import (
 
@@ -35,22 +41,33 @@ from pygame.math import Vector2
 
 from pygame.event import Event, get, set_allowed, set_blocked
 
-from pygame.display import update
-
 from pygame.mouse import set_pos, set_visible as set_mouse_visibility
 
 from pygame.draw import rect as draw_rect
 
+from pygame.display import update
+
 
 ### local imports
 
-from ...config import LoopException, quit_game
+from ...config import REFS, MUSIC_DIR, LoopException, quit_game
 
-from ...ourstdlibs.pyl import load_pyl
+from ...ourstdlibs.pyl import load_pyl, save_pyl
 
 from ...classes2d.single import UIObject2D
 
 from ...textman import render_text
+
+from ...userprefsman.main import (
+    USER_PREFS,
+    KEYBOARD_CONTROL_NAMES,
+    KEYBOARD_CONTROLS,
+    GAMEPAD_CONTROLS,
+)
+
+from ...translatedtext import on_language_change
+
+from ..gamepadservices.common import GAMEPAD_NS
 
 from ..constants import (
 
@@ -58,10 +75,12 @@ from ..constants import (
     GENERAL_NS,
     GENERAL_SERVICE_NAMES,
     FPS,
+    SIZE,
     maintain_fps,
 
     CancelWhenPaused, pause,
 
+    USER_EVENT_NAMES_MAP,
     EVENT_KEY_STRIP_MAP,
     EVENT_COMPACT_NAME_MAP,
     EVENT_KEY_COMPACT_NAME_MAP,
@@ -76,8 +95,8 @@ from ..constants import (
 ### dictionary to store session data
 SESSION_DATA = {}
 
-### custom namespace for playing mode
-PLAY_REFS = type("Object", (), {})()
+### custom namespace for replay mode
+REPLAY_REFS = type("Object", (), {})()
 
 ### map to store events
 EVENTS_MAP = {}
@@ -101,7 +120,7 @@ MOUSE_POS = Vector2(0, 0)
 
 ### create flag indicating whether real mouse must trace movements
 ### of virtual one
-PLAY_REFS.mouse_tracing = True
+REPLAY_REFS.mouse_tracing = True
 
 ### special frozenset class
 
@@ -114,8 +133,7 @@ EMPTY_GETTER_FROZENSET = GetterFrozenSet()
 
 
 
-### TODO collections defined below lack proper commenting
-
+### XXX collections defined below lack proper commenting
 
 REVERSE_EVENT_COMPACT_NAME_MAP = {
     value: key
@@ -127,6 +145,10 @@ REVERSE_SCANCODE_NAMES_MAP = {
     for key, value in SCANCODE_NAMES_MAP.items()
 }
 
+REVERSE_USER_EVENT_NAMES_MAP = {
+    value: key
+    for key, value in USER_EVENT_NAMES_MAP.items()
+}
 
 ##
 
@@ -157,8 +179,8 @@ def get_resulting_bitmask(mod_key_names):
 ## event map
 
 
-def get_ready_events(events):
-    """Return preprocessed objects as pygame.event.Event instances."""
+def yield_ready_events(events):
+    """Yield preprocessed objects as pygame.event.Event instances."""
 
     for event_name, event_dict in events:
 
@@ -225,17 +247,28 @@ def get_ready_events(events):
                 )
 
         ### obtain the event type
-        event_type = getattr(pygame_locals, event_name)
+
+        event_type = (
+
+            REVERSE_USER_EVENT_NAMES_MAP[event_name]
+            if event_name in REVERSE_USER_EVENT_NAMES_MAP
+
+            else getattr(pygame_locals, event_name)
+
+        )
 
         ### yield a pygame.event.Event object
+
+        # TODO user events should probably be reused instead of reinstantiated
         yield Event(event_type, event_dict)
 
 
 
-def set_behaviour(services_namespace, input_data):
-    """Setup play services and data."""
+def set_behaviour(services_namespace, play_data):
+    """Setup replay services and data."""
 
-    ### set play services as current ones
+    ### grab replay services from our globals (module-level names)
+    ### and set them as attributes of the services namespace
 
     our_globals = globals()
 
@@ -244,27 +277,44 @@ def set_behaviour(services_namespace, input_data):
         value = our_globals[attr_name]
         setattr(services_namespace, attr_name, value)
 
-    ### load input data for session
+    SESSION_DATA.update(play_data)
 
-    if input_data is None:
+    ### setup initial context
 
-        path = str(
+    ## slot data and path
 
-            next(
+    REFS.slot_data = slot_data = SESSION_DATA['slot_data']
+    REFS.slot_path = slot_path = Path(mkstemp(suffix='.pyl', text=True)[1])
 
-                item
-                for item in Path.home().iterdir()
+    save_pyl(slot_data, slot_path)
 
-                if item.name.endswith('.pyl')
-                if not item.name.startswith('.')
+    ## back up current locale use the one indicated in the play data
 
-            )
+    REPLAY_REFS.locale = USER_PREFS['LOCALE']
 
-        )
+    if SESSION_DATA['locale'] != USER_PREFS['LOCALE']:
 
-        input_data = load_pyl(path)
+        USER_PREFS['LOCALE'] = SESSION_DATA['LOCALE']
+        on_language_change()
 
-    SESSION_DATA.update(input_data)
+    ## back up current keyboard and gamepad controls and use the ones 
+    ## provided by the play data
+
+    REPLAY_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
+    REPLAY_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
+
+    for action_name, key_name in (
+        SESSION_DATA['keyboard_control_names'].items()
+    ):
+
+        KEYBOARD_CONTROLS[action_name] = getattr(pygame_locals, key_name)
+
+    GAMEPAD_CONTROLS.update(SESSION_DATA['gamepad_controls'])
+
+    ## level to load and last_checkpoint_name
+
+    REFS.level_to_load = SESSION_DATA['level_to_load']
+    REFS.last_checkpoint_name = SESSION_DATA['last_checkpoint_name']
 
     ### retrieve playback speed and last frame index
 
@@ -273,25 +323,11 @@ def set_behaviour(services_namespace, input_data):
 
     ### store playback speed, last frame index and recording width
 
-    PLAY_REFS.fps = playback_speed
-    PLAY_REFS.last_frame_index = last_frame_index
-    PLAY_REFS.recording_width = SESSION_DATA['recording_size'][0]
+    REPLAY_REFS.fps = playback_speed
+    REPLAY_REFS.last_frame_index = last_frame_index
 
-    ### create and store title and duration label, then reposition
-    ### all labels
+    ### print duration
 
-    new_title_label = (
-        UIObject2D.from_surface(
-            render_text(
-                text = SESSION_DATA['recording_title'],
-                style = 'regular',
-                size = 12,
-                padding = 0,
-                foreground_color = THECOLORS['white'],
-                background_color = THECOLORS['blue'],
-            )
-        )
-    )
 
     if playback_speed:
 
@@ -309,35 +345,11 @@ def set_behaviour(services_namespace, input_data):
     else:
         duration_text = "No duration (uncapped speed)"
 
-    duration_label = (
-        UIObject2D.from_surface(
-            render_text(
-                text = duration_text,
-                style = 'regular',
-                size = 12,
-                padding = 0,
-                foreground_color = THECOLORS['white'],
-                background_color = THECOLORS['blue'],
-            )
-        )
-    )
+    print(duration_text)
 
-    LABELS.insert(0, new_title_label)
-    LABELS.append(duration_label)
-
-    topright = SCREEN_RECT.move(-10, 32).topright
-
-    for label in LABELS:
-
-        label.rect.topright = topright
-        topright = label.rect.move(0, 5).bottomright
-
-    ### ensure paused label has same position as the second one
-    PAUSED_LABEL.rect.topleft = LABELS[2].rect.topleft
-
-    ### since the app will be playing recorded events, we are not interested
-    ### in new ones generated while playing, so we block most of them, leaving
-    ### just a few that we may use to during playback
+    ### since the app will be replaying recorded events, we are not interested
+    ### in most of the new ones generated while replaying, so we block most of them,
+    ### leaving just a few that we may use during replay
 
     set_blocked(None)
     set_allowed([QUIT, KEYDOWN])
@@ -346,7 +358,7 @@ def set_behaviour(services_namespace, input_data):
 
     EVENTS_MAP.update(
 
-        (frame_index, list(get_ready_events(compact_events)))
+        (frame_index, list(yield_ready_events(compact_events)))
 
         for frame_index, compact_events
         in SESSION_DATA['events_map'].items()
@@ -437,6 +449,12 @@ def set_behaviour(services_namespace, input_data):
     MOUSE_PRESSED_TUPLES.extend(SESSION_DATA['mouse_key_state_requests'])
     MOUSE_PRESSED_TUPLES.reverse()
 
+    ### reference function to execute setups when exitting replay mode
+
+    GENERAL_NS.perform_replay_mode_exit_setups = (
+        perform_replay_mode_exit_setups
+    )
+
     ### set frame index to -1 (so when it is incremented at the beginning
     ### of the loop it is set to 0, the first frame)
     GENERAL_NS.frame_index = -1
@@ -448,43 +466,6 @@ def set_behaviour(services_namespace, input_data):
 ## set with mouse event types
 MOUSE_EVENTS = frozenset({MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP})
 
-## label creation
-
-# create labels
-
-LABELS = [
-
-    UIObject2D.from_surface(
-        render_text(
-            text = text,
-            style = 'regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['blue'],
-        )
-    )
-
-    for text in (
-        "F7: leave playing mode",
-        "F8: play/pause",
-        "F9: toggle mouse control",
-    )
-
-]
-
-PAUSED_LABEL = (
-    UIObject2D.from_surface(
-        render_text(
-            text = "F8: play/pause",
-            style = 'regular',
-            size = 12,
-            padding = 0,
-            foreground_color = THECOLORS['white'],
-            background_color = THECOLORS['red3'],
-        )
-    )
-)
 
 
 ### session behaviours
@@ -492,11 +473,6 @@ PAUSED_LABEL = (
 ## processing events
 
 def get_events():
-
-    ### leave playing mode if frame is last one
-
-    if GENERAL_NS.frame_index == PLAY_REFS.last_frame_index:
-        leave_playing_mode()
 
     ### process QUIT or KEYDOWN event (for the F9 key) if
     ### they are thrown
@@ -508,35 +484,32 @@ def get_events():
 
         elif event.type == KEYDOWN:
 
-            ### pause playing
+            ### pause replaying
 
             if event.key == K_F8:
-
-                ### indicate pause by blitting paused label
-                blit_on_screen(PAUSED_LABEL.image, PAUSED_LABEL.rect)
 
                 ### pause
 
                 try:
                     pause()
 
-                ### if during pause user asks to cancel playing, do
+                ### if during pause user asks to cancel replaying, do
                 ### it here
 
                 except CancelWhenPaused:
-                    leave_playing_mode()
+                    leave_replay_mode_earlier()
 
             ### toggle mouse tracing
 
             elif event.key == K_F9:
-                PLAY_REFS.mouse_tracing = not PLAY_REFS.mouse_tracing
+                REPLAY_REFS.mouse_tracing = not REPLAY_REFS.mouse_tracing
 
-            ### leave playing mode
+            ### leave replaying mode earlier
 
             elif event.key == K_F7:
-                leave_playing_mode()
+                leave_replay_mode_earlier()
 
-    ### play the recorded events
+    ### replay the recorded events
 
     ## if there are events for the current frame index in the event map,
     ## iterate over them
@@ -619,7 +592,7 @@ def set_mouse_pos(pos):
     ###
     ### this is done so that the real mouse traces the movement of the
     ### virtual one
-    PLAY_REFS.mouse_tracing and set_pos(pos)
+    REPLAY_REFS.mouse_tracing and set_pos(pos)
 
 
 ## processing mouse button pressed state;
@@ -632,34 +605,71 @@ get_mouse_pressed = MOUSE_PRESSED_TUPLES.pop
 
 ### screen updating
 
+SCREEN_WIDTH = SIZE[0]
+
 def update_screen():
     """Extends pygame.display.update()."""
     ### draw progress
 
     width = round(
-        abs(GENERAL_NS.frame_index / PLAY_REFS.last_frame_index) # progress
-        * PLAY_REFS.recording_width                              # full width
+
+        # progress percentage
+        abs(GENERAL_NS.frame_index / REPLAY_REFS.last_frame_index)
+
+        # full width
+        * SCREEN_WIDTH
     )
 
-    draw_rect(SCREEN, 'red', (0, 0, width, 3))
-
-    ### blit labels
-
-    for label in LABELS:
-        blit_on_screen(label.image, label.rect)
+    draw_rect(SCREEN, 'red', (0, 0, width, 1))
 
     ### update the screen
     update()
 
 ### other operations
 
-def leave_playing_mode():
+def leave_replay_mode_earlier():
+
+    perform_replay_mode_exit_setups()
+
+    music_volume = (
+        (USER_PREFS['MASTER_VOLUME']/100)
+        * (USER_PREFS['MUSIC_VOLUME']/100)
+    )
+
+    music.set_volume(music_volume)
+    music.load(str(MUSIC_DIR / 'title_screen_by_juhani_junkala.ogg'))
+    music.play(-1)
+
+    REFS.states.level_manager.cleanup()
+
+    raise LoopException(
+        next_state=REFS.states.main_menu,
+        clear_tasks=True,
+        prepare=True,
+        next_play_mode_name='normal',
+    )
+
+def perform_replay_mode_exit_setups():
+
+    ## restore locale if needed
+
+    if USER_PREFS['LOCALE'] != REPLAY_REFS.locale:
+
+        USER_PREFS['LOCALE'] = REPLAY_REFS.locale
+        on_language_change()
+
+    ### restore controls
+
+    for action_name, key_name in REPLAY_REFS.keyboard_control_names.items():
+        KEYBOARD_CONTROLS[action_name] = getattr(pygame_locals, key_name)
+
+    GAMEPAD_CONTROLS.update(REPLAY_REFS.gamepad_controls)
 
     ### clear stored data
     clear_data()
 
-    ### switch mode
-    raise LoopException(next_input_mode_name='normal')
+    ### delete temporary file
+    REFS.slot_path.unlink()
 
 def clear_data():
 
@@ -674,10 +684,7 @@ def clear_data():
     ):
         collection.clear()
 
-    ### remove title and duration labels
-
-    del LABELS[0]
-    del LABELS[-1]
+    GAMEPAD_NS.clear_data()
 
 
 ### frame checkup operation
@@ -689,11 +696,14 @@ def frame_checkups():
     app loop.
     """
     ### keep constants fps
-    maintain_fps(PLAY_REFS.fps)
+    maintain_fps(REPLAY_REFS.fps)
 
     ### increment frame number
     GENERAL_NS.frame_index += 1
 
+    ### store data and post custom events for gamepad
+    ### directional triggers
+    GAMEPAD_NS.prepare_data_and_events()
 
 
 ### small utility

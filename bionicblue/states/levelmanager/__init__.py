@@ -25,7 +25,11 @@ from ...config import (
     did_player_ever,
 )
 
-from ...pygamesetup.constants import SCREEN_RECT, reset_fade_accumulator
+from ...pygamesetup.constants import (
+    GENERAL_NS,
+    SCREEN_RECT,
+    reset_fade_accumulator,
+)
 
 from ...ourstdlibs.pyl import load_pyl
 
@@ -595,15 +599,42 @@ class LevelManager(
 
     def restart_level(self):
 
-        clear_chunks_and_layers()
+        self.cleanup()
 
-        raise LoopException(
-            clear_tasks=True,
-            prepare=True,
-        )
+        play_mode_name = GENERAL_NS.play_mode_name
+
+        if play_mode_name == 'record':
+
+            GENERAL_NS.save_play_data()
+
+            raise LoopException(
+
+                clear_tasks=True,
+                prepare=True,
+
+                ## must provide record play mode name again,
+                ## even though it is the current mode already,
+                ## in order for extra setups to be performed
+                next_play_mode_name='record',
+
+            )
+
+        elif play_mode_name == 'replay':
+            go_to_main_menu(show_prompt=False)
+
+        else:
+
+            raise RuntimeError(
+                "'play_mode_name' must be in if/elif blocks."
+                f" '{play_mode_name}' is not."
+            )
 
     def cleanup(self):
         clear_chunks_and_layers()
+
+        ### TODO should probably trigger cleanups on player as well
+        ### (for instance, if leaving when player is holding charge,
+        ### the sound will keep playing)
 
     def schedule_level_exit_on_completed_mission(self):
 
@@ -620,30 +651,55 @@ class LevelManager(
 
         self.cleanup()
 
-        if not did_player_ever(event_name='cleared_a_mission'):
+        play_mode_name = GENERAL_NS.play_mode_name
 
-            report_presenter = REFS.states.report_presenter
+        if play_mode_name == 'record':
 
-            report_presenter.prepare(
-                'thanking_player',
-                on_report_exit=go_to_main_menu,
-            )
+            GENERAL_NS.save_play_data()
 
-            raise LoopException(
-                next_state=report_presenter,
-                clear_tasks=True,
-            )
+            if not did_player_ever(event_name='cleared_a_mission'):
+
+                report_presenter = REFS.states.report_presenter
+
+                report_presenter.prepare(
+                    'thanking_player',
+                    on_report_exit=go_to_main_menu,
+                )
+
+                raise LoopException(
+                    next_state=report_presenter,
+                    clear_tasks=True,
+                    next_play_mode_name='normal',
+                )
+
+            else:
+                go_to_main_menu()
+
+        elif play_mode_name == 'replay':
+            go_to_main_menu(show_prompt=False)
 
         else:
-            go_to_main_menu()
+
+            raise RuntimeError(
+                "'play_mode_name' must be in if/elif blocks."
+                f" '{play_mode_name}' is not."
+            )
 
 
-def go_to_main_menu():
+def go_to_main_menu(show_prompt=True):
 
-    prompt_to_dismiss_with_any_button(
-        caption=t.mission_completed.caption,
-        message=t.mission_completed.message,
-    )
+    if show_prompt:
+
+        prompt_to_dismiss_with_any_button(
+            caption=t.mission_completed.caption,
+            message=t.mission_completed.message,
+        )
+
+    else:
+
+        ### if prompt is not to be shown, it means we are leaving
+        ### replay mode, so perform replay mode exit setups
+        GENERAL_NS.perform_replay_mode_exit_setups()
 
     music_volume = (
         (USER_PREFS['MASTER_VOLUME']/100)
@@ -658,7 +714,9 @@ def go_to_main_menu():
         next_state=REFS.states.main_menu,
         clear_tasks=True,
         prepare=True,
+        next_play_mode_name='normal',
     )
+
 
 def instantiate(obj_data, layer_name):
 

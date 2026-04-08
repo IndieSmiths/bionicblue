@@ -4,11 +4,8 @@ That is, for us to present another state to the player smoothly,
 in some cases (this isn't supposed to be used all the time).
 """
 
-### third-party imports
-
+### third-party import
 from pygame.locals import QUIT
-
-from pygame.display import update
 
 
 ### local imports
@@ -24,7 +21,7 @@ from ..pygamesetup.constants import (
     msecs_to_frames,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 
 
@@ -62,7 +59,7 @@ class TransitionScreen:
                 quit_game()
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
 
     def update(self):
@@ -80,4 +77,4 @@ class TransitionScreen:
             SCREEN_RECT.move(0, self.remaining_height),
         )
 
-        update()
+        SERVICES_NS.update_screen()

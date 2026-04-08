@@ -3,4 +3,8 @@
 A bionic boy fights robots to protect humanity.
 """
 
-__version__ = '0.12.2'
+from .appinfo import APP_VERSION_STRING
+
+
+
+__version__ = APP_VERSION_STRING

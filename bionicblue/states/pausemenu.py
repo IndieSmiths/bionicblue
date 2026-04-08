@@ -17,8 +17,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update as update_screen
-
 from pygame.draw import rect as draw_rect
 
 from pygame.mixer import music
@@ -29,6 +27,7 @@ from pygame.mixer import music
 from ..pygamesetup import SERVICES_NS
 
 from ..pygamesetup.constants import (
+    GENERAL_NS,
     SCREEN,
     SCREEN_COPY,
     SCREEN_TRANSP_OVERLAY,
@@ -107,10 +106,32 @@ def leave_to_main_menu():
 
     REFS.states.level_manager.cleanup()
 
+    ###
+
+    play_mode_name = GENERAL_NS.play_mode_name
+
+    if play_mode_name == 'record':
+        GENERAL_NS.save_play_data()
+
+    elif play_mode_name == 'replay':
+        GENERAL_NS.perform_replay_mode_exit_setups()
+
+    else:
+
+        raise RuntimeError(
+            "'play_mode_name' must be in if/elif blocks."
+            f" '{play_mode_name}' is not."
+        )
+
+    ###
+
     transition_screen = REFS.states.transition_screen
     transition_screen.prepare(go_to_main_menu)
 
-    raise LoopException(next_state=transition_screen)
+    raise LoopException(
+        next_state=transition_screen,
+        next_play_mode_name='normal',
+    )
 
 def go_to_main_menu():
 
@@ -381,4 +402,4 @@ class PauseMenu:
             border_radius=8,
         )
 
-        update_screen()
+        SERVICES_NS.update_screen()

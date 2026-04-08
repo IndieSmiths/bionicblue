@@ -1,7 +1,10 @@
 """Facility for grunt bot enemy."""
 
-### standard library import
+### standard library imports
+
 from functools import partial
+
+from math import inf as INFINITY
 
 
 ### local imports
@@ -52,7 +55,10 @@ class GruntBot:
             )
         )
 
-        self.last_damage = GENERAL_NS.frame_index
+        ## set to negative infinity so next time it is checked, it is as
+        ## though an infinite amount of time elapsed
+        self.last_damage = -INFINITY
+
         self.routine_check = do_nothing
 
     def update(self):

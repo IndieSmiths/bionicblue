@@ -19,11 +19,15 @@ ensure_pygame_ce()
 
 ## remaining local imports
 
-from .config import REFS, MUST_LOCK_PLAY, LoopException, did_player_ever
+from .config import (
+    REFS,
+    MUST_LOCK_PLAY,
+    LoopException,
+    did_player_ever,
+    get_play_data,
+)
 
 from .pygamesetup import SERVICES_NS, switch_mode
-
-from .pygamesetup.gamepaddirect import setup_gamepad_if_existent
 
 from .promptscreen import prompt_to_dismiss_with_any_button
 
@@ -37,10 +41,8 @@ from .translatedtext import TRANSLATIONS
 
 
 
-def run_game(debug_directive=False):
+def run_game(dev_directive='', replay_directive=''):
     """Run the game loop."""
-
-    setup_gamepad_if_existent()
 
     if MUST_LOCK_PLAY:
 
@@ -61,21 +63,50 @@ def run_game(debug_directive=False):
         ResourceLoader().load_resources()
         setup_states()
 
-        ### pick next state according to debug directive
-        ### or lack thereof
 
-        REFS.debug_directive = debug_directive
+        ### act according to directives
 
-        if debug_directive == 'level_manager':
+        ### if replay directive is given, try setting state and play mode
+        ### according to it
 
-            state = REFS.states.level_manager
-            REFS.level_to_load = 'intro.lvl'
+        if replay_directive:
 
-        elif debug_directive == 'title_screen':
-            state = REFS.states.title_screen
+            try:
+                play_data = get_play_data(replay_directive)
+
+            except Exception as err:
+
+                print("Couldn't load play data.")
+                print()
+                print("Error described below:")
+                print(err)
+                print()
+                print("Starting game in normal mode instead.")
+
+                ### TODO show prompt here telling user what went wrong
+
+                ### pick state according to dev directive
+
+                if dev_directive == 'title_screen':
+                    state = REFS.states.title_screen
+
+                else:
+                    state = REFS.states.logos_screen
+
+            else:
+
+                switch_mode('replay', play_data)
+                state = REFS.states.level_manager
+
+        ### pick state according to dev directive
 
         else:
-            state = REFS.states.logos_screen
+
+            if dev_directive == 'title_screen':
+                state = REFS.states.title_screen
+
+            else:
+                state = REFS.states.logos_screen
 
         ### prepare state
         state.prepare()
@@ -101,20 +132,19 @@ def run_game(debug_directive=False):
             if exc.state is not None:
                 state = exc.state
 
+            ### set play mode if one is named
+
+            if exc.play_mode_name:
+                switch_mode(exc.play_mode_name)
+
+            ###
+
             if exc.clear_tasks:
                 REFS.clear_tasks()
 
             if exc.prepare:
                 state.prepare()
 
-            ### set input mode if one is named
-
-            if exc.input_mode_name:
-
-                switch_mode(
-                    exc.input_mode_name,
-                    exc.input_data,
-                )
 
 
 if __name__ == '__main__':
@@ -125,11 +155,24 @@ if __name__ == '__main__':
     )
 
     ap.add_argument(
-        '-b', '--debug-directive',
+        '-d', '--dev-directive',
         default='',
-        help="flag to enable debug utilities/measures.",
+        help="directive to enable development utilities/measures.",
+    )
+
+    ap.add_argument(
+        '-r', '--replay-directive',
+        default='',
+        help=(
+            "instruction to reproduce existing play session;"
+            " can be path to play log file or a known command"
+            " (used for debugging/playtest analysis)."
+        ),
     )
 
     parsed_args = ap.parse_args()
 
-    run_game(parsed_args.debug_directive)
+    run_game(
+        dev_directive=parsed_args.dev_directive,
+        replay_directive=parsed_args.replay_directive,
+    )

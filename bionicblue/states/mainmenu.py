@@ -23,8 +23,6 @@ from pygame.locals import (
 
 )
 
-from pygame.display import update
-
 
 ### local imports
 
@@ -51,7 +49,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..pygamesetup.gamepaddirect import setup_gamepad_if_existent
+from ..pygamesetup.gamepadservices.common import GAMEPAD_NS
 
 from ..constants import CHARGED_SHOT_SPEED
 
@@ -453,7 +451,7 @@ class MainMenu:
                 self.highlight_under_mouse(event)
 
             elif event.type in GAMEPAD_PLUGGING_OR_UNPLUGGING_EVENTS:
-                setup_gamepad_if_existent()
+                GAMEPAD_NS.setup_gamepad_if_existent()
 
             elif event.type == QUIT:
                 quit_game()
@@ -551,7 +549,7 @@ class MainMenu:
 
         REFS.middle_shot.aniplayer.draw()
 
-        update()
+        SERVICES_NS.update_screen()
 
 
 def start_new_game():
@@ -605,8 +603,10 @@ def present_intro():
 def start_first_level():
     """Start first level."""
 
-    level_manager = REFS.states.level_manager
     REFS.level_to_load = 'intro.lvl'
-    level_manager.prepare()
 
-    raise LoopException(next_state=level_manager)
+    raise LoopException(
+        next_state=REFS.states.level_manager,
+        next_play_mode_name='record',
+        prepare=True,
+    )

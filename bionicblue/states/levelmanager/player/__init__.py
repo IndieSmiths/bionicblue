@@ -129,6 +129,10 @@ class Player(
         else:
             self.health_column.reset()
 
+        ### set initial values for time tracking attributes
+        self.reset_time_tracking_attributes()
+        ###
+
         self.ladder = None
 
         self.y_speed = MAX_Y_SPEED
@@ -350,8 +354,8 @@ class Player(
         ### -INFINITY frame
         self.last_shot = self.last_damage = -INFINITY
 
-        ### frame 0
-        self.charge_start = 0
+        ### not charging (no frame number)
+        self.charge_start_frame = None
 
     def check_invisibility(self):
 
@@ -402,7 +406,10 @@ class Player(
 
     def check_charge(self):
 
-        diff = GENERAL_NS.frame_index - self.charge_start
+        if self.charge_start_frame is None:
+            return
+
+        diff = GENERAL_NS.frame_index - self.charge_start_frame
 
         if diff >= FULL_CHARGE_FRAMES:
 
@@ -435,8 +442,6 @@ class Player(
 
     def stop_charging(self):
 
-        diff = GENERAL_NS.frame_index - self.charge_start
-
         if 'invisible' in self.aniplayer.cycle_values:
 
             self.aniplayer.set_custom_surface_cycling(
@@ -446,16 +451,27 @@ class Player(
         else:
             self.aniplayer.restore_surface_cycling()
 
-        self.charge_start = 0
+        ### backup current value locally
+        charge_start_frame = self.charge_start_frame
+
+        ### change current value to ensure not charging (no frame number)
+        self.charge_start_frame = None
+
         SOUND_MAP['blue_shooter_man_full_charge.wav'].stop()
         SOUND_MAP['blue_shooter_man_middle_charge.wav'].stop()
         self.draw_charging_fx = do_nothing
 
-        if diff >= FULL_CHARGE_FRAMES:
-            return 'full'
+        ### if it was charging before...
 
-        elif diff >= MIDDLE_CHARGE_FRAMES:
-            return 'middle'
+        if charge_start_frame is not None:
+
+            diff = GENERAL_NS.frame_index - charge_start_frame
+
+            if diff >= FULL_CHARGE_FRAMES:
+                return 'full'
+
+            elif diff >= MIDDLE_CHARGE_FRAMES:
+                return 'middle'
 
     def die(self):
 

@@ -6,6 +6,8 @@ from pathlib import Path
 
 from datetime import datetime
 
+from shutil import copyfile
+
 
 ### third-party imports
 
@@ -16,7 +18,7 @@ from pygame.system import get_pref_path
 
 ### local imports
 
-from .appinfo import ORG_DIR_NAME, APP_DIR_NAME
+from .appinfo import ORG_DIR_NAME, APP_DIR_NAME, APP_VERSION_STRING
 
 from .ourstdlibs.pyl import save_pyl, load_pyl
 
@@ -33,25 +35,23 @@ class LoopException(Exception):
     The purposes may be one or more of these:
 
     1. simply skip back to the beginning of the loop
-    2. switch to a new state (loop holder)
-    3. switch to a new input mode (normal, input recording, input playing)
+    2. indicate next state (loop holder)
+    3. indicate next play mode (normal, record, replay)
+    4. indicate need to prepare state
+    5. indicate need to clear tasks
     """
 
     def __init__(
         self,
         *,
         next_state=None,
-        next_input_mode_name='',
-        input_data=None,
+        next_play_mode_name='',
         prepare=False,
         clear_tasks=False,
     ):
 
         self.state = next_state
-
-        self.input_mode_name = next_input_mode_name
-        self.input_data = input_data
-
+        self.play_mode_name = next_play_mode_name
         self.prepare = prepare
         self.clear_tasks = clear_tasks
 
@@ -149,6 +149,162 @@ for dir_path in (
         ) from err
 
 
+def manage_play_data_rotation(latest_added_path):
+    """Ensure old play data files are deleted and first ones are backed up."""
+
+    ### if first play logs doesn't have 10 files yet (it must not exceed this
+    ### quantity), copy latest added path into it;
+    ###
+    ### first play logs are the very first 10 play sessions and are used for
+    ### playtesting; but attention: no data ever leaves your disk; the only
+    ### way for the developer to access this data is if you share it yourself,
+    ### which I'd appreciate a lot ;) - you just contact me via social
+    ### networks or discord and I'll get back to you on how to do that
+
+    if len([
+
+        path
+        for path in FIRST_PLAY_LOGS_DIR.iterdir()
+
+        if path.suffix.lower() == '.pyl'
+        if path.name.startswith('play_at_')
+
+    ]) < 10:
+
+        source = latest_added_path
+        destination = FIRST_PLAY_LOGS_DIR / latest_added_path.name
+
+        copyfile(str(source), str(destination))
+
+    ### ensure regular play logs only has at most 20 files, making sure to
+    ### erase the older ones in case this number is exceeded
+
+    ## sort regular log paths by name
+
+    sorted_regular_log_paths = sorted(
+
+        (
+            path
+            for path in REGULAR_PLAY_LOGS_DIR.iterdir()
+
+            if path.suffix.lower() == '.pyl'
+            if path.name.startswith('play_at_')
+        ),
+
+        key = lambda item: item.name.lower()
+
+    )
+
+    ## grab set with paths of 20 most recent paths
+    most_recent_paths = set(sorted_regular_log_paths[-20:])
+
+    ## delete existing paths not listed among most recent ones
+
+    for path in sorted_regular_log_paths:
+
+        if path not in most_recent_paths:
+            path.unlink()
+
+def get_play_data(directive):
+
+    print("directive:", directive)
+
+    try:
+
+        path = Path(directive)
+        is_file = path.is_file()
+
+    except Exception:
+        is_file = False
+
+    ###
+
+    if not is_file:
+
+        try:
+            index = int(directive)
+
+        except Exception:
+
+            if directive == 'last':
+
+                folder = REGULAR_PLAY_LOGS_DIR
+                index = -1
+
+            else:
+
+                raise ValueError(
+                    "Couldn't find play data with provided directive."
+                )
+
+        else:
+
+            if index >= 0:
+
+                raise ValueError(
+                    "If directive represents integer, it must be negative,"
+                    " representing the most recent sessions."
+                )
+
+            folder = REGULAR_PLAY_LOGS_DIR
+
+
+        sorted_paths = sorted(
+
+            (
+
+                path
+                for path in folder.iterdir()
+
+                if path.suffix.lower() == '.pyl'
+                if path.name.startswith('play_at_')
+
+            ),
+
+            key = lambda item: item.name.lower()
+
+        )
+
+        try:
+            path = sorted_paths[index]
+
+        except IndexError:
+            raise ValueError(f"No play data with provided index: {index}")
+
+    ### load play data
+    play_data = load_pyl(path)
+
+    ### replaying play data doesn't make sense unless the play is
+    ### reproduced in the same version where it was recorded; so
+    ### abort replay if the version isn't the same as the current one;
+    ###
+    ### why this is important:
+    ###
+    ### say you are loading play data from a previous version where
+    ### the level layout was different: the playable character would
+    ### act in a different space; many other different factors also
+    ### cause problems like that, like enemies requiring a different
+    ### amount of damage to be destroyed, etc.; even strictly visual
+    ### changes make a difference: since play data is used for
+    ### playtesting analysis as well, we want to make sure all the
+    ### actions performed by the player are reactions to what the
+    ### player sees in that version, so we can make more accurate
+    ### assumptions; changes in the play logging system may also
+    ### cause play data from different versions to be incompatible;
+    ### in the end, play data produced in a specific version can only
+    ### be safely/accurately reproduced in that same version;
+
+    app_version_string = play_data['app_version_string']
+
+    if app_version_string != APP_VERSION_STRING:
+
+        raise ValueError(
+            "Play data recorded in different version."
+            f" Ours: {APP_VERSION_STRING};"
+            f" Play data's: {app_version_string}"
+        )
+
+    return play_data
 
 
 def has_save_slots():
