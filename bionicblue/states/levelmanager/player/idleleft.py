@@ -99,7 +99,7 @@ class IdleLeft:
 
                 elif event.button == GAMEPAD_CONTROLS['jump']:
 
-                    if self.ladder and pressed_state[KEYBOARD_CONTROLS['down']]:
+                    if self.ladder and (GAMEPAD_NS.y_sum > 0):
                         self.release_ladder()
 
                     else:

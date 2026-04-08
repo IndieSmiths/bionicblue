@@ -737,13 +737,12 @@ def enter_stage_selection_screen():
 def start_intro_level():
     """Trigger start of intro level."""
 
-    level_manager = REFS.states.level_manager
     REFS.level_to_load = 'intro.lvl'
-    level_manager.prepare()
 
     raise LoopException(
-        next_state=level_manager,
+        next_state=REFS.states.level_manager,
         next_play_mode_name='record',
+        prepare=True,
     )
 
 def recreate_button_surfs(button_surfs_map):

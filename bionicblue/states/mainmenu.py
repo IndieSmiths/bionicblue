@@ -603,11 +603,10 @@ def present_intro():
 def start_first_level():
     """Start first level."""
 
-    level_manager = REFS.states.level_manager
     REFS.level_to_load = 'intro.lvl'
-    level_manager.prepare()
 
     raise LoopException(
-        next_state=level_manager,
+        next_state=REFS.states.level_manager,
         next_play_mode_name='record',
+        prepare=True,
     )
