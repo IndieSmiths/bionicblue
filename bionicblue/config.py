@@ -1,4 +1,8 @@
-"""General configuration for game."""
+"""General configuration for game.
+
+The zipfile usage here was created with much help from this tutorial:
+https://pymotw.com/3/zipfile/
+"""
 
 ### standard library import
 
@@ -7,6 +11,50 @@ from pathlib import Path
 from datetime import datetime
 
 from shutil import copyfile
+
+from tempfile import mkstemp
+
+## try importing the zipfile module and check whether it is working fine
+## (although it is usually available, it has dependencies that the Python
+## docs consider optional, so it seems there's never 100% certainty that
+## they'll be available);
+##
+## in the process create a flag variable to indicate whether compression is
+## available or not based on the success of the import and checks
+##
+## if import and check succeed, also import pprint.pformat and
+## ast.literal_eval, since we use them to save data before it is
+## compressed and to treat data after loading and decompressing it,
+## respectively
+
+_temp_archive_path = Path(mkstemp(suffix='zip', text=False)[1])
+
+try:
+
+    import zipfile
+
+    with zipfile.ZipFile(
+
+        str(_temp_archive_path),
+        mode='w',
+        compression=zipfile.ZIP_DEFLATED,
+
+    ) as archive:
+
+        archive.writestr('file.pyl', "{'hello': 'world'}")
+
+except Exception:
+    _COMPRESSION_AVAILABLE = False
+
+else:
+
+    _COMPRESSION_AVAILABLE = True
+
+    from pprint import pformat
+    from ast import literal_eval
+
+
+_temp_archive_path.unlink()
 
 
 ### third-party imports
@@ -149,13 +197,114 @@ for dir_path in (
         ) from err
 
 
-def manage_play_data_rotation(latest_added_path):
-    """Ensure old play data files are deleted and first ones are backed up."""
+### playlogging compressing (when available), saving and rotating
 
-    ### if first play logs doesn't have 10 files yet (it must not exceed this
-    ### quantity), copy latest added path into it;
+if _COMPRESSION_AVAILABLE:
+
+    NO_OF_REGULAR_LOGS = 40
+    NO_OF_FIRST_LOGS = 20
+
+else:
+
+    NO_OF_REGULAR_LOGS = 20
+    NO_OF_FIRST_LOGS = 10
+
+POSSIBLE_LOG_EXTENSIONS = frozenset(
+
+    (
+        ('.pyl',),
+        ('.pyl', '.zip'),
+    )
+
+)
+
+def has_play_log_extension(path):
+
+    return tuple(
+
+        item.lower()
+        for item in path.suffixes
+
+    ) in POSSIBLE_LOG_EXTENSIONS
+
+def remove_extensions(filename):
+
+    return (
+
+        filename[:filename.index('.')]
+        if '.' in filename
+
+        else filename
+
+    )
+
+def save_and_rotate_play_data(play_data, filename_without_extension):
+    """Manage compression, saving and rotation of play data as logs."""
+
+    ## save play data, with or without compression, depending on availability
+    ## of compression
+
+    if _COMPRESSION_AVAILABLE:
+
+        ## build log path
+
+        latest_log_path = (
+            REGULAR_PLAY_LOGS_DIR
+            / f'{filename_without_extension}.pyl.zip'
+
+        )
+
+        filename = f'{filename_without_extension}.pyl'
+
+        ## create archive and save play data in it after turning such data
+        ## into pretty-formatted string
+
+        with zipfile.ZipFile(
+
+            str(latest_log_path),
+            mode='w',
+            compression=zipfile.ZIP_DEFLATED,
+
+        ) as archive:
+
+            archive.writestr(
+
+                filename,
+
+                ## formatted string representing play data
+
+                pformat(
+                    play_data,
+                    indent=2,
+                    width=160,
+                    compact=True,
+                )
+
+            )
+
+
+    else:
+
+        ## save data (save_pyl() already takes care of turning the data into
+        ## a formatted string)
+
+        latest_log_path = (
+            REGULAR_PLAY_LOGS_DIR
+            / f'{filename_without_extension}.pyl'
+
+        )
+
+        save_pyl(
+            play_data,
+            latest_log_path,
+            width=160,
+            compact=True,
+        )
+
+    ### if first play logs don't add up to specified number of files yet
+    ### (it must not exceed this quantity), copy latest added path into it;
     ###
-    ### first play logs are the very first 10 play sessions and are used for
+    ### first play logs are the very first play sessions and are used for
     ### playtesting; but attention: no data ever leaves your disk; the only
     ### way for the developer to access this data is if you share it yourself,
     ### which I'd appreciate a lot ;) - you just contact me via social
@@ -166,18 +315,19 @@ def manage_play_data_rotation(latest_added_path):
         path
         for path in FIRST_PLAY_LOGS_DIR.iterdir()
 
-        if path.suffix.lower() == '.pyl'
         if path.name.startswith('play_at_')
+        if has_play_log_extension(path)
 
-    ]) < 10:
+    ]) < NO_OF_FIRST_LOGS:
 
-        source = latest_added_path
-        destination = FIRST_PLAY_LOGS_DIR / latest_added_path.name
+        source = latest_log_path
+        destination = FIRST_PLAY_LOGS_DIR / latest_log_path.name
 
         copyfile(str(source), str(destination))
 
-    ### ensure regular play logs only has at most 20 files, making sure to
-    ### erase the older ones in case this number is exceeded
+    ### ensure regular play logs only has at most the specified number
+    ### of files, making sure to erase the older ones in case this number
+    ### is exceeded
 
     ## sort regular log paths by name
 
@@ -187,16 +337,19 @@ def manage_play_data_rotation(latest_added_path):
             path
             for path in REGULAR_PLAY_LOGS_DIR.iterdir()
 
-            if path.suffix.lower() == '.pyl'
             if path.name.startswith('play_at_')
+            if has_play_log_extension(path)
+
         ),
 
-        key = lambda item: item.name.lower()
+        key = lambda item: remove_extensions(item.stem)
 
     )
 
-    ## grab set with paths of 20 most recent paths
-    most_recent_paths = set(sorted_regular_log_paths[-20:])
+    ## grab set with paths of "n" most recent paths
+
+    n = NO_OF_REGULAR_LOGS
+    most_recent_paths = set(sorted_regular_log_paths[-n:])
 
     ## delete existing paths not listed among most recent ones
 
@@ -205,6 +358,7 @@ def manage_play_data_rotation(latest_added_path):
         if path not in most_recent_paths:
             path.unlink()
 
+
 def get_play_data(directive):
 
     print("directive:", directive)
@@ -212,14 +366,17 @@ def get_play_data(directive):
     try:
 
         path = Path(directive)
-        is_file = path.is_file()
+
+        is_play_log_file = (
+            path.is_file()
+            and has_play_log_extension(path)
+        )
 
     except Exception:
-        is_file = False
+        is_play_log_file = False
 
-    ###
 
-    if not is_file:
+    if not is_play_log_file:
 
         try:
             index = int(directive)
@@ -256,8 +413,8 @@ def get_play_data(directive):
                 path
                 for path in folder.iterdir()
 
-                if path.suffix.lower() == '.pyl'
                 if path.name.startswith('play_at_')
+                if has_play_log_extension(path)
 
             ),
 
@@ -271,8 +428,56 @@ def get_play_data(directive):
         except IndexError:
             raise ValueError(f"No play data with provided index: {index}")
 
-    ### load play data
-    play_data = load_pyl(path)
+    ### create flag indicating whether the path has a zip extension
+    has_zip_extension = path.suffix.lower() == '.zip'
+
+    ### in case the path has indeed a zip extension, only proceed if
+    ### compression/decompression is available
+
+    if has_zip_extension and not _COMPRESSION_AVAILABLE:
+
+        raise ValueError(
+            "Can't replay log file because it is a zip file and we don't"
+            " have zip decompression available via zlib.decompress();"
+            " perhaps if you decompress the file on your end (turning it"
+            " into a '.pyl' file rather than a '.pyl.zip' file) it may be"
+            " possible to replay it"
+        )
+
+    ### if file has a zip extension, safely turn a string obtained from
+    ### the decompressed contents into a Python literal with literal_eval()
+
+    if has_zip_extension:
+
+        ## the contents are inside a file with similar name, but without the
+        ## zip extension; we can use the stem for that, the part without the
+        ## last extension
+        filename = path.stem
+
+        ## open the archive, extract the decompressed data and turn it into
+        ## the play data
+
+        with zipfile.ZipFile(str(path), mode='r') as archive:
+
+            play_data = (
+
+                literal_eval(
+
+                    ## get the contents as bytes
+                    archive.read(filename)
+
+                    ## then decode as an utf-8 string
+                    .decode(encoding='utf-8')
+                )
+
+            )
+
+    ### otherwise, the load the content of the file with a custom function
+    ### that reads the text of the file and turns it into a Python literal
+    ### for us (also using literal_eval())
+
+    else:
+        play_data = load_pyl(path)
 
     ### replaying play data doesn't make sense unless the play is
     ### reproduced in the same version where it was recorded; so
