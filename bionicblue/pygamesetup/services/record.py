@@ -35,12 +35,9 @@ from pygame.display import update as update_screen
 
 from ...config import (
     REFS,
-    REGULAR_PLAY_LOGS_DIR,
     LoopException,
-    manage_play_data_rotation,
+    save_and_rotate_play_data,
 )
-
-from ...ourstdlibs.pyl import save_pyl
 
 from ...classes2d.single import UIObject2D
 
@@ -145,15 +142,13 @@ def set_behaviour(services_namespace):
         value = our_globals[attr_name]
         setattr(services_namespace, attr_name, value)
 
-    ### create and store path wherein to save recording
+    ### create and store a filename (without extension/suffix) for file
+    ### wherein we'll store data when recording is over
 
-    filename = (
+    REC_REFS.filename_without_extension = (
         'play_at_'
         + datetime.now().strftime(TIMESTAMP_FORMAT_STRING)
-        + '.pyl'
     )
-
-    REC_REFS.recording_path = REGULAR_PLAY_LOGS_DIR / filename
 
     ### store copy of initial data
 
@@ -358,16 +353,13 @@ def save_play_data():
     session_data['app_version_string'] = REC_REFS.app_version_string
     session_data['locale'] = REC_REFS.locale
 
-    ### save session data in file and manage play data rotation
+    ### delegate saving and rotation of play data to specialized custom
+    ### function
 
-    save_pyl(
+    save_and_rotate_play_data(
         session_data,
-        REC_REFS.recording_path,
-        width=125,
-        compact=True,
+        REC_REFS.filename_without_extension,
     )
-
-    manage_play_data_rotation(REC_REFS.recording_path)
 
     ### clear collections created in this function (not really needed,
     ### but in our experience memory is freed faster when collections
