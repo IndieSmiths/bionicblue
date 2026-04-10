@@ -342,7 +342,7 @@ def save_and_rotate_play_data(play_data, filename_without_extension):
 
         ),
 
-        key = lambda item: remove_extensions(item.stem)
+        key = lambda item: remove_extensions(item.stem.lower())
 
     )
 
@@ -418,7 +418,7 @@ def get_play_data(directive):
 
             ),
 
-            key = lambda item: item.name.lower()
+            key = lambda item: remove_extensions(item.stem.lower())
 
         )
 
