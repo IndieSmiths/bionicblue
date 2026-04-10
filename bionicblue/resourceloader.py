@@ -194,6 +194,16 @@ class ResourceLoader:
                 )
             )
 
+            ## position it
+
+            ## XXX this should be defined in a more central spot since
+            ## the title screen also defines this final position
+
+            title_rect = REFS.bb_title.rect
+
+            title_rect.centerx = (SCREEN_RECT.width *.25) + 5
+            title_rect.top = 45
+
             ### make it so volume settings take effect on system
 
             sound_volume = (

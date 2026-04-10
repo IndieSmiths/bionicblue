@@ -107,6 +107,10 @@ class TitleScreen:
         _scopy.width /= 2
 
         ###
+
+        ## XXX this final position should be defined in a more central spot
+        ## since the resource loader also sets this final position
+
         title_rect.centerx = _scopy.move(5, 0).centerx
         title_rect.bottom = _scopy.top
 
