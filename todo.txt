@@ -1,4 +1,3 @@
-(A) position bionic blue title at the correct position beforehand, on resource loader (so after exiting replay mode it is already at the right spot)
 (A) playlogging: zip logs when possible
 (A) playlogging: minify gamepad data
 (A) add "go back" buttons in links screen and credits screen (so gamepad users can go back);
@@ -9,3 +8,4 @@
 (C) release on pip, GitHub and itch (GitHub releases and itch must include executables; check options using wine app, etc.)
 (D) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
 x modernize play logging: make adjustments, add support for gamepad data
+x position bionic blue title at the correct position beforehand, on resource loader (so after exiting replay mode it is already at the right spot)
