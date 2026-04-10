@@ -1,5 +1,6 @@
 (A) playlogging: zip logs when possible
 (A) playlogging: minify gamepad data
+(A) make it so quitting the game from pause menu or level manager states also save the play data when in record mode
 (A) add "go back" buttons in links screen and credits screen (so gamepad users can go back);
 (A) add support to gamepad keys in screens from the main menu that lack it (try with gamepad, it should be very quick);
 (A) when user requests to erase all data, make it so both ORG and APP folders are deleted (unless ORG folder is not empty)
