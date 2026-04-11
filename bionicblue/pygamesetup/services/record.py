@@ -7,6 +7,8 @@ from datetime import datetime
 
 from copy import deepcopy
 
+from operator import itemgetter
+
 
 ### third-party imports
 
@@ -74,10 +76,13 @@ from ..constants import (
 
 
 
+### utility
+
+get_first_item = itemgetter(0)
+get_first_item_of_first_item = lambda item: item[0][0]
+
+
 ### control and data-recording objects
-
-
-## constants
 
 ## namespace
 REC_REFS = type("Object", (), {})()
@@ -159,6 +164,15 @@ def set_behaviour(services_namespace):
 
     REC_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
     REC_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
+
+    ## create new dict from gamepad controls where keys and values are reversed
+
+    REC_REFS.gamepad_button_id_to_action_name = {
+
+        button_id: action_name
+        for action_name, button_id in REC_REFS.gamepad_controls.items()
+
+    }
 
     ## level to load and last_checkpoint_name
 
@@ -278,43 +292,17 @@ def frame_checkups():
     ### directional triggers
     GAMEPAD_NS.prepare_data_and_events()
 
+
 ### session data saving operations
 
 def save_play_data():
 
+    ### create dict wherein to save recorded data after processing it
     session_data = {}
 
-    ### process event map
-
-    ## create
-
-    events_map = session_data['events_map'] = {
-
-        frame_index : list(yield_treated_events(events))
-        for frame_index, events in EVENTS_MAP.items()
-
-    }
-
-    ## remove keys whose values (a list of events) ended up empty,
-    ## (if any)
-
-    keys_to_pop = [
-
-        # item
-        key
-
-        # source
-        for key, event_list in events_map.items()
-
-        # filtering condition
-        if not event_list
-
-    ]
-
-    for key in keys_to_pop:
-        events_map.pop(key)
-
     ### store data
+
+    session_data['event_frames_pairs'] = get_processed_event_map(EVENTS_MAP)
 
     session_data['key_name_to_frames_map'] = (
         get_key_to_frames_map(KEY_STATE_REQUESTS)
@@ -332,7 +320,11 @@ def save_play_data():
     session_data['last_frame_index'] = GENERAL_NS.frame_index + 1
 
     ### store gamepad related data
-    GAMEPAD_NS.store_play_data(session_data)
+
+    GAMEPAD_NS.store_play_data(
+        session_data,
+        REC_REFS.gamepad_button_id_to_action_name,
+    )
 
     ### save initial context data
 
@@ -361,15 +353,82 @@ def save_play_data():
         REC_REFS.filename_without_extension,
     )
 
-    ### clear collections created in this function (not really needed,
-    ### but in our experience memory is freed faster when collections
-    ### are cleared)
+    ### clear data (we only do it after saving the recorded data to disk
+    ### because the transformed data isn't always copied into a new
+    ### objects, so we need to make sure it stays in memory until it is
+    ### saved)
 
-    events_map.clear()
+    ### XXX that said, careful review of this process may reveal collections
+    ### that can indeed be cleared earlier, reducing memory usage (which is
+    ### usually very low)
+
+    ## clear session data 
     session_data.clear()
 
-    ### clear recorded data
+    ## clear recorded data
     clear_data()
+
+
+def get_processed_event_map(event_map):
+
+    ### create a map holding frame indices as keys mapped to a list
+    ### of events that happened at that frame;
+    ###
+    ### this list of events contains event data treated to minify the
+    ### data in order to shink it without losing information
+
+    events_map = {
+
+        frame_index : list(yield_treated_events(events))
+        for frame_index, events in event_map.items()
+
+    }
+
+    ### create yet another map holding keys that are hashable representations
+    ### of events and a index representing the order they appear in the event
+    ### list;
+    ### the keys are mapped to a set of frames where such events occur in that
+    ### order;
+
+    event_to_frames_map = defaultdict(set)
+
+    for frame_index, compact_events in events_map.items():
+
+        for compact_event in compact_events:
+            event_to_frames_map[compact_event].add(frame_index)
+
+    ### at this point we can clear the events map
+    events_map.clear()
+
+    ### finally turn this dict into a list of pairs, ordered by how early
+    ### the events take place at their respective frames
+
+    event_frames_pairs = (
+
+        sorted(
+            event_to_frames_map.items(),
+            key=get_first_item_of_first_item,
+        )
+
+    )
+
+    ### clear the event_to_frames_map
+    event_to_frames_map.clear()
+
+    ### now that the event frames pairs are sorted, we don't need the
+    ### sorting index anymore, so we create a copy of the list with the
+    ### sorting index removed, clearing the original list
+
+    compact_event_frames_pairs = [
+        (event_data_tuple[1:], frame_set)
+        for event_data_tuple, frame_set in event_frames_pairs
+    ]
+
+    event_frames_pairs.clear()
+
+    ### finally, we return the compact event frames pairs
+    return compact_event_frames_pairs
+
 
 def clear_data():
 
@@ -395,11 +454,15 @@ def yield_treated_events(events_type_and_dict_pairs):
 
     yield from (
 
-        yield_compact_events(
-            yield_named_keys_and_mod_keys(
-                yield_events_to_keep(
-                    yield_named_events(
-                        events_type_and_dict_pairs
+        yield_tuplefied_events(
+            yield_compact_events(
+                yield_named_gamepad_buttons(
+                    yield_named_keys_and_mod_keys(
+                        yield_events_to_keep(
+                            yield_named_events(
+                                events_type_and_dict_pairs
+                            )
+                        )
                     )
                 )
             )
@@ -432,16 +495,47 @@ def yield_named_keys_and_mod_keys(events):
 
     for item in events:
 
-        yield (
+        if item[0] in ('KEYUP', 'KEYDOWN'):
+            treat_key_event_dict(item[1])
 
-            item
-            if item[0] not in ('KEYUP', 'KEYDOWN')
+        yield item
 
-            else ( item[0], get_treated_key_event_dict(item[1]) )
 
-        )
+def yield_named_gamepad_buttons(events):
 
-def get_treated_key_event_dict(event_dict):
+    for item in events:
+
+        ## events which are not JOYBUTTON events are yielded as-is
+
+        if item[0] not in ('JOYBUTTONUP', 'JOYBUTTONDOWN'):
+            yield item
+
+        ## JOYBUTTON events are yielded with the button id replaced by
+        ## the respective action name, but only if that button id
+        ## is associated with an action;
+        ##
+        ## otherwise they are not yielded at all (since they are meaningless
+        ## when they do not correspond to an action in the game)
+        ##
+        ## we also remove the 'joy' attribute if present, which is a
+        ## deprecated attribute according to pygame-ce docs
+
+        else:
+
+            event_dict = item[1]
+
+            if event_dict['button'] in REC_REFS.gamepad_button_id_to_action_name:
+
+                event_dict['button'] = (
+                    REC_REFS.gamepad_button_id_to_action_name[event_dict['button']]
+                )
+
+                if 'joy' in event_dict:
+                    event_dict.pop('joy')
+
+                yield item
+
+def treat_key_event_dict(event_dict):
 
     for key, get_treated in (
 
@@ -458,21 +552,20 @@ def get_treated_key_event_dict(event_dict):
     if bitmask != KMOD_NONE:
         event_dict['mod'] = get_mod_key_names_tuple(bitmask)
 
-    return event_dict
-
 def yield_compact_events(events):
 
     for name, a_dict in events:
 
-        yield [
+        yield (
 
             ## use a compact name if there's one
             EVENT_COMPACT_NAME_MAP.get(name, name),
 
-            ## use the dict after changing it to be more compact
+            ## use the dict after making it more compact or
+            ## use a copy with compacted data
             get_compact_event_dict(name, a_dict),
 
-        ]
+        )
 
 def get_compact_event_dict(name, a_dict):
 
@@ -537,6 +630,36 @@ def get_compact_event_dict(name, a_dict):
     ### return the dict
     return a_dict
 
+
+def yield_tuplefied_events(events):
+
+    for (event_order, (event_name, event_dict)) in enumerate(events):
+
+        yield (
+
+            event_order,
+            event_name,
+
+            ## tuplefied sorted data pairs
+
+            tuple(
+
+                sorted(
+
+                    (
+
+                        (k, v)
+                        for k, v in event_dict.items()
+
+                    ),
+
+                    key=get_first_item,
+
+                )
+
+            ),
+
+        )
 
 def get_key_to_frames_map(time_obj_pairs):
 
