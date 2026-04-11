@@ -1,4 +1,3 @@
-(A) playlogging: zip logs when possible
 (A) playlogging: minify gamepad data
 (A) make it so quitting the game from pause menu or level manager states also save the play data when in record mode
 (A) add "go back" buttons in links screen and credits screen (so gamepad users can go back);
@@ -10,3 +9,4 @@
 (D) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
 x modernize play logging: make adjustments, add support for gamepad data
 x position bionic blue title at the correct position beforehand, on resource loader (so after exiting replay mode it is already at the right spot)
+x playlogging: zip logs when possible
