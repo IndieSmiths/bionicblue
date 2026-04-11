@@ -246,6 +246,12 @@ def yield_ready_events(events):
 
                 )
 
+        ### if dealing with JOYBUTTON... events, replace action name in
+        ### 'button' key by the respective button id
+
+        if event_name in ('JOYBUTTONUP', 'JOYBUTTONDOWN'):
+            event_dict['button'] = GAMEPAD_CONTROLS[event_dict['button']]
+
         ### obtain the event type
 
         event_type = (

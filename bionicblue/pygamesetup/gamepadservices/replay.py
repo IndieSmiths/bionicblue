@@ -38,7 +38,8 @@ def set_behaviour(play_data):
     DIRECTION_TO_FRAMES_MAP.update(play_data['gamepad_direction_to_frames_map'])
 
     load_pressed_buttons_to_frames_map(
-        play_data['gamepad_pressed_buttons_to_frames_map']
+        play_data['gamepad_pressed_buttons_to_frames_map'],
+        play_data['gamepad_controls'],
     )
 
 def clear_data():
@@ -46,12 +47,18 @@ def clear_data():
     DIRECTION_TO_FRAMES_MAP.clear()
     BUTTON_STATE_MAP.clear()
 
-def load_pressed_buttons_to_frames_map(data):
+def load_pressed_buttons_to_frames_map(data, gamepad_controls):
 
     for pressed_buttons, frame_set in data.items():
 
         for frame_index in frame_set:
-            BUTTON_STATE_MAP[frame_index] = set(pressed_buttons)
+
+            BUTTON_STATE_MAP[frame_index] = {
+
+                gamepad_controls[action_name]
+                for action_name in pressed_buttons
+
+            }
 
 
 def get_button(button_id):
