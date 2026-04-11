@@ -160,6 +160,15 @@ def set_behaviour(services_namespace):
     REC_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
     REC_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
 
+    ## create new dict from gamepad controls where keys and values are reversed
+
+    REC_REFS.gamepad_button_id_to_action_name = {
+
+        button_id: action_name
+        for action_name, button_id in REC_REFS.gamepad_controls.items()
+
+    }
+
     ## level to load and last_checkpoint_name
 
     REC_REFS.level_to_load = REFS.level_to_load
@@ -332,7 +341,11 @@ def save_play_data():
     session_data['last_frame_index'] = GENERAL_NS.frame_index + 1
 
     ### store gamepad related data
-    GAMEPAD_NS.store_play_data(session_data)
+
+    GAMEPAD_NS.store_play_data(
+        session_data,
+        REC_REFS.gamepad_button_id_to_action_name,
+    )
 
     ### save initial context data
 
@@ -396,10 +409,12 @@ def yield_treated_events(events_type_and_dict_pairs):
     yield from (
 
         yield_compact_events(
-            yield_named_keys_and_mod_keys(
-                yield_events_to_keep(
-                    yield_named_events(
-                        events_type_and_dict_pairs
+            yield_named_gamepad_buttons(
+                yield_named_keys_and_mod_keys(
+                    yield_events_to_keep(
+                        yield_named_events(
+                            events_type_and_dict_pairs
+                        )
                     )
                 )
             )
@@ -432,16 +447,44 @@ def yield_named_keys_and_mod_keys(events):
 
     for item in events:
 
-        yield (
+        if item[0] in ('KEYUP', 'KEYDOWN'):
+            treat_key_event_dict(item[1])
 
-            item
-            if item[0] not in ('KEYUP', 'KEYDOWN')
+        yield item
 
-            else ( item[0], get_treated_key_event_dict(item[1]) )
 
-        )
+def yield_named_gamepad_buttons(events):
 
-def get_treated_key_event_dict(event_dict):
+    for item in events:
+
+        ## events which are not JOYBUTTON events are yielded as-is
+        if item[0] not in ('JOYBUTTONUP', 'JOYBUTTONDOWN'):
+            yield event
+
+        ## JOYBUTTON events are yielded with the button id replaced by
+        ## the respective action name, but only if that button id
+        ## is associated with an action;
+        ##
+        ## otherwise they are not yielded at all (since they are meaningless
+        ## when they do not correspond to an action in the game)
+        ##
+        ## we also remove the 'joy' attribute if present, which is a
+        ## deprecated attribute according to pygame-ce docs
+
+        event_dict = item[1]
+
+        if event_dict['button'] in REC_REFS.gamepad_button_id_to_action_name:
+
+            event_dict['button'] = (
+                REC_REFS.gamepad_button_id_to_action_name[event_dict['button']]
+            )
+
+            if 'joy' in event_dict:
+                event_dict.pop('joy')
+
+            yield item
+
+def treat_key_event_dict(event_dict):
 
     for key, get_treated in (
 
@@ -457,8 +500,6 @@ def get_treated_key_event_dict(event_dict):
 
     if bitmask != KMOD_NONE:
         event_dict['mod'] = get_mod_key_names_tuple(bitmask)
-
-    return event_dict
 
 def yield_compact_events(events):
 

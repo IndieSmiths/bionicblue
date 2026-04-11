@@ -236,7 +236,6 @@ EVENT_KEY_STRIP_MAP = {
 
   'JOYBUTTONUP': {
     'instance_id': 0,
-    'joy': 0,
   },
 
   'JOYBUTTONDOWN': {

@@ -52,9 +52,9 @@ from .common import (
 
 
 
-DIRECTIONAL_STATE_MAP = {}
+DIRECTION_TO_FRAMES_MAP = defaultdict(set)
 
-BUTTON_STATE_MAP = defaultdict(dict)
+BUTTON_STATE_MAP = defaultdict(set)
 
 
 def set_behaviour():
@@ -68,9 +68,9 @@ def set_behaviour():
 
 def clear_data():
 
-    DIRECTIONAL_STATE_MAP.clear()
+    DIRECTION_TO_FRAMES_MAP.clear()
     BUTTON_STATE_MAP.clear()
-
+    _minify_assist_dict.clear()
 
 def setup_gamepad_if_existent():
 
@@ -86,15 +86,54 @@ def get_button(button_id):
     button_pressed = GAMEPAD_NS._get_button(button_id)
 
     if button_pressed:
-        BUTTON_STATE_MAP[GENERAL_NS.frame_index][button_id] = True
+        BUTTON_STATE_MAP[GENERAL_NS.frame_index].add(button_id)
 
     return button_pressed
 
-def store_play_data(session_data):
+def store_play_data(session_data, gamepad_button_id_to_action_name):
 
-    session_data['gamepad_directional_state_map'] = DIRECTIONAL_STATE_MAP
-    session_data['gamepad_button_state_map'] = dict(BUTTON_STATE_MAP)
+    ### store direction to frames map after turning it into a
+    ### regular dict
+    session_data['gamepad_direction_to_frames_map'] = dict(DIRECTION_TO_FRAMES_MAP)
 
+    ### store minified copy of button state map (which is also a regular dict)
+    ### rather than a default dict
+
+    session_data['gamepad_pressed_buttons_to_frames_map'] = (
+        treat_button_state_map(BUTTON_STATE_MAP, gamepad_button_id_to_action_name)
+    )
+
+
+_minify_assist_dict = defaultdict(set)
+
+def treat_button_state_map(data, gamepad_button_id_to_action_name):
+    """By minifying data and replacing button id by action name."""
+
+    for frame_index, pressed_button_ids in data.items():
+
+        ## create a hasheable representation of the pressed buttons set
+        ## which is also compatible with pprint.pformat and ast.literal_eval
+        ## and use it as a key that will be associated with a set containing
+        ## all frames for which that key represents the pressed buttons at
+        ## that frame
+
+        _minify_assist_dict[
+
+            ## hasheable and pformat/literal_eval-compatible key
+
+            tuple(
+
+                sorted(
+
+                    gamepad_button_id_to_action_name[button_id]
+                    for button_id in pressed_button_ids
+
+                )
+            )
+
+        ].add(frame_index)
+
+    return dict(_minify_assist_dict)
 
 def _prepare_existing_gamepad():
 
@@ -290,8 +329,17 @@ def _prepare_data_and_events():
 
     ### store sum of directional states
 
-    x_sum = GAMEPAD_NS.x_sum = x_hat + x_axis
-    y_sum = GAMEPAD_NS.y_sum = y_hat + y_axis
+    xy_sum_tuple = (
 
-    if x_sum or y_sum:
-        DIRECTIONAL_STATE_MAP[GENERAL_NS.frame_index] = (x_sum, y_sum)
+      GAMEPAD_NS.x_sum,
+      GAMEPAD_NS.y_sum,
+
+    ) = (
+
+      x_hat + x_axis,
+      y_hat + y_axis,
+
+    )
+
+    if any(xy_sum_tuple):
+        DIRECTION_TO_FRAMES_MAP[xy_sum_tuple].add(GENERAL_NS.frame_index)

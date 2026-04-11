@@ -17,11 +17,14 @@ from .common import GAMEPAD_NS
 
 
 
-DIRECTIONAL_STATE_MAP = {}
+DIRECTION_TO_FRAMES_MAP = {}
 
-BUTTON_STATE_MAP = defaultdict(dict)
+BUTTON_STATE_MAP = {}
 
 TWO_TUPLE_OF_ZEROS = (0, 0)
+
+EMPTY_FROZENSET = frozenset()
+
 
 def set_behaviour(play_data):
 
@@ -32,28 +35,45 @@ def set_behaviour(play_data):
 
     clear_data()
 
-    DIRECTIONAL_STATE_MAP.update(play_data['gamepad_directional_state_map'])
-    BUTTON_STATE_MAP.update(play_data['gamepad_button_state_map'])
+    DIRECTION_TO_FRAMES_MAP.update(play_data['gamepad_direction_to_frames_map'])
 
+    load_pressed_buttons_to_frames_map(
+        play_data['gamepad_pressed_buttons_to_frames_map']
+    )
 
 def clear_data():
 
-    DIRECTIONAL_STATE_MAP.clear()
+    DIRECTION_TO_FRAMES_MAP.clear()
     BUTTON_STATE_MAP.clear()
 
+def load_pressed_buttons_to_frames_map(data):
+
+    for pressed_buttons, frame_set in data.items():
+
+        for frame_index in frame_set:
+            BUTTON_STATE_MAP[frame_index] = set(pressed_buttons)
+
+
 def get_button(button_id):
-    return BUTTON_STATE_MAP[GENERAL_NS.frame_index].get(button_id, False)
+
+    return (
+
+        GENERAL_NS.frame_index in BUTTON_STATE_MAP
+        and button_id in BUTTON_STATE_MAP[GENERAL_NS.frame_index]
+
+    )
 
 def setup_gamepad_if_existent():
     pass
 
 def _prepare_data_and_events():
 
-    GAMEPAD_NS.x_sum, GAMEPAD_NS.y_sum = (
+    for direction, frame_set in DIRECTION_TO_FRAMES_MAP.items():
 
-        DIRECTIONAL_STATE_MAP.get(
-            GENERAL_NS.frame_index,
-            TWO_TUPLE_OF_ZEROS,
-        )
+        if GENERAL_NS.frame_index in frame_set:
 
-    )
+            GAMEPAD_NS.x_sum, GAMEPAD_NS.y_sum = direction
+            break
+
+    else:
+        GAMEPAD_NS.x_sum, GAMEPAD_NS.y_sum = TWO_TUPLE_OF_ZEROS
