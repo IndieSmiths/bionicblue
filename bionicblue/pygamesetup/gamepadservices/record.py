@@ -36,6 +36,8 @@ from ..constants import (
     GAMEPADLEFTRELEASED,
     GAMEPADRIGHTRELEASED,
 
+    yield_rangefied_integers,
+
 )
 
 from .common import (
@@ -52,7 +54,7 @@ from .common import (
 
 
 
-DIRECTION_TO_FRAMES_MAP = defaultdict(set)
+DIRECTION_TO_FRAMES_MAP = defaultdict(list)
 
 BUTTON_STATE_MAP = defaultdict(set)
 
@@ -94,20 +96,45 @@ def store_play_data(session_data, gamepad_button_id_to_action_name):
 
     ### store direction to frames map after turning it into a
     ### regular dict
-    session_data['gamepad_direction_to_frames_map'] = dict(DIRECTION_TO_FRAMES_MAP)
+    session_data['gamepad_direction_to_frames_map'] = (
+        treat_gamepad_direction_to_frames_map(DIRECTION_TO_FRAMES_MAP)
+    )
 
     ### store minified copy of button state map (which is also a regular dict)
     ### rather than a default dict
 
     session_data['gamepad_pressed_buttons_to_frames_map'] = (
-        treat_button_state_map(BUTTON_STATE_MAP, gamepad_button_id_to_action_name)
+
+        treat_button_state_map(
+            BUTTON_STATE_MAP,
+            gamepad_button_id_to_action_name,
+        )
+
     )
+
+def treat_gamepad_direction_to_frames_map(data):
+
+    return {
+
+        k: (
+
+            frame_indices
+            if len(frame_indices) < 2
+
+            else list(yield_rangefied_integers(frame_indices))
+
+        )
+
+        for k, frame_indices in data.items()
+    }
 
 
 _minify_assist_dict = defaultdict(set)
 
 def treat_button_state_map(data, gamepad_button_id_to_action_name):
     """By minifying data and replacing button id by action name."""
+
+    ### first pass
 
     for frame_index, pressed_button_ids in data.items():
 
@@ -133,7 +160,12 @@ def treat_button_state_map(data, gamepad_button_id_to_action_name):
 
         ].add(frame_index)
 
-    return dict(_minify_assist_dict)
+    ### second pass (rangefying frame indices)
+
+    return {
+        key: list(yield_rangefied_integers(frame_indices))
+        for key, frame_indices in _minify_assist_dict.items()
+    }
 
 def _prepare_existing_gamepad():
 
@@ -342,4 +374,4 @@ def _prepare_data_and_events():
     )
 
     if any(xy_sum_tuple):
-        DIRECTION_TO_FRAMES_MAP[xy_sum_tuple].add(GENERAL_NS.frame_index)
+        DIRECTION_TO_FRAMES_MAP[xy_sum_tuple].append(GENERAL_NS.frame_index)

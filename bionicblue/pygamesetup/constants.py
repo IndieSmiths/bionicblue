@@ -1,6 +1,9 @@
 
-### standard library import
+### standard library imports
+
 from functools import partial
+
+from collections import deque
 
 
 ### third-party imports
@@ -420,3 +423,63 @@ def pause():
         ### update the screen
         update()
 
+
+### functions to minify and unminify collections with unique integers;
+### on minification, subsets that can be represented as range objects
+### are replaced with (a, b) tuples, representing a range(a, b);
+
+_temp_deque = deque()
+
+def yield_rangefied_integers(collection):
+
+    if len(collection) < 2:
+
+        yield from collection
+        return
+
+    sorted_ints = deque(sorted(collection))
+
+    _temp_deque.append(sorted_ints.popleft())
+
+    while sorted_ints:
+
+        previous_int = _temp_deque[-1]
+        next_int = sorted_ints.popleft()
+
+        if (previous_int + 1) == next_int:
+            _temp_deque.append(next_int)
+
+        elif len(_temp_deque) > 1:
+
+            yield (_temp_deque[0], _temp_deque[-1] + 1)
+
+            _temp_deque.clear()
+            _temp_deque.append(next_int)
+
+        else:
+
+            yield _temp_deque.pop()
+            _temp_deque.append(next_int)
+
+    ###
+
+    remaining = len(_temp_deque)
+
+    if remaining == 1:
+        yield _temp_deque.pop()
+
+    elif remaining > 1:
+
+        yield (_temp_deque[0], _temp_deque[-1] + 1)
+        _temp_deque.clear()
+
+
+def yield_unrangefied_integers(collection):
+
+    for item in collection:
+
+        if isinstance(item, int):
+            yield item
+
+        else:
+            yield from range(*item)

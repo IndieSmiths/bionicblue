@@ -68,6 +68,8 @@ from ..constants import (
     GENERAL_SERVICE_NAMES,
     FPS, maintain_fps,
 
+    yield_rangefied_integers,
+
     EVENT_KEY_STRIP_MAP,
     EVENT_COMPACT_NAME_MAP,
     EVENT_KEY_COMPACT_NAME_MAP,
@@ -677,7 +679,8 @@ def yield_tuplefied_events(events):
 
 def get_key_to_frames_map(time_obj_pairs):
 
-    ### this format is okay, but it can be more compact
+    ### this format is okay, but it can be more compact,
+    ### which we'll improve in the next step
 
     frame_to_key_names_map = {
         
@@ -708,8 +711,8 @@ def get_key_to_frames_map(time_obj_pairs):
 
     }
 
-    ### the format below, the one we actually return, is used
-    ### because it is more compact
+    ### create map associating key name with indices of frames
+    ### were it is pressed
 
     key_name_to_frames_map = defaultdict(list)
 
@@ -718,8 +721,28 @@ def get_key_to_frames_map(time_obj_pairs):
         for key_name in key_names:
             key_name_to_frames_map[key_name].append(frame)
 
-    ###
-    return dict(key_name_to_frames_map)
+
+    ### we can make it even more compact, which we'll do in
+    ### the next step
+
+    ## but first, clear first map created
+    frame_to_key_names_map.clear()
+
+    ## create final dict from previous one we created with
+    ## frame indices minified
+
+    key_name_to_rangefied_frames_map = {
+
+        key_name: list(yield_rangefied_integers(frame_indices))
+
+        for key_name, frame_indices in key_name_to_frames_map.items()
+    }
+
+    ### clear previous dict and return this one
+
+    key_name_to_frames_map.clear()
+
+    return key_name_to_rangefied_frames_map
 
 def get_mod_key_to_frames_map(frame_bitmask_pairs):
 
