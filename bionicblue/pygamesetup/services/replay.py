@@ -15,6 +15,8 @@ from copy import deepcopy
 
 from tempfile import mkstemp
 
+from random import seed
+
 
 ### third-party imports
 
@@ -203,6 +205,9 @@ def set_behaviour(services_namespace, play_data):
 
     REFS.level_to_load = SESSION_DATA['level_to_load']
     REFS.last_checkpoint_name = SESSION_DATA['last_checkpoint_name']
+
+    ## set random seed
+    seed(SESSION_DATA['random_seed'])
 
     ### retrieve playback speed and last frame index
 
