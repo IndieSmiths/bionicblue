@@ -178,7 +178,6 @@ def get_resulting_bitmask(mod_key_names):
 
 ## event map
 
-
 def yield_ready_events(events):
     """Yield preprocessed objects as pygame.event.Event instances."""
 
@@ -359,6 +358,33 @@ def set_behaviour(services_namespace, play_data):
 
     set_blocked(None)
     set_allowed([QUIT, KEYDOWN])
+
+    ### recreate an events map from unique events and the frames where they
+    ### occur
+
+    events_map = defaultdict(list)
+
+    for (
+
+        (
+            event_name,
+            tuplefied_event_data,
+        ),
+
+        frame_set,
+
+    ) in SESSION_DATA['event_frames_pairs']:
+
+        event_dict = {
+            key: value
+            for key, value in tuplefied_event_data
+        }
+
+        for frame_index in frame_set:
+
+            events_map[frame_index].append(
+                (event_name, event_dict)
+            )
 
     ### prepare events
 
