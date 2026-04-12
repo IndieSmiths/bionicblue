@@ -8,8 +8,6 @@ from math import inf as INFINITY
 
 from random import choice
 
-from collections import deque
-
 
 ### third-party import
 
@@ -29,6 +27,8 @@ from .....pygamesetup.constants import GENERAL_NS, SCREEN_RECT, msecs_to_frames
 from .....ani2d.player import AnimationPlayer2D
 
 from .....ourstdlibs.behaviour import do_nothing
+
+from .....ourstdlibs.wdeque.main import WalkingDeque
 
 from .....pointsman2d.create import yield_circle_points
 
@@ -87,7 +87,7 @@ IDLE_FRAMES = msecs_to_frames(_IDLE_MSECS)
 _NO_OF_EXPLOSION_ROUNDS = 4
 NO_OF_EXPLOSIONS = _NO_OF_EXPLOSION_ROUNDS * 3
 
-explosion_points_deque = deque(
+explosion_points_wdeque = WalkingDeque(
 
     yield_circle_points(
         quantity=9,
@@ -729,11 +729,14 @@ class ChiefSecurityBot:
 
     def get_defeated(self):
 
+        ### reset wdeque to its initial rotation
+        explosion_points_wdeque.restore_walking()
+
         ###
 
         move = self.rect.move
 
-        explosion_points_deque.rotate(choice(INITIAL_STEPS_RANGE))
+        explosion_points_wdeque.walk(choice(INITIAL_STEPS_RANGE))
 
         time_unit = 'milliseconds'
 
@@ -741,8 +744,8 @@ class ChiefSecurityBot:
 
             i += 1
 
-            offset = explosion_points_deque[0]
-            explosion_points_deque.rotate(3)
+            offset = explosion_points_wdeque[0]
+            explosion_points_wdeque.walk(3)
 
             center = move(offset).center
 
@@ -765,7 +768,7 @@ class ChiefSecurityBot:
             )
 
             if not i % 3:
-                explosion_points_deque.rotate(choice(INITIAL_STEPS_RANGE))
+                explosion_points_wdeque.walk(choice(INITIAL_STEPS_RANGE))
 
         ###
         self.center = self.rect.center
