@@ -9,6 +9,12 @@ from copy import deepcopy
 
 from operator import itemgetter
 
+from time import time
+
+from math import floor
+
+from random import seed
+
 
 ### third-party imports
 
@@ -185,15 +191,20 @@ def set_behaviour(services_namespace):
     ## app version
     REC_REFS.app_version_string = APP_VERSION_STRING
 
+    ### set and store custom seed for pseudo-randomness
 
-    ## clear any existing events
+    REC_REFS.random_seed = floor(time())
+    seed(REC_REFS.random_seed)
+
+
+    ### clear any existing events
     clear()
 
-    ## set frame index to -1 (so it is set to 0 at the beginning
-    ## of the loop, the first frame)
+    ### set frame index to -1 (so it is set to 0 at the beginning
+    ### of the loop, the first frame)
     GENERAL_NS.frame_index = -1
 
-    ## reference function to save recorded data
+    ### reference function to save recorded data
     GENERAL_NS.save_play_data = save_play_data
 
 
@@ -344,6 +355,9 @@ def save_play_data():
 
     session_data['app_version_string'] = REC_REFS.app_version_string
     session_data['locale'] = REC_REFS.locale
+
+    ## seed used
+    session_data['random_seed'] = REC_REFS.random_seed
 
     ### delegate saving and rotation of play data to specialized custom
     ### function
