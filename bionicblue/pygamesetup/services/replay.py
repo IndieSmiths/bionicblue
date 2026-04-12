@@ -99,7 +99,7 @@ SESSION_DATA = {}
 REPLAY_REFS = type("Object", (), {})()
 
 ### map to store events
-EVENTS_MAP = {}
+EVENTS_MAP = defaultdict(list)
 
 ## create a map to associate each frame index to the keys that were
 ## pressed at that frame
@@ -151,123 +151,6 @@ REVERSE_USER_EVENT_NAMES_MAP = {
 }
 
 ##
-
-def get_resulting_bitmask(mod_key_names):
-    """Return bitmask by reducing all modifier keys with bitwise OR."""
-
-    ### return iterable reduced to a single value...
-
-    return reduce(
-
-        ## with the bitwise OR operation
-        bitwise_or,
-
-        ## where the iterable contained the values
-        ## of the named modifier keys
-
-        (
-            # modifier key value obtained from its name
-            getattr(pygame_locals, mod_key_name)
-
-            # modifier key names
-            for mod_key_name in mod_key_names
-        ),
-
-    )
-
-
-## event map
-
-def yield_ready_events(events):
-    """Yield preprocessed objects as pygame.event.Event instances."""
-
-    for event_name, event_dict in events:
-
-        ### restore the event name if it was in a custom compact form
-
-        if event_name in REVERSE_EVENT_COMPACT_NAME_MAP:
-            event_name = REVERSE_EVENT_COMPACT_NAME_MAP[event_name]
-
-        ### restore names of keys in the event name if they were in a
-        ### custom compact form
-
-        if event_name in EVENT_KEY_COMPACT_NAME_MAP:
-
-            for full_key, compact_key in (
-                EVENT_KEY_COMPACT_NAME_MAP[event_name].items()
-            ):
-
-                if compact_key in event_dict:
-                    event_dict[full_key] = event_dict.pop(compact_key)
-
-        ### restore missing keys in the event using default values
-
-        if event_name in EVENT_KEY_STRIP_MAP:
-
-            for key, default in EVENT_KEY_STRIP_MAP[event_name].items():
-                event_dict.setdefault(key, default)
-
-        ### if dealing with KEY_... events, perform extra preprocessing
-        ### in the event dict
-
-        if event_name in ('KEYUP', 'KEYDOWN'):
-
-            ## turn key name and scan code name into the respective
-            ## values
-
-            for key, treatment_operation in (
-
-                ('key', KEYS_MAP.__getitem__),
-                ('scancode', REVERSE_SCANCODE_NAMES_MAP.__getitem__),
-
-            ):
-                event_dict[key] = treatment_operation(event_dict[key])
-
-            ## if the 'mod' key is a tuple, it contains names of
-            ## modifiers, so replace it by the respective bitmask
-            ## that represent the modifiers
-
-            if type(event_dict['mod']) is tuple:
-
-                ## get names
-                mod_key_names = event_dict['mod']
-
-                ## reassign value to 'mod'
-                event_dict['mod'] = (
-
-                    # if there's only one name, just use the key value
-                    getattr(pygame_locals, mod_key_names[0])
-                    if len(mod_key_names) == 1
-
-                    # otherwise build the bitmask with all modifier
-                    # values
-                    else get_resulting_bitmask(mod_key_names)
-
-                )
-
-        ### if dealing with JOYBUTTON... events, replace action name in
-        ### 'button' key by the respective button id
-
-        if event_name in ('JOYBUTTONUP', 'JOYBUTTONDOWN'):
-            event_dict['button'] = GAMEPAD_CONTROLS[event_dict['button']]
-
-        ### obtain the event type
-
-        event_type = (
-
-            REVERSE_USER_EVENT_NAMES_MAP[event_name]
-            if event_name in REVERSE_USER_EVENT_NAMES_MAP
-
-            else getattr(pygame_locals, event_name)
-
-        )
-
-        ### yield a pygame.event.Event object
-
-        # TODO user events should probably be reused instead of reinstantiated
-        yield Event(event_type, event_dict)
-
-
 
 def set_behaviour(services_namespace, play_data):
     """Setup replay services and data."""
@@ -353,16 +236,14 @@ def set_behaviour(services_namespace, play_data):
     print(duration_text)
 
     ### since the app will be replaying recorded events, we are not interested
-    ### in most of the new ones generated while replaying, so we block most of them,
-    ### leaving just a few that we may use during replay
+    ### in most of the new ones generated while replaying, so we block most of
+    ### them, leaving just a few that we may use during replay
 
     set_blocked(None)
     set_allowed([QUIT, KEYDOWN])
 
-    ### recreate an events map from unique events and the frames where they
+    ### populate events map with reference to events in the frames where they
     ### occur
-
-    events_map = defaultdict(list)
 
     for (
 
@@ -375,28 +256,10 @@ def set_behaviour(services_namespace, play_data):
 
     ) in SESSION_DATA['event_frames_pairs']:
 
-        event_dict = {
-            key: value
-            for key, value in tuplefied_event_data
-        }
+        event_instance = get_processed_event(event_name, tuplefied_event_data)
 
         for frame_index in frame_set:
-
-            events_map[frame_index].append(
-                (event_name, event_dict)
-            )
-
-    ### prepare events
-
-    EVENTS_MAP.update(
-
-        (frame_index, list(yield_ready_events(compact_events)))
-
-        for frame_index, compact_events
-        in SESSION_DATA['events_map'].items()
-
-    )
-
+            EVENTS_MAP[frame_index].append(event_instance)
 
     ### prepare key states
 
@@ -490,6 +353,122 @@ def set_behaviour(services_namespace, play_data):
     ### set frame index to -1 (so when it is incremented at the beginning
     ### of the loop it is set to 0, the first frame)
     GENERAL_NS.frame_index = -1
+
+
+def get_processed_event(event_name, tuplefied_event_data):
+    """Return pygame.event.Event instances from given data."""
+
+    event_dict = {
+        key: value
+        for key, value in tuplefied_event_data
+    }
+
+    ### restore the event name if it was in a custom compact form
+
+    if event_name in REVERSE_EVENT_COMPACT_NAME_MAP:
+        event_name = REVERSE_EVENT_COMPACT_NAME_MAP[event_name]
+
+    ### restore names of keys in the event name if they were in a
+    ### custom compact form
+
+    if event_name in EVENT_KEY_COMPACT_NAME_MAP:
+
+        for full_key, compact_key in (
+            EVENT_KEY_COMPACT_NAME_MAP[event_name].items()
+        ):
+
+            if compact_key in event_dict:
+                event_dict[full_key] = event_dict.pop(compact_key)
+
+    ### restore missing keys in the event using default values
+
+    if event_name in EVENT_KEY_STRIP_MAP:
+
+        for key, default in EVENT_KEY_STRIP_MAP[event_name].items():
+            event_dict.setdefault(key, default)
+
+    ### if dealing with KEY_... events, perform extra preprocessing
+    ### in the event dict
+
+    if event_name in ('KEYUP', 'KEYDOWN'):
+
+        ## turn key name and scan code name into the respective
+        ## values
+
+        for key, treatment_operation in (
+
+            ('key', KEYS_MAP.__getitem__),
+            ('scancode', REVERSE_SCANCODE_NAMES_MAP.__getitem__),
+
+        ):
+            event_dict[key] = treatment_operation(event_dict[key])
+
+        ## if the 'mod' key is a tuple, it contains names of
+        ## modifiers, so replace it by the respective bitmask
+        ## that represent the modifiers
+
+        if type(event_dict['mod']) is tuple:
+
+            ## get names
+            mod_key_names = event_dict['mod']
+
+            ## reassign value to 'mod'
+            event_dict['mod'] = (
+
+                # if there's only one name, just use the key value
+                getattr(pygame_locals, mod_key_names[0])
+                if len(mod_key_names) == 1
+
+                # otherwise build the bitmask with all modifier
+                # values
+                else get_resulting_bitmask(mod_key_names)
+
+            )
+
+    ### if dealing with JOYBUTTON... events, replace action name in
+    ### 'button' key by the respective button id
+
+    if event_name in ('JOYBUTTONUP', 'JOYBUTTONDOWN'):
+        event_dict['button'] = GAMEPAD_CONTROLS[event_dict['button']]
+
+    ### obtain the event type
+
+    event_type = (
+
+        REVERSE_USER_EVENT_NAMES_MAP[event_name]
+        if event_name in REVERSE_USER_EVENT_NAMES_MAP
+
+        else getattr(pygame_locals, event_name)
+
+    )
+
+    ### return pygame.event.Event object
+    return Event(event_type, event_dict)
+
+
+def get_resulting_bitmask(mod_key_names):
+    """Return bitmask by reducing all modifier keys with bitwise OR."""
+
+    ### return iterable reduced to a single value...
+
+    return reduce(
+
+        ## with the bitwise OR operation
+        bitwise_or,
+
+        ## where the iterable contained the values
+        ## of the named modifier keys
+
+        (
+            # modifier key value obtained from its name
+            getattr(pygame_locals, mod_key_name)
+
+            # modifier key names
+            for mod_key_name in mod_key_names
+        ),
+
+    )
+
 
 
 ### constants

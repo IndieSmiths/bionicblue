@@ -302,7 +302,7 @@ def save_play_data():
 
     ### store data
 
-    session_data['event_frames_pairs'] = get_process_event_map(EVENTS_MAP)
+    session_data['event_frames_pairs'] = get_processed_event_map(EVENTS_MAP)
 
     session_data['key_name_to_frames_map'] = (
         get_key_to_frames_map(KEY_STATE_REQUESTS)
@@ -362,16 +362,14 @@ def save_play_data():
     ### that can indeed be cleared earlier, reducing memory usage (which is
     ### usually very low)
 
-    ## clear session data and event frames pairs
-
+    ## clear session data 
     session_data.clear()
-    event_frames_pairs.clear()
 
     ## clear recorded data
     clear_data()
 
 
-def get_process_event_map(event_map):
+def get_processed_event_map(event_map):
 
     ### create a map holding frame indices as keys mapped to a list
     ### of events that happened at that frame;
@@ -417,14 +415,20 @@ def get_process_event_map(event_map):
     ### clear the event_to_frames_map
     event_to_frames_map.clear()
 
-    ## now that the event frames pairs are sorted, we don't need the
-    ## sorting index anymore, so we return a copy of the list with the
-    ## sorting index removed
+    ### now that the event frames pairs are sorted, we don't need the
+    ### sorting index anymore, so we create a copy of the list with the
+    ### sorting index removed, clearing the original list
 
-    return [
+    compact_event_frames_pairs = [
         (event_data_tuple[1:], frame_set)
         for event_data_tuple, frame_set in event_frames_pairs
     ]
+
+    event_frames_pairs.clear()
+
+    ### finally, we return the compact event frames pairs
+    return compact_event_frames_pairs
+
 
 def clear_data():
 
@@ -502,8 +506,9 @@ def yield_named_gamepad_buttons(events):
     for item in events:
 
         ## events which are not JOYBUTTON events are yielded as-is
+
         if item[0] not in ('JOYBUTTONUP', 'JOYBUTTONDOWN'):
-            yield event
+            yield item
 
         ## JOYBUTTON events are yielded with the button id replaced by
         ## the respective action name, but only if that button id
@@ -515,18 +520,20 @@ def yield_named_gamepad_buttons(events):
         ## we also remove the 'joy' attribute if present, which is a
         ## deprecated attribute according to pygame-ce docs
 
-        event_dict = item[1]
+        else:
 
-        if event_dict['button'] in REC_REFS.gamepad_button_id_to_action_name:
+            event_dict = item[1]
 
-            event_dict['button'] = (
-                REC_REFS.gamepad_button_id_to_action_name[event_dict['button']]
-            )
+            if event_dict['button'] in REC_REFS.gamepad_button_id_to_action_name:
 
-            if 'joy' in event_dict:
-                event_dict.pop('joy')
+                event_dict['button'] = (
+                    REC_REFS.gamepad_button_id_to_action_name[event_dict['button']]
+                )
 
-            yield item
+                if 'joy' in event_dict:
+                    event_dict.pop('joy')
+
+                yield item
 
 def treat_key_event_dict(event_dict):
 
