@@ -80,6 +80,8 @@ from ..constants import (
     SIZE,
     maintain_fps,
 
+    yield_unrangefied_integers,
+
     CancelWhenPaused, pause,
 
     USER_EVENT_NAMES_MAP,
@@ -272,9 +274,11 @@ def set_behaviour(services_namespace, play_data):
 
     frame_to_keys_map = defaultdict(list)
 
-    for key_name, frames in SESSION_DATA['key_name_to_frames_map'].items():
+    for key_name, rangefied_frames in (
+        SESSION_DATA['key_name_to_frames_map'].items()
+    ):
 
-        for frame in frames:
+        for frame in yield_unrangefied_integers(rangefied_frames):
             frame_to_keys_map[frame].append(key_name)
 
 

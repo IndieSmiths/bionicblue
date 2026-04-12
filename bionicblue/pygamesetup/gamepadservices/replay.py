@@ -11,7 +11,7 @@ from collections import defaultdict
 
 ### local imports
 
-from ..constants import GENERAL_NS
+from ..constants import GENERAL_NS, yield_unrangefied_integers
 
 from .common import GAMEPAD_NS
 
@@ -35,7 +35,15 @@ def set_behaviour(play_data):
 
     clear_data()
 
-    DIRECTION_TO_FRAMES_MAP.update(play_data['gamepad_direction_to_frames_map'])
+    DIRECTION_TO_FRAMES_MAP.update(
+
+        (k, set(yield_unrangefied_integers(rangefied_integers)))
+
+        for k, rangefied_integers in (
+            play_data['gamepad_direction_to_frames_map'].items()
+        )
+
+    )
 
     load_pressed_buttons_to_frames_map(
         play_data['gamepad_pressed_buttons_to_frames_map'],
@@ -49,9 +57,9 @@ def clear_data():
 
 def load_pressed_buttons_to_frames_map(data, gamepad_controls):
 
-    for pressed_buttons, frame_set in data.items():
+    for pressed_buttons, rangefied_frame_indices in data.items():
 
-        for frame_index in frame_set:
+        for frame_index in yield_unrangefied_integers(rangefied_frame_indices):
 
             BUTTON_STATE_MAP[frame_index] = {
 
