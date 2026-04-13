@@ -58,7 +58,7 @@ from ...userprefsman.main import (
     GAMEPAD_CONTROLS,
 )
 
-from ...userprefsman.validation import RESERVED_KEYS
+from ...userprefsman.validation import RESERVED_KEYS, ARROW_KEYS
 
 from ...appinfo import APP_VERSION_STRING
 
@@ -116,15 +116,15 @@ append_mouse_key_state_request = MOUSE_KEY_STATE_REQUESTS.append
 
 ### events to keep in the recorded data;
 ###
-### all other events aren't relevant because it is not possible for
-### them to show up in recorded sessions (like video resizing events
-### or QUIT) or simply because they are not used in the app, so we
-### do not care to record them;
+### all other events aren't relevant because it is meaningless for
+### them to show up in play sessions (likely because they are not
+### used in the play session, so we do not care to record them);
 ###
-### this set must be updated whenever the app starts using other
+### this set must be updated whenever the game starts using other
 ### events not listed here (for instance, for new features)
 
 NAMES_OF_EVENTS_TO_KEEP = frozenset((
+    'QUIT',
     'JOYBUTTONDOWN',
     'JOYBUTTONUP',
     'KEYDOWN',
@@ -182,6 +182,7 @@ def set_behaviour(services_namespace):
     REC_REFS.meaningful_keys = set((
 
         *RESERVED_KEYS,
+        *ARROW_KEYS,
         *KEYBOARD_CONTROLS.values(),
 
     ))
@@ -321,12 +322,14 @@ def frame_checkups():
 
 ### session data saving operations
 
-def save_play_data():
+def save_play_data(reason_for_stopping):
 
     ### create dict wherein to save recorded data after processing it
     session_data = {}
 
     ### store data
+
+    session_data['reason_for_stopping'] = reason_for_stopping
 
     session_data['event_frames_pairs'] = get_processed_event_map(EVENTS_MAP)
 

@@ -111,7 +111,7 @@ def leave_to_main_menu():
     play_mode_name = GENERAL_NS.play_mode_name
 
     if play_mode_name == 'record':
-        GENERAL_NS.save_play_data()
+        GENERAL_NS.save_play_data('leaving_to_main_menu')
 
     elif play_mode_name == 'replay':
         GENERAL_NS.perform_replay_mode_exit_setups()

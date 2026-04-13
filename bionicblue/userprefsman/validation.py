@@ -48,6 +48,24 @@ RESERVED_KEYS = frozenset(
 
 )
 
+### arrow keys names
+
+ARROW_KEYS_NAMES = frozenset((
+    'K_UP',
+    'K_DOWN',
+    'K_RIGHT',
+    'K_LEFT',
+))
+
+### values of arrow keys named above
+
+ARROW_KEYS = frozenset(
+
+    getattr(pygame_locals, key_name)
+    for key_name in ARROW_KEYS_NAMES
+
+)
+
 
 ### keys in the controls dictionaries for keyboard and gamepad
 ### (represent actions that can be assign to keys on the keyboard

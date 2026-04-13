@@ -618,7 +618,16 @@ def did_player_ever(event_name):
         ## is happening for the firs time now)
         return False
 
+def save_recorded_data_if_any(reason_for_stopping):
+
+    gns = REFS._general_ns
+
+    if gns.play_mode_name == 'record':
+        gns.save_play_data(reason_for_stopping)
+
 def quit_game():
+
+    save_recorded_data_if_any(reason_for_stopping='quitting_game')
 
     quit_pygame()
     quit()
