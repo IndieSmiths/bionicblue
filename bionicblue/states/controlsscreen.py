@@ -59,7 +59,7 @@ from ..userprefsman.main import (
     save_config_on_disk,
 )
 
-from ..userprefsman.validation import PYGAME_KEYS_NAME_MAP, RESERVED_KEYS
+from ..userprefsman.validation import PYGAME_KEYS_NAME_MAP, RESERVED_KEYS_NAMES
 
 from ..promptscreen import present_prompt
 
@@ -600,7 +600,7 @@ class ControlsScreen:
 
             elif (
                 event.type == KEYDOWN
-                and PYGAME_KEYS_NAME_MAP[event.key] in RESERVED_KEYS
+                and PYGAME_KEYS_NAME_MAP[event.key] in RESERVED_KEYS_NAMES
             ):
 
                 present_prompt(
