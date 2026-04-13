@@ -45,7 +45,7 @@ from pygame.event import Event, get, set_allowed, set_blocked
 
 from pygame.mouse import set_pos, set_visible as set_mouse_visibility
 
-from pygame.draw import rect as draw_rect
+from pygame.draw import line as draw_line
 
 from pygame.display import update
 
@@ -77,7 +77,6 @@ from ..constants import (
     GENERAL_NS,
     GENERAL_SERVICE_NAMES,
     FPS,
-    SIZE,
     maintain_fps,
 
     yield_unrangefied_integers,
@@ -628,13 +627,17 @@ get_mouse_pressed = MOUSE_PRESSED_TUPLES.pop
 
 ### screen updating
 
-SCREEN_WIDTH = SIZE[0]
+START = Vector2(SCREEN_RECT.move(0, -1).bottomleft)
+END = Vector2(START)
+
+SCREEN_WIDTH = SCREEN_RECT.width
 
 def update_screen():
     """Extends pygame.display.update()."""
+
     ### draw progress
 
-    width = round(
+    END.x = round(
 
         # progress percentage
         abs(GENERAL_NS.frame_index / REPLAY_REFS.last_frame_index)
@@ -643,7 +646,7 @@ def update_screen():
         * SCREEN_WIDTH
     )
 
-    draw_rect(SCREEN, 'red', (0, 0, width, 1))
+    draw_line(SCREEN, 'red', START, END, 1)
 
     ### update the screen
     update()
