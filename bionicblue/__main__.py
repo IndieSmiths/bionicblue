@@ -8,21 +8,28 @@ visit its website: https://bionicblue.indiesmiths.com
 from argparse import ArgumentParser
 
 
-### local imports
+### preliminary local import (needs to be executed before
+### third-party library pygame-ce)
 
-## first ensure pygame used is the community edition fork (pygame-ce);
+## ensure pygame used is the community edition fork (pygame-ce);
 ##
 ## this is important because the app uses services that are not available
 ## in the regular pygame instance
 from .ensurepygamece import ensure_pygame_ce
 ensure_pygame_ce()
 
-## remaining local imports
+
+### third-party import
+from pygame import quit as quit_pygame
+
+
+### local imports
 
 from .config import (
     REFS,
     MUST_LOCK_PLAY,
     LoopException,
+    save_recorded_data_if_any,
     did_player_ever,
     get_play_data,
 )
@@ -144,6 +151,16 @@ def run_game(dev_directive='', replay_directive=''):
 
             if exc.prepare:
                 state.prepare()
+
+        ## unexpected error
+
+        except Exception:
+
+            save_recorded_data_if_any('unexpected_error')
+            quit_pygame()
+
+            raise
+
 
 
 

@@ -605,7 +605,7 @@ class LevelManager(
 
         if play_mode_name == 'record':
 
-            GENERAL_NS.save_play_data()
+            GENERAL_NS.save_play_data('restarting_mission')
 
             raise LoopException(
 
@@ -655,7 +655,7 @@ class LevelManager(
 
         if play_mode_name == 'record':
 
-            GENERAL_NS.save_play_data()
+            GENERAL_NS.save_play_data('completed_mission')
 
             if not did_player_ever(event_name='cleared_a_mission'):
 

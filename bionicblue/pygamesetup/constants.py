@@ -53,7 +53,7 @@ from pygame.event import (
 
 ### local imports
 
-from ..config import DATA_DIR, quit_game
+from ..config import REFS, DATA_DIR, quit_game
 
 from ..appinfo import TITLE, ABBREVIATED_TITLE
 
@@ -149,6 +149,9 @@ GENERAL_NS = type("Object", (), {})()
 
 GENERAL_NS.frame_index = -1
 GENERAL_NS.play_mode_name = 'normal'
+
+## store reference in REFS
+REFS._general_ns = GENERAL_NS
 
 
 ### name of key pygame services used by all different modes
