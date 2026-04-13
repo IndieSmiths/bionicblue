@@ -629,5 +629,10 @@ def quit_game():
 
     save_recorded_data_if_any(reason_for_stopping='quitting_game')
 
-    quit_pygame()
-    quit()
+    if REFS._general_ns.play_mode_name == 'replay':
+        REFS._general_ns.leave_to_main_menu('red')
+
+    else:
+
+        quit_pygame()
+        quit()

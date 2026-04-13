@@ -41,8 +41,10 @@ class TransitionScreen:
     showmanship/cinematography.
     """
 
-    def prepare(self, to_call_on_exit):
+    def prepare(self, to_call_on_exit, transition_color='blue'):
         """Store given callable and make extra preparations."""
+
+        self.transition_color = transition_color
 
         SOUND_MAP['ui_success.wav'].play()
 
@@ -73,7 +75,7 @@ class TransitionScreen:
     def draw(self):
 
         SCREEN.fill(
-            'blue',
+            self.transition_color,
             SCREEN_RECT.move(0, self.remaining_height),
         )
 
