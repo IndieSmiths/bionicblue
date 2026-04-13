@@ -359,6 +359,9 @@ def set_behaviour(services_namespace, play_data):
         perform_replay_mode_exit_setups
     )
 
+    ### reference function to leave to main menu
+    GENERAL_NS.leave_to_main_menu = leave_to_main_menu
+
     ### set frame index to -1 (so when it is incremented at the beginning
     ### of the loop it is set to 0, the first frame)
     GENERAL_NS.frame_index = -1
@@ -517,7 +520,7 @@ def get_events():
                 ### it here
 
                 except CancelWhenPaused:
-                    leave_replay_mode_earlier()
+                    leave_to_main_menu('darkgreen')
 
             ### toggle mouse tracing
 
@@ -527,7 +530,7 @@ def get_events():
             ### leave replaying mode earlier
 
             elif event.key == K_F7:
-                leave_replay_mode_earlier()
+                leave_to_main_menu('darkgreen')
 
     ### replay the recorded events
 
@@ -647,9 +650,23 @@ def update_screen():
 
 ### other operations
 
-def leave_replay_mode_earlier():
+def leave_to_main_menu(transition_color):
 
     perform_replay_mode_exit_setups()
+
+    transition_screen = REFS.states.transition_screen
+
+    transition_screen.prepare(
+        go_to_main_menu,
+        transition_color=transition_color,
+    )
+
+    raise LoopException(
+        next_state=transition_screen,
+        next_play_mode_name='normal',
+    )
+
+def go_to_main_menu():
 
     music_volume = (
         (USER_PREFS['MASTER_VOLUME']/100)
