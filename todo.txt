@@ -1,3 +1,4 @@
+(A) store duration of play on play data in human-friendly format (you can obtain seconds with = last_frame / FPS)
 (A) add "go back" buttons in links screen and credits screen (so gamepad users can go back);
 (A) add support to gamepad keys in screens from the main menu that lack it (try with gamepad, it should be very quick);
 (A) when user requests to erase all data, make it so both ORG and APP folders are deleted (unless ORG folder is not empty)
