@@ -238,6 +238,15 @@ def remove_extensions(filename):
 
     )
 
+# keyword arguments for pprint.pformat() and functions that use it
+
+PFORMAT_KWARGS = {
+  'indent': 2,
+  'width': 180,
+  'compact': True,
+}
+
+
 def save_and_rotate_play_data(play_data, filename_without_extension):
     """Manage compression, saving and rotation of play data as logs."""
 
@@ -272,13 +281,7 @@ def save_and_rotate_play_data(play_data, filename_without_extension):
                 filename,
 
                 ## formatted string representing play data
-
-                pformat(
-                    play_data,
-                    indent=2,
-                    width=160,
-                    compact=True,
-                )
+                pformat(play_data, **PFORMAT_KWARGS)
 
             )
 
@@ -294,12 +297,7 @@ def save_and_rotate_play_data(play_data, filename_without_extension):
 
         )
 
-        save_pyl(
-            play_data,
-            latest_log_path,
-            width=160,
-            compact=True,
-        )
+        save_pyl(play_data, latest_log_path, **PFORMAT_KWARGS)
 
     ### if first play logs don't add up to specified number of files yet
     ### (it must not exceed this quantity), copy latest added path into it;
