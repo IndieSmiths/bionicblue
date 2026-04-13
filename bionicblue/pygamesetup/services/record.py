@@ -54,8 +54,11 @@ from ...textman import render_text
 from ...userprefsman.main import (
     USER_PREFS,
     KEYBOARD_CONTROL_NAMES,
+    KEYBOARD_CONTROLS,
     GAMEPAD_CONTROLS,
 )
+
+from ...userprefsman.validation import RESERVED_KEYS
 
 from ...appinfo import APP_VERSION_STRING
 
@@ -172,6 +175,16 @@ def set_behaviour(services_namespace):
 
     REC_REFS.keyboard_control_names = deepcopy(KEYBOARD_CONTROL_NAMES)
     REC_REFS.gamepad_controls = deepcopy(GAMEPAD_CONTROLS)
+
+    ## create set with ids for meaningful keyboard keys that is used
+    ## to filter out meaningless keyboard events that happen during play
+
+    REC_REFS.meaningful_keys = set((
+
+        *RESERVED_KEYS,
+        *KEYBOARD_CONTROLS.values(),
+
+    ))
 
     ## create new dict from gamepad controls where keys and values are reversed
 
@@ -511,10 +524,28 @@ def yield_named_keys_and_mod_keys(events):
 
     for item in events:
 
-        if item[0] in ('KEYUP', 'KEYDOWN'):
-            treat_key_event_dict(item[1])
+        ## events which are not KEY... events are yielded as-is
 
-        yield item
+        if item[0] not in ('KEYUP', 'KEYDOWN'):
+            yield item
+
+        ## KEY... events are yielded with the key replaced by
+        ## the respective key name, but only if that key is
+        ## associated with an action or is one of the reserve keys
+        ## used for general interaction in the game (mostly UI though);
+        ##
+        ## otherwise they are not yielded at all (since they are meaningless
+        ## when they do not correspond to an action in the game or, in the
+        ## case of the reserved keys, other kinds of meaningful actions)
+
+        else:
+
+            event_dict = item[1]
+
+            if event_dict['key'] in REC_REFS.meaningful_keys:
+
+                treat_key_event_dict(event_dict)
+                yield item
 
 
 def yield_named_gamepad_buttons(events):
@@ -553,13 +584,13 @@ def yield_named_gamepad_buttons(events):
 
 def treat_key_event_dict(event_dict):
 
-    for key, get_treated in (
+    for dict_key, get_treated_value in (
 
         ('key', REVERSE_KEYS_MAP.__getitem__),
         ('scancode', SCANCODE_NAMES_MAP.__getitem__),
 
     ):
-        event_dict[key] = get_treated(event_dict[key])
+        event_dict[dict_key] = get_treated_value(event_dict[dict_key])
 
     ## if mod != KMOD_NONE, process it
 

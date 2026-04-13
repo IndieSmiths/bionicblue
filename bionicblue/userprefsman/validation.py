@@ -11,10 +11,21 @@ from pygame import locals as pygame_locals
 DICT_KEY_ERROR_FORMATTER = ("{!r} key not present in user preferences").format
 
 
-### keys which can only be used for their original purpose, that is, they
-### cannot be assigned to another action
+### pygame keys name map
 
-RESERVED_KEYS = frozenset((
+PYGAME_KEYS_NAME_MAP = {
+    getattr(pygame_locals, name): name
+    for name in dir(pygame_locals)
+    if name.startswith('K_')
+}
+
+PYGAME_KEYS_NAMES = frozenset(PYGAME_KEYS_NAME_MAP.values())
+
+
+### names of keys which can only be used for their original purpose, that is,
+### they cannot be assigned to another action
+
+RESERVED_KEYS_NAMES = frozenset((
 
     # used to confirm things
     'K_RETURN',
@@ -27,6 +38,15 @@ RESERVED_KEYS = frozenset((
     'K_DELETE',
 
 ))
+
+### values of keys named above
+
+RESERVED_KEYS = frozenset(
+
+    getattr(pygame_locals, key_name)
+    for key_name in RESERVED_KEYS_NAMES
+
+)
 
 
 ### keys in the controls dictionaries for keyboard and gamepad
@@ -59,16 +79,6 @@ GAMEPAD_CONTROLS_DICT_KEYS = (
     'start_button',
 
 )
-
-### pygame keys name map
-
-PYGAME_KEYS_NAME_MAP = {
-    getattr(pygame_locals, name): name
-    for name in dir(pygame_locals)
-    if name.startswith('K_')
-}
-
-PYGAME_KEYS_NAMES = frozenset(PYGAME_KEYS_NAME_MAP.values())
 
 
 
