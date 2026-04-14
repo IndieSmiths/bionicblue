@@ -62,6 +62,8 @@ from ...userprefsman.validation import RESERVED_KEYS, ARROW_KEYS
 
 from ...appinfo import APP_VERSION_STRING
 
+from ...ourstdlibs.timeutils import friendly_delta_from_secs
+
 from ..gamepadservices.common import GAMEPAD_NS
 
 from ..constants import (
@@ -84,6 +86,8 @@ from ..constants import (
     USER_EVENT_NAMES_MAP,
 
 )
+
+from .common import trim_from_msecs
 
 
 
@@ -346,7 +350,23 @@ def save_play_data(reason_for_stopping):
     session_data['mouse_key_state_requests'] = tuple(MOUSE_KEY_STATE_REQUESTS)
 
     ### store last frame index as well
-    session_data['last_frame_index'] = GENERAL_NS.frame_index + 1
+    session_data['last_frame_index'] = GENERAL_NS.frame_index
+
+    ### store human-friendly duration of session based on quantity of frames
+    ### (last_frame + 1) and framerate
+
+    session_data['session_duration'] = (
+
+        trim_from_msecs(
+            friendly_delta_from_secs(
+
+                (GENERAL_NS.frame_index + 1)
+                / FPS
+
+            )
+        )
+
+    )
 
     ### store gamepad related data
 

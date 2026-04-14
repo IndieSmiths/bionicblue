@@ -14,6 +14,7 @@ from shutil import copyfile
 
 from tempfile import mkstemp
 
+
 ## try importing the zipfile module and check whether it is working fine
 ## (although it is usually available, it has dependencies that the Python
 ## docs consider optional, so it seems there's never 100% certainty that
@@ -122,6 +123,8 @@ REFS.__dict__.update(dict(
     dialogue_character_names_set_map = {},
 
     clear_tasks = None,
+
+    replay_fps = None,
 
 ))
 
@@ -357,9 +360,20 @@ def save_and_rotate_play_data(play_data, filename_without_extension):
             path.unlink()
 
 
-def get_play_data(directive):
 
-    print("directive:", directive)
+def get_play_data(directive, replay_fps=''):
+
+    if replay_fps:
+
+        try:
+            replay_fps = int(replay_fps)
+
+        except Exception:
+            raise ValueError("given fps for replay must be an integer")
+
+        else:
+            REFS.replay_fps = replay_fps
+    ###
 
     try:
 
