@@ -54,7 +54,9 @@ from pygame.display import update
 
 from ...config import REFS, MUSIC_DIR, LoopException, quit_game
 
-from ...ourstdlibs.pyl import load_pyl, save_pyl
+from ...ourstdlibs.pyl import save_pyl
+
+from ...ourstdlibs.timeutils import friendly_delta_from_secs
 
 from ...classes2d.single import UIObject2D
 
@@ -92,6 +94,8 @@ from ..constants import (
     MOD_KEYS_MAP,
 
 )
+
+from .common import trim_from_msecs
 
 
 
@@ -210,34 +214,46 @@ def set_behaviour(services_namespace, play_data):
     ## set random seed
     seed(SESSION_DATA['random_seed'])
 
-    ### retrieve playback speed and last frame index
+    ### retrieve playback speed and quantity of frames (last frame index
+    ### + 1)
 
-    playback_speed = FPS
-    last_frame_index = SESSION_DATA['last_frame_index']
+    playback_speed = (
+        REFS.replay_fps
+        if isinstance(REFS.replay_fps, int)
+        else FPS
+    )
 
-    ### store playback speed, last frame index and recording width
+    quantity_of_frames = SESSION_DATA['last_frame_index'] + 1
+
+    ### store playback speed and quantity of frames
 
     REPLAY_REFS.fps = playback_speed
-    REPLAY_REFS.last_frame_index = last_frame_index
+    REPLAY_REFS.quantity_of_frames = quantity_of_frames
 
     ### print duration
 
+    normal_duration = SESSION_DATA['session_duration']
 
-    if playback_speed:
+    if playback_speed == FPS:
+        duration_text = f"Duration: ~{normal_duration} with {FPS} fps"
+
+
+    elif playback_speed:
 
         duration = (
-
-            get_formatted_duration(
-                frame_quantity=last_frame_index,
-                frames_per_second=playback_speed,
+            trim_from_msecs(
+                friendly_delta_from_secs(quantity_of_frames / playback_speed)
             )
-
         )
 
-        duration_text = f"Duration: ~{duration}"
+        duration_text = f"Duration: ~{duration} with {playback_speed} fps"
 
     else:
-        duration_text = "No duration (uncapped speed)"
+
+        duration_text = (
+            "Unknown duration (using uncapped speed);"
+            f" normal duration would be {normal_duration}"
+        )
 
     print(duration_text)
 
@@ -640,10 +656,18 @@ def update_screen():
     END.x = round(
 
         # progress percentage
-        abs(GENERAL_NS.frame_index / REPLAY_REFS.last_frame_index)
+
+        (
+            # frames elapsed
+            (GENERAL_NS.frame_index + 1)
+
+            / REPLAY_REFS.quantity_of_frames
+
+        )
 
         # full width
         * SCREEN_WIDTH
+
     )
 
     draw_line(SCREEN, 'red', START, END, 1)
@@ -744,30 +768,3 @@ def frame_checkups():
     ### store data and post custom events for gamepad
     ### directional triggers
     GAMEPAD_NS.prepare_data_and_events()
-
-
-### small utility
-
-def get_formatted_duration(frame_quantity, frames_per_second):
-    """Return specially formatted duration."""
-    duration = ""
-
-    total_seconds = round(frame_quantity/frames_per_second)
-
-    minutes, seconds = divmod(total_seconds, 60)
-
-    if minutes >= 1:
-
-        duration += f"{minutes}min"
-
-        if minutes >= 2:
-            duration += "s"
-
-    if seconds >= 1:
-
-        duration += f"{seconds}sec"
-
-        if seconds >= 2:
-            duration += "s"
-
-    return duration

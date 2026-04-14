@@ -48,7 +48,7 @@ from .translatedtext import TRANSLATIONS
 
 
 
-def run_game(dev_directive='', replay_directive=''):
+def run_game(dev_directive='', replay_directive='', replay_fps=''):
     """Run the game loop."""
 
     if MUST_LOCK_PLAY:
@@ -79,7 +79,7 @@ def run_game(dev_directive='', replay_directive=''):
         if replay_directive:
 
             try:
-                play_data = get_play_data(replay_directive)
+                play_data = get_play_data(replay_directive, replay_fps)
 
             except Exception as err:
 
@@ -90,7 +90,7 @@ def run_game(dev_directive='', replay_directive=''):
                 print()
                 print("Starting game in normal mode instead.")
 
-                ### TODO show prompt here telling user what went wrong
+                ### XXX show prompt here telling user what went wrong
 
                 ### pick state according to dev directive
 
@@ -187,9 +187,19 @@ if __name__ == '__main__':
         ),
     )
 
+    ap.add_argument(
+        '-f', '--replay-fps',
+        default='',
+        help=(
+            "speed of replay in frames per second;"
+            " only used when replay directive is given"
+        ),
+    )
+
     parsed_args = ap.parse_args()
 
     run_game(
         dev_directive=parsed_args.dev_directive,
         replay_directive=parsed_args.replay_directive,
+        replay_fps=parsed_args.replay_fps,
     )
