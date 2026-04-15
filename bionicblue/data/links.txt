@@ -9,5 +9,6 @@
 {donate}
     [patreon/KennedyRichard](https://patreon.com/KennedyRichard)
     [GitHub Sponsors/KennedyRichard](https://github.com/sponsors/KennedyRichard)
+    [Apoia.se - Brazil](https://apoia.se/kennedyrichard)
     [Ko-fi/KennedyRichard](https://ko-fi.com/KennedyRichard)
     [{other_donation_options}](https://indiesmiths.com/donate)
