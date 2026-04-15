@@ -61,6 +61,7 @@ from ..userprefsman.main import (
     USER_PREFS,
     DEFAULT_USER_PREFS,
     GAMEPAD_CONTROLS,
+    KEYBOARD_CONTROLS,
     save_config_on_disk,
 )
 
@@ -328,9 +329,21 @@ class OptionsScreen:
                 if event.key == K_ESCAPE:
                     self.go_back()
 
-                elif event.key in (K_UP, K_DOWN):
+                elif event.key in (
+                    K_UP,
+                    K_DOWN,
+                    KEYBOARD_CONTROLS['up'],
+                    KEYBOARD_CONTROLS['down'],
+                ):
 
-                    increment = -1 if event.key == K_UP else 1
+                    increment = (
+
+                        -1 
+                        if event.key in (K_UP, KEYBOARD_CONTROLS['up'])
+
+                        else 1
+
+                    )
 
                     self.current_index = (
                         (self.current_index + increment)
@@ -341,13 +354,18 @@ class OptionsScreen:
                         self.widgets[self.current_index]
                     )
 
-                elif event.key in (K_LEFT, K_RIGHT):
+                elif event.key in (
+                    K_LEFT,
+                    K_RIGHT,
+                    KEYBOARD_CONTROLS['left'],
+                    KEYBOARD_CONTROLS['right'],
+                ):
 
                     hw = self.highlighted_widget
 
                     if isinstance(hw, HundredSlider):
 
-                        if event.key == K_LEFT:
+                        if event.key in (K_LEFT, KEYBOARD_CONTROLS['left']):
                             hw.decrement()
 
                         else:
@@ -355,6 +373,9 @@ class OptionsScreen:
 
                     elif isinstance(hw, Checkbutton):
                         hw.toggle_value()
+
+                    elif isinstance(hw, LanguagePicker):
+                        hw.command()
 
                 elif event.key == K_RETURN:
 
@@ -409,6 +430,9 @@ class OptionsScreen:
 
                     elif isinstance(hw, Checkbutton):
                         hw.toggle_value()
+
+                    elif isinstance(hw, LanguagePicker):
+                        hw.command()
 
             elif event.type == MOUSEBUTTONDOWN:
 

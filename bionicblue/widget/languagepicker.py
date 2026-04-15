@@ -51,7 +51,7 @@ from ..classes2d.single import UIObject2D
 
 from ..classes2d.collections import UIList2D
 
-from ..userprefsman.main import USER_PREFS, GAMEPAD_CONTROLS
+from ..userprefsman.main import USER_PREFS, GAMEPAD_CONTROLS, KEYBOARD_CONTROLS
 
 from ..translatedtext import AVAILABLE_LOCALES, LANGUAGE_NAMES_MAP
 
@@ -312,9 +312,22 @@ class LanguagePicker(UIObject2D):
                 elif event.key == K_RETURN:
                     self.pick_selected_option()
 
-                elif event.key in (K_UP, K_DOWN):
+                elif event.key in (
+                    K_UP,
+                    K_DOWN,
+                    KEYBOARD_CONTROLS['up'],
+                    KEYBOARD_CONTROLS['down'],
+                ):
 
-                    rotation = 1 if event.key == K_UP else -1
+                    rotation = (
+
+                        1 
+                        if event.key in (K_UP, KEYBOARD_CONTROLS['up'])
+
+                        else -1
+
+                    )
+
                     self.options_deque.rotate(rotation)
 
                     self.update_images()
