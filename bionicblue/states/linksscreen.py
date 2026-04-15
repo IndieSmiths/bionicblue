@@ -238,19 +238,52 @@ class LinksScreen:
 
             y = obj.rect.bottom + 3
 
-        self.links = [
+        go_back_button = self.go_back_button = (
+
+            UIObject2D.from_surface(
+
+                surface=(
+
+                    render_text(
+                        TRANSLATIONS.general.go_back,
+                        **LABEL_TEXT_SETTINGS,
+                    )
+
+                ),
+
+                command=self.go_back,
+
+            )
+
+        )
+
+        go_back_button.rect.topleft = (5, y+10)
+
+        items.append(go_back_button)
+
+        self.buttons = [
+
             obj
             for obj in items
-            if hasattr(obj, 'url')
+
+            if (
+                hasattr(obj, 'url')
+                or hasattr(obj, 'command')
+            )
+
         ]
 
-        self.link_count = len(self.links)
+        self.button_count = len(self.buttons)
 
         ###
 
         self.url_to_netloc_map = url_to_netloc_map = {
-            link.url: urlparse(link.url).netloc
-            for link in self.links
+
+            button.url: urlparse(button.url).netloc
+            for button in self.buttons
+
+            if hasattr(button, 'url')
+
         }
 
         self.netloc_to_text_obj_map = {
@@ -275,13 +308,19 @@ class LinksScreen:
 
         link_icons = self.link_icons = UIList2D()
 
-        for link in self.links:
+        for button in self.buttons:
 
-            netloc = url_to_netloc_map[link.url]
-            icon_name = NETLOC_TO_ICON_NAME_MAP.get(netloc, 'domain_icon.png')
+            if not hasattr(button, 'url'):
+                continue
+
+            netloc = url_to_netloc_map[button.url]
+
+            icon_name = (
+                NETLOC_TO_ICON_NAME_MAP.get(netloc, 'domain_icon.png')
+            )
 
             icon_obj = UIObject2D.from_surface(SURF_MAP[icon_name])
-            icon_obj.rect.midright = link.rect.move(-5, 0).midleft
+            icon_obj.rect.midright = button.rect.move(-5, 0).midleft
 
             link_icons.append(icon_obj)
 
@@ -291,19 +330,26 @@ class LinksScreen:
     def prepare(self):
 
         self.current_index = 0
-        self.highlighted_widget = self.links[self.current_index]
-        self.align_link()
+        self.highlighted_widget = self.buttons[self.current_index]
+        self.align_button()
         self.update_open_link_label()
 
     def on_language_change(self):
 
-        ### update caption
+        ### update caption and go back button
 
         update_text_surface(
             self.caption,
             t.caption,
             TITLE_TEXT_SETTINGS,
             pos_to_align='midtop',
+        )
+
+        update_text_surface(
+            self.go_back_button,
+            TRANSLATIONS.general.go_back,
+            LABEL_TEXT_SETTINGS,
+            pos_to_align='midleft',
         )
 
         ### update labels
@@ -344,19 +390,24 @@ class LinksScreen:
 
     def update_open_link_label(self):
 
-        self.open_link_label = (
+        if hasattr(self.highlighted_widget, 'url'):
 
-            self.netloc_to_text_obj_map[
+            self.open_link_label = (
 
-                self.url_to_netloc_map[
-                    self.highlighted_widget.url
+                self.netloc_to_text_obj_map[
+
+                    self.url_to_netloc_map[
+                        self.highlighted_widget.url
+                    ]
+
                 ]
 
-            ]
+            )
 
-        )
+        else:
+            self.open_link_label = None
 
-    def align_link(self):
+    def align_button(self):
 
         centery = self.highlighted_widget.rect.centery
         screen_centery = SCREEN_RECT.centery
@@ -380,27 +431,23 @@ class LinksScreen:
 
                     self.current_index = (
                         (self.current_index + increment)
-                        % self.link_count
+                        % self.button_count
                     )
 
                     self.highlighted_widget = (
-                        self.links[self.current_index]
+                        self.buttons[self.current_index]
                     )
 
-                    self.align_link()
+                    self.align_button()
                     self.update_open_link_label()
 
                 elif event.key == K_RETURN:
-
-                    hw = self.highlighted_widget
-                    open_url(hw.url)
+                    self.execute_highlighted_button()
 
             elif event.type == JOYBUTTONDOWN:
 
                 if event.button == GAMEPAD_CONTROLS['start_button']:
-
-                    hw = self.highlighted_widget
-                    open_url(hw.url)
+                    self.execute_highlighted_button()
 
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 
@@ -410,14 +457,14 @@ class LinksScreen:
 
                     self.current_index = (
                         (self.current_index + increment)
-                        % self.link_count
+                        % self.button_count
                     )
 
                     self.highlighted_widget = (
-                        self.links[self.current_index]
+                        self.buttons[self.current_index]
                     )
 
-                    self.align_link()
+                    self.align_button()
                     self.update_open_link_label()
 
             elif event.type == MOUSEBUTTONDOWN:
@@ -434,6 +481,17 @@ class LinksScreen:
             elif event.type == QUIT:
                 quit_game()
 
+
+    def execute_highlighted_button(self):
+
+        hw = self.highlighted_widget
+
+        if hasattr(hw, 'url'):
+            open_url(hw.url)
+
+        else:
+            hw.command()
+
     def go_back(self):
 
         main_menu = REFS.states.main_menu
@@ -441,25 +499,23 @@ class LinksScreen:
 
         raise LoopException(next_state=main_menu)
 
-    def to_playtesters_screen(self):
-
-        playtesters_screen = REFS.states.playtesters_screen 
-        playtesters_screen.prepare()
-
-        raise LoopException(next_state=playtesters_screen)
-
     def on_mouse_click(self, event):
 
         pos = event.pos
 
-        for index, obj in enumerate(self.links):
+        for index, obj in enumerate(self.buttons):
 
             if obj.rect.collidepoint(pos):
 
                 self.current_index = index
                 self.highlighted_widget = obj
                 self.update_open_link_label()
-                open_url(obj.url)
+
+                if hasattr(obj, 'url'):
+                    open_url(obj.url)
+
+                else:
+                    obj.command()
 
                 break
 
@@ -467,7 +523,7 @@ class LinksScreen:
 
         pos = event.pos
 
-        for index, obj in enumerate(self.links):
+        for index, obj in enumerate(self.buttons):
 
             if obj.rect.collidepoint(pos):
 
@@ -495,6 +551,7 @@ class LinksScreen:
             1,
         )
 
-        self.open_link_label.draw()
+        if self.open_link_label is not None:
+            self.open_link_label.draw()
 
         SERVICES_NS.update_screen()
