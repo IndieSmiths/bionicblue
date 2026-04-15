@@ -58,6 +58,8 @@ from ..translatedtext import TRANSLATIONS, on_language_change
 
 from ..promptscreen import present_prompt
 
+from ..appinfo import ORG_DIR_NAME
+
 
 ###
 
@@ -464,14 +466,25 @@ class DataScreen:
             get_available_path_in_home(),
         )
 
+        present_prompt(
+
+            t.prompt.successful_copying.caption,
+            t.prompt.successful_copying.message,
+
+            (
+                (TRANSLATIONS.general.go_back, None),
+            ),
+
+        )
+
     def erase_all_data_on_confirmation(self):
 
         must_erase_everything = (
 
             present_prompt(
 
-                t.erase_data_prompt.caption,
-                t.erase_data_prompt.message,
+                t.prompt.erase_data.caption,
+                t.prompt.erase_data.message,
 
                 (
                     (TRANSLATIONS.general.no, False),
@@ -484,7 +497,39 @@ class DataScreen:
 
         if must_erase_everything:
 
+            ## delete writeable path (data for the game)
             rmtree(str(WRITEABLE_PATH))
+
+            ## if parent of writeable path is our org folder and there are
+            ## no other content in it, delete it as well;
+            ##
+            ## when there's more content in it we don't delete, since it is
+            ## very likely user data for other projects that are part of the
+            ## parent project (other apps/games) and that might be still needed
+
+            parent = WRITEABLE_PATH.parent
+
+            if (
+                parent.name == ORG_DIR_NAME
+                and not any(parent.iterdir())
+            ):
+                rmtree(str(parent))
+
+            ###
+
+            present_prompt(
+
+                t.prompt.successful_deletion.caption,
+                t.prompt.successful_deletion.message,
+
+                (
+                    (t.prompt.successful_deletion.bye, None),
+                ),
+
+            )
+
+            ###
+
             quit_game()
 
     def update(self):
