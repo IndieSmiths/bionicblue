@@ -132,6 +132,7 @@ NETLOC_TO_ICON_NAME_MAP = {
     'x.com': 'xtwitter_icon.png',
     'youtube.com': 'youtube_icon.png',
     'discord.gg': 'discord_icon.png',
+    'apoia.se': 'apoia_se_icon.png',
 
     # otherwise: 'domain_icon.png'
 
