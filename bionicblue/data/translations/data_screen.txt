@@ -89,14 +89,45 @@ second_button_explanation
         pt-br Por último, como algumas das pastas deletadas são necessárias para que o jogo funcione, uma vez que você confirme a deleção, fecharemos o jogo. Então você poderá desinstalá-lo sabendo que nenhum dado foi deixado para trás. Se ao invés disso você executar o jogo, ele criará aquelas pasta de novo automaticamente.
 
 
-erase_data_prompt
+prompt
 
-    caption
+    successful_copying
 
-        en-us Erase all data
-        pt-br Apagar todos os dados
+        caption
 
-    message
+            en-us Copying went well
+            pt-br Cópia concluída com sucesso
 
-        en-us Are you absolutely sure you want to erase all local user data for this game? (if you confirm, we'll erase everything and quit the game; the game will still work fine if you desire to launch it again)
-        pt-br Tem absoluta certeza de que quer apagar todos os dados locais de usuários para estea jogo? (se confirmar, apagaremos tudo e saíremos do jogo; o jogo ainda funcionará normalmente if você desejar executá-lo novamente)
+        message
+
+            en-us It seems copying the user data to the home folder went well. It should be possible to see the new folder there.
+            pt-br Parece que copiar os dados de usuário para a pasta de usuário deu certo. Você já deve poder ver a nova pasta lá.
+
+    erase_data
+
+        caption
+
+            en-us Erase all data
+            pt-br Apagar todos os dados
+
+        message
+
+            en-us Are you absolutely sure you want to erase all local user data for this game? (if you confirm, we'll erase everything and quit the game; the game will still work fine if you desire to launch it again)
+            pt-br Tem absoluta certeza de que quer apagar todos os dados locais de usuários para estea jogo? (se confirmar, apagaremos tudo e saíremos do jogo; o jogo ainda funcionará normalmente if você desejar executá-lo novamente)
+
+    successful_deletion
+
+        caption
+
+            en-us Erasing went well
+            pt-br Remoção dos dados concluída com sucesso
+
+        message
+
+            en-us It seems erasing all user data for the game went well. Thank you for playing! Hope we see you again soon!
+            pt-br Parece que apagar todos os dados de usuário deste jogo deu certo. Obrigado por jogar! Esperamos poder te ver de novo em breve!
+
+        bye
+
+            en-us Bye
+            pt-br Adeus
