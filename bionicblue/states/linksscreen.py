@@ -53,7 +53,7 @@ from ..classes2d.collections import UIList2D
 
 from ..textman import render_text, update_text_surface
 
-from ..userprefsman.main import GAMEPAD_CONTROLS
+from ..userprefsman.main import GAMEPAD_CONTROLS, KEYBOARD_CONTROLS
 
 from ..translatedtext import TRANSLATIONS, on_language_change
 
@@ -425,9 +425,21 @@ class LinksScreen:
                 if event.key == K_ESCAPE:
                     self.go_back()
 
-                elif event.key in (K_UP, K_DOWN):
+                elif event.key in (
+                    K_UP,
+                    K_DOWN,
+                    KEYBOARD_CONTROLS['up'],
+                    KEYBOARD_CONTROLS['down'],
+                ):
 
-                    increment = -1 if event.key == K_UP else 1
+                    increment = (
+
+                        -1
+                        if event.key in (K_UP, KEYBOARD_CONTROLS['up'])
+
+                        else 1
+
+                    )
 
                     self.current_index = (
                         (self.current_index + increment)

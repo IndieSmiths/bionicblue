@@ -279,14 +279,9 @@ class DataScreen:
 
                 elif self.highlighted_button is not None:
 
-                    if event.key in (K_UP, K_DOWN):
-
-                        self.act_on_action_representing_motion(
-                            True if event.key == K_UP else False
-                        )
-
-
-                    elif event.key in (
+                    if event.key in (
+                        K_UP,
+                        K_DOWN,
                         KEYBOARD_CONTROLS['up'],
                         KEYBOARD_CONTROLS['down'],
                     ):
@@ -294,7 +289,7 @@ class DataScreen:
                         self.act_on_action_representing_motion(
 
                             True
-                            if event.key == KEYBOARD_CONTROLS['up']
+                            if event.key in (K_UP, KEYBOARD_CONTROLS['up'])
 
                             else False
 
@@ -313,8 +308,8 @@ class DataScreen:
             elif event.type == GAMEPADDIRECTIONALPRESSED:
 
                 if (
-                    event.direction in ('up', 'down')
-                    and self.highlighted_button is not None
+                    self.highlighted_button is not None
+                    and event.direction in ('up', 'down')
                 ):
 
                     self.act_on_action_representing_motion(
@@ -324,8 +319,8 @@ class DataScreen:
             elif event.type == MOUSEBUTTONDOWN:
 
                 if (
-                    event.button == 1
-                    and self.highlighted_button is not None
+                    self.highlighted_button is not None
+                    and event.button == 1
                 ):
                     self.on_mouse_click(event)
 

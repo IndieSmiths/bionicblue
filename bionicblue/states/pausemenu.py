@@ -36,7 +36,7 @@ from ..pygamesetup.constants import (
     blit_on_screen,
 )
 
-from ..userprefsman.main import GAMEPAD_CONTROLS
+from ..userprefsman.main import GAMEPAD_CONTROLS, KEYBOARD_CONTROLS
 
 from ..config import (
     REFS,
@@ -332,9 +332,22 @@ class PauseMenu:
                 elif event.key == K_RETURN:
                     self.execute_selected()
 
-                elif event.key in (K_UP, K_DOWN):
+                elif event.key in (
+                    K_UP,
+                    K_DOWN,
+                    KEYBOARD_CONTROLS['up'],
+                    KEYBOARD_CONTROLS['down'],
+                ):
 
-                    steps = -1 if event.key == K_UP else 1
+                    steps = (
+
+                        -1
+                        if event.key in (K_UP, KEYBOARD_CONTROLS['up'])
+
+                        else 1
+
+                    )
+
                     self.select_another(steps)
 
             elif event.type == JOYBUTTONDOWN:
