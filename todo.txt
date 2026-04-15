@@ -1,5 +1,4 @@
-(A) add "go back" buttons in links screen and credits screen (so gamepad users can go back);
-(A) add support to gamepad keys in screens from the main menu that lack it (try with gamepad, it should be very quick);
+(A) add support to gamepad and keyboard keys in screens from the main menu that lack it (try with gamepad, it should be very quick);
 (A) when user requests to erase all data, make it so both ORG and APP folders are deleted (unless ORG folder is not empty)
 (A) on data screen, show message confirming data was copied/erased
 (A) remove soft lock
@@ -12,8 +11,9 @@
     - invite people and collect play data
 (C) release stable version on PyPI, GitHub and itch (GitHub releases and itch must include executables; check options using wine app, etc.)
 (D) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
+x add "go back" buttons in links screen and credits screen (so gamepad users can go back);
 x store duration of play on play data in human-friendly format (you can obtain seconds with = last_frame / FPS)
-# make it so users can provide custom fps for replay
+x make it so users can provide custom fps for replay
 x make it so quitting the game from pause menu or level manager states also save the play data when in record mode
 x modernize play logging: make adjustments, add support for gamepad data
 x position bionic blue title at the correct position beforehand, on resource loader (so after exiting replay mode it is already at the right spot)
