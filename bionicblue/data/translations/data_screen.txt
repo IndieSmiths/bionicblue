@@ -39,21 +39,21 @@ first_button_explanation
 
     paragraph00
 
-        en-us The first button is called "Copy to home folder". As the name implies, it copies all user data to the home folder. More precisely, this data is saved within a new folder inside your home folder. This is just a convenience so you don't need to look for such data yourself.
+        en-us The first button is called "Copy to home folder". As the name implies, it copies all user data to the home folder. More precisely, this data is saved in your home folder either within a new ".zip" file or within a new folder created therein. This is just a convenience so you don't need to look for such data yourself.
 
-        pt-br O primeiro botão se chama "Copiar para pasta de usuário". Como o nome indica, ele copia todos os dados para pasta de usuário. Mais precisamente, estes dados são salvos dentro de uma nova pasta dentro da sua pasta de usuário. Esta é apenas uma conveniência para você não ter de procurar esses dados você mesmo.
+        pt-br O primeiro botão se chama "Copiar para pasta de usuário". Como o nome indica, ele copia todos os dados para pasta de usuário. Mais precisamente, estes dados são salvos na sua pasta de usuário dentro de um arquivo ".zip" ou dentro de uma nova pasta criada naquele local. Esta é apenas uma conveniência para você não ter de procurar esses dados você mesmo.
 
     paragraph01
 
-        en-us This new folder will be called "bionic_blue_user_data" or, if a folder with such name already exists, "bionic_blue_user_data_000" and so on.
+        en-us This new zip file or folder will be called "bionic_blue_user_data[.zip]" or, if a file/folder with such name already exists, "bionic_blue_user_data_000[.zip]" and so on.
 
-        pt-br Esta nova pasta se chamará "bionic_blue_user_data" ou, se uma pasta com esse nome já existe, "bionic_blue_user_data_000" e assim por diante.
+        pt-br Este novo arquivo zip ou pasta se chamará "bionic_blue_user_data[.zip]" ou, se um arquivo zip/pasta com esse nome já existir, "bionic_blue_user_data_000[.zip]" e assim por diante.
 
     paragraph02
 
-        en-us This folder contains configurations, save files, but also logs of your play sessions. These logs in particular are useful to help me (the developer) fix a bug if you find one or analyse your play session in order to improve the game.
+        en-us This zip file/folder contains configurations, save files, but also logs of your play sessions. These logs in particular are useful to help me (the developer) fix a bug if you find one or analyse your play session in order to improve the game.
 
-        pt-br Esta pasta contém configurações, arquivos de "save"/progresso, mas também logs de suas sessões de jogo. Esses logs em particular são úteis para ajudar a mim (o desenvolvedor) a corrigir bugs caso você encontre algum or analizar sua sessão de jogo a fim de melhorar o jogo.
+        pt-br Este arquivo zip/pasta contém configurações, arquivos de "save"/progresso, mas também logs de suas sessões de jogo. Esses logs em particular são úteis para ajudar a mim (o desenvolvedor) a corrigir bugs caso você encontre algum ou analizar sua sessão de jogo a fim de melhorar o jogo.
 
     paragraph03
 

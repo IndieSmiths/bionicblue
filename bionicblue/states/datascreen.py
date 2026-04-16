@@ -60,6 +60,17 @@ from ..promptscreen import present_prompt
 
 from ..appinfo import ORG_DIR_NAME
 
+from ..ourstdlibs.ziputils import (
+    ZIP_STORAGE_AVAILABLE,
+    store_dir_contents_in_zip,
+)
+
+### conditional standard library imports
+
+if ZIP_STORAGE_AVAILABLE:
+    from zipfile import ZipFile, ZIP_STORED
+
+
 
 ###
 
@@ -461,10 +472,17 @@ class DataScreen:
 
     def copy_data_to_home_folder(self):
 
-        copytree(
-            str(WRITEABLE_PATH),
-            get_available_path_in_home(),
-        )
+        destination_path = get_available_path_in_home()
+
+        if destination_path.suffix == '.zip':
+            store_dir_contents_in_zip(WRITEABLE_PATH, destination_path)
+
+        else:
+
+            copytree(
+                str(WRITEABLE_PATH),
+                str(destination_path),
+            )
 
         present_prompt(
 
@@ -604,8 +622,9 @@ def get_available_path_in_home():
     while True:
 
         destination_path = home_dir / chosen_name
+        destination_zip_path = destination_path.with_suffix('.zip')
 
-        if destination_path.exists():
+        if destination_path.exists() or destination_zip_path.exists():
 
             chosen_name = (
                 base_name
@@ -616,4 +635,12 @@ def get_available_path_in_home():
         else:
             break
 
-    return str(destination_path)
+
+    return (
+
+        destination_zip_path
+        if ZIP_STORAGE_AVAILABLE
+
+        else destination_path
+
+    )
