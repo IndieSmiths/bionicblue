@@ -1,8 +1,4 @@
-"""General configuration for game.
-
-The zipfile usage here was created with much help from this tutorial:
-https://pymotw.com/3/zipfile/
-"""
+"""General configuration for game."""
 
 ### standard library import
 
@@ -12,50 +8,6 @@ from datetime import datetime
 
 from shutil import copyfile
 
-from tempfile import mkstemp
-
-
-## try importing the zipfile module and check whether it is working fine
-## (although it is usually available, it has dependencies that the Python
-## docs consider optional, so it seems there's never 100% certainty that
-## they'll be available);
-##
-## in the process create a flag variable to indicate whether compression is
-## available or not based on the success of the import and checks
-##
-## if import and check succeed, also import pprint.pformat and
-## ast.literal_eval, since we use them to save data before it is
-## compressed and to treat data after loading and decompressing it,
-## respectively
-
-_temp_archive_path = Path(mkstemp(suffix='zip', text=False)[1])
-
-try:
-
-    import zipfile
-
-    with zipfile.ZipFile(
-
-        str(_temp_archive_path),
-        mode='w',
-        compression=zipfile.ZIP_DEFLATED,
-
-    ) as archive:
-
-        archive.writestr('file.pyl', "{'hello': 'world'}")
-
-except Exception:
-    _COMPRESSION_AVAILABLE = False
-
-else:
-
-    _COMPRESSION_AVAILABLE = True
-
-    from pprint import pformat
-    from ast import literal_eval
-
-
-_temp_archive_path.unlink()
 
 
 ### third-party imports
@@ -70,6 +22,22 @@ from pygame.system import get_pref_path
 from .appinfo import ORG_DIR_NAME, APP_DIR_NAME, APP_VERSION_STRING
 
 from .ourstdlibs.pyl import save_pyl, load_pyl
+
+from .ourstdlibs.ziputils import ZIP_COMPRESSION_AVAILABLE
+
+
+### further conditional standard library imports
+###
+### if zip compression is available, import utilities from zipfile,
+### pprint and ast, which we'll use to save compressed Python literals
+### as .zip files
+
+if ZIP_COMPRESSION_AVAILABLE:
+
+    from zipfile import ZIP_DEFLATED, ZipFile
+
+    from pprint import pformat
+    from ast import literal_eval
 
 
 
@@ -202,7 +170,7 @@ for dir_path in (
 
 ### playlogging compressing (when available), saving and rotating
 
-if _COMPRESSION_AVAILABLE:
+if ZIP_COMPRESSION_AVAILABLE:
 
     NO_OF_REGULAR_LOGS = 40
     NO_OF_FIRST_LOGS = 20
@@ -256,7 +224,7 @@ def save_and_rotate_play_data(play_data, filename_without_extension):
     ## save play data, with or without compression, depending on availability
     ## of compression
 
-    if _COMPRESSION_AVAILABLE:
+    if ZIP_COMPRESSION_AVAILABLE:
 
         ## build log path
 
@@ -271,11 +239,11 @@ def save_and_rotate_play_data(play_data, filename_without_extension):
         ## create archive and save play data in it after turning such data
         ## into pretty-formatted string
 
-        with zipfile.ZipFile(
+        with ZipFile(
 
             str(latest_log_path),
             mode='w',
-            compression=zipfile.ZIP_DEFLATED,
+            compression=ZIP_DEFLATED,
 
         ) as archive:
 
@@ -446,7 +414,7 @@ def get_play_data(directive, replay_fps=''):
     ### in case the path has indeed a zip extension, only proceed if
     ### compression/decompression is available
 
-    if has_zip_extension and not _COMPRESSION_AVAILABLE:
+    if has_zip_extension and not ZIP_COMPRESSION_AVAILABLE:
 
         raise ValueError(
             "Can't replay log file because it is a zip file and we don't"
@@ -469,7 +437,7 @@ def get_play_data(directive, replay_fps=''):
         ## open the archive, extract the decompressed data and turn it into
         ## the play data
 
-        with zipfile.ZipFile(str(path), mode='r') as archive:
+        with ZipFile(str(path), mode='r') as archive:
 
             play_data = (
 
