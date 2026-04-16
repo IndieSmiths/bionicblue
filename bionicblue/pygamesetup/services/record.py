@@ -87,8 +87,6 @@ from ..constants import (
 
 )
 
-from .common import trim_from_msecs
-
 
 
 ### utility
@@ -357,13 +355,17 @@ def save_play_data(reason_for_stopping):
 
     session_data['session_duration'] = (
 
-        trim_from_msecs(
-            friendly_delta_from_secs(
+        friendly_delta_from_secs(
+
+            round(
+
+                # number of seconds as a float
 
                 (GENERAL_NS.frame_index + 1)
                 / FPS
 
             )
+
         )
 
     )
