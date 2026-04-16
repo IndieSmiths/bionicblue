@@ -95,8 +95,6 @@ from ..constants import (
 
 )
 
-from .common import trim_from_msecs
-
 
 
 ### dictionary to store session data
@@ -241,9 +239,18 @@ def set_behaviour(services_namespace, play_data):
     elif playback_speed:
 
         duration = (
-            trim_from_msecs(
-                friendly_delta_from_secs(quantity_of_frames / playback_speed)
+
+            friendly_delta_from_secs(
+
+                round(
+
+                    # number of seconds as a float
+                    quantity_of_frames / playback_speed
+
+                )
+
             )
+
         )
 
         duration_text = f"Duration: ~{duration} with {playback_speed} fps"
