@@ -187,7 +187,7 @@ def set_behaviour(services_namespace, play_data):
 
     if SESSION_DATA['locale'] != USER_PREFS['LOCALE']:
 
-        USER_PREFS['LOCALE'] = SESSION_DATA['LOCALE']
+        USER_PREFS['LOCALE'] = SESSION_DATA['locale']
         on_language_change()
 
     ## back up current keyboard and gamepad controls and use the ones 
