@@ -1,3 +1,4 @@
+
 continue
     en-us Continue
     pt-br Continuar
@@ -25,3 +26,9 @@ credits
 exit
     en-us Exit
     pt-br Sair
+
+
+version
+
+    en-us Version
+    pt-br Versão
