@@ -65,6 +65,8 @@ from ..classes2d.collections import UIList2D
 
 from ..userprefsman.main import KEYBOARD_CONTROLS, GAMEPAD_CONTROLS
 
+from ..appinfo import APP_VERSION_STRING
+
 from ..translatedtext import TRANSLATIONS, on_language_change
 
 
@@ -83,6 +85,13 @@ SELECTED_TEXT_SETTINGS = {
     'size': 12,
     'padding': 2,
     'foreground_color': 'orange',
+}
+
+VERSION_TEXT_SETTINGS = {
+    'style': 'regular',
+    'size': 12,
+    'padding': 2,
+    'foreground_color': 'white',
 }
 
 
@@ -204,6 +213,24 @@ class MainMenu:
 
         self.control = self.control_item_selection
         self.update = do_nothing
+
+        ### create and position label showing version
+
+        self.version_label = (
+
+            UIObject2D.from_surface(
+                
+                render_text(
+                    t.version + ' ' + APP_VERSION_STRING,
+                    **VERSION_TEXT_SETTINGS,
+
+                ),
+                coordinates_name='bottomleft',
+                coordinates_value=SCREEN_RECT.move(1, -1).bottomleft,
+
+            )
+
+        )
 
         ### store method to update text surfaces when language changes
         on_language_change.append(self.on_language_change)
@@ -336,6 +363,23 @@ class MainMenu:
 
         for obj in self.full_items:
             obj.rect = unhighlighted_surf_map[obj.key].get_rect()
+
+        ### recreate surface for label showing version and update its rect
+        ### size (the bottomleft should be the same)
+
+        image = self.version_label.image = (
+
+            render_text(
+                t.version + ' ' + APP_VERSION_STRING,
+                **VERSION_TEXT_SETTINGS,
+            )
+
+        )
+
+        rect = self.version_label.rect
+        bottomleft = rect.bottomleft
+        rect.size = image.get_size()
+        rect.bottomleft = bottomleft
 
     def highlight_selected(self):
 
@@ -542,6 +586,8 @@ class MainMenu:
         blit_on_screen(BLACK_BG, (0, 0))
 
         REFS.bb_title.draw()
+
+        self.version_label.draw()
 
         self.items.draw()
 
