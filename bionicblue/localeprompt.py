@@ -50,7 +50,11 @@ from .classes2d.collections import UIList2D
 
 from .translatedtext import AVAILABLE_LOCALES, LANGUAGE_NAMES_MAP
 
-from .userprefsman.main import USER_PREFS, save_config_on_disk
+from .userprefsman.main import (
+    USER_PREFS,
+    KEYBOARD_CONTROLS,
+    save_config_on_disk,
+)
 
 
 
@@ -205,9 +209,21 @@ class LocalePrompt:
                 elif event.key == K_RETURN:
                     self.pick_selected_locale()
 
-                elif event.key in (K_UP, K_DOWN):
+                elif event.key in (
+                    K_UP,
+                    K_DOWN,
+                    KEYBOARD_CONTROLS['up'],
+                    KEYBOARD_CONTROLS['down'],
+                ):
 
-                    increment = 1 if event.key == K_UP else -1
+                    increment = (
+
+                        1
+                        if event.key in (K_UP, KEYBOARD_CONTROLS['up'])
+
+                        else -1
+
+                    )
 
                     self.current_index = (
                         (
