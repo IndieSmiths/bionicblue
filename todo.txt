@@ -1,13 +1,13 @@
-(A) remove soft lock
-(B) playtest with few close acquaintances
+(A) playtest with few close acquaintances
     - write playtesting instructions (don't publish yet)
     - upload rc1 to PyPI
     - test everything manually once more
     - publish play test instructions to GitHub discussions
     - create release post on GitHub (linking to playtesting instructions discussion)
     - invite people and collect play data
-(C) release stable version on PyPI, GitHub and itch (GitHub releases and itch must include executables; check options using wine app, etc.)
-(D) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
+(B) release stable version on PyPI, GitHub and itch (GitHub releases and itch must include executables; check options using wine app, etc.)
+(C) make web version (won't be included in first release; will likely need new task for a password screen in order not to rely on local storage)
+x remove soft lock
 x when user requests to erase all data, make it so both ORG and APP folders are deleted (unless ORG folder is not empty)
 x on data screen, show message confirming data was copied/erased
 x add support to gamepad and keyboard keys in screens lack it
