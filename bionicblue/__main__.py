@@ -27,7 +27,6 @@ from pygame import quit as quit_pygame
 
 from .config import (
     REFS,
-    MUST_LOCK_PLAY,
     LoopException,
     save_recorded_data_if_any,
     did_player_ever,
@@ -36,78 +35,48 @@ from .config import (
 
 from .pygamesetup import SERVICES_NS, switch_mode
 
-from .promptscreen import prompt_to_dismiss_with_any_button
-
 from .localeprompt import LocalePrompt
 
 from .resourceloader import ResourceLoader
 
 from .states import setup_states
 
-from .translatedtext import TRANSLATIONS
-
 
 
 def run_game(dev_directive='', replay_directive='', replay_fps=''):
     """Run the game loop."""
 
-    if MUST_LOCK_PLAY:
+    if not did_player_ever(event_name='chose_a_locale'):
+        LocalePrompt().prompt_for_locale()
 
-        prompt_to_dismiss_with_any_button(
-            TRANSLATIONS.soft_lock_prompt.caption,
-            TRANSLATIONS.soft_lock_prompt.message,
-        )
+    ### load resources and setup states
 
-        return
-
-    else:
-
-        if not did_player_ever(event_name='chose_a_locale'):
-            LocalePrompt().prompt_for_locale()
-
-        ### load resources and setup states
-
-        ResourceLoader().load_resources()
-        setup_states()
+    ResourceLoader().load_resources()
+    setup_states()
 
 
-        ### act according to directives
+    ### act according to directives
 
-        ### if replay directive is given, try setting state and play mode
-        ### according to it
+    ### if replay directive is given, try setting state and play mode
+    ### according to it
 
-        if replay_directive:
+    if replay_directive:
 
-            try:
-                play_data = get_play_data(replay_directive, replay_fps)
+        try:
+            play_data = get_play_data(replay_directive, replay_fps)
 
-            except Exception as err:
+        except Exception as err:
 
-                print("Couldn't load play data.")
-                print()
-                print("Error described below:")
-                print(err)
-                print()
-                print("Starting game in normal mode instead.")
+            print("Couldn't load play data.")
+            print()
+            print("Error described below:")
+            print(err)
+            print()
+            print("Starting game in normal mode instead.")
 
-                ### XXX show prompt here telling user what went wrong
+            ### XXX show prompt here telling user what went wrong
 
-                ### pick state according to dev directive
-
-                if dev_directive == 'title_screen':
-                    state = REFS.states.title_screen
-
-                else:
-                    state = REFS.states.logos_screen
-
-            else:
-
-                switch_mode('replay', play_data)
-                state = REFS.states.level_manager
-
-        ### pick state according to dev directive
-
-        else:
+            ### pick state according to dev directive
 
             if dev_directive == 'title_screen':
                 state = REFS.states.title_screen
@@ -115,8 +84,23 @@ def run_game(dev_directive='', replay_directive='', replay_fps=''):
             else:
                 state = REFS.states.logos_screen
 
-        ### prepare state
-        state.prepare()
+        else:
+
+            switch_mode('replay', play_data)
+            state = REFS.states.level_manager
+
+    ### pick state according to dev directive
+
+    else:
+
+        if dev_directive == 'title_screen':
+            state = REFS.states.title_screen
+
+        else:
+            state = REFS.states.logos_screen
+
+    ### prepare state
+    state.prepare()
 
     while True:
 

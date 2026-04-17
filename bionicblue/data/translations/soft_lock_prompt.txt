@@ -1,4 +1,7 @@
 
+### only used when working in a topic branch to at least help people
+### resist the urge to sneak a peek before the content is released
+
 caption
     en-us Message from developer
     pt-br Mensagem do desenvolvedor
