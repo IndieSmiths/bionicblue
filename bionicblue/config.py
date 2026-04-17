@@ -125,8 +125,6 @@ REPORTS_DIR = DATA_DIR / 'reports'
 NO_COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'no_colorkey'
 COLORKEY_IMAGES_DIR = IMAGES_DIR  / 'colorkey'
 
-MUST_LOCK_PLAY = not (DATA_DIR.parent.parent / 'play').exists()
-
 ###
 
 SURF_MAP = {}
