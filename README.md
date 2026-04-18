@@ -1,24 +1,29 @@
 # Bionic Blue (by Kennedy Guerra)
 
-Bionic Blue is an action platformer game featuring a bionic boy tasked with protecting humanity against dangerous robots. It is a desktop game completely free of charge and dedicated to the public domain.
+Bionic Blue is an action platformer game featuring a bionic boy tasked with protecting humanity against dangerous robots.
+
+> [!NOTE]
+> This game is a work in progress with playable content already available. To follow its progress, you can check the CHANGELOG.md file and the activity view of this repository.
 
 ![Title image](https://i.imgur.com/tjBQKXp.png)
 
 ![Screenshot](https://i.imgur.com/Pe9abBl.gif)
 
+It is a desktop game completely free of charge and whose code is dedicated to the public domain (the vast majority of the art is proprietary, but you can download and play the game for free, forever, and use its code on your own projects; the proprietary art is just a measure to prevent fraudsters from redistributing the game for a fee and/or with malicious harmful software or deceiving people by falsely claiming authorship of the game).
+
 > [!CAUTION]
-> Given the complexity of this project, it has multiple elements/assets that are subject to different licenses. All of its code was made by me ([Kennedy R. S. Guerra][]) and is open-source software with the goal of allowing people to play it for free, forever, and learn from its code. However, people cannot copy, relicense and redistribute/sell this game, because all the writing and the vast majority of its art/visual assets are mine, these are not in the public domain. Check the "Licenses" section at the end of this README file for more info and details.
+> Given the complexity of this project, it has multiple elements/assets that are subject to different licenses. All of its code was made by me ([Kennedy R. S. Guerra][]) and is open-source software with the goal of allowing people to play it for free, forever, and learn from its code. However, people cannot copy, relicense and redistribute/sell this game, because all the writing and the vast majority of its art/visual assets are mine, these are not in the public domain. Check the "Licenses" section at the end of this README file for more info and details. Again, as stated previously, the proprietary art is a measure to help prevent malicious and harmful use of the project. It does not limit your freedom to play and keep a copy of the game as an end-user.
 
 This project is part of the [Indie Smiths](https://github.com/IndieSmiths) project (formerly know as Indie Python project) and has a [dedicated website](https://bionicblue.indiesmiths.com) where you can find more info about it.
 
 It is made in [Python](https://github.com/python/cpython)/[pygame-ce](https://github.com/pygame-community/pygame-ce) targeting desktop platforms where Python is available like Windows, Mac and Linux.
 
-This game was created by [Kennedy R. S. Guerra][](me), who also develops/maintains it. I wrote all the code/systems, did all the writing and created the vast majority of the art (check the "Licenses" section for more info on that.
+This game was created by [Kennedy R. S. Guerra][](me), who also develops/maintains it. I wrote all the code/systems, did all the writing and created the vast majority of the art (check the "Licenses" section for more info on that).
 
 
 ## Support the game
 
-Please, support the Bionic Blue game and other useful software of the Indie Smiths project by becoming our patron on [patreon][]. You can also make recurrent donations using [github sponsors][], [liberapay][] or [Ko-fi][].
+Please, support the Bionic Blue game and other useful software of the Indie Smiths project by becoming our patron on [patreon][]. You can also make recurrent donations using [github sponsors][], [apoia.se (Brazil)][], [liberapay][] or [Ko-fi][].
 
 Both [github sponsors][] and [Ko-fi][] also accept one-time donations.
 
@@ -40,6 +45,9 @@ pip install bionicblue
 ```
 
 Depending on your system, you might need to use the `pip3` command instead of the `pip` command above. That's all you should need.
+
+> [!IMPORTANT]
+> By default, the `pip` command above doesn't install pre-releases (alpha, beta, release candidate and other versions like these). So, if the version you want to play is a pre-release version, you'll have to provide the version like this: `pip install bionicblue==0.13.0rc1`, or add the `--pre` option like this: `pip install bionicblue --pre` (which will install the latest release, regardless of whether it is a pre-release or not).
 
 This will install the `pygame-ce` library (pygame community edition fork) as well, if not already present. To run the installed game, all you need now is to run the `bionicblue` command.
 
@@ -73,36 +81,45 @@ Enter (return) and escape keys are reserved for confirming and exitting/going ba
 
 Regarding the gamepad, the user doesn't need to configure directional buttons/triggers. Those are detected and managed automatically. The user only needs to configure the gamepad for actions like shooting, jumping, etc.
 
+There are also actions for switching between available powers, but at the time of writing, we didn't add content/functionality to enable the character to use different powers yet.
+
 
 ## Semantic versioning for games
 
-Since [semantic versioning](https://semver.org/spec/v2.0.0.html) doesn't map well to game project versions, this is the meaning I adopt here:
+This project adheres to the numbering scheme of [Semantic Versioning](https://semver.org/spec/v2.0.0.html), that is, the **X**.**Y**.**Z** scheme.
 
-In a **X**.**Y**.**Z** version...
+However, we use different meanings for the numbers: every time meaningful/playable content is added, we increase the minor number. If such addition completes the game, we set the major number to 1.
 
-**X** is always either 0 or 1. If it is 0, the game isn't finished, that is, it isn't in the state the creator envisioned for it. If it is 1, then the game is in that state and thus we consider it finished.
+All other changes are indicated in what would normally be the numbering for indicating patches/fixes, including additions/improvements/removals in code or game design. This is so because in a game project, we assume people are more eager for changes in play.
 
-Even when the game is finished (X is 1), the game may still get new features, fixes, content, etc., though, in much the same way finished games can still get patches or DLCs. Such additions/changes won't increment X though, only Y and Z, depending on the specific changes.
+In other words, it is a content-centric/play-centric approach which I think is more suited to game projects.
 
-In semantic versioning, incrementign X indicates breaking changes, but since a game is just an executable, not a library with a public API, there's no reason to think of it like that here, so as we explained, we are only concerned with whether the game is finished or not.
+This way is also simpler for players to follow the project: they can focus their attention on the leading numbering (major and minor). The major one to know when the game is completed or not and the minor one to know when to look forward to new playable content on the game.
 
-**Y** and **Z** more closely resemble their meaning in semantic versioning. **Y** is incremented whenever new features or content are added to the game or when changes are made. And **Z** is incremented whenever a fix is introduced.
+On top of that, the CHANGELOG.md has a dedicated "Play" subsection at the top of each new version listed, except the "patch" versions (since, as explained, they don't contain changes in play). This way players and followers can immediately see the relevant changes in play.
+
+If we add content after completing the game, like DLCs or extra stuff, we also increase the minor number, but never touch the major number again. After all, it is still the same game. If we were to make a sequel or prequel, etc., rather than increasing the major number, we would create a new repository altogether, since we'd consider it different project.
+
+Another slight difference is that for pre-releases we don't use separators between the patch number and the pre-release letters (for instance, we use `0.13.0rc1` rather than `0.13.0-rc1`, which seems to be the recommended format for Python projects uploaded to the Python Package Index.
+
+In semantic versioning, incrementing X indicates breaking changes, but since a game is just an executable, not a library with a public API, there's no reason to think of it like that here, so as we explained, we are only concerned with whether the game is finished or not.
+
+Another slight difference is that for pre-releases we don't use separators between the patch number and the pre-release letters (for instance, we use `0.13.0rc1` rather than `0.13.0-rc1`, which seems to be the recommended format for Python projects uploaded to the Python Package Index).
 
 
 ## Contributing
 
 Keep in mind this is a game project, so it has a design and finite set of features defined by its creator (me, Kennedy Guerra) according to his vision. In this sense, it is not much different from a book project, which is usually not a very collaborative project, except for the editor's work.
 
-In other words, as much as we love contributions in general in the Indie Smiths project, for this game project we would like the contributions to be limited to refactoring/optimizing/fixes, rather than changing the design/content of the game.
+In other words, as much as we love contributions in general in the Indie Smiths project (like the several contributions made for the [nodezator](https://github.com/IndieSmiths/nodezator) project), for this game project we turned the pull requests off. Keeping the project with a single author also simples licensing issues in the future.
 
-Additionally, when submitting pull requests (PRs), please, submit them to the `develop` branch, not the `main` branch. This way we can refine/complement the changes before merging them with `main`.
-
-If in doubt, please [start a discussion](https://github.com/IndieSmiths/bionicblue/discussions) first, in order to discuss what you would like to change.
+If you have game design ideas or ideas to improve/optimize the code, I'm always eager to learn about them. Consider [starting a discussion](https://github.com/IndieSmiths/bionicblue/discussions) for that. Even if you don't figure as a code contributor, I may even list you in the game's credits screen.
 
 
 ## Issues
 
-Issues are reserved for things that crash the game or otherwise prevent the user from progressing in the game. Please, if you're not certain, [start a discussion](https://github.com/IndieSmiths/bionicblue/discussions) instead. It can always be converted into an issue later if needed.
+Issues are reserved for things that crash the game or otherwise prevent the user from progressing in the game. Please, if your problem doesn't crash the game or prevent it from being played, or if you're not certain, [start a discussion](https://github.com/IndieSmiths/bionicblue/discussions) instead. It can always be converted into an issue later if needed.
+
 
 ## Contact
 
@@ -123,7 +140,11 @@ I released the code/systems to the public domain with [The Unlicense](https://un
 
 Why is that? Because only the code/systems are in the public domain. All the writing/story and the vast majority of the art/visual assets, elements that I made on my own **are not** in the public domain. I have all the rights to them and you don't have permission nor the right to use them in your projects nor redistribute/sell them.
 
-Put another way, you can copy the game, but you are free to use the underlying code as you see fit, because the underlying code is public domain. You can use the code with no fear or restrictions.
+As I stated before in a previous section, the proprietary art is a measure to prevent fraudsters from redistributing the game for a fee and/or with malicious harmful software or help prevent them from deceiving people by falsely claiming authorship of the game
+
+Put another way, you can not copy the game, but you are free to use the underlying code as you see fit, because the underlying code is public domain. You can use the code with no fear or restrictions.
+
+Above all else, you are always free to download and play this game, and keep a copy of it backed up at all times.
 
 All the remaining assets, that is, a very small portion of the visual assets and all sound effects and music were made by other people and used within the terms of their respective licenses, mostly the CC0 license. All those creators were also properly credited in the game.
 
@@ -132,7 +153,7 @@ No genAI/LLMs were use to make this game. Also, when possible, I checked to make
 
 ## Why the name on game's title
 
-Making games is arduous and honest work. Musicians, illustrators and many other professionals always sign their works. People who make games should not be afraid of doing so as well. Check [Bennett Foddy and Zach Gage's video](https://www.youtube.com/watch?v=N4UFC0y1tY0) to learn more about this.
+Making games is arduous, laborious and honest work. Musicians, illustrators and many other professionals always sign their works. People who make games should not be afraid of doing so as well. Check [Bennett Foddy and Zach Gage's video](https://www.youtube.com/watch?v=N4UFC0y1tY0) to learn more about this.
 
 
 
@@ -141,6 +162,7 @@ Making games is arduous and honest work. Musicians, illustrators and many other 
 [Kennedy R. S. Guerra]: https://kennedyrichard.com
 [patreon]: https://patreon.com/KennedyRichard
 [github sponsors]: https://github.com/sponsors/KennedyRichard
+[apoia.se (Brazil)]: https://apoia.se/kennedyrichard
 [liberapay]: https://liberapay.com/KennedyRichard
 [Ko-fi]: https://ko-fi.com/kennedyrichard
 [donation page]: https://indiesmiths.com/donate
