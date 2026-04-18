@@ -233,7 +233,7 @@ def set_behaviour(services_namespace, play_data):
     normal_duration = SESSION_DATA['session_duration']
 
     if playback_speed == FPS:
-        duration_text = f"Duration: ~{normal_duration} with {FPS} fps"
+        duration_text = f"Duration: ~{normal_duration} at {FPS} fps"
 
 
     elif playback_speed:
@@ -253,7 +253,7 @@ def set_behaviour(services_namespace, play_data):
 
         )
 
-        duration_text = f"Duration: ~{duration} with {playback_speed} fps"
+        duration_text = f"Duration: ~{duration} at {playback_speed} fps"
 
     else:
 
