@@ -11,7 +11,7 @@ Bionic Blue is an action platformer game featuring a bionic boy tasked with prot
 
 It is a desktop game completely free of charge and whose code is dedicated to the public domain (the vast majority of the art is proprietary, but you can download and play the game for free, forever, and use its code on your own projects; the proprietary art is just a measure to prevent fraudsters from redistributing the game for a fee and/or with malicious harmful software or deceiving people by falsely claiming authorship of the game).
 
-> [!CAUTION]
+> [!IMPORTANT]
 > Given the complexity of this project, it has multiple elements/assets that are subject to different licenses. All of its code was made by me ([Kennedy R. S. Guerra][]) and is open-source software with the goal of allowing people to play it for free, forever, and learn from its code. However, people cannot copy, relicense and redistribute/sell this game, because all the writing and the vast majority of its art/visual assets are mine, these are not in the public domain. Check the "Licenses" section at the end of this README file for more info and details. Again, as stated previously, the proprietary art is a measure to help prevent malicious and harmful use of the project. It does not limit your freedom to play and keep a copy of the game as an end-user.
 
 This project is part of the [Indie Smiths](https://github.com/IndieSmiths) project (formerly know as Indie Python project) and has a [dedicated website](https://bionicblue.indiesmiths.com) where you can find more info about it.
