@@ -6,38 +6,35 @@ The zipfile usage here was created with help from this tutorial:
 https://pymotw.com/3/zipfile/ and, of course, the Python docs.
 """
 
-from pathlib import Path
-
-from tempfile import mkstemp
+from tempfile import TemporaryFile
 
 
 
 ### try importing the zipfile module and check whether it is working fine
 ### for non-compressed storage
 
-_temp_archive_path = Path(mkstemp(suffix='zip', text=False)[1])
 
 try:
 
     from zipfile import ZipFile, ZIP_STORED
 
-    with ZipFile(
+    with TemporaryFile() as temp:
 
-        str(_temp_archive_path),
-        mode='w',
-        compression=ZIP_STORED,
+        with ZipFile(
 
-    ) as archive:
+            temp,
+            mode='w',
+            compression=ZIP_STORED,
 
-        archive.writestr('file.pyl', "{'hello': 'world'}")
+        ) as archive:
+
+            archive.writestr('file.pyl', "{'hello': 'world'}")
 
 except Exception:
     ZIP_STORAGE_AVAILABLE = False
 
 else:
     ZIP_STORAGE_AVAILABLE = True
-
-_temp_archive_path.unlink()
 
 
 ### create additional utilities/flags depending on whether storage is available
@@ -56,29 +53,27 @@ if ZIP_STORAGE_AVAILABLE:
     ## in the process create a flag variable to indicate whether compression is
     ## available or not based on the success of the operation
 
-    _temp_archive_path = Path(mkstemp(suffix='zip', text=False)[1])
-
     try:
 
         from zipfile import ZIP_DEFLATED
 
-        with ZipFile(
+        with TemporaryFile() as temp:
 
-            str(_temp_archive_path),
-            mode='w',
-            compression=ZIP_DEFLATED,
+            with ZipFile(
 
-        ) as archive:
+                temp,
+                mode='w',
+                compression=ZIP_DEFLATED,
 
-            archive.writestr('file.pyl', "{'hello': 'world'}")
+            ) as archive:
+
+                archive.writestr('file.pyl', "{'hello': 'world'}")
 
     except Exception:
         ZIP_COMPRESSION_AVAILABLE = False
 
     else:
         ZIP_COMPRESSION_AVAILABLE = True
-
-    _temp_archive_path.unlink()
 
 
     ### create a function to zip an entire folder without compression
