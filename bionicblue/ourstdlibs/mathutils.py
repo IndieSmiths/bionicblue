@@ -91,20 +91,6 @@ def get_straight_distance(point_a, point_b):
         Each is represented by a list or tuple with two
         values: x and y respectively. For instance: (x, y).
 
-    Illustration:
-                 ._ _
-        (point a)|\   |
-                 | \s |
-              dy |  \ |
-                 |   \|
-                 |_ _ .(point b)
-                   dx
-
-        where:
-        s  = the straight distance  (straight_distance)
-        dy = the distance on y axis (distance_x)
-        dx = the distance on x axis (distance_y)
-
     >>> a, b = (10, 10), (20, 20)
     >>> round(get_straight_distance(a, b), 2)
     14.14
