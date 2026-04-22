@@ -44,7 +44,7 @@ Donate = "https://indiesmiths.com/donate"
 
 
 [project.gui-scripts]
-bionicblue = "bionicblue.__main__:run_game"
+bionicblue = "bionicblue.entryutility:run_game_with_args"
 
 [build-system]
 requires = ["setuptools>=59.6"]
