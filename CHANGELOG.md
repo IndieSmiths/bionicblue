@@ -19,7 +19,37 @@ If we add content after completing the game (major version 1), like DLCs or extr
 Another slight difference is that for pre-releases we don't use separators between the patch number and the pre-release letters (for instance, we use `0.13.0rc1` rather than `0.13.0-rc1`, which seems to be the recommended format for Python projects uploaded to the Python Package Index).
 
 
-## [0.13.0rc1] - 2026-04-17
+## [0.13.0] - 2026-04-22
+
+### Added
+
+- now that changes from pre-releases made it into a stable release, could finally add updated visuals/media to README.md
+
+
+## [0.13.0rc3] - 2026-04-22
+
+### Added
+
+- utilities for custom etnry from various spots that allow usage of custom command line arguments
+- utility to get new unexistent path (temporary or not), for various usages
+
+
+## [0.13.0rc2] - 2026-04-18
+
+### Fixed
+
+- bug causing crash on launch on Windows
+
+### Removed
+
+- ascii art in docstring of function that was being misinterpreted as escape sequences on Windows and raising warning
+
+### Changed
+
+- slight improvement of wording in README.md
+
+
+## [0.13.0rc1] - 2026-04-18
 
 This is a very substantial pre-release which consists, above all else, of the addition of the first complete playable mission of the game. This represents at least a few months of content creation and layout plus more than a year of game systems development to support that content.
 
@@ -60,4 +90,7 @@ This is a very substantial pre-release which consists, above all else, of the ad
 All these versions up to 0.12.2 represent the early versions of the game as a prototype. The playable content consisted only of a small area a couple of screens wide with a few stationary enemies. Once that content was added, subsequent changes within those versions consisted only of code/system improvements.
 
 
+[0.13.0]: https://github.com/IndieSmiths/bionicblue/releases/tag/v0.13.0
+[0.13.0rc3]: https://github.com/IndieSmiths/bionicblue/releases/tag/v0.13.0rc3
+[0.13.0rc2]: https://github.com/IndieSmiths/bionicblue/releases/tag/v0.13.0rc2
 [0.13.0rc1]: https://github.com/IndieSmiths/bionicblue/releases/tag/v0.13.0rc1

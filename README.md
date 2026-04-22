@@ -5,9 +5,17 @@ Bionic Blue is an action platformer game featuring a bionic boy tasked with prot
 > [!NOTE]
 > This game is a work in progress with playable content already available. To follow its progress, you can check the CHANGELOG.md file and the activity view of this repository.
 
-![Title image](https://i.imgur.com/tjBQKXp.png)
+<p align="center">
+  <img src="https://bionicblue.indiesmiths.com/images/bblue_intro.gif" alt="Gif with first few seconds of first mission"/>
+</p>
 
-![Screenshot](https://i.imgur.com/Pe9abBl.gif)
+<p align="center">
+  <img src="https://bionicblue.indiesmiths.com/images/bblue_main_menu_en_us.gif" alt="Gif with main menu in English (US)"/>
+</p>
+
+<p align="center">
+  <img src="https://bionicblue.indiesmiths.com/images/bblue_box_art_480.png" alt="Box art for Bionic Blue game"/>
+</p>
 
 It is a desktop game completely free of charge and whose code is dedicated to the public domain (the vast majority of the art is proprietary, but you can download and play the game for free, forever, and use its code on your own projects; the proprietary art is just a measure to prevent fraudsters from redistributing the game for a fee and/or with malicious harmful software or deceiving people by falsely claiming authorship of the game).
 
@@ -16,7 +24,7 @@ It is a desktop game completely free of charge and whose code is dedicated to th
 
 This project is part of the [Indie Smiths](https://github.com/IndieSmiths) project (formerly know as Indie Python project) and has a [dedicated website](https://bionicblue.indiesmiths.com) where you can find more info about it.
 
-It is made in [Python](https://github.com/python/cpython)/[pygame-ce](https://github.com/pygame-community/pygame-ce) targeting desktop platforms where Python is available like Windows, Mac and Linux.
+It is made with [Python](https://github.com/python/cpython)/[pygame-ce](https://github.com/pygame-community/pygame-ce) targeting desktop platforms where Python is available like Windows, Mac and Linux.
 
 This game was created by [Kennedy R. S. Guerra][](me), who also develops/maintains it. I wrote all the code/systems, did all the writing and created the vast majority of the art (check the "Licenses" section for more info on that).
 
@@ -47,22 +55,36 @@ pip install bionicblue
 Depending on your system, you might need to use the `pip3` command instead of the `pip` command above. That's all you should need.
 
 > [!IMPORTANT]
-> By default, the `pip` command above doesn't install pre-releases (alpha, beta, release candidate and other versions like these). So, if the version you want to play is a pre-release version, you'll have to provide the version like this: `pip install bionicblue==0.13.0rc1`, or add the `--pre` option like this: `pip install bionicblue --pre` (which will install the latest release, regardless of whether it is a pre-release or not).
+> By default, the `pip` command above doesn't install pre-releases (alpha, beta, release candidate and other versions like these). So, if the version you want to play is a pre-release version, you'll have to provide the specific version like this: `pip install bionicblue==0.13.0rc1`, or use the following command: `pip install --pre bionicblue` (the `--pre` option will make sure the latest version is installed even if it is a pre-release.
 
-This will install the `pygame-ce` library (pygame community edition fork) as well, if not already present. To run the installed game, all you need now is to run the `bionicblue` command.
+This will install the `pygame-ce` library (pygame community edition fork) as well, if not already present.
+
+Then, in order to launch the installed game, all you need now is to run the `bionicblue` command. Alternatively, you can also run it with `python -m bionicblue` (perhaps you might need to use the word `python3` instead, depending on your system).
 
 
 ### If you want to use as a standalone program
 
-Download the `bionicblue` folder in the top of the repository folder. Then, if you have the `pygame-ce` library (pygame community edition fork) installed in the Python instance you'll use to run the game, you just need to execute the command below in the directory where you put the `bionicblue` folder:
+Download the repository's source. Then, if you have the `pygame-ce` library (pygame community edition fork) installed in the Python instance you'll use to run the game, you have to do one of the following things:
 
-```python
+You can either execute the `run_bionic_blue.py` script at the top of the directory like this...
+
+```bash
+python run_bionic_blue.py
+```
+
+If you are on Windows, clicking the file will likely already execute it (and launch the game without problems if your Python instance has pygame-ce installed in it).
+
+Alternatively, you can also run the game like this: execute the command below in the directory where you put the `bionicblue` folder (you must be in a location where, when you list the directory contents, you are able to see the `bionicblue` folder and the `README.md` file):
+
+```bash
 python -m bionicblue
 ```
 
-Depending on your system, you might need to use the `python3` command instead of the `python` command above. That's all you should need.
+Depending on your system, you might need to use `python3` instead of `python` in the commands above.
 
-However, if the pygame installed in the Python instance used to run the game isn't pygame-ce the game won't launch. Instead, a dialog will appear explaining the problem and providing instructions to replace your pygame installation by the community edition fork. Both regular pygame and the community edition fork (pygame-ce) are great, but the game can only run with pygame-ce because it uses services that are available solely in that library.
+However, if the pygame installed in the Python instance used to run the game isn't pygame-ce the game won't launch. Instead, a dialog will appear explaining the problem and providing instructions to replace your pygame installation by the community edition fork.
+
+Both regular pygame and the community edition fork (pygame-ce) are great, but the game can only run with pygame-ce because it uses services that are available solely in that library.
 
 
 ## Controls
