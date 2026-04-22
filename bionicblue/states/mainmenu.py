@@ -600,8 +600,12 @@ class MainMenu:
 
 def start_new_game():
 
-    timestamp_slot_name = get_custom_datetime_str_for_default_slot_name()
     last_played_date = get_custom_datetime_str_for_last_played()
+
+    ### XXX replace this portion of the function (used to retrieve path
+    ### for new slot file) by a call to function from ourstdlibs/pathutils.py
+
+    timestamp_slot_name = get_custom_datetime_str_for_default_slot_name()
 
     save_slot_name = timestamp_slot_name
 
@@ -621,6 +625,8 @@ def start_new_game():
 
         else:
             break
+
+    ###
 
     slot_data = {
         'last_played_date': last_played_date,

@@ -13,8 +13,6 @@ from operator import or_ as bitwise_or
 
 from copy import deepcopy
 
-from tempfile import mkstemp
-
 from random import seed
 
 
@@ -57,6 +55,8 @@ from ...config import REFS, MUSIC_DIR, LoopException, quit_game
 from ...ourstdlibs.pyl import save_pyl
 
 from ...ourstdlibs.timeutils import friendly_delta_from_secs
+
+from ...ourstdlibs.pathutils import get_available_path_on_dir
 
 from ...classes2d.single import UIObject2D
 
@@ -177,7 +177,15 @@ def set_behaviour(services_namespace, play_data):
     ## slot data and path
 
     REFS.slot_data = slot_data = SESSION_DATA['slot_data']
-    REFS.slot_path = slot_path = Path(mkstemp(suffix='.pyl', text=True)[1])
+
+    REFS.slot_path = slot_path = (
+
+        get_available_path_on_dir(
+            suffix='.pyl',
+            base_name='bionic_blue_temp_slot',
+        )
+
+    )
 
     save_pyl(slot_data, slot_path)
 

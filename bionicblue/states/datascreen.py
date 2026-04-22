@@ -472,6 +472,10 @@ class DataScreen:
 
     def copy_data_to_home_folder(self):
 
+        # XXX replace get_available_path_in_home by function
+        # from ourstdlibs/pathutils.py, setting the suffix to
+        # '.zip' or '' (empty) based on whether zip storage is
+        # available
         destination_path = get_available_path_in_home()
 
         if destination_path.suffix == '.zip':
