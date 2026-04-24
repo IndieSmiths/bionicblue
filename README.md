@@ -129,13 +129,10 @@ In semantic versioning, incrementing X indicates breaking changes, but since a g
 Another slight difference is that for pre-releases we don't use separators between the patch number and the pre-release letters (for instance, we use `0.13.0rc1` rather than `0.13.0-rc1`, which seems to be the recommended format for Python projects uploaded to the Python Package Index).
 
 
-## Contributing
+## Contributing/translating
 
-Keep in mind this is a game project, so it has a design and finite set of features defined by its creator (me, Kennedy Guerra) according to his vision. In this sense, it is not much different from a book project, which is usually not a very collaborative project, except for the editor's work.
+For contributing code or translations, check the [CONTRIBUTING.md](CONTRIBUTING.md) or [TRANSLATIONS.md](TRANSLATIONS.md) file, respectively.
 
-In other words, as much as we love contributions in general in the Indie Smiths project (like the several contributions made for the [nodezator](https://github.com/IndieSmiths/nodezator) project), for this game project we turned the pull requests off. Keeping the project with a single author also makes it easier to avoid licensing issues.
-
-If you have game design ideas or ideas to improve/optimize the code, I'm always eager to learn about them. Consider [starting a discussion](https://github.com/IndieSmiths/bionicblue/discussions) for that. Even if you don't figure as a code contributor, I may even list you in the game's credits screen.
 
 
 ## Issues
